@@ -27,7 +27,7 @@ def get_mask_com(mask):
     x,y = mask.nonzero()
     return np.mean(x),np.mean(y)
 
-def splitNpil(mask,com,n_slices):
+def split_npil(mask,com,n_slices):
     '''
     Splits a neuropil mask into n slices
     
@@ -81,7 +81,7 @@ def splitNpil(mask,com,n_slices):
         
     return masks
    
-def shift_2darray(a,shift=1,axis=None):
+def shift_2d_array(a,shift=1,axis=None):
     '''
     Shifts an entire array in the direction of axis by the amount shift, without refilling the array. 
     
@@ -162,23 +162,23 @@ def get_npil_mask(mask,iterations=15):
             # move polygon around one pixel in each 8 directions
             for dx in [-1,0,1]: # x direction
                 for dy in [-1,0,1]: # y direction
-                    movedmask = shift_2darray(refmask,dx,0)
-                    movedmask = shift_2darray(movedmask,dy,1)
+                    movedmask = shift_2d_array(refmask,dx,0)
+                    movedmask = shift_2d_array(movedmask,dy,1)
                     masks[count+1][movedmask] = True
         elif case==0:
             # move polygon around one pixel in each 4 cardinal direction
             for dx in [-1,1]: # x direction
-                movedmask = shift_2darray(refmask,dx,0)
+                movedmask = shift_2d_array(refmask,dx,0)
                 masks[count+1][movedmask] = True
             for dy in [-1,1]: # y direction
-                movedmask = shift_2darray(refmask,dy,1)
+                movedmask = shift_2d_array(refmask,dy,1)
                 masks[count+1][movedmask] = True
         elif case==1:
             # move polygon around one pixel in each 4 diagonal direction
             for dx in [-1,1]: # x direction
                 for dy in [-1,1]: # y direction
-                    movedmask = shift_2darray(refmask,dx,0)
-                    movedmask = shift_2darray(movedmask,dy,1)
+                    movedmask = shift_2d_array(refmask,dx,0)
+                    movedmask = shift_2d_array(movedmask,dy,1)
                     masks[count+1][movedmask] = True
 
         masks[count+1][mask]      = False
@@ -212,7 +212,7 @@ def getmasks_npil(cellMask,nNpil=4,iterations=15):
     com = get_mask_com(cellMask)    
     
     # split it up in nNpil neuropils
-    masks_split = splitNpil(mask,com,nNpil)
+    masks_split = split_npil(mask,com,nNpil)
     
     return masks_split
 
@@ -270,7 +270,7 @@ def getmasks(rois,shpe):
     return masks
 
 
-def findROIedge(mask):
+def find_roi_edge(mask):
     ''' Finds the edges of a mask 
      Define kernel such that:
          1 1 1
@@ -301,7 +301,7 @@ def findROIedge(mask):
 #    con = np.zeros(np.shape(mask))
 #    for i in [-1,0,1]:
 #        for j in [-1,0,1]:
-#            con+=npil.shift_2darray(npil.shift_2darray(mask,shift=i,axis=0),shift=j,axis=0)
+#            con+=shift_2d_array(shift_2d_array(mask,shift=i,axis=0),shift=j,axis=0)
 #    con-=mask
     
     return(np.logical_and(mask, con<7)).nonzero()
