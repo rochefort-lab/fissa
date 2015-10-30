@@ -2,7 +2,8 @@ FISSA
 =====
 
 FISSA (Fast Image Signal Source Analysis) is a Python library for extracting
-somatic signals from 2-photon data, given predefined ROIs around somas. 
+somatic signals from 2-photon calcium imaging data.
+It requires images in tiff format as well as predefined ROIs around somas. 
 
 It offers the use of ICA and several NMF algorithms to do so, as well as 
 ROI manipulation routines for generating neuropil ROIs. 
@@ -38,21 +39,32 @@ environment.
 Folder Structure
 ----------------
 ### doc
-Contains example code. You can load the notebooks as .ipynb directly in Github, or on your system if you know how to use ipython notebooks (http://ipython.org/ipython-doc/stable/notebook/index.html). 
+Contains example code. You can load the notebooks as .ipynb directly in Github, 
+or on your system if you know how to use ipython notebooks 
+(http://ipython.org/ipython-doc/stable/notebook/index.html). 
 You can also read the .html pages instead. 
 
 ### exampleData
-Contains example data. It has two zips with region of interests from ImageJ. And it has three tiff stacks, which are downsampled and cropped from full data from the Rochefort lab. 
+Contains example data. It has two zips with region of interests from ImageJ. 
+It also contains three tiff stacks, which have been downsampled and cropped 
+from full data from the Rochefort lab. 
 
 ### fissa
-Contains the toolbox. See the tutorial in doc for how to use it, and the comments in the different modules inside FISSA themselves.
+Contains the toolbox. See the tutorial in doc for how to use it, and the comments 
+in the different modules inside FISSA.
+
+
+Citing FISSA
+-------
+If you use FISSA for your research, please cite the following paper 
+in any resulting publications:
 
 
 License
 -------
 
 Unless otherwise stated in individual files, all code is
-Copyright (c) 2015, Sander Keemink and Scott Lowe.
+Copyright (c) 2015, Sander Keemink and Scott Lowe, Nathalie Rochefort.
 All rights reserved.
 
 This program is currently closed source; you can not redistribute it unless
