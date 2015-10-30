@@ -14,12 +14,13 @@ Installation
 FISSA is currently only available for Python 2.7, and has only been tested on
 Linux.
 
-Having downloaded the package source from GitHub, you can install FISSA and its 
+You can download the package source from GitHub, and then install FISSA and its 
 dependencies as follows:
 
 ```unix
-    pip install -r require_first.txt
-    pip install -r requirements.txt
+    git clone https://github.com/rochefort-lab/fissa.git
+    pip install -r fissa/require_first.txt
+    pip install -r fissa/requirements.txt
     pip install -e fissa
 ```
 
@@ -27,10 +28,10 @@ To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
 
 ```unix
-    pip install -r optional.txt
+    pip install -r fissa/optional.txt
 ```
 
-If you wish, you can install FISSA and its dependecies into a virtual
+If you wish, you can install FISSA and its dependencies into a virtual
 environment.
 
 
