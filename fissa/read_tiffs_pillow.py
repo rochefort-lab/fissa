@@ -88,7 +88,7 @@ def getavg(img,box,frames):
     return avg
 
 
-def ExtractFromSingleTiff(filename,Masks):
+def extract_from_single_tiff(filename,Masks):
     ''' Extract the traces from the tiff stack at filename for given rois and 
         trials, using Pillow. 
     
@@ -124,12 +124,12 @@ def ExtractFromSingleTiff(filename,Masks):
     out = {} # empty dictionary
     for l in labels: # loop over all roi sets
         # extract traces for current set
-        out[l] = extracttraces(img,Masks[l],nFrames)    
+        out[l] = extract_traces(img,Masks[l],nFrames)    
     
     # Return data
     return out
 
-def extracttraces(img,masks,nframes):
+def extract_traces(img,masks,nframes):
     '''Get the traces for each mask in masks from the pillow object img for 
     nframes
     
@@ -168,7 +168,7 @@ def extracttraces(img,masks,nframes):
             data[i,f]=np.mean(tempframe[masks[i]])
     return data
 
-def TiffToArray(filename):
+def tiff2array(filename):
     ''' Loads a tiff stack image as a whole array. 
     ! careful, can be memory intensive for big tiff stacks
     
@@ -199,7 +199,7 @@ def TiffToArray(filename):
     
     return data    
 
-def getmeantiff(filename):
+def get_mean_tiff(filename):
     ''' Get the mean data for the tiff stack in filename
     
     Parameters
