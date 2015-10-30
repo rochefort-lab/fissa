@@ -34,6 +34,19 @@ If you wish, you can install FISSA and its dependecies into a virtual
 environment.
 
 
+Folder Structure
+----------------
+### doc
+Contains example code. You can load the notebooks as .ipynb directly in Github, or on your system if you know how to use ipython notebooks (http://ipython.org/ipython-doc/stable/notebook/index.html). 
+You can also read the .html pages instead. 
+
+### exampleData
+Contains example data. It has two zips with region of interests from ImageJ. And it has three tiff stacks, which are downsampled and cropped from full data from the Rochefort lab. 
+
+### fissa
+Contains the toolbox. See the tutorial in doc for how to use it, and the comments in the different modules inside FISSA themselves.
+
+
 License
 -------
 
