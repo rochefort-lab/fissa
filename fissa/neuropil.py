@@ -205,7 +205,7 @@ def subtract_pil(sig,pil):
     
     return sig_,a
     
-def subtractDict(S,n_noncell):
+def subtract_dict(S,n_noncell):
     '''
     Returns dictionary with the cell traces minus the background traces,
     with the subtraction method in subtractpil   
