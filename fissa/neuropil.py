@@ -173,31 +173,8 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
         convergence['converged'] = 'not yet implemented'    
     
     return S_sep.T,S_matched.T,A_sep,convergence
-    
-def matchTrace(s,s_):
-    ''' function to transform an ica signal s_ to match an original signal s     
-    This is not a good way to do it, use the variables from the mixing matrix A_ 
-    instead.     
-    
-    Parameters
-    ------------------------
-    s : array
-        original signal
-    s_ : array
-        signal to match to
-
-    Returns
-    ----------------------
-    Transformed array of shape(s_)    
-    
-    '''
-    # find offset and distance from offset    
-    offset   = np.mean(s)
-    max_orig = max(s-offset)
-    s_       = s_*max_orig/max(s_)+offset
-    return s_    
-
-def subtractpil(sig,pil):
+   
+def subtract_pil(sig,pil):
     ''' subtract the neuropil (pil) from the signal (sig), in such a manner 
     that that the correlation between the two is minimized:
     sig_ = sig - a*pil
