@@ -50,6 +50,7 @@ environment.
 
 Folder Structure
 ----------------
+
 ### doc
 Contains example code. You can load the notebooks as .ipynb directly in Github, 
 or on your system if you know how to use ipython notebooks 
@@ -62,21 +63,23 @@ It also contains three tiff stacks, which have been downsampled and cropped
 from full data from the Rochefort lab. 
 
 ### fissa
-Contains the toolbox. See the tutorial in doc for how to use it, and the comments 
-in the different modules inside FISSA.
+Contains the toolbox. See the tutorial in doc for how to use it, and the
+comments in the different modules inside FISSA.
 
 
 Citing FISSA
--------
+------------
+
 If you use FISSA for your research, please cite the following paper 
 in any resulting publications:
 
+_Paper in preparation_
 
 License
 -------
 
 Unless otherwise stated in individual files, all code is
-Copyright (c) 2015, Sander Keemink and Scott Lowe, Nathalie Rochefort.
+Copyright (c) 2015, Sander Keemink, Scott Lowe, and Nathalie Rochefort.
 All rights reserved.
 
 This program is currently closed source; you can not redistribute it unless
