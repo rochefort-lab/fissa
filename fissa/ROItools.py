@@ -27,21 +27,6 @@ def get_mask_com(mask):
     x,y = mask.nonzero()
     return np.mean(x),np.mean(y)
 
-def get_mask_outline_com(mask):
-    ''' get the center of mass for a mask as defined by its outline coordinates 
-    
-    Parameters
-    -------------------
-    mask : array
-        the mask (boolean 2d array)    
-    
-    Returns
-    --------------------
-    A tuple with center of mass of first and second dimensions (x,y)
-    '''
-    x,y = mask
-    return np.mean(x),np.mean(y)
-
 def splitNpil(mask,com,n_slices):
     '''
     Splits a neuropil mask into n slices
