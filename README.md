@@ -12,10 +12,10 @@ Installation
 ------------
 
 FISSA is currently only available for Python 2.7, and has only been tested on
-Linux.
+Ubuntu 15.04.
 
 You can download the package source from GitHub, and then install FISSA and its 
-dependencies as follows:
+dependencies as follows
 
 ```unix
     git clone https://github.com/rochefort-lab/fissa.git
@@ -33,6 +33,18 @@ the optional dependencies:
 
 If you wish, you can install FISSA and its dependencies into a virtual
 environment.
+
+### Notes on dependencies of dependencies
+
+* `scipy` requires a fortran compiler and LAPACK, which on Ubuntu can be
+  installed with `sudo apt-get install gfortran libopenblas-dev`
+
+* `shapely` requires GEOS, which on Ubuntu can be installed
+  `sudo apt-get install libgeos-dev`
+
+* If you want to use version 3.0.0 of Pillow, you will need to install a JPEG
+  library with `sudo apt-get install libjpeg-dev`. Alternatively, you can
+  install a version 2.9.0 of Pillow.
 
 
 Folder Structure
