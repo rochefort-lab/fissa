@@ -1,40 +1,43 @@
 FISSA
 =====
 
-FISSA (Fast Image Signal Source Analysis) is a Python library for extracting
+FISSA (Fast Image Source Separation Analysis) is a Python library for extracting
 somatic signals from 2-photon calcium imaging data.
 It requires images in tiff format as well as predefined ROIs around somas. 
 
-It offers the use of ICA and several NMF algorithms to do so, as well as 
+FISSA offers the use of ICA and several NMF algorithms to do so, as well as 
 ROI manipulation routines for generating neuropil ROIs. 
 
-FISSA is currently only available for Python 2.7, and has been tested on
-Ubuntu 15.04 and Windows 7 with the WinPython 2.7.10.3  installation 
-(http://sourceforge.net/projects/winpython/files/WinPython_2.7/2.7.10.3/).
+Currently, FISSA is only available for Python 2.7, and has been tested on
+Ubuntu 15.04 and on Windows 7 with the
+[WinPython 2.7.10.3](http://sourceforge.net/projects/winpython/files/WinPython_2.7/2.7.10.3/)
+distribution.
 
-Linux Installation
-------------------
+
+Installation
+------------
+
+### Installation on Linux
+
 You can download the package source from GitHub, and then install FISSA and its 
-dependencies as follows
-
+dependencies as follows:
 ```unix
-    git clone https://github.com/rochefort-lab/fissa.git
-    pip install -r fissa/require_first.txt
-    pip install -r fissa/requirements.txt
-    pip install -e fissa
+git clone https://github.com/rochefort-lab/fissa.git
+pip install -r fissa/require_first.txt
+pip install -r fissa/requirements.txt
+pip install -e fissa
 ```
 
 To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
-
 ```unix
-    pip install -r fissa/optional.txt
+pip install -r fissa/optional.txt
 ```
 
 If you wish, you can install FISSA and its dependencies into a virtual
 environment.
 
-### Notes on dependencies of dependencies
+#### Notes on dependencies of dependencies
 
 * `scipy` requires a fortran compiler and LAPACK, which on Ubuntu can be
   installed with `sudo apt-get install gfortran libopenblas-dev`
@@ -46,44 +49,51 @@ environment.
   library with `sudo apt-get install libjpeg-dev`. Alternatively, you can
   install a version 2.9.0 of Pillow.
 
-Windows Installation
---------------------
-The Windows install assumes the Winpython software as a python environment:
-WinPython 2.7.10.3 
-(http://sourceforge.net/projects/winpython/files/WinPython_2.7/2.7.10.3/).
 
-Similarly to linux you can download the FISSA source from Github, and install
-the main dependencies as follows, from the winpython command prompt.exe which
-can be found in the winpython installation folder
+### Installation on Windows
+
+These instructions for installing FISSA on Windows assume you are using
+WinPython for your Python environment, and has been tested with
+WinPython 2.7.10.3, available from
+<http://sourceforge.net/projects/winpython/files/WinPython_2.7/2.7.10.3/>.
+
+From the `WinPython Command Prompt.exe`, which can be found in the WinPython
+installation folder, you can download the FISSA source from GitHub and install
+most of its dependencies as follows:
 ```unix
-    git clone https://github.com/rochefort-lab/fissa.git
-    pip install -r fissa/require_first.txt
-    pip install -r fissa/requirements_windows.txt
+git clone https://github.com/rochefort-lab/fissa.git
+pip install -r fissa/require_first.txt
+pip install -r fissa/requirements_windows.txt
+pip install -r fissa/optional.txt
 ```
-(If you don't have git globally installed you could instead download a 
-zipped version FISSA from the Github website and skip the first step. 
-You will also get an error for trying to install nimfa, for which see
-below.)
 
-Next, you need to download a windows specific version of shapely from:
-http://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely
-Browse to where you downloaded the wheel (should be something like
-'Shapely‑1.5.13‑cp27‑none‑win_amd64.whl' and install it using the 
-winpython command prompt:
+If you don't have Git installed globally, you can't do all these steps in the
+WinPython command prompt.
+You can instead download a zipped copy of FISSA from GitHub and skip the first
+step.
+However, in this case you will also get an error when pip tries to install
+nimfa, which can be resolved as described below.
+
+Next, you need to download a windows specific version of shapely from
+<http://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely>.
+Browse to where you downloaded the wheel (which should be named something like
+`Shapely‑1.5.13‑cp27‑none‑win_amd64.whl`) and pip install it using the WinPython
+command prompt:
 ```unix
 pip install filename
 ```
-If nimfa did not install with the first step above, you can download 
-the nimfa zip from https://github.com/marinkaz/nimfa/archive/v1.2.1.zip
 
-Unzip the contained folder, and in folder above do the following in 
-the winpython command prompt:
+If nimfa did not install with the first step above, you can download 
+the nimfa zip from <https://github.com/marinkaz/nimfa/archive/v1.2.1.zip>.
+
+Unzip the contained folder, and in folder above it do the following in 
+the WinPython command prompt.
 ```unix
 pip install -e nimfa-1.2.1
 ```
 
 Finally, if everything above worked well, you can install FISSA as 
-follows (from the folder above fissa). 
+follows (from the folder above fissa).
 ```unix
 pip install -e fissa
 ```
@@ -93,7 +103,7 @@ Folder Structure
 ----------------
 
 ### doc
-Contains example code. You can load the notebooks as .ipynb directly in Github, 
+Contains example code. You can load the notebooks as .ipynb directly in GitHub, 
 or on your system if you know how to use ipython notebooks 
 (http://ipython.org/ipython-doc/stable/notebook/index.html). 
 You can also read the .html pages instead. 
@@ -115,6 +125,7 @@ If you use FISSA for your research, please cite the following paper
 in any resulting publications:
 
 _Paper in preparation_
+
 
 License
 -------
