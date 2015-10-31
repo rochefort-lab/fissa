@@ -18,10 +18,10 @@ setup(
     download_url = "NA",
     package_dir = {NAME: "./fissa"},
     packages=[NAME],
-    license = "TODO",
+    license = "Closed source",
     long_description=read('README.md'),
     classifiers = [
-        "License :: TODO",
+        "License :: Closed source",
         "Natural Language :: English",
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering"
