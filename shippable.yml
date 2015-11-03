@@ -10,12 +10,11 @@ before_install:
   # ----------------------------------------------------------------------------
   # Test setup by printing some variables
   # ----------------------------------------------------------------------------
-  - echo "before_install"
-  - echo "$VIRTUAL_ENV"
   - pwd
-  - echo "$VERSION"
+  - echo "$VIRTUAL_ENV"
+  - echo "$SHIPPABLE_PYTHON"
+  - PYTHON_VERSION="${SHIPPABLE_PYTHON##*/python}"
   - echo "$PYTHON_VERSION"
-  - python -V
   # ----------------------------------------------------------------------------
   # The following is taken from Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
