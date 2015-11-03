@@ -5,6 +5,11 @@ language: python
 python:
   - "2.7"
 
+# Setup the environment before installing
+before_install:
+  - sudo apt-get install -qq libatlas-dev libatlas-base-dev libopenblas-dev liblapack-dev gfortran
+  - sudo apt-get install -qq libjpeg-dev
+
 # install requirements
 install:
   - pip install -r require_first.txt
