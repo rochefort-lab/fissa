@@ -34,13 +34,13 @@ before_install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create --yes -n test-environment python=$PYTHON_VERSION
+  - conda create --yes -n test-environment python=$PYTHON_VERSION pip
   # ----------------------------------------------------------------------------
 
 # install requirements
 install:
-  - conda install --yes -n test-environment --file requirements.txt
   - source activate test-environment
+  - pip install -vv -r requirements.txt
   #- python setup.py install
 
 # commands to run test scripts
