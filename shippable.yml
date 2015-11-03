@@ -39,6 +39,7 @@ before_install:
 
 # install requirements
 install:
+  - conda install --yes -n test-environment --file require_first.txt
   - source activate test-environment
   - pip install -vv -r requirements.txt
   #- python setup.py install
