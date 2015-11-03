@@ -1,0 +1,15 @@
+# language setting
+language: python
+
+# version numbers
+python:
+  - "2.7"
+
+# install requirements
+install:
+  - pip install -r require_first.txt
+  - pip install -r requirements.txt
+
+# commands to run test scripts
+script:
+  - which python
