@@ -39,15 +39,21 @@ environment.
 
 #### Notes on dependencies of dependencies
 
-* scipy requires a fortran compiler and LAPACK, which on Debian/Ubuntu can be
+* [scipy](https://pypi.python.org/pypi/scipy/) requires a
+  [fortran compiler and LAPACK](http://www.scipy.org/scipylib/building/linux.html#installation-from-source),
+  which on Debian/Ubuntu can be
   installed with `sudo apt-get install gfortran libopenblas-dev`.
 
-* shapely requires GEOS, which on Debian/Ubuntu can be installed with
-  `sudo apt-get install libgeos-dev`.
+* [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS, which on
+  Debian/Ubuntu can be installed with `sudo apt-get install libgeos-dev`.
 
-* If you want to use version 3.0.0 of Pillow, you will need to install a JPEG
-  library with `sudo apt-get install libjpeg-dev`. Alternatively, you can
-  install version 2.9.0 of Pillow, which we also support.
+* [Pillow>=3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) requires a
+  [JPEG library](http://pillow.readthedocs.org/en/3.0.x/installation.html#external-libraries),
+  which can be installed on Debian/Ubuntu with
+  `sudo apt-get install libjpeg-dev`.
+  Alternatively, you can install
+  [Pillow 2.9.0](https://pypi.python.org/pypi/Pillow/2.9.0),
+  which we also support.
 
 
 ### Installation on Windows
