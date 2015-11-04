@@ -5,5 +5,5 @@ future>=0.15.2
 Pillow>=2.7.0
 scikit-learn>=0.16.1
 scikit-image>=0.11.3
-Shapely>=1.5.13
+Shapely>=1.5.11
 -e git://github.com/marinkaz/nimfa.git@v1.2.1#egg=nimfa
