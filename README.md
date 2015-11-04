@@ -24,7 +24,7 @@ Installation
 
 You can download the package source from GitHub, and then install FISSA and its 
 dependencies as follows:
-```unix
+```shell
 git clone https://github.com/rochefort-lab/fissa.git
 pip install -r fissa/require_first.txt
 pip install -r fissa/requirements.txt
@@ -33,7 +33,7 @@ pip install -e fissa
 
 To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
-```unix
+```shell
 pip install -r fissa/optional.txt
 ```
 
@@ -69,7 +69,7 @@ WinPython 2.7.10.3, available from
 From the `WinPython Command Prompt.exe`, which can be found in the WinPython
 installation folder, you can download the FISSA source from GitHub and install
 most of its dependencies as follows:
-```unix
+```shell
 git clone https://github.com/rochefort-lab/fissa.git
 pip install -r fissa/require_first.txt
 pip install -r fissa/requirements_windows.txt
@@ -88,7 +88,7 @@ Next, you need to download a windows specific version of shapely from
 Browse to where you downloaded the wheel (which should be named something like
 `Shapely‑1.5.13‑cp27‑none‑win_amd64.whl`) and pip install it using the WinPython
 command prompt:
-```unix
+```shell
 pip install filename
 ```
 
@@ -97,13 +97,13 @@ the nimfa zip from <https://github.com/marinkaz/nimfa/archive/v1.2.1.zip>.
 
 Unzip the contained folder, and in folder above it do the following in 
 the WinPython command prompt.
-```unix
+```shell
 pip install -e nimfa-1.2.1
 ```
 
 Finally, if everything above worked well, you can install FISSA as 
 follows (from the folder above fissa).
-```unix
+```shell
 pip install -e fissa
 ```
 
@@ -111,7 +111,7 @@ pip install -e fissa
 
 After installing FISSA, you can test your installation by running the test
 suite by running the command
-```unix
+```shell
 python setup.py test
 ```
 
