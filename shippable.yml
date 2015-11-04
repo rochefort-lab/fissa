@@ -68,3 +68,7 @@ script:
   - which python
   #- python setup.py test
   - py.test --junitxml=shippable/testresults/testresults.xml
+
+# commands to run after tests are done
+after_script:
+  - ls -alh
