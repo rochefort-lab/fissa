@@ -1,5 +1,6 @@
-""" The below functions were taken from the sima package http://www.losonczylab.org/sima
-1.3.0.
+"""
+The functions below were taken from the sima package
+http://www.losonczylab.org/sima version 1.3.0.
 
 @swkeemink: Commented out lines 52-55 to remove a warning message for FISSA.
 
