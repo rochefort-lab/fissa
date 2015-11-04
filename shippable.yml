@@ -60,7 +60,7 @@ install:
   - source activate test-environment
   # Install the packages which are editable and must be done with pip
   - pip install -v -r requirements_pip.txt
-  - python setup.py install
+  - python setup.py develop
   - pip freeze
 
 # commands to run test scripts
