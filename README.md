@@ -40,7 +40,7 @@ environment.
 #### Notes on dependencies of dependencies
 
 * [scipy](https://pypi.python.org/pypi/scipy/) requires a
-  [fortran compiler and LAPACK](http://www.scipy.org/scipylib/building/linux.html#installation-from-source),
+  [fortran compiler and BLAS/LAPACK](http://www.scipy.org/scipylib/building/linux.html#installation-from-source),
   which on Debian/Ubuntu can be
   installed with `sudo apt-get install gfortran libopenblas-dev`.
 
