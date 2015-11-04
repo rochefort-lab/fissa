@@ -3,11 +3,24 @@
 import os
 
 from distutils.core import setup
+from setuptools.command.test import test as TestCommand
 
 NAME = 'fissa'
 
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+    def run_tests(self):
+        import pytest
+        pytest.main(self.test_args)
+
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
     name = NAME,
@@ -26,5 +39,6 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering"
-        ]
+        ],
+    cmdclass={'test': PyTest},
     )
