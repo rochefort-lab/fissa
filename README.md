@@ -107,6 +107,14 @@ follows (from the folder above fissa).
 pip install -e fissa
 ```
 
+### Testing your installation
+
+After installing FISSA, you can test your installation by running the test
+suite by running the command
+```unix
+python setup.py test
+```
+
 
 Folder Structure
 ----------------
