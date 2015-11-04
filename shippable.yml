@@ -22,8 +22,9 @@ before_install:
   # Install some packages dependencies with apt-get
   # ----------------------------------------------------------------------------
   - sudo apt-get update
-  - sudo apt-get install libatlas-dev libatlas-base-dev liblapack-dev gfortran
-  - sudo apt-get install libopenblas-dev
+  # Install BLAS and Fortran compiler for scipy
+  - sudo apt-get install libopenblas-dev gfortran
+  # Install JPEG library for Pillow>=3.0.0
   - sudo apt-get install libjpeg-dev
   # ----------------------------------------------------------------------------
   # The following is taken from Minicoda's how-to Travis page
