@@ -46,10 +46,10 @@ before_install:
   - conda info -a
   # Isolate packages which are editable and need to be installed with pip
   # and those which can be installed with conda
-  - sed '/^-e/d' requirements.txt > requirements_conda.txt
-  - cat requirements_conda.txt
-  - sed '/^-e/!d' requirements.txt > requirements_pip.txt
-  - cat requirements_pip.txt
+  - sed '/^-e/d' requirements.txt > requirements_conda.txt &&
+      cat requirements_conda.txt
+  - sed '/^-e/!d' requirements.txt > requirements_pip.txt &&
+      cat requirements_pip.txt
   # Create the conda environment with these dependencies installed
   - conda create -q -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
   # ----------------------------------------------------------------------------
