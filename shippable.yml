@@ -8,21 +8,27 @@ python:
 # Setup the environment before installing
 before_install:
   # ----------------------------------------------------------------------------
+  # Work out which version of python we are testing
+  # ----------------------------------------------------------------------------
+  - PYTHON_VERSION="${SHIPPABLE_PYTHON##*/python}"
+  # ----------------------------------------------------------------------------
   # Test setup by printing some variables
   # ----------------------------------------------------------------------------
   - pwd
   - echo "$VIRTUAL_ENV"
   - echo "$SHIPPABLE_PYTHON"
-  - PYTHON_VERSION="${SHIPPABLE_PYTHON##*/python}"
   - echo "$PYTHON_VERSION"
   # ----------------------------------------------------------------------------
-  # The following is taken from Minicoda's how-to Travis page
-  # http://conda.pydata.org/docs/travis.html
+  # Install some packages dependencies with apt-get
   # ----------------------------------------------------------------------------
   - sudo apt-get update
   - sudo apt-get install libatlas-dev libatlas-base-dev liblapack-dev gfortran
   - sudo apt-get install libopenblas-dev
   - sudo apt-get install libjpeg-dev
+  # ----------------------------------------------------------------------------
+  # The following is taken from Minicoda's how-to Travis page
+  # http://conda.pydata.org/docs/travis.html
+  # ----------------------------------------------------------------------------
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$PYTHON_VERSION" == "2.7" ]]; then
@@ -37,19 +43,22 @@ before_install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
+  # Isolate packages which are editable and need to be installed with pip
+  # and those which can be installed with conda
   - sed '/^-e/d' requirements.txt > requirements_conda.txt
   - cat requirements_conda.txt
   - sed '/^-e/!d' requirements.txt > requirements_pip.txt
   - cat requirements_pip.txt
-  - conda create --yes -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
+  # Create the conda environment with these dependencies installed
+  - conda create -q -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
   # ----------------------------------------------------------------------------
 
 # install requirements
 install:
-  # Separate out the requirements which are editable and have to go through pip
-  # and the ones which aren't, which can be installed by conda
+  # Activate the test environment
   - source activate test-environment
-  - pip install -vv -r requirements_pip.txt
+  # Install the packages which are editable and must be done with pip
+  - pip install -v -r requirements_pip.txt
   #- python setup.py install
   - pip freeze
 
