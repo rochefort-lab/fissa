@@ -67,4 +67,4 @@ install:
 script:
   - which python
   #- python setup.py test
-  - py.test
+  - py.test --junitxml=shippable/testresults/testresults.xml
