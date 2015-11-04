@@ -35,7 +35,9 @@ before_install:
   # Useful for debugging any issues with conda
   - conda info -a
   - sed '/^-e/d' requirements.txt > requirements_conda.txt
+  - cat requirements_conda.txt
   - sed '/^-e/!d' requirements.txt > requirements_pip.txt
+  - cat requirements_pip.txt
   - conda create --yes -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
   # ----------------------------------------------------------------------------
 
