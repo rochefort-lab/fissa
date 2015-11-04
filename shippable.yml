@@ -66,4 +66,5 @@ install:
 # commands to run test scripts
 script:
   - which python
-  - python setup.py test
+  #- python setup.py test
+  - py.test
