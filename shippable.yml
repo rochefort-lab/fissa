@@ -34,16 +34,15 @@ before_install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create --yes -n test-environment python=$PYTHON_VERSION pip
+  - sed '/^-e/d' requirements.txt > requirements_conda.txt
+  - sed '/^-e/!d' requirements.txt > requirements_pip.txt
+  - conda create --yes -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
   # ----------------------------------------------------------------------------
 
 # install requirements
 install:
   # Separate out the requirements which are editable and have to go through pip
   # and the ones which aren't, which can be installed by conda
-  - sed '/^-e/d' requirements.txt > requirements_conda.txt
-  - sed '/^-e/!d' requirements.txt > requirements_pip.txt
-  - conda install --yes -n test-environment --file requirements_conda.txt
   - source activate test-environment
   - pip install -vv -r requirements_pip.txt
   #- python setup.py install
