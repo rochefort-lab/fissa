@@ -72,7 +72,7 @@ before_script:
 # commands to run test scripts
 script:
   - which python
-  - py.test --junitxml=shippable/testresults/testresults.xml --cov=fissa --cov-report xml
+  - py.test --junitxml=shippable/testresults/testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
   - mv coverage.xml shippable/codecoverage/
 
 # commands to run after tests are done
