@@ -20,6 +20,9 @@ before_install:
   # http://conda.pydata.org/docs/travis.html
   # ----------------------------------------------------------------------------
   - sudo apt-get update
+  - sudo apt-get install libatlas-dev libatlas-base-dev liblapack-dev gfortran
+  - sudo apt-get install libopenblas-dev
+  - sudo apt-get install libjpeg-dev
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$PYTHON_VERSION" == "2.7" ]]; then
