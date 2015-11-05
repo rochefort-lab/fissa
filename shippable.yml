@@ -24,6 +24,8 @@ before_install:
   - sudo apt-get update
   # Install Fortran compiler, BLAS, LAPACK and ATLAS for scipy
   - sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
+  # Install GEOS for Shapely
+  - sudo apt-get install libgeos-dev
   # Install JPEG library for Pillow>=3.0.0
   - sudo apt-get install libjpeg-dev
   # ----------------------------------------------------------------------------
