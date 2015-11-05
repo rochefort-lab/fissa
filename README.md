@@ -34,7 +34,7 @@ pip install -e fissa
 To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
 ```shell
-pip install -r fissa/optional.txt
+pip install -r fissa/require_plotting.txt
 ```
 
 If you wish, you can install FISSA and its dependencies into a virtual
@@ -73,7 +73,7 @@ most of its dependencies as follows:
 git clone https://github.com/rochefort-lab/fissa.git
 pip install -r fissa/require_first.txt
 pip install -r fissa/requirements_windows.txt
-pip install -r fissa/optional.txt
+pip install -r fissa/require_plotting.txt
 ```
 
 If you don't have Git installed globally, you can't do all these steps in the
