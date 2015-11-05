@@ -43,9 +43,10 @@ environment.
 #### Notes on dependencies of dependencies
 
 * [scipy](https://pypi.python.org/pypi/scipy/) requires a
-  [fortran compiler and BLAS/LAPACK](http://www.scipy.org/scipylib/building/linux.html#installation-from-source),
+  [fortran compiler and BLAS/LAPACK/ATLAS](http://www.scipy.org/scipylib/building/linux.html#installation-from-source),
   which on Debian/Ubuntu can be
-  installed with `sudo apt-get install gfortran libopenblas-dev`.
+  installed with
+  `sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev`.
 
 * [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS, which on
   Debian/Ubuntu can be installed with `sudo apt-get install libgeos-dev`.
