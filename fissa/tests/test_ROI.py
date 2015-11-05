@@ -40,7 +40,7 @@ from numpy.testing import (
     run_module_suite,
     assert_allclose)
 
-from fissa.sima_borrowed import ROI
+from ..sima_borrowed import ROI
 import numpy as np
 
 
