@@ -220,7 +220,7 @@ def subtract_dict(S,n_noncell):
     S_subtract = {}
     a = {}
     for i in range(n_noncell,len(S)):
-        S_subtract[i],a[i] = subtractpil(S[i][:,0],np.mean(S[i][:,1:],axis=1))
+        S_subtract[i],a[i] = subtract_pil(S[i][:,0],np.mean(S[i][:,1:],axis=1))
     
     return S_subtract,a  
     
