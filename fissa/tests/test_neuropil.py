@@ -82,3 +82,8 @@ def test_separate():
     test_method('ica')
     test_method('nmf_sklearn')
 
+def test_subtract_pil():
+    raise NotImplementedError()
+    
+def test_subtract_dict():
+    raise NotImplementedError()
