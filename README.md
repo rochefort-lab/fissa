@@ -60,7 +60,7 @@ You can download the package source from GitHub, and then install FISSA and its
 dependencies as follows:
 
     git clone https://github.com/rochefort-lab/fissa.git
-    pip install --user -r fissa/require_first.txt
+    pip install --user -r fissa/requirements_first.txt
     pip install --user -r fissa/requirements.txt
     pip install --user -e fissa
 
@@ -70,7 +70,7 @@ folder.
 To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
 
-    pip install --user -r fissa/require_plotting.txt
+    pip install --user -r fissa/requirements_plots.txt
 
 
 #### Installation into a virtual environment
@@ -86,9 +86,9 @@ place where they won't be affected if you install other packages.
     virtualenv --no-site-packages -p "/usr/bin/python$PYTHON_VERSION" "$PATH_TO_VENV"
     source "$PATH_TO_VENV/bin/activate"
     git clone https://github.com/rochefort-lab/fissa.git
-    pip install -r fissa/require_first.txt
+    pip install -r fissa/requirements_first.txt
     pip install -r fissa/requirements.txt
-    pip install -r fissa/require_plotting.txt
+    pip install -r fissa/requirements_plots.txt
     pip install -e fissa
     py.test fissa
     deactivate
@@ -119,9 +119,9 @@ installation folder, you can download the FISSA source from GitHub and install
 most of its dependencies as follows:
 
     git clone https://github.com/rochefort-lab/fissa.git
-    pip install -r fissa/require_first.txt
+    pip install -r fissa/requirements_first.txt
     pip install -r fissa/requirements_windows.txt
-    pip install -r fissa/require_plotting.txt
+    pip install -r fissa/requirements_plots.txt
 
 If you don't have Git installed globally, you can't do all these steps in the
 WinPython command prompt.
