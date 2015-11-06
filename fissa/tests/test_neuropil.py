@@ -31,7 +31,8 @@ def test_separate():
     ''' Tests if the separate function returns data in the right format
     for all methods.    
     
-    Successfullness of methods are hard to test with unittests.
+    TODO: Successfullness of methods are hard to test with unittests. Need to 
+    make a test case where answer is known, and test against that.
     '''
     # desired shapes
     shape_desired = (2,100)    
