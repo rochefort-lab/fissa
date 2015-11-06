@@ -99,5 +99,5 @@ def test_subtract_pil():
     assert_equal(a,0.93112459478303866)   
     assert_equal(sig_.shape,data_measured.shape)
           
-def test_subtract_dict():
-    raise NotImplementedError()
+#def test_subtract_dict():
+#    raise NotImplementedError()
