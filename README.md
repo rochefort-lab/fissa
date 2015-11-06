@@ -34,7 +34,7 @@ that your Linux distribution ships with these.
   will need to have [Git](https://git-scm.com/download/linux) installed.
 
 * [scipy](https://pypi.python.org/pypi/scipy/) requires a
-  [fortran compiler and BLAS/LAPACK/ATLAS](http://www.scipy.org/scipylib/building/linux.html#installation-from-source).
+  [Fortran compiler and BLAS/LAPACK/ATLAS](http://www.scipy.org/scipylib/building/linux.html#installation-from-source).
 
 * [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS.
 
