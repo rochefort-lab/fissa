@@ -54,14 +54,14 @@ before_install:
       cat requirements_pip.txt
   # Create the conda environment with these dependencies installed
   - conda create -q -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
-  # ----------------------------------------------------------------------------
-
-# install requirements
-install:
   # Activate the test environment
   - source activate test-environment
   # Install the packages which are editable and must be done with pip
   - pip install -v -r requirements_pip.txt
+  # ----------------------------------------------------------------------------
+
+# install requirements
+install:
   - pip install pytest-cov
   - python setup.py develop
   - pip freeze
