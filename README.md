@@ -22,42 +22,94 @@ Installation
 
 ### Installation on Linux
 
+Before installing FISSA, you should make sure you have all of its dependencies
+--- and the dependencies of its dependencies --- installed.
+
+We will assume you already have Python 2.7 and pip installed. It is very likely
+that your Linux distribution ships with these.
+
+#### Dependencies of dependencies
+
+* To install the developmental version of FISSA, and also to install NIMFA, you
+  will need to have [Git](https://git-scm.com/download/linux) installed.
+
+* [scipy](https://pypi.python.org/pypi/scipy/) requires a
+  [fortran compiler and BLAS/LAPACK/ATLAS](http://www.scipy.org/scipylib/building/linux.html#installation-from-source).
+
+* [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS.
+
+* [Pillow>=3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) requires a
+  [JPEG library](http://pillow.readthedocs.org/en/3.0.x/installation.html#external-libraries).
+  Alternatively, you can install
+  [Pillow 2.9.0](https://pypi.python.org/pypi/Pillow/2.9.0),
+  which we also support.
+
+These packages can be installed on *Debian/Ubuntu* with the following shell
+commands.
+
+```shell
+sudo apt-get update
+sudo apt-get install git
+sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
+sudo apt-get install libgeos-dev
+sudo apt-get install libjpeg-dev
+```
+
+#### Installation into user site-packages
+
 You can download the package source from GitHub, and then install FISSA and its 
 dependencies as follows:
 ```shell
 git clone https://github.com/rochefort-lab/fissa.git
-pip install -r fissa/require_first.txt
-pip install -r fissa/requirements.txt
-pip install -e fissa
+pip install --user -r fissa/require_first.txt
+pip install --user -r fissa/requirements.txt
+pip install --user -e fissa
 ```
+
+The `--user` flag ensures the packages are installed into your usr site-packages
+folder.
 
 To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
 ```shell
-pip install -r fissa/require_plotting.txt
+pip install --user -r fissa/require_plotting.txt
 ```
 
-If you wish, you can install FISSA and its dependencies into a virtual
+#### Installation into a virtual environment
+
+If you prefer, you can install FISSA and its dependencies into a python
+[virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+This is useful if you want to isolate FISSA and its dependencies into their own
+place where they won't be affected if you install other packages.
+
+```shell
+PATH_TO_VENV="venvfissa"
+PYTHON_VERSION="2.7"
+pip install virtualenv
+virtualenv --no-site-packages -p "/usr/bin/python$PYTHON_VERSION" "$PATH_TO_VENV"
+source "$PATH_TO_VENV/bin/activate"
+git clone https://github.com/rochefort-lab/fissa.git
+pip install -r fissa/require_first.txt
+pip install -r fissa/requirements.txt
+pip install -r fissa/require_plotting.txt
+pip install -e fissa
+py.test fissa
+deactivate
+```
+
+You will need to source the virtual environment bin order to have FISSA and
+its dependencies available. Once you are done you can deactivate the virtual
+environment again.
+```shell
+source "$PATH_TO_VENV/bin/activate"
+ipython
+# Do something in python
+# ...
+deactivate
+```
+
+You can replace `$PATH_TO_VENV` with the literal path to your virtual
 environment.
-
-#### Notes on dependencies of dependencies
-
-* [scipy](https://pypi.python.org/pypi/scipy/) requires a
-  [fortran compiler and BLAS/LAPACK/ATLAS](http://www.scipy.org/scipylib/building/linux.html#installation-from-source),
-  which on Debian/Ubuntu can be
-  installed with
-  `sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev`.
-
-* [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS, which on
-  Debian/Ubuntu can be installed with `sudo apt-get install libgeos-dev`.
-
-* [Pillow>=3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) requires a
-  [JPEG library](http://pillow.readthedocs.org/en/3.0.x/installation.html#external-libraries),
-  which can be installed on Debian/Ubuntu with
-  `sudo apt-get install libjpeg-dev`.
-  Alternatively, you can install
-  [Pillow 2.9.0](https://pypi.python.org/pypi/Pillow/2.9.0),
-  which we also support.
 
 
 ### Installation on Windows
