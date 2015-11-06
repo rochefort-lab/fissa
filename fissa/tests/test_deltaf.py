@@ -59,3 +59,23 @@ class TestFindBaseline(BaseTestCase):
         desired = np.array([[2],[0],[-1]])
         actual = deltaf.findBaselineF0(array, fs, axis=1, keepdims=True)
         self.assert_allclose(actual, desired)
+
+    def test_random(self):
+        # Random input test
+        # prep random number generator
+        fs = 40
+        num_samples = 10000
+        event_intv = 200
+        mu = 3
+        sigma = 1
+        rng = np.random.RandomState(8901)
+        for i in range(100):
+            # Generate white noise
+            array = rng.normal(mu, sigma, num_samples)
+            # Add intermittent events
+            array[:event_intv:] = mu + sigma*100
+            actual = deltaf.findBaselineF0(array, fs)
+            desired = np.array([mu])
+            # Should be able to get within half a sigma of the actual noise
+            self.assertGreater(actual, desired - sigma/2)
+            self.assertLess(actual, desired + sigma/2)
