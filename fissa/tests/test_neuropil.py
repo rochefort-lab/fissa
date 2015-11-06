@@ -86,7 +86,18 @@ def test_separate():
     test_method('nmf_sklearn')
 
 def test_subtract_pil():
-    raise NotImplementedError()
+    ''' Tests format and effectiveness of npil.subtract_pil()
     
+    '''    
+    # setup fake data
+    np.random.seed(0)
+    data_main = np.random.rand(100)  
+    data_cont = np.random.rand(100)
+    data_measured = data_main + data_cont
+    
+    sig_,a = npil.subtract_pil(data_measured,data_cont)
+    assert_equal(a,0.93112459478303866)   
+    assert_equal(sig_.shape,data_measured.shape)
+          
 def test_subtract_dict():
     raise NotImplementedError()
