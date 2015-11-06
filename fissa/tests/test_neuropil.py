@@ -50,7 +50,6 @@ def test_separate():
                          'random_state': 'not yet implemented'}
     
     # setup fake data
-    x = np.linspace(0,np.pi*2,100)    
     data = np.array([np.sin(x),np.cos(3*x)])+1
     
     # mix fake data
