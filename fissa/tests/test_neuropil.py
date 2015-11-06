@@ -24,6 +24,9 @@ import numpy as np
 # import neuropil functions
 from .. import neuropil as npil
 
+# setup basic x values for fake data
+x = np.linspace(0,np.pi*2,100)    
+
 def test_separate():
     ''' Tests if the separate function returns data in the right format
     for all methods.    
