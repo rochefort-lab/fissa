@@ -5,9 +5,10 @@ import unittest
 
 import numpy as np
 
-from numpy.testing import assert_almost_equal
-from numpy.testing import assert_array_equal
-from numpy.testing import assert_allclose
+from numpy.testing import (assert_almost_equal,
+                           assert_array_equal,
+                           assert_allclose,
+                           assert_equal)
 
 class BaseTestCase(unittest.TestCase):
     """
@@ -27,3 +28,6 @@ class BaseTestCase(unittest.TestCase):
 
     def assert_allclose(self, *args, **kwargs):
         return assert_allclose(*args, **kwargs)
+
+    def assert_equal(self, *args, **kwargs):
+        return assert_equal(*args,**kwargs)
