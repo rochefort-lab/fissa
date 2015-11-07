@@ -4,20 +4,6 @@ Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-11-06
 '''
 
-# use assert_() and related functions over the built in assert to ensure tests
-# run properly, regardless of how python is started.
-from numpy.testing import (
-    assert_,
-    assert_equal,
-    assert_almost_equal,
-    assert_array_almost_equal,
-    assert_raises,
-    assert_array_equal,
-    dec,
-    TestCase,
-    run_module_suite,
-    assert_allclose)
-
 import unittest
 import numpy as np
 
@@ -26,80 +12,85 @@ from .base_test import BaseTestCase
 # import neuropil functions
 from .. import neuropil as npil
 
-# setup basic x values for fake data
-x = np.linspace(0,np.pi*2,100)    
-
-def test_separate():
-    ''' Tests if the separate function returns data in the right format
-    for all methods.    
+class TestNeuropilFuns(BaseTestCase):
+    def setup_class(self):
+        # length of arrays in tests        
+        self.l = 100
+        # setup basic x values for fake data
+        self.x = np.linspace(0,np.pi*2,self.l)    
     
-    TODO: Successfullness of methods are hard to test with unittests. Need to 
-    make a test case where answer is known, and test against that.
-    '''
-    # desired shapes
-    shape_desired = (2,100)    
-    con_desired_ica = {'converged': False,
-                         'iterations': 1,
-                         'max_iterations': 1,
-                         'random_state': 892}  
-    con_desired_nmf = {'converged': False,
-                         'iterations': 1,
-                         'max_iterations': 1,
-                         'random_state': 'not yet implemented'} 
-    con_desired_nmfsklearn = {'converged': 'not yet implemented',
-                         'iterations': 'not yet implemented',
-                         'max_iterations': 1,
-                         'random_state': 'not yet implemented'}
-    
-    # setup fake data
-    data = np.array([np.sin(x),np.cos(3*x)])+1
-    
-    # mix fake data
-    W = np.array([[0.2,0.8],[0.8,0.2]])
-    S = np.dot(W,data)
-
-    # function for testing a method
-    def test_method(method):
-        ''' Tests for a single method
+    def test_separate(self):
+        ''' Tests if the separate function returns data in the right format
+        for all methods.    
         
-        Parameters
-        --------------------
-        Method : string
-            What method to test: 'nmf', 'ica', or 'nmf_sklearn')
-        
+        TODO: Successfullness of methods are hard to test with unittests. Need to 
+        make a test case where answer is known, and test against that.
         '''
-        # unmix data with ica
-        S_sep,S_matched,A_sep,convergence = npil.separate(S,sep_method=method,n=2,maxiter=1,maxtries=1)
+        # desired shapes
+        shape_desired = (2,self.l)    
+        con_desired_ica = {'converged': False,
+                             'iterations': 1,
+                             'max_iterations': 1,
+                             'random_state': 892}  
+        con_desired_nmf = {'converged': False,
+                             'iterations': 1,
+                             'max_iterations': 1,
+                             'random_state': 'not yet implemented'} 
+        con_desired_nmfsklearn = {'converged': 'not yet implemented',
+                             'iterations': 'not yet implemented',
+                             'max_iterations': 1,
+                             'random_state': 'not yet implemented'}
+        
+        # setup fake data
+        data = np.array([np.sin(self.x),np.cos(3*self.x)])+1
+        
+        # mix fake data
+        W = np.array([[0.2,0.8],[0.8,0.2]])
+        S = np.dot(W,data)
+    
+        # function for testing a method
+        def run_method(method):
+            ''' Tests for a single method
             
-        # assert if formats are good
-        assert_equal(S_sep.shape,shape_desired)
-        assert_equal(S_matched.shape,shape_desired)
-        assert_equal(S_sep.shape,shape_desired)
-        if method == 'ica':
-            assert_equal(convergence,con_desired_ica)
-        elif method == 'nmf':
-            assert_equal(convergence,con_desired_nmf)
-        elif method == 'nmf_sklearn':
-            assert_equal(convergence,con_desired_nmfsklearn)
+            Parameters
+            --------------------
+            Method : string
+                What method to test: 'nmf', 'ica', or 'nmf_sklearn')
+            
+            '''
+            # unmix data with ica
+            S_sep,S_matched,A_sep,convergence = npil.separate(S,sep_method=method,n=2,maxiter=1,maxtries=1)
+                
+            # assert if formats are good
+            self.assert_equal(S_sep.shape,shape_desired)
+            self.assert_equal(S_matched.shape,shape_desired)
+            self.assert_equal(S_sep.shape,shape_desired)
+            if method == 'ica':
+                self.assert_equal(convergence,con_desired_ica)
+            elif method == 'nmf':
+                self.assert_equal(convergence,con_desired_nmf)
+            elif method == 'nmf_sklearn':
+                self.assert_equal(convergence,con_desired_nmfsklearn)
+        
+        # test all three methods
+        run_method('nmf')
+        run_method('ica')
+        run_method('nmf_sklearn')
     
-    # test all three methods
-    test_method('nmf')
-    test_method('ica')
-    test_method('nmf_sklearn')
-
-def test_subtract_pil():
-    ''' Tests format and effectiveness of npil.subtract_pil()
-    
-    '''    
-    # setup fake data
-    np.random.seed(0)
-    data_main = np.random.rand(100)  
-    data_cont = np.random.rand(100)
-    data_measured = data_main + data_cont
-    
-    sig_,a = npil.subtract_pil(data_measured,data_cont)
-    assert_equal(a,0.93112459478303866)   
-    assert_equal(sig_.shape,data_measured.shape)
-          
-#def test_subtract_dict():
-#    raise NotImplementedError()
+    def test_subtract_pil(self):
+        ''' Tests format and effectiveness of npil.subtract_pil()
+        
+        '''    
+        # setup fake data
+        np.random.seed(0)
+        data_main = np.random.rand(self.l)  
+        data_cont = np.random.rand(self.l)
+        data_measured = data_main + data_cont
+        
+        sig_,a = npil.subtract_pil(data_measured,data_cont)
+        self.assert_equal(a,0.93112459478303866)   
+        self.assert_equal(sig_.shape,data_measured.shape)
+        
+    @unittest.expectedFailure          
+    def test_subtract_dict(self):
+        raise NotImplementedError()
