@@ -18,8 +18,10 @@ from numpy.testing import (
     run_module_suite,
     assert_allclose)
 
-# import numpy
+import unittest
 import numpy as np
+
+from .base_test import BaseTestCase
 
 # import neuropil functions
 from .. import neuropil as npil
