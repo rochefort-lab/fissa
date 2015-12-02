@@ -182,7 +182,7 @@ def deltaFF0(S,T,avg_n=1):
         and for all signals (somatic + neuropil). Should be of form
         S[frame,signal].
     T : int
-        The number of trials in S. 
+        The number of frames per trial.
     avg_n : int {default 1}
         How many surrounding frames to average over for smoothing
             
