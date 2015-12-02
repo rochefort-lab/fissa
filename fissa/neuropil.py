@@ -88,7 +88,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
              
             # do the ica and find separated signals
             S_sep = ica.fit_transform(S.T)
-            print counter
+
             # check if max number of iterations was reached
             if ica.n_iter_ == maxiter and counter == maxtries:
                 flag = False
