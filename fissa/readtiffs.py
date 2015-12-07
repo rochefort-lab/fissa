@@ -115,7 +115,6 @@ def extract_from_single_tiff(filename,Masks):
     '''
     # Get useful info based on reference image
     img = Image.open(filename) # pillow loaded reference image
-    nFrames = get_frame_number(img) # get number of frames in tiff        
     
     # get mask set names
     labels = Masks.keys()
@@ -124,12 +123,12 @@ def extract_from_single_tiff(filename,Masks):
     out = {} # empty dictionary
     for l in labels: # loop over all roi sets
         # extract traces for current set
-        out[l] = extract_traces(img,Masks[l],nFrames)    
+        out[l] = extract_traces(img,Masks[l])    
     
     # Return data
     return out
 
-def extract_traces(img,masks,nframes):
+def extract_traces(img,masks):
     '''Get the traces for each mask in masks from the pillow object img for 
     nframes
     
@@ -151,6 +150,9 @@ def extract_traces(img,masks,nframes):
     '''
     # get the number rois
     nrois = len(masks)
+    
+    # get number of frames
+    nframes = img.n_frames    
     
     # predfine list with the data
     data = np.zeros((nrois,nframes))
@@ -186,7 +188,7 @@ def tiff2array(filename):
     img = Image.open(filename)
     
     # get an average image
-    nframes = get_frame_number(img)
+    nframes = img.n_frames
     
     # predefine data    
     data = np.zeros((img.size[1],img.size[0],nframes))
@@ -216,7 +218,7 @@ def get_mean_tiff(filename):
     img = Image.open(filename)
     
     # get an average image
-    nframes = get_frame_number(img)
+    nframes = img.n_frames
     
     # predefine average    
     avg = np.zeros(img.size[::-1])
