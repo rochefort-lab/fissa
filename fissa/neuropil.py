@@ -51,7 +51,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     Matching Method
     --------------------
     Concept by Scott Lowe.
-    Normalize the columns in A so that sum(column)=1
+    Normalize the columns in estimated mixing matrix A so that sum(column)=1
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
 
