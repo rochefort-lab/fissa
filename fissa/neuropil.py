@@ -72,7 +72,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
         exp_var = np.cumsum(pca.explained_variance_ratio_)   
         
         # set number of components as moment when 90 % of variance is explained
-        n =np. where(exp_var>0.95)[0][0]+1
+        n =np. where(exp_var>0.99)[0][0]+1
 
     # set max iterations reached flag TODO: change this flag to a certain number of random_state changes
     flag = True
