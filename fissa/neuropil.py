@@ -155,7 +155,12 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     for j in range(n):
         s_ = A_sep[0,order[j]]*S_sep[:,order[j]]
         S_matched[:,j] = s_
-
+        # set the mean to be the same as the raw data
+        if sep_method == 'ica': 
+            S_matched[:,j] += S[0,:].mean()
+        elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
+            S_matched[:,j] += S[0,:].mean() - S_matched[:,j].mean() 
+        
     # save the algorithm convergence info
     convergence = {}
     convergence['max_iterations'] = maxiter
