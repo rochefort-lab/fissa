@@ -209,8 +209,52 @@ def deltaFF0(S,T,avg_n=1):
     for n in range(numR):
         for t in range(numT):
             S_norm[t*T:(t+1)*T,n] = np.convolve(norm[n,:,t],np.ones(avg_n)/avg_n,mode='same')
-#             S_norm[t*T:(t+1)*T,n]*= scaleF0[n,0,0]
-#             S_norm[t*T:(t+1)*T,n]+= scaleF0[n,0,0]
+
+    return S_norm
+
+
+def RemoveBaseline(S,T,avg_n=1):
+    ''' Function to interface with commonly used S matrices from rest of 
+    fissa easier. 
+    
+    Removes baseline from every trial, and adds back the global baseline.
+    
+    Parameters
+    ----------
+    S : array
+        A 2D array containing all traces across trials for a single cell, 
+        and for all signals (somatic + neuropil). Should be of form
+        S[frame,signal].
+    T : int
+        The number of frames per trial.
+    avg_n : int {default 1}
+        How many surrounding frames to average over for smoothing
+            
+    Returns
+    -------
+    S_norm : array
+        Of same format as Sin
+
+    TODO: make this work with different length trials    
+    '''
+    # get some info
+    numT = int(S.shape[0]/T) # number of trials
+    numR = S.shape[1] # number of regions (cell + neuropils)
+    
+    # transform S to format expected by df.normaliseF
+    traces = np.zeros((numR,T,numT))
+    for t in range(numT):
+        for n in range(numR):
+            traces[n,:,t] = S[t*T:(t+1)*T,n]
+    norm,baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
+        
+    # return to same format as S
+    S_norm = np.zeros(S.shape)
+    for n in range(numR):
+        for t in range(numT):
+            S_norm[t*T:(t+1)*T,n] = np.convolve(norm[n,:,t],np.ones(avg_n)/avg_n,mode='same')
+            S_norm[t*T:(t+1)*T,n]*= scaleF0[n,0,0]
+            S_norm[t*T:(t+1)*T,n]+= scaleF0[n,0,0]
 
     return S_norm
 
