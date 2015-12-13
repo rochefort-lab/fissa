@@ -113,7 +113,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     elif sep_method == 'nmf': # the nimfa method, fast and reliable
         
         # define nmf method (from nimfa)
-        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol', method='snmf', version='l',objective='conn',conn_change=100)#,eta=1e-5,beta=1e-5)
+        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol', method='snmf', version='l',objective='conn',conn_change=300)#,eta=1e-5,beta=1e-5)
         
         # fit the model
         nmf_fit = nmf()
