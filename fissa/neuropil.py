@@ -58,10 +58,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     TODO
     --------------------
     - Return several candidates for each signal, so can more easily compare
-    '''   
-    # find number of input signals
-    
-    
+    '''       
     # estimate number of signals to find, if not given    
     if n == None:
         # do pca        
