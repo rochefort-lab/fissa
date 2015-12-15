@@ -21,7 +21,7 @@ class TestFindBaseline(BaseTestCase):
         actual = deltaf.findBaselineF0(array, fs)
         self.assert_allclose(actual, desired)
 
-    def test_simple(self):
+    def test_sanity(self):
         # Simple sanity-check test
         fs = 10
         array = np.zeros((100))
@@ -29,6 +29,7 @@ class TestFindBaseline(BaseTestCase):
         actual = deltaf.findBaselineF0(array, fs)
         self.assert_allclose(actual, desired)
 
+    def test_simple(self):
         # Test simple input
         fs = 10
         array = np.ones((1000))
