@@ -77,7 +77,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     # start tries counter
     counter = 1
     
-    # do ica for increasing maximum iterations, until the algorithm terminates before the max iter is reached
+    # do separation for increasing maximum iterations, until the algorithm terminates before the max iter is reached
     if sep_method == 'ica': # if ica is selected
         while flag:
             # define ica method, with whitening of data
