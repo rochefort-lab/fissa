@@ -62,7 +62,7 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     # estimate number of signals to find, if not given    
     if n == None:
         # do pca        
-        pca = PCA(whiten=False) #?why not whiten?
+        pca = PCA(whiten=False) #?why not whiten? The mean is also important. 
         pca.fit(S)
 
         # find cummulative explained variance
