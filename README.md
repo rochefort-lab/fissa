@@ -16,6 +16,11 @@ Ubuntu 15.04 and on Windows 7 with the
 [WinPython 2.7.10.3](http://sourceforge.net/projects/winpython/files/WinPython_2.7/2.7.10.3/)
 distribution.
 
+If you encounter a specific problem please
+[open a new issue](https://github.com/rochefort-lab/fissa/issues/new).
+For general discussion and help with installation or setup, please see the
+[Gitter chat](https://gitter.im/rochefort-lab/fissa).
+
 
 Installation
 ------------
