@@ -52,10 +52,12 @@ before_install:
       cat requirements_conda.txt
   - sed '/^-e/!d' requirements.txt > requirements_pip.txt &&
       cat requirements_pip.txt
-  # Create the conda environment with these dependencies installed
-  - conda create -q -n test-environment python=$PYTHON_VERSION pip --file requirements_conda.txt
+  # Create the conda environment with only pip as the only dependency
+  - conda create -q -n test-environment python=$PYTHON_VERSION pip
   # Activate the test environment
   - source activate test-environment
+  # Install the packages which might be possible with conda
+  - conda install --file requirements.txt
   # Install the packages which are editable and must be done with pip
   - pip install -v -r requirements_pip.txt
   # ----------------------------------------------------------------------------
