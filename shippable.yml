@@ -68,6 +68,8 @@ before_install:
   # this to check whether one of the lines of the output is an exact match
   # for the name of the package we want to install.
   - while read PV; do
+      echo "";
+      echo "==================================================================";
       PN="$(echo $PV | sed 's/^\([^=<>]*\).*/\1/')";
       if conda search $PN --full-name --use-index-cache --names-only |
            grep -qFxi $PN;
