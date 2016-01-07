@@ -75,7 +75,7 @@ before_install:
            grep -qFxi $PN;
       then
         echo "Package $PN is on conda. Installing it from there.";
-        conda install $PV;
+        conda install -q $PV;
       else
         echo "Package $PN isn't on conda. Trying to install it from PyPI.";
         pip install -v $PV;
