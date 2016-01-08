@@ -146,4 +146,5 @@ script:
 
 # commands to run after tests are done
 after_script:
+  - pwd
   - ls -alh
