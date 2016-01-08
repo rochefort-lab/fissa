@@ -35,8 +35,8 @@ that your Linux distribution ships with these.
 
 #### Dependencies of dependencies
 
-* To install the developmental version of FISSA, and also to install NIMFA, you
-  will need to have [Git](https://git-scm.com/download/linux) installed.
+* To install the developmental version of FISSA, you will need to have
+  [Git](https://git-scm.com/download/linux) installed.
 
 * [scipy](https://pypi.python.org/pypi/scipy/) requires a
   [Fortran compiler and BLAS/LAPACK/ATLAS](http://www.scipy.org/scipylib/building/linux.html#installation-from-source).
@@ -132,8 +132,6 @@ If you don't have Git installed globally, you can't do all these steps in the
 WinPython command prompt.
 You can instead download a zipped copy of FISSA from GitHub and skip the first
 step.
-However, in this case you will also get an error when pip tries to install
-nimfa, which can be resolved as described below.
 
 Next, you need to download a windows specific version of shapely from
 <http://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely>.
@@ -142,14 +140,6 @@ Browse to where you downloaded the wheel (which should be named something like
 command prompt:
 
     pip install filename
-
-If nimfa did not install with the first step above, you can download 
-the nimfa zip from <https://github.com/marinkaz/nimfa/archive/v1.2.1.zip>.
-
-Unzip the contained folder, and in folder above it do the following in 
-the WinPython command prompt.
-
-    pip install -e nimfa-1.2.1
 
 Finally, if everything above worked well, you can install FISSA as 
 follows (from the folder above fissa).
