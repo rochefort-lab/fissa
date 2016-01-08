@@ -5,6 +5,10 @@ language: python
 python:
   - "2.7"
 
+env:
+  - TEST_NOTEBOOKS=false
+  - TEST_NOTEBOOKS=true
+
 # Setup the environment before installing
 before_install:
   # ----------------------------------------------------------------------------
@@ -86,7 +90,9 @@ before_install:
   # Install the packages which are editable and must be done with pip
   - pip install -v -r requirements_editable.txt
   # Install the packages which are needed for plotting
-  - pip install -r requirements_plots.txt
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install -r requirements_plots.txt;
+    fi
   # ----------------------------------------------------------------------------
 
 # install requirements
@@ -108,10 +114,6 @@ script:
   - py.test --junitxml=shippable/testresults/testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
   - mv coverage.xml shippable/codecoverage/
   # Test the notebooks
-  # Need a more up-to-date version of ipython
-  # Use this line until they release 4.1.0, then we can use that official release
-  - pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0
-  - cd doc
   - function check_notebooks {
       RETURNVALUE=0;
       for NBFILE in *.ipynb;
@@ -133,8 +135,14 @@ script:
       done;
       return $RETURNVALUE;
     }
-  - check_notebooks
-  - cd ..
+  # Need a more up-to-date version of ipython
+  # Use this line until they release 4.1.0, then we can use that official release
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
+    fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd doc; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
 
 # commands to run after tests are done
 after_script:
