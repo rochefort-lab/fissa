@@ -52,22 +52,25 @@ Python 2.7 and pip installed. It is highly likely that your Linux distribution s
 These packages can be installed on *Debian/Ubuntu* with the following shell
 commands.
 
-    sudo apt-get update
-    sudo apt-get install git
-    sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
-    sudo apt-get install libgeos-dev
-    sudo apt-get install libjpeg-dev
-
+```bash
+sudo apt-get update
+sudo apt-get install git
+sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
+sudo apt-get install libgeos-dev
+sudo apt-get install libjpeg-dev
+```
 
 #### Installation into user site-packages
 
 You can download the package source from GitHub, and then install FISSA and its 
 dependencies as follows:
 
-    git clone https://github.com/rochefort-lab/fissa.git
-    pip install --user -r fissa/requirements_first.txt
-    pip install --user -r fissa/requirements.txt
-    pip install --user -e fissa
+```bash
+git clone https://github.com/rochefort-lab/fissa.git
+pip install --user -r fissa/requirements_first.txt
+pip install --user -r fissa/requirements.txt
+pip install --user -e fissa
+```
 
 The `--user` flag ensures the packages are installed into your usr site-packages
 folder.
@@ -75,8 +78,9 @@ folder.
 To generate the plots in the iPython Notebooks, you will also need to install
 the optional dependencies:
 
-    pip install --user -r fissa/requirements_plots.txt
-
+```bash
+pip install --user -r fissa/requirements_plots.txt
+```
 
 #### Installation into a virtual environment
 
@@ -85,28 +89,32 @@ If you prefer, you can install FISSA and its dependencies into a python
 This is useful if you want to isolate FISSA and its dependencies into their own
 place where they won't be affected if you install other packages.
 
-    PATH_TO_VENV="venvfissa"
-    PYTHON_VERSION="2.7"
-    pip install virtualenv
-    virtualenv --no-site-packages -p "/usr/bin/python$PYTHON_VERSION" "$PATH_TO_VENV"
-    source "$PATH_TO_VENV/bin/activate"
-    git clone https://github.com/rochefort-lab/fissa.git
-    pip install -r fissa/requirements_first.txt
-    pip install -r fissa/requirements.txt
-    pip install -r fissa/requirements_plots.txt
-    pip install -e fissa
-    py.test fissa
-    deactivate
+```bash
+PATH_TO_VENV="venvfissa"
+PYTHON_VERSION="2.7"
+pip install virtualenv
+virtualenv --no-site-packages -p "/usr/bin/python$PYTHON_VERSION" "$PATH_TO_VENV"
+source "$PATH_TO_VENV/bin/activate"
+git clone https://github.com/rochefort-lab/fissa.git
+pip install -r fissa/requirements_first.txt
+pip install -r fissa/requirements.txt
+pip install -r fissa/requirements_plots.txt
+pip install -e fissa
+py.test fissa
+deactivate
+```
 
 You will need to source the virtual environment bin order to have FISSA and
 its dependencies available. Once you are done you can deactivate the virtual
 environment again.
 
-    source "$PATH_TO_VENV/bin/activate"
-    ipython
-    # Do something in python
-    # ...
-    deactivate
+```bash
+source "$PATH_TO_VENV/bin/activate"
+ipython
+# Do something in python
+# ...
+deactivate
+```
 
 You can replace `$PATH_TO_VENV` with the literal path to your virtual
 environment.
@@ -123,10 +131,12 @@ From the `WinPython Command Prompt.exe`, which can be found in the WinPython
 installation folder, you can download the FISSA source from GitHub and install
 most of its dependencies as follows:
 
-    git clone https://github.com/rochefort-lab/fissa.git
-    pip install -r fissa/requirements_first.txt
-    pip install -r fissa/requirements_windows.txt
-    pip install -r fissa/requirements_plots.txt
+```
+git clone https://github.com/rochefort-lab/fissa.git
+pip install -r fissa/requirements_first.txt
+pip install -r fissa/requirements_windows.txt
+pip install -r fissa/requirements_plots.txt
+```
 
 If you don't have Git installed globally, you can't do all these steps in the
 WinPython command prompt.
@@ -139,21 +149,25 @@ Browse to where you downloaded the wheel (which should be named something like
 `Shapely‑1.5.13‑cp27‑none‑win_amd64.whl`) and pip install it using the WinPython
 command prompt:
 
-    pip install filename
+```
+pip install filename
+```
 
 Finally, if everything above worked well, you can install FISSA as 
 follows (from the folder above fissa).
 
-    pip install -e fissa
-
+```
+pip install -e fissa
+```
 
 ### Testing your installation
 
 After installing FISSA, you can test your installation by running the test
 suite by running the command
 
-    python setup.py test
-
+```bash
+python setup.py test
+```
 
 
 Folder Structure
