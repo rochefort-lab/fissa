@@ -27,11 +27,11 @@ Installation
 
 ### Installation on Linux
 
-Before installing FISSA, you should make sure you have all of its dependencies
---- and the dependencies of its dependencies --- installed.
+Before installing FISSA, you will need to make sure you have all of its dependencies
+(and the dependencies of its dependencies) installed.
 
-We will assume you already have Python 2.7 and pip installed. It is very likely
-that your Linux distribution ships with these.
+Here we will outline how to do all of these steps, assuming you already have both
+Python 2.7 and pip installed. It is highly likely that your Linux distribution ships with these.
 
 #### Dependencies of dependencies
 
