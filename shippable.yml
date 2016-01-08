@@ -85,6 +85,8 @@ before_install:
     done < requirements_static.txt
   # Install the packages which are editable and must be done with pip
   - pip install -v -r requirements_editable.txt
+  # Install the packages which are needed for plotting
+  - pip install -r requirements_plots.txt
   # ----------------------------------------------------------------------------
 
 # install requirements
