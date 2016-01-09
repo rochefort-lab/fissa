@@ -10,22 +10,18 @@ python:
 # Setup the environment before installing
 before_install:
   # ----------------------------------------------------------------------------
-  # Work out which version of python we are testing
-  # ----------------------------------------------------------------------------
-  - echo "$TRAVIS"
-  - echo "$SHIPPABLE"
-  - if [ "$SHIPPABLE" = "true" ]; then
-      PYTHON_VERSION="${SHIPPABLE_PYTHON##*/python}";
-    elif [ "$TRAVIS" = "true" ]; then
-      PYTHON_VERSION=$TRAVIS_PYTHON;
-    fi;
-  # ----------------------------------------------------------------------------
   # Test setup by printing some variables
   # ----------------------------------------------------------------------------
   - pwd
   - echo "$VIRTUAL_ENV"
+  # ----------------------------------------------------------------------------
+  # Work out which version of python we are testing
+  # ----------------------------------------------------------------------------
+  - echo "$TRAVIS"
+  - echo "$SHIPPABLE"
   - echo "$TRAVIS_PYTHON"
   - echo "$SHIPPABLE_PYTHON"
+  - PYTHON_VERSION="$TRAVIS_PYTHON_VERSION"
   - echo "$PYTHON_VERSION"
   # ----------------------------------------------------------------------------
   # Install some packages dependencies with apt-get
@@ -41,13 +37,14 @@ before_install:
   # The following is taken from Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
   # ----------------------------------------------------------------------------
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
+  # Download miniconda.  If the python version we want is 2.7, we can download
+  # a smller miniconda file.
   - if [[ "$PYTHON_VERSION" == "2.7" ]]; then
       wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
     else
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
+  # Install miniconda to the home directory
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -135,6 +132,7 @@ after_script:
   # Check where we ended up and what's going on where we are
   - pwd
   - ls -alh
+  # ----------------------------------------------------------------------------
   # Move results and coverage files into appropriate places
   - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
       mv testresults.xml shippable/testresults/;
