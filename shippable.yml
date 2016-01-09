@@ -12,10 +12,12 @@ before_install:
   # ----------------------------------------------------------------------------
   # Work out which version of python we are testing
   # ----------------------------------------------------------------------------
-  - if [ $TRAVIS = "true" ]; then
-      PYTHON_VERSION=$TRAVIS_PYTHON;
-    elif [ $SHIPPABLE = "true" ]; then
+  - echo "$TRAVIS"
+  - echo "$SHIPPABLE"
+  - if [ "$SHIPPABLE" = "true" ]; then
       PYTHON_VERSION="${SHIPPABLE_PYTHON##*/python}";
+    elif [ "$TRAVIS" = "true" ]; then
+      PYTHON_VERSION=$TRAVIS_PYTHON;
     fi;
   # ----------------------------------------------------------------------------
   # Test setup by printing some variables
