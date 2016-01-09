@@ -7,6 +7,15 @@
 
 
 ##---------------------------------------------------
+# Continuous Integration .gitignore files
+##---------------------------------------------------
+
+# Ignore test result XML files
+testresults.xml
+coverage.xml
+
+
+##---------------------------------------------------
 # Windows default .gitignore
 ##---------------------------------------------------
 
