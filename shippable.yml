@@ -15,6 +15,9 @@ env:
 ################################################################################
 # Setup the environment before installing
 before_install:
+  # Remember the directory where our repository to test is located
+  - pwd
+  - REPOPATH=`pwd`
   # ----------------------------------------------------------------------------
   # Test setup by printing some variables
   # ----------------------------------------------------------------------------
@@ -171,6 +174,10 @@ script:
 after_script:
   # Check where we ended up and what's going on where we are
   - pwd
+  - ls -alh
+  # Go back to the repository directory
+  - cd ${REPOPATH}
+  # Check what results files are here
   - ls -alh
   # ----------------------------------------------------------------------------
   # Move results and coverage files into appropriate places
