@@ -102,17 +102,28 @@ install:
 
 ################################################################################
 before_script:
-  - mkdir -p shippable/testresults
-  - mkdir -p shippable/codecoverage
+  # Set up folders for test results
+  - if [ "$SHIPPABLE" = "true" ]; then
+      mkdir -p shippable/testresults;
+      mkdir -p shippable/codecoverage;
+    fi;
 
 ################################################################################
 # commands to run test scripts
 script:
   - which python
-  - py.test --junitxml=shippable/testresults/testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
-  - mv coverage.xml shippable/codecoverage/
+  - py.test --junitxml=testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
 
 ################################################################################
 # commands to run after tests are done
 after_script:
+  # Check where we ended up and what's going on where we are
+  - pwd
   - ls -alh
+  # Move results and coverage files into appropriate places
+  - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
+      mv testresults.xml shippable/testresults/
+    fi;
+  - if [ "$SHIPPABLE" = "true" ] && [ -f coverage.xml ]; then
+      mv coverage.xml shippable/codecoverage/
+    fi;
