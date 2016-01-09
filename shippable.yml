@@ -102,6 +102,12 @@ install:
   # To do the coverage, we also need the pytest-cov package
   - pip install pytest-cov
   - python setup.py develop
+
+################################################################################
+after_install:
+  # Double-check we are still in the right directory
+  - pwd
+  # Check what python packages we have installed
   - pip freeze
 
 ################################################################################
@@ -126,8 +132,8 @@ after_script:
   - ls -alh
   # Move results and coverage files into appropriate places
   - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
-      mv testresults.xml shippable/testresults/
+      mv testresults.xml shippable/testresults/;
     fi;
   - if [ "$SHIPPABLE" = "true" ] && [ -f coverage.xml ]; then
-      mv coverage.xml shippable/codecoverage/
+      mv coverage.xml shippable/codecoverage/;
     fi;
