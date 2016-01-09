@@ -117,14 +117,12 @@ install:
   - python setup.py develop
 
 ################################################################################
-after_install:
+before_script:
   # Double-check we are still in the right directory
   - pwd
   # Check what python packages we have installed
   - pip freeze
-
-################################################################################
-before_script:
+  # ----------------------------------------------------------------------------
   # Set up folders for test results
   - if [ "$SHIPPABLE" = "true" ]; then
       mkdir -p shippable/testresults;
