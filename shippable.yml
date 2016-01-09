@@ -5,6 +5,10 @@ language: python
 python:
   - "2.7"
 
+env:
+  - TEST_NOTEBOOKS=false
+  - TEST_NOTEBOOKS=true
+
 # Setup the environment before installing
 before_install:
   # ----------------------------------------------------------------------------
@@ -85,6 +89,10 @@ before_install:
     done < requirements_static.txt
   # Install the packages which are editable and must be done with pip
   - pip install -v -r requirements_editable.txt
+  # Install the packages which are needed for plotting
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install -r requirements_plots.txt;
+    fi
   # ----------------------------------------------------------------------------
 
 # install requirements
@@ -102,9 +110,41 @@ before_script:
 # commands to run test scripts
 script:
   - which python
+  # Test the main code base
   - py.test --junitxml=shippable/testresults/testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
   - mv coverage.xml shippable/codecoverage/
+  # Test the notebooks
+  - function check_notebooks {
+      RETURNVALUE=0;
+      for NBFILE in *.ipynb;
+      do
+        echo "==================================================================";
+        echo "Converting $NBFILE to a script";
+        echo "------------------------------------------------------------------";
+        jupyter nbconvert --to=script "$NBFILE";
+        PYFILE="${NBFILE%.*}.py";
+        echo "Commenting out any lines in $PYFILE which are calls to help()";
+        sed -ie 's/^\(help(.*)\)/#\ \1/' "$PYFILE";
+        echo "------------------------------------------------------------------";
+        echo "Trying to run the generated script $PYFILE";
+        echo "------------------------------------------------------------------";
+        ipython "$PYFILE";
+        ((RETURNVALUE+=$?));
+        echo "------------------------------------------------------------------";
+        echo "Current exit code is $RETURNVALUE";
+      done;
+      return $RETURNVALUE;
+    }
+  # Need a more up-to-date version of ipython
+  # Use this line until they release 4.1.0, then we can use that official release
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
+    fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd doc; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
 
 # commands to run after tests are done
 after_script:
+  - pwd
   - ls -alh
