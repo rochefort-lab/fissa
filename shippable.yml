@@ -1,10 +1,12 @@
 # language setting
 language: python
 
+################################################################################
 # version numbers
 python:
   - "2.7"
 
+################################################################################
 # Setup the environment before installing
 before_install:
   # ----------------------------------------------------------------------------
@@ -83,6 +85,7 @@ before_install:
         done < $1;
     }
 
+################################################################################
 # install requirements
 install:
   # Install required packages listed in requirements.txt. Use conda if they are
@@ -97,17 +100,19 @@ install:
   - python setup.py develop
   - pip freeze
 
-# Set up folders for test results
+################################################################################
 before_script:
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
 
+################################################################################
 # commands to run test scripts
 script:
   - which python
   - py.test --junitxml=shippable/testresults/testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
   - mv coverage.xml shippable/codecoverage/
 
+################################################################################
 # commands to run after tests are done
 after_script:
   - ls -alh
