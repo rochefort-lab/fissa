@@ -2,9 +2,10 @@
 Objects shared by all the test cases
 """
 import unittest
+import os.path
+from inspect import getsourcefile
 
 import numpy as np
-
 from numpy.testing import (assert_almost_equal,
                            assert_array_equal,
                            assert_allclose,
@@ -14,6 +15,9 @@ class BaseTestCase(unittest.TestCase):
     """
     Superclass for all the FISSA test cases
     """
+
+    test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda:0)))
+
     def __init__(self, *args, **kw):
         """Add test for numpy type"""
         # super(self).__init__(*args, **kw) # Only works on Python3
