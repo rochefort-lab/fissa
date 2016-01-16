@@ -11,17 +11,19 @@ from numpy.testing import (assert_almost_equal,
                            assert_allclose,
                            assert_equal)
 
+
 class BaseTestCase(unittest.TestCase):
+
     """
     Superclass for all the FISSA test cases
     """
 
-    test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda:0)))
+    test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
     def __init__(self, *args, **kw):
         """Add test for numpy type"""
         # super(self).__init__(*args, **kw) # Only works on Python3
-        super(BaseTestCase, self).__init__(*args, **kw) # Works on Python2
+        super(BaseTestCase, self).__init__(*args, **kw)  # Works on Python2
         self.addTypeEqualityFunc(np.ndarray, self.assert_allclose)
 
     def assert_almost_equal(self, *args, **kwargs):
@@ -34,4 +36,4 @@ class BaseTestCase(unittest.TestCase):
         return assert_allclose(*args, **kwargs)
 
     def assert_equal(self, *args, **kwargs):
-        return assert_equal(*args,**kwargs)
+        return assert_equal(*args, **kwargs)

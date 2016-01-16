@@ -79,13 +79,13 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
         # Check the axis for averaging over is set to -1, otherwise the input
         # doesn't make sense.
         if ax_recs is not -1:
-            raise ValueError('A list of recordings was input, but the axis to '+
+            raise ValueError('A list of recordings was input, but the axis to ' +
                     'average over was also set.')
         # Find the baseline F0 for each ROI in each recording
         bl_list = [findBaselineF0(x, fs, axis=ax_time, keepdims=True)
                             for x in rawF]
         # Concatenate them together along a new, postpended, axis
-        baselineF0 = np.concatenate([x[...,np.newaxis] for x in bl_list], -1)
+        baselineF0 = np.concatenate([x[..., np.newaxis] for x in bl_list], -1)
     
     # Take the mean of the baseline F0 values to find a overall typical F0
     scaleF0 = np.mean(np.maximum(baselineF0, min_f0_bl), ax_recs, keepdims=True)
@@ -103,7 +103,7 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
         scaleF0 = np.squeeze(scaleF0, -1)
         # Now normalise each element in the list
         normalisedF = []
-        for i,x in enumerate(rawF):
+        for i, x in enumerate(rawF):
             normalisedF.append((x-bl_list[i])/scaleF0)
         # We should output the baseline values as a list too
         baselineF0 = bl_list
@@ -198,17 +198,17 @@ def deltaFF0(S, T, avg_n=1):
     numR = S.shape[1] # number of regions (cell + neuropils)
     
     # transform S to format expected by df.normaliseF
-    traces = np.zeros((numR,T,numT))
+    traces = np.zeros((numR, T, numT))
     for t in range(numT):
         for n in range(numR):
-            traces[n,:,t] = S[t*T:(t+1)*T,n]
-    norm,baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
+            traces[n,:, t] = S[t*T:(t+1)*T, n]
+    norm, baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
         
     # return to same format as S
     S_norm = np.zeros(S.shape)
     for n in range(numR):
         for t in range(numT):
-            S_norm[t*T:(t+1)*T,n] = np.convolve(norm[n,:,t],np.ones(avg_n)/avg_n,mode='same')
+            S_norm[t*T:(t+1)*T, n] = np.convolve(norm[n,:, t], np.ones(avg_n)/avg_n, mode='same')
 
     return S_norm
 
@@ -242,18 +242,18 @@ def RemoveBaseline(S, T, avg_n=1):
     numR = S.shape[1] # number of regions (cell + neuropils)
     
     # transform S to format expected by df.normaliseF
-    traces = np.zeros((numR,T,numT))
+    traces = np.zeros((numR, T, numT))
     for t in range(numT):
         for n in range(numR):
-            traces[n,:,t] = S[t*T:(t+1)*T,n]
-    norm,baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
+            traces[n,:, t] = S[t*T:(t+1)*T, n]
+    norm, baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
         
     # return to same format as S
     S_norm = np.zeros(S.shape)
     for n in range(numR):
         for t in range(numT):
-            S_norm[t*T:(t+1)*T,n] = np.convolve(norm[n,:,t],np.ones(avg_n)/avg_n,mode='same')
-            S_norm[t*T:(t+1)*T,n]*= scaleF0[n,0,0]
-            S_norm[t*T:(t+1)*T,n]+= scaleF0[n,0,0]
+            S_norm[t*T:(t+1)*T, n] = np.convolve(norm[n,:, t], np.ones(avg_n)/avg_n, mode='same')
+            S_norm[t*T:(t+1)*T, n] *= scaleF0[n, 0, 0]
+            S_norm[t*T:(t+1)*T, n] += scaleF0[n, 0, 0]
 
     return S_norm

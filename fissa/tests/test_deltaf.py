@@ -10,6 +10,7 @@ from .base_test import BaseTestCase
 
 from .. import deltaf
 
+
 class TestFindBaseline(BaseTestCase):
 
     @unittest.expectedFailure
@@ -43,21 +44,21 @@ class TestFindBaseline(BaseTestCase):
     def test_multidimensional(self):
         # Test multi-dimensional input
         fs = 10
-        array = np.zeros((1000,3))
-        array[:,0] = 2
-        array[:,2] = -1
-        desired = np.array([2,0,-1])
+        array = np.zeros((1000, 3))
+        array[:, 0] = 2
+        array[:, 2] = -1
+        desired = np.array([2, 0, -1])
         actual = deltaf.findBaselineF0(array, fs)
         self.assert_allclose(actual, desired)
 
         # Test multi-dimensional input with keepdims
-        desired = np.array([[2,0,-1]])
+        desired = np.array([[2, 0, -1]])
         actual = deltaf.findBaselineF0(array, fs, keepdims=True)
         self.assert_allclose(actual, desired)
 
         # Test multi-dimensional input along other dimension
         array = np.transpose(array)
-        desired = np.array([[2],[0],[-1]])
+        desired = np.array([[2], [0], [-1]])
         actual = deltaf.findBaselineF0(array, fs, axis=1, keepdims=True)
         self.assert_allclose(actual, desired)
 
@@ -74,9 +75,9 @@ class TestFindBaseline(BaseTestCase):
             # Generate white noise
             array = rng.normal(mu, sigma, num_samples)
             # Add intermittent events
-            array[:event_intv:] = mu + sigma*100
+            array[:event_intv:] = mu + sigma * 100
             actual = deltaf.findBaselineF0(array, fs)
             desired = np.array([mu])
             # Should be able to get within half a sigma of the actual noise
-            self.assertGreater(actual, desired - sigma/2)
-            self.assertLess(actual, desired + sigma/2)
+            self.assertGreater(actual, desired - sigma / 2)
+            self.assertLess(actual, desired + sigma / 2)

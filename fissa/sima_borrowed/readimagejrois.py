@@ -1,5 +1,5 @@
 '''
- Adapted from readimagjerois in the Sima package, 
+ Adapted from readimagjerois in the Sima package,
  http://www.losonczylab.org/sima
 
  Copyright: Luis Pedro Coelho <luis@luispedro.org>, 2012
@@ -111,7 +111,7 @@ def read_roi(roi_obj):
         out = (b0 << 8) | b1
         # This is a signed integer, so need to check if the value is
         # positive or negative.
-        if b0>127:
+        if b0 > 127:
             out = out - 65536
         return out
 

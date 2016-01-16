@@ -7,7 +7,7 @@ Created: 2015-05-15
 import numpy as np
 import numpy.random as rand
 import nimfa 
-from sklearn.decomposition import FastICA, ProjectedGradientNMF,PCA
+from sklearn.decomposition import FastICA, ProjectedGradientNMF, PCA
 from scipy.optimize import minimize_scalar
 
             
@@ -77,7 +77,7 @@ def separate(
         exp_var = np.cumsum(pca.explained_variance_ratio_)   
         # Find the number of components which are needed to explain a
         # set fraction of the variance
-        n = np.where(exp_var>0.99)[0][0]+1
+        n = np.where(exp_var > 0.99)[0][0]+1
 
     # set max iterations reached flag
     # TODO: change this flag to a certain number of random_state changes
@@ -104,16 +104,16 @@ def separate(
                 print 'Warning: maximum number of allowed tries reached at ' + str(ica.n_iter_) + ' iterations for ' + str(counter) + ' tries.'
             elif ica.n_iter_ == maxiter:
                 print 'failed to converge at ' + str(ica.n_iter_) + ' iterations, trying a new random_state.'
-                random_state=rand.randint(8000) # iterate random_state
+                random_state = rand.randint(8000) # iterate random_state
                 counter += 1 # iterate counter
             else:
                 flag = False # stops while loop
                 print 'needed ' + str(ica.n_iter_) + ' iterations to converge'
-        A_sep=  ica.mixing_
+        A_sep =  ica.mixing_
             
     elif sep_method == 'nmf_sklearn': # the sklearn nmf method, is slow and can't tell how many iterations were used
         # define nmf method (from sklearn)
-        nmf = ProjectedGradientNMF(init='nndsvd',sparseness='data',n_components=n,tol=tol,max_iter=maxiter,random_state=random_state)
+        nmf = ProjectedGradientNMF(init='nndsvd', sparseness='data', n_components=n, tol=tol, max_iter=maxiter, random_state=random_state)
         
         # separate signals and get mixing matrix
         S_sep = nmf.fit_transform(S.T)
@@ -153,7 +153,7 @@ def separate(
     # is represented in each ROI signal. 
     A = abs(np.copy(A_sep))
     for j in range(n):
-        A[:,j] /= np.sum(A[:,j])
+        A[:, j] /= np.sum(A[:, j])
     
     # get the scores for the somatic signal
     scores = abs(A[0,:])
@@ -163,13 +163,13 @@ def separate(
     
     # order the signals according to their scores
     for j in range(n):
-        s_ = A_sep[0,order[j]]*S_sep[:,order[j]]
-        S_matched[:,j] = s_
+        s_ = A_sep[0, order[j]]*S_sep[:, order[j]]
+        S_matched[:, j] = s_
         # set the mean to be the same as the raw data
         if sep_method == 'ica': 
-            S_matched[:,j] += S[0,:].mean()
+            S_matched[:, j] += S[0,:].mean()
         elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
-            S_matched[:,j] += S[0,:].mean() - S_matched[:,j].mean() 
+            S_matched[:, j] += S[0,:].mean() - S_matched[:, j].mean() 
         
     # save the algorithm convergence info
     convergence = {}
@@ -177,20 +177,20 @@ def separate(
     if sep_method == 'ica':
         convergence['random_state'] = random_state
         convergence['iterations']   = ica.n_iter_
-        convergence['converged'] = not ica.n_iter_==maxiter
-    elif sep_method =='nmf':
+        convergence['converged'] = not ica.n_iter_ == maxiter
+    elif sep_method == 'nmf':
         convergence['random_state'] = 'not yet implemented'
         convergence['iterations']   = fs['n_iter']
         convergence['converged'] = not fs['n_iter'] == maxiter
-    elif sep_method =='nmf_sklearn':
+    elif sep_method == 'nmf_sklearn':
         convergence['random_state'] = 'not yet implemented'
-        convergence['iterations']   ='not yet implemented'
+        convergence['iterations']   = 'not yet implemented'
         convergence['converged'] = 'not yet implemented'    
     
-    return S_sep.T,S_matched.T,A_sep,convergence
+    return S_sep.T, S_matched.T, A_sep, convergence
 
 
-def subtract_pil(sig,pil):
+def subtract_pil(sig, pil):
     ''' subtract the neuropil (pil) from the signal (sig), in such a manner 
     that that the correlation between the two is minimized:
     sig_ = sig - a*pil
@@ -213,14 +213,14 @@ def subtract_pil(sig,pil):
     def mincorr(x):
         ''' find the correlation between sig and pil, for subtraction with gain x '''
         sig_ = sig-x*pil
-        corr = np.corrcoef(sig_,pil)[0,1]
+        corr = np.corrcoef(sig_, pil)[0, 1]
         return np.sqrt(corr**2)
 
     res = minimize_scalar(mincorr, bounds=(0, 1.5), method='bounded')
     a = res.x # the resulting gain
     sig_ = sig-a*pil+np.mean(a*pil) # the output signal
 
-    return sig_,a
+    return sig_, a
 
 
 def subtract_dict(S, n_noncell):
@@ -241,8 +241,8 @@ def subtract_dict(S, n_noncell):
     '''    
     S_subtract = {}
     a = {}
-    for i in range(n_noncell,len(S)):
-        S_subtract[i],a[i] = subtract_pil(S[i][:,0],np.mean(S[i][:,1:],axis=1))
+    for i in range(n_noncell, len(S)):
+        S_subtract[i], a[i] = subtract_pil(S[i][:, 0], np.mean(S[i][:, 1:], axis=1))
     
-    return S_subtract,a  
+    return S_subtract, a  
     

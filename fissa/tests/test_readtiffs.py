@@ -44,7 +44,7 @@ class TestReadTiffs(BaseTestCase):
                     xc:#848484 xc:#868686 xc:#888888 grey_1x1x5.tif
         '''
         self.resource_directory = os.path.join(self.test_directory,
-                                                'resources')
+                                               'resources')
         datafile = os.path.join(self.resource_directory, 'tiff_num_frames.csv')
         self.resource_num_frames = list(csv.DictReader(open(datafile),
                                                        delimiter=';'))
