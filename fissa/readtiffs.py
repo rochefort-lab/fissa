@@ -17,7 +17,7 @@ def get_frame_number(img):
     Parameters
     ----------
     img : pillow Image object 
-          An image loaded using pillow Image. 
+        An image loaded using pillow Image. 
           
     Returns
     -------
@@ -40,9 +40,9 @@ def getbox(com,size):
     Parameters
     ----------
     com : tuple/array/list
-          The 2d center of mass the box should have (x,y)
-    size: int
-          Half the height of the required output box
+        The 2d center of mass the box should have (x,y)
+    size : int
+        Half the height of the required output box
     
     Returns
     -------

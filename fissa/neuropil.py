@@ -3,87 +3,99 @@
 Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-05-15
 '''
+
 import numpy as np
 import numpy.random as rand
+import nimfa 
 from sklearn.decomposition import FastICA, ProjectedGradientNMF,PCA
 from scipy.optimize import minimize_scalar
-import nimfa 
+
             
-def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,maxtries=10):
+def separate(
+        S, sep_method='ica', n=None, maxiter=500, tol=1e-5,
+        random_state=892, maxtries=10):
     ''' 
     For the signals in S, finds the independent signals underlying it, using 
     ica or nmf. Several methods for signal picking are implemented, see below, 
     of which method 5 works best in general. 
     
     Parameters
-    ---------------------
-    S      : 2D array
+    ----------
+    S : np.ndarray
         2d array with signals. S[i,j], j = each signal, i = signal content.
         j = 0 is considered the primary signal. (i.e. the somatic signal)
-    sep_method : string {'ica','nmf','nmf_sklearn'}
-        Which source separation to use, ica or nmf. 
-        nmf uses the nimfa implementation. 
-        nmf_sklearn uses the sklearn implementation, which is slower.
-    n : int
-        how many components to estimate. If None, use PCA to estimate 
-        how many components would explain at least 95% of the variance
-    maxiter : int {500}
-        Number of maximally allowed iterations
-    tol : float (1e-5)
-        Error tolerance for termination
-    random_state : int (892)
-        Initial random state for seeding
-    maxtries : int (10)
-          maximum number of tries before algorithm should terminate
+    sep_method : {'ica','nmf','nmf_sklearn'}
+        Which source separation method to use, ica or nmf.
+            * ica: independent component analysis
+            * nmf: The nimfa implementation of non-negative matrix
+              factorization.
+            * nmf_sklearn: The sklearn implementation of non-negative
+              matrix factorization (which is slower).
+    n : int, optional
+        How many components to estimate. If None, use PCA to estimate
+        how many components would explain at least 99% of the variance.
+    maxiter : int, optional
+        Number of maximally allowed iterations. Default is 500.
+    tol : float, optional
+        Error tolerance for termination. Default is 1e-5.
+    random_state : int, optional
+        Initial random state for seeding. Default is 892.
+    maxtries : int, optional
+        Maximum number of tries before algorithm should terminate.
+        Default is 10.
     
     Returns
-    ---------------------
-    S_sep,S_matched,A_sep,convergence = separate(args)
-    S_sep  : The raw separated traces
-    S_matched : The separated traces matched to the primary signal, in order 
-                of matching quality (see Matching Method)
-    convergence : a dictionary with [random_state,iterations,max_iterations,converged]
-                random_state: seed for ica initiation
-                iterations: number of iterations needed for convergence
-                max_iterations: maximun number of iterations allowed
-                converged: whether the algorithm converged or not (bool)
-                
-    Matching Method
-    --------------------
+    -------
+    S_sep : numpy.ndarray
+        The raw separated traces
+    S_matched : 
+        The separated traces matched to the primary signal, in order
+        of matching quality (see Implementation below).
+    A_sep : 
+    convergence : dict
+        Metadata for the convergence result, with keys:
+            * random_state: seed for ica initiation
+            * iterations: number of iterations needed for convergence
+            * max_iterations: maximun number of iterations allowed
+            * converged: whether the algorithm converged or not (bool)
+
+    Implementation
+    --------------
     Concept by Scott Lowe.
     Normalize the columns in estimated mixing matrix A so that sum(column)=1
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
+    '''
+    # TODO Return several candidates for each signal, so can more easily compare
 
-    TODO
-    --------------------
-    - Return several candidates for each signal, so can more easily compare
-    '''       
     # estimate number of signals to find, if not given    
     if n == None:
-        # do pca        
-        pca = PCA(whiten=False) #?why not whiten? The mean is also important. 
+        # Perform PCA, without whitening because the mean is important to us.
+        pca = PCA(whiten=False) 
         pca.fit(S)
-
-        # find cummulative explained variance
+        # Find cumulative explained variance
         exp_var = np.cumsum(pca.explained_variance_ratio_)   
-        
-        # set number of components as moment when 90 % of variance is explained
-        n =np.where(exp_var>0.99)[0][0]+1
+        # Find the number of components which are needed to explain a
+        # set fraction of the variance
+        n = np.where(exp_var>0.99)[0][0]+1
 
-    # set max iterations reached flag TODO: change this flag to a certain number of random_state changes
+    # set max iterations reached flag
+    # TODO: change this flag to a certain number of random_state changes
     flag = True
     
     # start tries counter
     counter = 1
     
-    # do separation for increasing maximum iterations, until the algorithm terminates when the max iter is reached
+    # do separation for increasing maximum iterations, until the
+    # algorithm terminates when the max iter is reached
     if sep_method == 'ica': # if ica is selected
         while flag:
-            # define ica method, with whitening of data
-            ica = FastICA(n_components = n,whiten=True,max_iter = maxiter,tol=tol,random_state=random_state)
-             
-            # do the ica and find separated signals
+            # Make an instance of the FastICA class. We can do whitening of
+            # the data now.
+            ica = FastICA(n_components=n, whiten=True, max_iter=maxiter,
+                          tol=tol, random_state=random_state)
+
+            # Perform ICA and find separated signals
             S_sep = ica.fit_transform(S.T)
 
             # check if max number of iterations was reached
@@ -110,19 +122,20 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
     elif sep_method == 'nmf': # the nimfa method, fast and reliable
         
         # define nmf method (from nimfa)
-        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol', method='snmf', version='l',objective='conn',conn_change=300)#,eta=1e-5,beta=1e-5)
-        
+        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
+                        method='snmf', version='l', objective='conn',
+                        conn_change=300)
+                        #,eta=1e-5,beta=1e-5)
         # fit the model
         nmf_fit = nmf()
-        
+
         # get fit summary
         fs = nmf_fit.summary()
-        
         # check if max number of iterations was reached
         if fs['n_iter'] == maxiter:
-            print 'Warning: maximum number of allowed iterations reached at ' + str(fs['n_iter']) + ' iterations.'
+            print('Warning: maximum number of allowed iterations reached at ' + str(fs['n_iter']) + ' iterations.')
         else:
-            print 'Nmf converged at ' + str(fs['n_iter']) + ' iterations.'
+            print('NMF converged at ' + str(fs['n_iter']) + ' iterations.')
 
         # get the mixing matrix and estimated data
         A_sep = np.array(nmf_fit.coef()).T
@@ -175,7 +188,8 @@ def separate(S,sep_method='ica',n=None,maxiter=500,tol=1e-5,random_state=892,max
         convergence['converged'] = 'not yet implemented'    
     
     return S_sep.T,S_matched.T,A_sep,convergence
-   
+
+
 def subtract_pil(sig,pil):
     ''' subtract the neuropil (pil) from the signal (sig), in such a manner 
     that that the correlation between the two is minimized:
@@ -183,41 +197,47 @@ def subtract_pil(sig,pil):
     find 'a' such that cor(sig_,pil) is minimized. A is bound to be 0-1.5.    
     
     Parameters
-    -------------------
-    sig : array
+    ----------
+    sig : numpy.ndarray
         signal
-    pil :  array
+    pil : numpy.ndarray
         neuropils
         
     Returns
     ---------------
-    sig_,a = subtractpil(sig,pil)
-    sig_ : the signal with neuropil subtracted
-    a : the subtraction parameter that results in the best subtraction.
+    sig : numpy.ndarray
+        The signal with neuropil subtracted.
+    a : float
+        The subtraction parameter that results in the best subtraction.
     '''
     def mincorr(x):
         ''' find the correlation between sig and pil, for subtraction with gain x '''
         sig_ = sig-x*pil
         corr = np.corrcoef(sig_,pil)[0,1]
         return np.sqrt(corr**2)
-    
+
     res = minimize_scalar(mincorr, bounds=(0, 1.5), method='bounded')
     a = res.x # the resulting gain
     sig_ = sig-a*pil+np.mean(a*pil) # the output signal
-    
+
     return sig_,a
-    
-def subtract_dict(S,n_noncell):
+
+
+def subtract_dict(S, n_noncell):
     '''
     Returns dictionary with the cell traces minus the background traces,
     with the subtraction method in subtractpil   
     
     Parameters
-    -------------------------
-    S : dictionary
+    ----------
+    S : dict
         Dictionary containing sets of traces
     n_noncell : int
         How many noncells there are (i.e. ROIs without neuropils)
+
+    Returns
+    -------
+    ???
     '''    
     S_subtract = {}
     a = {}

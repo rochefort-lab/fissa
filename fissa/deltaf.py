@@ -22,7 +22,7 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
     
     Parameters
     ----------
-    rawF : np.ndarray, list or numpy arrays
+    rawF : numpy.ndarray, list or numpy arrays
         Raw fluorescence signal.
     fs : float, optional
         The sampling frequency of rawF, measured in Hz. Default is 40Hz.
@@ -39,7 +39,7 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
     
     Returns
     -------
-    normalisedF : np.ndarray, sized the same as the input rawF.
+    normalisedF : numpy.ndarray, sized the same as the input rawF.
         Normalised fluorescence.
     
     Additional Returns
@@ -120,7 +120,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     
     Parameters
     ----------
-    rawF : np.ndarray 
+    rawF : numpy.ndarray 
         Raw fluorescence signal.
     fs : float
         Sampling frequency of rawF, in Hz.
@@ -132,7 +132,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     
     Returns
     -------
-    baselineF0 : np.ndarray
+    baselineF0 : numpy.ndarray
         The baseline fluorescence of each recording, as an array.
     
     In typical usage, the input rawF is expected to be sized
@@ -168,7 +168,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     return baselineF0
 
 
-def deltaFF0(S,T,avg_n=1):
+def deltaFF0(S, T, avg_n=1):
     ''' Function to interface with commonly used S matrices from rest of 
     fissa easier. 
     
@@ -177,22 +177,22 @@ def deltaFF0(S,T,avg_n=1):
     
     Parameters
     ----------
-    S : array
+    S : numpy.array
         A 2D array containing all traces across trials for a single cell, 
         and for all signals (somatic + neuropil). Should be of form
         S[frame,signal].
     T : int
         The number of frames per trial.
-    avg_n : int {default 1}
-        How many surrounding frames to average over for smoothing
+    avg_n : int, optional
+        How many surrounding frames to average over for smoothing. Default
+        is 1.
             
     Returns
     -------
-    S_norm : array
+    S_norm : numpy.ndarray
         Of same format as Sin
-
-    TODO: make this work with different length trials    
     '''
+    # TODO: make this work with different length trials    
     # get some info
     numT = int(S.shape[0]/T) # number of trials
     numR = S.shape[1] # number of regions (cell + neuropils)
@@ -213,7 +213,7 @@ def deltaFF0(S,T,avg_n=1):
     return S_norm
 
 
-def RemoveBaseline(S,T,avg_n=1):
+def RemoveBaseline(S, T, avg_n=1):
     ''' Function to interface with commonly used S matrices from rest of 
     fissa easier. 
     
@@ -221,22 +221,22 @@ def RemoveBaseline(S,T,avg_n=1):
     
     Parameters
     ----------
-    S : array
+    S : numpy.ndarray
         A 2D array containing all traces across trials for a single cell, 
         and for all signals (somatic + neuropil). Should be of form
         S[frame,signal].
     T : int
         The number of frames per trial.
-    avg_n : int {default 1}
-        How many surrounding frames to average over for smoothing
+    avg_n : int, optional
+        How many surrounding frames to average over for smoothing. Default
+        is 1.
             
     Returns
     -------
-    S_norm : array
+    S_norm : numpy.ndarray
         Of same format as Sin
-
-    TODO: make this work with different length trials    
     '''
+    # TODO: make this work with different length trials    
     # get some info
     numT = int(S.shape[0]/T) # number of trials
     numR = S.shape[1] # number of regions (cell + neuropils)
@@ -257,4 +257,3 @@ def RemoveBaseline(S,T,avg_n=1):
             S_norm[t*T:(t+1)*T,n]+= scaleF0[n,0,0]
 
     return S_norm
-
