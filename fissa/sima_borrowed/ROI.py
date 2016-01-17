@@ -6,9 +6,8 @@ http://www.losonczylab.org/sima version 1.3.0.
 
 License
 -------
-This file is
-
-Copyright (C) 2014  The Trustees of Columbia University in the City of New York.
+This file is Copyright (C) 2014 The Trustees of Columbia University in the
+City of New York.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
