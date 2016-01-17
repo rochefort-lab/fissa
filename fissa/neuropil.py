@@ -85,17 +85,10 @@ def separate(
         # set fraction of the variance
         n = np.where(exp_var > 0.99)[0][0]+1
 
-    # set max iterations reached flag
-    # TODO: change this flag to a certain number of random_state changes
-    flag = True
+    if sep_method == 'ica':
+        # Use sklearn's implementation of ICA.
 
-    # start tries counter
-    counter = 1
-
-    # do separation for increasing maximum iterations, until the
-    # algorithm terminates when the max iter is reached
-    if sep_method == 'ica': # if ica is selected
-        while flag:
+        for ith_try in range(maxtries):
             # Make an instance of the FastICA class. We can do whitening of
             # the data now.
             ica = FastICA(n_components=n, whiten=True, max_iter=maxiter,
@@ -105,29 +98,44 @@ def separate(
             S_sep = ica.fit_transform(S.T)
 
             # check if max number of iterations was reached
-            if ica.n_iter_ == maxiter and counter == maxtries:
-                flag = False
-                print 'Warning: maximum number of allowed tries reached at ' + str(ica.n_iter_) + ' iterations for ' + str(counter) + ' tries.'
-            elif ica.n_iter_ == maxiter:
-                print 'failed to converge at ' + str(ica.n_iter_) + ' iterations, trying a new random_state.'
-                random_state = rand.randint(8000) # iterate random_state
-                counter += 1 # iterate counter
-            else:
-                flag = False # stops while loop
-                print 'needed ' + str(ica.n_iter_) + ' iterations to converge'
-        A_sep =  ica.mixing_
+            if ica.n_iter_ < maxiter:
+                print((
+                    'ICA converged after {} iterations.'
+                    ).format(ica.n_iter_))
+                break
+            print((
+                'Attempt {} failed to converge at {} iterations.'
+                ).format(ith_try+1, ica.n_iter_))
+            if ith_try+1 < maxtries:
+                print('Trying a new random state.')
+                # Change to a new random_state
+                random_state = rand.randint(8000)
 
-    elif sep_method == 'nmf_sklearn': # the sklearn nmf method, is slow and can't tell how many iterations were used
-        # define nmf method (from sklearn)
-        nmf = ProjectedGradientNMF(init='nndsvd', sparseness='data', n_components=n, tol=tol, max_iter=maxiter, random_state=random_state)
+        if ica.n_iter_ == maxiter:
+            print((
+                'Warning: maximum number of allowed tries reached at {} '
+                'iterations for {} tries of different random seed states.'
+                ).format(ica.n_iter_, ith_try+1))
+
+        A_sep = ica.mixing_
+
+    elif sep_method == 'nmf_sklearn':
+        # The sklearn nmf implementation is slow and can't tell how many
+        # iterations were used.
+
+        # Make an instance of the sklearn NMF class
+        nmf = ProjectedGradientNMF(
+            init='nndsvd', sparseness='data', n_components=n, tol=tol,
+            max_iter=maxiter, random_state=random_state)
 
         # separate signals and get mixing matrix
         S_sep = nmf.fit_transform(S.T)
-        A_sep  = nmf.components_.T
+        A_sep = nmf.components_.T
 
-    elif sep_method == 'nmf': # the nimfa method, fast and reliable
+    elif sep_method == 'nmf':
+        # The NIMFA implementation of NMF is fast and reliable.
 
-        # define nmf method (from nimfa)
+        # Make an instance of the Nmf class from nimfa
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
                         method='snmf', version='l', objective='conn',
                         conn_change=300)
@@ -138,17 +146,22 @@ def separate(
         # get fit summary
         fs = nmf_fit.summary()
         # check if max number of iterations was reached
-        if fs['n_iter'] == maxiter:
-            print('Warning: maximum number of allowed iterations reached at ' + str(fs['n_iter']) + ' iterations.')
+        if fs['n_iter'] < maxiter:
+            print((
+                'NMF converged after {} iterations.'
+                ).format(fs['n_iter']))
         else:
-            print('NMF converged at ' + str(fs['n_iter']) + ' iterations.')
+            print((
+                'Warning: maximum number of allowed iterations reached at {} '
+                'iterations.'
+                ).format(fs['n_iter']))
 
         # get the mixing matrix and estimated data
-        A_sep = np.array(nmf_fit.coef()).T
         S_sep = np.array(nmf_fit.basis())
+        A_sep = np.array(nmf_fit.coef()).T
 
     else:
-        raise ValueError ('Unknown separation method, can only use ica or nmf or nmf_sklearn')
+        raise ValueError('Unknown separation method "{}".'.format(sep_method))
 
     # make empty matched structure
     S_matched = np.zeros(np.shape(S_sep))
