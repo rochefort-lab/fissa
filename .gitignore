@@ -4,6 +4,8 @@
 
 # Ignore ipython notebook checkpoints
 .ipynb_checkpoints/
+# Ignore backup files
+*.bak
 
 
 ##---------------------------------------------------
