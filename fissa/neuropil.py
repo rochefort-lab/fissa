@@ -6,19 +6,19 @@ Created: 2015-05-15
 
 import numpy as np
 import numpy.random as rand
-import nimfa 
+import nimfa
 from sklearn.decomposition import FastICA, ProjectedGradientNMF, PCA
 from scipy.optimize import minimize_scalar
 
-            
+
 def separate(
         S, sep_method='ica', n=None, maxiter=500, tol=1e-5,
         random_state=892, maxtries=10):
-    ''' 
-    For the signals in S, finds the independent signals underlying it, using 
-    ica or nmf. Several methods for signal picking are implemented, see below, 
-    of which method 5 works best in general. 
-    
+    '''
+    For the signals in S, finds the independent signals underlying it, using
+    ica or nmf. Several methods for signal picking are implemented, see below,
+    of which method 5 works best in general.
+
     Parameters
     ----------
     S : array_like
@@ -43,15 +43,15 @@ def separate(
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is 10.
-    
+
     Returns
     -------
     S_sep : numpy.ndarray
         The raw separated traces
-    S_matched : 
+    S_matched :
         The separated traces matched to the primary signal, in order
         of matching quality (see Implementation below).
-    A_sep : 
+    A_sep :
     convergence : dict
         Metadata for the convergence result, with keys:
             * random_state: seed for ica initiation
@@ -71,13 +71,13 @@ def separate(
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
 
-    # estimate number of signals to find, if not given    
+    # estimate number of signals to find, if not given
     if n == None:
         # Perform PCA, without whitening because the mean is important to us.
-        pca = PCA(whiten=False) 
+        pca = PCA(whiten=False)
         pca.fit(S)
         # Find cumulative explained variance
-        exp_var = np.cumsum(pca.explained_variance_ratio_)   
+        exp_var = np.cumsum(pca.explained_variance_ratio_)
         # Find the number of components which are needed to explain a
         # set fraction of the variance
         n = np.where(exp_var > 0.99)[0][0]+1
@@ -85,10 +85,10 @@ def separate(
     # set max iterations reached flag
     # TODO: change this flag to a certain number of random_state changes
     flag = True
-    
+
     # start tries counter
     counter = 1
-    
+
     # do separation for increasing maximum iterations, until the
     # algorithm terminates when the max iter is reached
     if sep_method == 'ica': # if ica is selected
@@ -113,17 +113,17 @@ def separate(
                 flag = False # stops while loop
                 print 'needed ' + str(ica.n_iter_) + ' iterations to converge'
         A_sep =  ica.mixing_
-            
+
     elif sep_method == 'nmf_sklearn': # the sklearn nmf method, is slow and can't tell how many iterations were used
         # define nmf method (from sklearn)
         nmf = ProjectedGradientNMF(init='nndsvd', sparseness='data', n_components=n, tol=tol, max_iter=maxiter, random_state=random_state)
-        
+
         # separate signals and get mixing matrix
         S_sep = nmf.fit_transform(S.T)
         A_sep  = nmf.components_.T
-        
+
     elif sep_method == 'nmf': # the nimfa method, fast and reliable
-        
+
         # define nmf method (from nimfa)
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
                         method='snmf', version='l', objective='conn',
@@ -143,37 +143,37 @@ def separate(
         # get the mixing matrix and estimated data
         A_sep = np.array(nmf_fit.coef()).T
         S_sep = np.array(nmf_fit.basis())
-        
+
     else:
         raise ValueError ('Unknown separation method, can only use ica or nmf or nmf_sklearn')
 
-    # make empty matched structure    
+    # make empty matched structure
     S_matched = np.zeros(np.shape(S_sep))
-    
+
     # Concept by Scott Lowe.
     # Normalize the columns in A so that sum(column)=1 (can be done in one line too)
     # This results in a relative score of how strongly each separated signal
-    # is represented in each ROI signal. 
+    # is represented in each ROI signal.
     A = abs(np.copy(A_sep))
     for j in range(n):
         A[:, j] /= np.sum(A[:, j])
-    
+
     # get the scores for the somatic signal
     scores = abs(A[0,:])
 
     # get the order of scores
     order = np.argsort(scores)[::-1]
-    
+
     # order the signals according to their scores
     for j in range(n):
         s_ = A_sep[0, order[j]]*S_sep[:, order[j]]
         S_matched[:, j] = s_
         # set the mean to be the same as the raw data
-        if sep_method == 'ica': 
+        if sep_method == 'ica':
             S_matched[:, j] += S[0,:].mean()
         elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
-            S_matched[:, j] += S[0,:].mean() - S_matched[:, j].mean() 
-        
+            S_matched[:, j] += S[0,:].mean() - S_matched[:, j].mean()
+
     # save the algorithm convergence info
     convergence = {}
     convergence['max_iterations'] = maxiter
@@ -188,24 +188,24 @@ def separate(
     elif sep_method == 'nmf_sklearn':
         convergence['random_state'] = 'not yet implemented'
         convergence['iterations']   = 'not yet implemented'
-        convergence['converged'] = 'not yet implemented'    
-    
+        convergence['converged'] = 'not yet implemented'
+
     return S_sep.T, S_matched.T, A_sep, convergence
 
 
 def subtract_pil(sig, pil):
-    ''' subtract the neuropil (pil) from the signal (sig), in such a manner 
+    ''' subtract the neuropil (pil) from the signal (sig), in such a manner
     that that the correlation between the two is minimized:
     sig_ = sig - a*pil
-    find 'a' such that cor(sig_,pil) is minimized. A is bound to be 0-1.5.    
-    
+    find 'a' such that cor(sig_,pil) is minimized. A is bound to be 0-1.5.
+
     Parameters
     ----------
     sig : array_like
         Signal
     pil : array_like
         Neuropil/s.
-        
+
     Returns
     ---------------
     sig : numpy.ndarray
@@ -233,8 +233,8 @@ def subtract_pil(sig, pil):
 def subtract_dict(S, n_noncell):
     '''
     Returns dictionary with the cell traces minus the background traces,
-    with the subtraction method in subtractpil   
-    
+    with the subtraction method in subtractpil
+
     Parameters
     ----------
     S : dict
@@ -245,11 +245,11 @@ def subtract_dict(S, n_noncell):
     Returns
     -------
     ???
-    '''    
+    '''
     S_subtract = {}
     a = {}
     for i in range(n_noncell, len(S)):
         S_subtract[i], a[i] = subtract_pil(S[i][:, 0], np.mean(S[i][:, 1:], axis=1))
-    
-    return S_subtract, a  
-    
+
+    return S_subtract, a
+
