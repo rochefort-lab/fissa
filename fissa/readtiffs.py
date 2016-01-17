@@ -90,24 +90,26 @@ def getavg(img, box, frames):
     return avg
 
 
-def extract_from_single_tiff(filename, Masks):
-    ''' Extract the traces from the tiff stack at filename for given rois and
-        trials, using Pillow.
+def extract_from_single_tiff(filename, masks):
+    '''
+    Extract the traces from the tiff stack at filename for given rois and
+    trials, using Pillow.
 
     Parameters
     ----------
     filename : string
-        Tiff file location
-    Masks : dictionary of lists of arrays
-        Keys of dictionary should be what you want to call the mask sets
-        (i.e. cell1, cell2, noncell1, etc.)
+        Path to source TIFF file.
+    Masks : dict
+        A dictionary of masks, where the keys of each map to a list of
+        `numpy.ndarray`s. The keys of the dictionary will be used to
+        map to their outputs.
         Each maskset should be a list of binary arrays for each mask in that
         set, with 1's for pixels part of the roi, and 0's if not.
 
     Returns
     -------
-    out : dict
-        A dictionary such that out[roiset] is data for each roi set (cell/noncell
+    traces : dict
+        A dictionary such that traces[roiset] is data for each roi set (cell/noncell
         + local neuropils).
 
         out[roiset] is an array such that out[roi][:,mask] gives you the trace for
@@ -146,11 +148,11 @@ def extract_traces(img, masks):
     -------
     An array of shape (nrois,nframes), with nrois being the number of ROIs in
     masks, and nframes as above.
-
-    TODO: Try loading in entire image into memory (as a memory intensive
-          alternative) to see if that speeds up the algorithm much.
-          Would increase memory needs, but could be worth it.
     '''
+    # TODO: Try loading in entire image into memory (as a memory intensive
+    #       alternative) to see if that speeds up the algorithm much.
+    #       Would increase memory needs, but could be worth it.
+
     # get the number rois
     nrois = len(masks)
 
@@ -216,8 +218,8 @@ def get_mean_tiff(filename):
 
     Returns
     ---------------------
-    Array of shape(tiff), averaged across frames
-
+    numpy.ndarray
+        Array of shape(tiff), averaged across frames
     '''
     # define the pillow image
     img = Image.open(filename)
