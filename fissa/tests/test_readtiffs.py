@@ -45,7 +45,7 @@ class TestReadTiffs(BaseTestCase):
         '''
         self.resource_directory = os.path.join(self.test_directory,
                                                'resources')
-        datafile = os.path.join(self.resource_directory, 'tiff_num_frames.csv')
+        datafile = os.path.join(self.resource_directory, 'uniform_tiffs.csv')
         self.resource_num_frames = list(csv.DictReader(open(datafile),
                                                        delimiter=';'))
 
