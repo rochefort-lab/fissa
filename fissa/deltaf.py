@@ -9,7 +9,8 @@ import numpy as np
 import scipy.signal
 
 def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
-    '''Normalises a fluorescence imaging trace line.
+    '''
+    Normalises a fluorescence imaging trace line.
 
     Takes a raw fluorescence signal and normalises it by subtracting a
     baseline fluorescence from each recording and dividing by a
@@ -116,7 +117,8 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
 
 
 def findBaselineF0(rawF, fs, axis=0, keepdims=False):
-    '''Finds the baseline for a fluorescence imaging trace line.
+    '''
+    Finds the baseline for a fluorescence imaging trace line.
 
     Parameters
     ----------
@@ -172,7 +174,8 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
 
 
 def deltaFF0(S, T, avg_n=1):
-    ''' Function to interface with commonly used S matrices from rest of
+    '''
+    Function to interface with commonly used S matrices from rest of
     fissa easier.
 
     Removes baseline and calculates deltaF/F0, for normal traces, and
@@ -221,7 +224,8 @@ def deltaFF0(S, T, avg_n=1):
 
 
 def RemoveBaseline(S, T, avg_n=1):
-    ''' Function to interface with commonly used S matrices from rest of
+    '''
+    Function to interface with commonly used S matrices from rest of
     fissa easier.
 
     Removes baseline from every trial, and adds back the global baseline.

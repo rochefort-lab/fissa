@@ -1,5 +1,5 @@
 '''
-Functions removal neuropil from calcium signals.
+Functions for removal of neuropil from calcium signals.
 
 Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-05-15
