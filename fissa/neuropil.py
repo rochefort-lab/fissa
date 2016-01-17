@@ -1,4 +1,5 @@
-''' Functions neuropil removal
+'''
+Functions removal neuropil from calcium signals.
 
 Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-05-15
@@ -66,7 +67,9 @@ def separate(
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     '''
-    # TODO Return several candidates for each signal, so can more easily compare
+    # TODO Return several candidates for each signal, so can more easily
+    # compare
+    # TODO split into several functions. Maybe turn into a class.
 
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
@@ -194,10 +197,11 @@ def separate(
 
 
 def subtract_pil(sig, pil):
-    ''' subtract the neuropil (pil) from the signal (sig), in such a manner
+    '''
+    Subtract the neuropil from the signal (sig), in such a manner
     that that the correlation between the two is minimized:
-    sig_ = sig - a*pil
-    find 'a' such that cor(sig_,pil) is minimized. A is bound to be 0-1.5.
+        sig_ = sig - a*pil
+    find `a` such that `cor(sig_, pil)` is minimized. A is bound to be 0-1.5.
 
     Parameters
     ----------
@@ -207,9 +211,9 @@ def subtract_pil(sig, pil):
         Neuropil/s.
 
     Returns
-    ---------------
-    sig : numpy.ndarray
-        The signal with neuropil subtracted.
+    -------
+    sig_ : numpy.ndarray
+        The neuropil-subtracted signal.
     a : float
         The subtraction parameter that results in the best subtraction.
     '''
@@ -218,14 +222,15 @@ def subtract_pil(sig, pil):
     pil = np.asarray(pil)
 
     def mincorr(x):
-        ''' find the correlation between sig and pil, for subtraction with gain x '''
-        sig_ = sig-x*pil
+        '''Find the correlation between sig and pil, for subtraction
+        with gain equal to `x`.'''
+        sig_ = sig - x*pil
         corr = np.corrcoef(sig_, pil)[0, 1]
         return np.sqrt(corr**2)
 
     res = minimize_scalar(mincorr, bounds=(0, 1.5), method='bounded')
     a = res.x # the resulting gain
-    sig_ = sig-a*pil+np.mean(a*pil) # the output signal
+    sig_ = sig - a*pil + np.mean(a*pil) # the output signal
 
     return sig_, a
 
@@ -252,4 +257,3 @@ def subtract_dict(S, n_noncell):
         S_subtract[i], a[i] = subtract_pil(S[i][:, 0], np.mean(S[i][:, 1:], axis=1))
 
     return S_subtract, a
-
