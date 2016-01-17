@@ -1,7 +1,8 @@
 """
 The tests below were taken from the sima package
 http://www.losonczylab.org/sima
-version 1.3.0.
+version 1.3.0
+https://github.com/losonczylab/sima/blob/6d2cd4f071e4/sima/tests/test_ROI.py
 
 License
 -------
