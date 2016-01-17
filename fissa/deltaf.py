@@ -120,7 +120,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     
     Parameters
     ----------
-    rawF : numpy.ndarray 
+    rawF : array_like
         Raw fluorescence signal.
     fs : float
         Sampling frequency of rawF, in Hz.
@@ -145,8 +145,11 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     nfilt      = 30 # Number of taps to use in FIR filter
     fw_base    =  1 # Cut-off frequency for lowpass filter
     base_pctle =  5 # Percentile to take as baseline value
-    
+
     # Main --------------------------------------------------------------------
+    # Ensure array_like input is a numpy.ndarray
+    rawF = np.asarray(rawF)
+
     # Remove the first datapoint, because it can be an erroneous sample
     rawF = np.split(rawF, [1], axis)[1]
     
@@ -177,7 +180,7 @@ def deltaFF0(S, T, avg_n=1):
     
     Parameters
     ----------
-    S : numpy.array
+    S : arary_like
         A 2D array containing all traces across trials for a single cell, 
         and for all signals (somatic + neuropil). Should be of form
         S[frame,signal].
@@ -193,6 +196,10 @@ def deltaFF0(S, T, avg_n=1):
         Of same format as Sin
     '''
     # TODO: make this work with different length trials
+
+    # Ensure array_like input is a numpy.ndarray
+    sig = np.asarray(S)
+
     # get some info
     numT = int(S.shape[0]/T) # number of trials
     numR = S.shape[1] # number of regions (cell + neuropils)
@@ -221,7 +228,7 @@ def RemoveBaseline(S, T, avg_n=1):
     
     Parameters
     ----------
-    S : numpy.ndarray
+    S : array_like
         A 2D array containing all traces across trials for a single cell, 
         and for all signals (somatic + neuropil). Should be of form
         S[frame,signal].
@@ -237,6 +244,10 @@ def RemoveBaseline(S, T, avg_n=1):
         Of same format as Sin
     '''
     # TODO: make this work with different length trials
+
+    # Ensure array_like input is a numpy.ndarray
+    S = np.asarray(S)
+
     # get some info
     numT = int(S.shape[0]/T) # number of trials
     numR = S.shape[1] # number of regions (cell + neuropils)
