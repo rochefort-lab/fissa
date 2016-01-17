@@ -14,12 +14,18 @@ from numpy.testing import (assert_almost_equal,
                            assert_equal)
 
 
+# Check where the test directory is located, to be used when fetching
+# test resource files
+TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+
 class BaseTestCase(unittest.TestCase):
     '''
     Superclass for all the FISSA test cases
     '''
 
-    test_directory = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+    # Have the test directory as an attribute to the class as well as
+    # a top-level variable
+    test_directory = TEST_DIRECTORY
 
     def __init__(self, *args, **kw):
         '''Add test for numpy type'''
