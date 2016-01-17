@@ -105,7 +105,7 @@ def read_roi(roi_obj):
         return (b0 << 8) | b1
 
     def _get16signed():
-        """Read a signed 16 bit integer from 2 bytes from the roi file object"""
+        """Read a signed 16 bit integer from 2 bytes from roi file object"""
         b0 = _get8()
         b1 = _get8()
         out = (b0 << 8) | b1
