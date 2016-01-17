@@ -61,3 +61,24 @@ def test_frame_number(row):
     img = Image.open(os.path.join(RESOURCE_DIRECTORY, row['filename']))
     actual = readtiffs.get_frame_number(img)
     base_test.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize('row', get_uniform_resources())
+def test_get_mean_tiff_uniform(row):
+    '''
+    Tests the function get_mean_tiff against the uniform TIFF test
+    images.
+    '''
+    # We expect to get a uniform image
+    expected_colour = float(row['mean_color'])
+    # NB: dim1 and dim2 might be the other way around to what you
+    # expect here, but this is correct!
+    expected_dim1 = float(row['height'])
+    expected_dim2 = float(row['width'])
+    expected = expected_colour * np.ones((expected_dim1, expected_dim2),
+                                         dtype=np.uint8)
+    # Take the mean of the image stack stack
+    fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
+    actual = readtiffs.get_mean_tiff(fname)
+    # Check they match
+    base_test.assert_equal(actual, expected)
