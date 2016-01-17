@@ -1,6 +1,8 @@
-"""
-Objects shared by all the test cases
-"""
+'''
+Provides a general testing class which inherits from unittest.TestCase
+and also provides the numpy testing functions.
+'''
+
 import unittest
 import os.path
 from inspect import getsourcefile
