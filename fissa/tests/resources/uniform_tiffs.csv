@@ -1,5 +1,5 @@
-filename;num_frames
-lgrey_4x5x1.tif;1
-black_1x2x3.tif;3
-white_1x2x3.tif;3
-grey_1x1x5.tif;5
+filename;num_frames;width;height;mean_color;trace
+lgrey_4x5x1.tif;1;4;5;170;[170]
+black_1x2x3.tif;3;1;2;0;[0,0,0]
+white_1x2x3.tif;3;1;2;255;[255,255,255]
+grey_1x1x5.tif;5;1;1;132;[128,130,132,134,136]
