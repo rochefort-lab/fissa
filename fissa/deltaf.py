@@ -192,7 +192,7 @@ def deltaFF0(S, T, avg_n=1):
     S_norm : numpy.ndarray
         Of same format as Sin
     '''
-    # TODO: make this work with different length trials    
+    # TODO: make this work with different length trials
     # get some info
     numT = int(S.shape[0]/T) # number of trials
     numR = S.shape[1] # number of regions (cell + neuropils)
@@ -236,7 +236,7 @@ def RemoveBaseline(S, T, avg_n=1):
     S_norm : numpy.ndarray
         Of same format as Sin
     '''
-    # TODO: make this work with different length trials    
+    # TODO: make this work with different length trials
     # get some info
     numT = int(S.shape[0]/T) # number of trials
     numR = S.shape[1] # number of regions (cell + neuropils)
