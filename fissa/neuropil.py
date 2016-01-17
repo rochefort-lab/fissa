@@ -21,7 +21,7 @@ def separate(
     
     Parameters
     ----------
-    S : np.ndarray
+    S : array_like
         2d array with signals. S[i,j], j = each signal, i = signal content.
         j = 0 is considered the primary signal. (i.e. the somatic signal)
     sep_method : {'ica','nmf','nmf_sklearn'}
@@ -67,6 +67,9 @@ def separate(
     is represented in each ROI signal.
     '''
     # TODO Return several candidates for each signal, so can more easily compare
+
+    # Ensure array_like input is a numpy.ndarray
+    S = np.asarray(S)
 
     # estimate number of signals to find, if not given    
     if n == None:
@@ -198,10 +201,10 @@ def subtract_pil(sig, pil):
     
     Parameters
     ----------
-    sig : numpy.ndarray
-        signal
-    pil : numpy.ndarray
-        neuropils
+    sig : array_like
+        Signal
+    pil : array_like
+        Neuropil/s.
         
     Returns
     ---------------
@@ -210,6 +213,10 @@ def subtract_pil(sig, pil):
     a : float
         The subtraction parameter that results in the best subtraction.
     '''
+    # Ensure array_like input is a numpy.ndarray
+    sig = np.asarray(sig)
+    pil = np.asarray(pil)
+
     def mincorr(x):
         ''' find the correlation between sig and pil, for subtraction with gain x '''
         sig_ = sig-x*pil

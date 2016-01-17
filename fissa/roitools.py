@@ -17,13 +17,16 @@ def get_mask_com(mask):
     
     Inputs
     -------------------
-    mask : array
+    mask : array_like
         the mask (boolean 2d array)    
     
     Returns
     --------------------
     A tuple with center of mass of first and second dimensions (x,y)
     '''
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
+
     x, y = mask.nonzero()
     return np.mean(x), np.mean(y)
 
@@ -33,8 +36,8 @@ def split_npil(mask, com, n_slices):
     
     Parameters
     ------------------
-    mask : 2d boolean array
-        the mask
+    mask : array_like
+        Mask as a 2d boolean array
     com : tuple
         the center of mass of the cell for the neuropil (tuple with (first axis, second axis))
     n_slices : int
@@ -44,6 +47,9 @@ def split_npil(mask, com, n_slices):
     -------------------
     Returns a dictionary with n_slices masks, each of which is a 2d boolean array
     '''
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
+
     # get the percentage for each slice
     slice_perc = 100.0/n_slices
     
@@ -89,7 +95,7 @@ def shift_2d_array(a, shift=1, axis=None):
     
     Parameters
     ---------------------
-    a : array
+    a : array_like
         input array
     shift : int
         how much to shift array by
@@ -103,6 +109,9 @@ def shift_2d_array(a, shift=1, axis=None):
     ---------------------
     Array of same shape as a, but shifted as per above
     '''
+    # Ensure array_like input is a numpy.ndarray
+    a = np.asarray(a)
+
     # do initial shift
     out = np.roll(a, shift, axis)
     
@@ -142,6 +151,8 @@ def get_npil_mask(mask,iterations=15):
     -------------------------
     A dictionary with a boolean 2d array containing the neuropil mask for each iteration
     '''    
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
     
     # initate masks
     masks = {} 
