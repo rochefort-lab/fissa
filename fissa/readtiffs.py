@@ -99,7 +99,7 @@ def extract_from_single_tiff(filename, masks):
     ----------
     filename : string
         Path to source TIFF file.
-    Masks : dict
+    masks : dict
         A dictionary of masks, where the keys of each map to a list of
         `numpy.ndarray`s. The keys of the dictionary will be used to
         map to their outputs.
@@ -121,13 +121,13 @@ def extract_from_single_tiff(filename, masks):
     img = Image.open(filename)  # pillow loaded reference image
 
     # get mask set names
-    labels = Masks.keys()
+    labels = masks.keys()
 
     # Extract the data and put in output dictionary
     out = {}  # empty dictionary
     for l in labels:  # loop over all roi sets
         # extract traces for current set
-        out[l] = extract_traces(img, Masks[l])
+        out[l] = extract_traces(img, masks[l])
 
     # Return data
     return out
