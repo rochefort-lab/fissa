@@ -107,9 +107,9 @@ install:
   - if [ -f requirements.txt ]; then
       conda_or_pip_install_packages requirements.txt;
     fi;
-  # ----------------------------------------------------------------------------
-  # To do the coverage, we also need the pytest-cov package
-  - pip install pytest-cov
+  - if [ -f requirements-dev.txt ]; then
+      conda_or_pip_install_packages requirements-dev.txt;
+    fi;
   # ----------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
