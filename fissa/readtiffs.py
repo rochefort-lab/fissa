@@ -56,7 +56,7 @@ def getbox(com, size):
     >>> box = getbox(com,size)
     >>> cropped_img = img.crop(box)
     '''
-    return np.array([com[1] - size, com[0] - size, com[1] + size, com[0] + size])
+    return np.array([com[1]-size, com[0]-size, com[1]+size, com[0]+size])
 
 
 def getavg(img, box, frames):
@@ -77,7 +77,7 @@ def getavg(img, box, frames):
     '''
     size = box[3] - box[1]
 
-   # where to store average
+    # where to store average
     avg = np.zeros((size, size))
 
     for i, f in enumerate(frames):
@@ -109,11 +109,11 @@ def extract_from_single_tiff(filename, masks):
     Returns
     -------
     traces : dict
-        A dictionary such that traces[roiset] is data for each roi set (cell/noncell
-        + local neuropils).
+        A dictionary such that traces[roiset] is data for each roi set
+        (cell/noncell + local neuropils).
 
-        out[roiset] is an array such that out[roi][:,mask] gives you the trace for
-         the corresponding mask. Usually:
+        out[roiset] is an array such that out[roi][:,mask] gives you the trace
+        for the corresponding mask. Usually:
              mask = 0 : somatic roi
              mask > 0 : any defined neuropil rois
     '''
