@@ -77,7 +77,7 @@ def split_npil(mask, com, num_slices):
 
     # adjust angles so that they start at the smallest bin
     nmin = bins[binmin]+np.pi/40
-    theta = (theta-nmin)%(2*np.pi)-np.pi
+    theta = (theta-nmin) % (2*np.pi)-np.pi
 
     # get the boundaries
     bounds = {}
@@ -87,13 +87,18 @@ def split_npil(mask, com, num_slices):
     # predefine the masks
     masks = []
     # get the first mask
-    masks += [np.zeros(np.shape(mask), dtype=bool)] # empty predefinition
-    masks[0][x[theta <= bounds[0]], y[theta <= bounds[0]]] = True # set relevant pixels to True
+    # empty predefinition
+    masks += [np.zeros(np.shape(mask), dtype=bool)]
+    # set relevant pixels to True
+    masks[0][x[theta <= bounds[0]], y[theta <= bounds[0]]] = True
     # get the rest of the masks
     for i in range(1, num_slices):
-        truths = (theta > bounds[i-1])*(theta <= bounds[i]) # find which pixels are within bounds
-        masks += [np.zeros(np.shape(mask), dtype=bool)] # empty predefinition
-        masks[i][x[truths], y[truths]] = True # set relevant pixels to True
+        # find which pixels are within bounds
+        truths = (theta > bounds[i-1])*(theta <= bounds[i])
+        # empty predefinition
+        masks += [np.zeros(np.shape(mask), dtype=bool)]
+        # set relevant pixels to True
+        masks[i][x[truths], y[truths]] = True
 
     return masks
 
@@ -130,9 +135,9 @@ def shift_2d_array(a, shift=1, axis=None):
     # then fill in refilled parts of the array
     if axis == 0:
         if shift > 0:
-            out[:shift,:] = 0
+            out[:shift, :] = 0
         elif shift < 0:
-            out[shift:,:] = 0
+            out[shift:, :] = 0
     elif axis == 1:
         if shift > 0:
             out[:, :shift] = 0
@@ -176,7 +181,7 @@ def get_npil_mask(mask, iterations=15):
     # keep adding area until enough is added
     for count in range(iterations):
         # get reference mask
-        refmask  = np.copy(masks[count])
+        refmask = np.copy(masks[count])
 
         # initiate next mask
         masks[count+1] = np.copy(refmask)
@@ -186,28 +191,28 @@ def get_npil_mask(mask, iterations=15):
 
         if case == 2:
             # move polygon around one pixel in each 8 directions
-            for dx in [-1, 0, 1]: # x direction
-                for dy in [-1, 0, 1]: # y direction
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
                     masks[count+1][movedmask] = True
         elif case == 0:
             # move polygon around one pixel in each 4 cardinal direction
-            for dx in [-1, 1]: # x direction
+            for dx in [-1, 1]:
                 movedmask = shift_2d_array(refmask, dx, 0)
                 masks[count+1][movedmask] = True
-            for dy in [-1, 1]: # y direction
+            for dy in [-1, 1]:
                 movedmask = shift_2d_array(refmask, dy, 1)
                 masks[count+1][movedmask] = True
         elif case == 1:
             # move polygon around one pixel in each 4 diagonal direction
-            for dx in [-1, 1]: # x direction
-                for dy in [-1, 1]: # y direction
+            for dx in [-1, 1]:
+                for dy in [-1, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
                     masks[count+1][movedmask] = True
 
-        masks[count+1][mask]      = False
+        masks[count+1][mask] = False
 
     masks[0][:] = False
 
@@ -293,9 +298,9 @@ def getmasks(rois, shpe):
     # start empty mask list
     masks = ['']*nrois
 
-    for i in range(nrois): # loop over rois
+    for i in range(nrois):
         # transform current roi to mask
-        mask     = poly2mask(rois[i], shpe)
+        mask = poly2mask(rois[i], shpe)
         # store in list
         masks[i] = np.array(mask[0].todense())
 
@@ -333,7 +338,8 @@ def find_roi_edge(mask):
 
     # TODO: The following has a bug due to which it is not the same as above.
     # Until fixed will have to use above slower method
-    # this is a bit faster, move the entire mask up down left right and diagonal and add
+    # this is a bit faster, move the entire mask up down left right and
+    # diagonal and add
 #    con = np.zeros(np.shape(mask))
 #    for i in [-1,0,1]:
 #        for j in [-1,0,1]:
