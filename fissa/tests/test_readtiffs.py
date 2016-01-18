@@ -16,6 +16,7 @@ from .. import readtiffs
 # Get a path to the resources folder from the test directory
 RESOURCE_DIRECTORY = os.path.join(base_test.TEST_DIRECTORY, 'resources')
 
+
 def get_uniform_resources():
     '''
     Fixture
