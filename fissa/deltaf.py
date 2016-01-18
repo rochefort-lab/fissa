@@ -203,7 +203,7 @@ def deltaFF0(S, T, avg_n=1):
     # TODO: make this work with different length trials
 
     # Ensure array_like input is a numpy.ndarray
-    sig = np.asarray(S)
+    S = np.asarray(S)
 
     # get some info
     numT = int(S.shape[0]/T)  # number of trials
