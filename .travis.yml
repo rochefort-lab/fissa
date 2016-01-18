@@ -137,7 +137,7 @@ before_script:
 script:
   - which python
   # Test the main code base
-  - py.test --junitxml=testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
+  - py.test --flake8 --junitxml=testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
   # Test the notebooks
   - function check_notebooks {
       RETURNVALUE=0;
