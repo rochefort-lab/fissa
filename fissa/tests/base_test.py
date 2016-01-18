@@ -18,6 +18,7 @@ from numpy.testing import (assert_almost_equal,
 # test resource files
 TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
+
 class BaseTestCase(unittest.TestCase):
     '''
     Superclass for all the FISSA test cases
