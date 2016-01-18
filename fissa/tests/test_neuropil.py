@@ -1,4 +1,5 @@
-''' Tests for the function in neuropil.py
+'''
+Tests for the functions in neuropil.py
 
 Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-11-06
@@ -9,7 +10,6 @@ import numpy as np
 
 from .base_test import BaseTestCase
 
-# import neuropil functions
 from .. import neuropil as npil
 
 
@@ -22,12 +22,14 @@ class TestNeuropilFuns(BaseTestCase):
         self.x = np.linspace(0, np.pi * 2, self.l)
 
     def test_separate(self):
-        ''' Tests if the separate function returns data in the right format
-        for all methods.
-
-        TODO: Successfullness of methods are hard to test with unittests. Need to
-        make a test case where answer is known, and test against that.
         '''
+        Tests if the separate function returns data in the right format
+        for all methods.
+        '''
+        # TODO: Successfullness of methods are hard to test with unittests.
+        #       Need to make a test case where answer is known, and test
+        #       against that.
+
         # desired shapes
         shape_desired = (2, self.l)
         con_desired_ica = {'converged': False,
@@ -52,10 +54,11 @@ class TestNeuropilFuns(BaseTestCase):
 
         # function for testing a method
         def run_method(method):
-            ''' Tests for a single method
+            '''
+            Tests for a single method
 
             Parameters
-            --------------------
+            ----------
             Method : string
                 What method to test: 'nmf', 'ica', or 'nmf_sklearn')
 
@@ -81,8 +84,8 @@ class TestNeuropilFuns(BaseTestCase):
         run_method('nmf_sklearn')
 
     def test_subtract_pil(self):
-        ''' Tests format and effectiveness of npil.subtract_pil()
-
+        '''
+        Tests format and effectiveness of npil.subtract_pil()
         '''
         # setup fake data
         np.random.seed(0)
