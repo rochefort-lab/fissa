@@ -7,17 +7,19 @@ Updated:      2015-10-18
 '''
 
 from __future__ import division
+
 import numpy as np
 from PIL import Image
 
 
 def get_frame_number(img):
-    ''' Get the number of frames for pillow Image img
+    '''
+    Get the number of frames for pillow Image img
 
     Parameters
     ----------
-    img : pillow Image object
-        An image loaded using pillow Image.
+    img : PIL.Image
+        An image loaded using Pillow Image.
 
     Returns
     -------
@@ -35,19 +37,21 @@ def get_frame_number(img):
 
 
 def getbox(com, size):
-    ''' Gives box coordinates given centre of mass and box size*2 ,
-    formatted so that it can be used to crop images in a pillow Image object
+    '''
+    Gives box coordinates given centre of mass and box size*2,
+    formatted so that it can be used to crop images in a pillow Image
+    object.
 
     Parameters
     ----------
-    com : tuple/array/list
-        The 2d center of mass the box should have (x,y)
+    com : tuple, list, or array
+        The 2d center of mass the box should have (x,y).
     size : int
         Half the height of the required output box
 
     Returns
     -------
-    array
+    numpy.ndarray
         [left border, upper border, right border, lower border]
 
     Example
@@ -60,11 +64,12 @@ def getbox(com, size):
 
 
 def getavg(img, box, frames):
-    ''' Get the average for the box in pillow Image img, for the specified frames
+    '''
+    Get the average for the box in pillow Image img, for the specified frames
 
     Parameters
     ----------
-    img : pillow Image object
+    img : PIL.Image
         Loaded from a tiff stack
     box : array
         Defining which box to get tuple (left, top, right, bottom)
@@ -73,7 +78,8 @@ def getavg(img, box, frames):
 
     Returns
     -------
-    Array of shape of img, which is the averaged image
+    numpy.ndarray
+        Array of shape of img, which is the averaged image
     '''
     size = box[3] - box[1]
 
@@ -120,26 +126,26 @@ def extract_from_single_tiff(filename, masks):
     # Get useful info based on reference image
     img = Image.open(filename)  # pillow loaded reference image
 
-    # get mask set names
-    labels = masks.keys()
-
     # Extract the data and put in output dictionary
-    out = {}  # empty dictionary
-    for l in labels:  # loop over all roi sets
-        # extract traces for current set
-        out[l] = extract_traces(img, masks[l])
+    # Initiaise an empty dictionary for containing the output
+    traces = {}
+    # loop over all roi sets
+    for label, mask in masks.items():
+        # Extract traces for this maskset
+        traces[label] = extract_traces(img, mask)
 
     # Return data
-    return out
+    return traces
 
 
 def extract_traces(img, masks):
-    '''Get the traces for each mask in masks from the pillow object img for
-    nframes
+    '''
+    Get the traces for each mask in masks from the pillow object img for
+    nframes.
 
     Parameters
     ----------
-    img : pillow image object
+    img : PIL.Image
         Pillow loaded tiff stack
     masks : list
         list of masks (boolean arrays)
@@ -177,17 +183,19 @@ def extract_traces(img, masks):
 
 
 def tiff2array(filename):
-    ''' Loads a tiff stack image as a whole array.
-    ! careful, can be memory intensive for big tiff stacks
+    '''
+    Loads an entire greyscale tiff stack as a single numpy array.
 
     Parameters
-    ----------------------
+    ----------
     filename : string
-        filename for tiff
+        Path to greyscale TIFF file.
 
     Returns
-    ---------------------
-    3D array of shape(tiff), with all frames
+    -------
+    numpy.ndarray
+        The contents of the TIFF file, parsed into a three-dimensional
+        array of [] shape(tiff), with all frames
 
     '''
     # define the pillow image
