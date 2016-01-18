@@ -16,9 +16,9 @@ def separate(
         S, sep_method='ica', n=None, maxiter=500, tol=1e-5,
         random_state=892, maxtries=10):
     '''
-    For the signals in S, finds the independent signals underlying it, using
-    ica or nmf. Several methods for signal picking are implemented, see below,
-    of which method 5 works best in general.
+    For the signals in S, finds the independent signals underlying it,
+    using ica or nmf. Several methods for signal picking are
+    implemented, see below, of which method 5 works best in general.
 
     Parameters
     ----------
@@ -75,7 +75,7 @@ def separate(
     S = np.asarray(S)
 
     # estimate number of signals to find, if not given
-    if n == None:
+    if n is None:
         # Perform PCA, without whitening because the mean is important to us.
         pca = PCA(whiten=False)
         pca.fit(S)
@@ -139,7 +139,8 @@ def separate(
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
                         method='snmf', version='l', objective='conn',
                         conn_change=300)
-                        #,eta=1e-5,beta=1e-5)
+        # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
+
         # fit the model
         nmf_fit = nmf()
 
@@ -167,7 +168,8 @@ def separate(
     S_matched = np.zeros(np.shape(S_sep))
 
     # Concept by Scott Lowe.
-    # Normalize the columns in A so that sum(column)=1 (can be done in one line too)
+    # Normalize the columns in A so that sum(column)=1 (can be done in one line
+    # too).
     # This results in a relative score of how strongly each separated signal
     # is represented in each ROI signal.
     A = abs(np.copy(A_sep))
@@ -175,7 +177,7 @@ def separate(
         A[:, j] /= np.sum(A[:, j])
 
     # get the scores for the somatic signal
-    scores = abs(A[0,:])
+    scores = abs(A[0, :])
 
     # get the order of scores
     order = np.argsort(scores)[::-1]
@@ -186,24 +188,24 @@ def separate(
         S_matched[:, j] = s_
         # set the mean to be the same as the raw data
         if sep_method == 'ica':
-            S_matched[:, j] += S[0,:].mean()
+            S_matched[:, j] += S[0, :].mean()
         elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
-            S_matched[:, j] += S[0,:].mean() - S_matched[:, j].mean()
+            S_matched[:, j] += S[0, :].mean() - S_matched[:, j].mean()
 
     # save the algorithm convergence info
     convergence = {}
     convergence['max_iterations'] = maxiter
     if sep_method == 'ica':
         convergence['random_state'] = random_state
-        convergence['iterations']   = ica.n_iter_
+        convergence['iterations'] = ica.n_iter_
         convergence['converged'] = not ica.n_iter_ == maxiter
     elif sep_method == 'nmf':
         convergence['random_state'] = 'not yet implemented'
-        convergence['iterations']   = fs['n_iter']
+        convergence['iterations'] = fs['n_iter']
         convergence['converged'] = not fs['n_iter'] == maxiter
     elif sep_method == 'nmf_sklearn':
         convergence['random_state'] = 'not yet implemented'
-        convergence['iterations']   = 'not yet implemented'
+        convergence['iterations'] = 'not yet implemented'
         convergence['converged'] = 'not yet implemented'
 
     return S_sep.T, S_matched.T, A_sep, convergence
@@ -242,8 +244,8 @@ def subtract_pil(sig, pil):
         return np.sqrt(corr**2)
 
     res = minimize_scalar(mincorr, bounds=(0, 1.5), method='bounded')
-    a = res.x # the resulting gain
-    sig_ = sig - a*pil + np.mean(a*pil) # the output signal
+    a = res.x  # the resulting gain
+    sig_ = sig - a*pil + np.mean(a*pil)  # the output signal
 
     return sig_, a
 
@@ -267,6 +269,7 @@ def subtract_dict(S, n_noncell):
     S_subtract = {}
     a = {}
     for i in range(n_noncell, len(S)):
-        S_subtract[i], a[i] = subtract_pil(S[i][:, 0], np.mean(S[i][:, 1:], axis=1))
+        S_subtract[i], a[i] = subtract_pil(S[i][:, 0],
+                                           np.mean(S[i][:, 1:], axis=1))
 
     return S_subtract, a
