@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image, ImageSequence
 
 
-def image2array(img):
+def image2array(img, dtype=np.uint8, band=0):
     '''
     Convert a single PIL/Pillow image into a numpy array.
 
@@ -20,28 +20,53 @@ def image2array(img):
     ----------
     img : PIL.Image
         Source image, loaded with PIL or Pillow.
+    dtype : dtype, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel and is hence encoded
+        with integers in the range 0-255.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
     numpy.ndarray
-        3D output array, sized `(height, width, num_channels)`, where
-        `num_channels` is the number of color channels in the image.
-        For instance, this is 3 for RGB images, and 1 greyscale images.
+        2D output array, sized `(height, width)`, with data type
+        `dtype`.
 
     Raises
     ------
     ValueError
-        Since bilevel images would not make sense as input data, an
-        error is thrown if the input appears to be bilevel. This is
-        because it is not possible to infer the units of the image
-        when it is completely white.
+        Requested `band` is larger than the number of available channels
     '''
-    out = np.asarray(img)
-    if out.dtype == bool:
-        raise ValueError('Input image appears to be bilevel or completely '
-                         'black/white. This is not an expected input '
-                         'image format.')
-    return out
+    # Get the height and width from the size of the image. Note that
+    # width is the first and height is the second dimension here.
+    (width, height) = img.size
+    # Check how many channels the image has, and that we don't try to
+    # get data from a channel which doesn't exist.
+    num_bands = len(img.getbands())
+    if band >= num_bands:
+        raise ValueError((
+            'Requested band number {} exceeds the number of bands available '
+            'in the image, which is {}.'
+            ).format(band, num_bands))
+    # If there is only one band, we need to request None instead of 0.
+    if num_bands == 1:
+        band = None
+    # And if there isn't, make sure we aren't trying to load the data
+    # from multiple channels.
+    elif band is None:
+        raise ValueError(
+            'This function can not load the entire contents of a multi-'
+            'channel (i.e. color) image.')
+    # Use the `getdata` method to get an iterable sequence which runs
+    # through every pixel in the image. Since this is flat, we need
+    # to reshape the result. Note here that the width is the second
+    # and height is the first dimension in the converted numpy array.
+    return np.asarray(img.getdata(band), dtype).reshape((height, width))
 
 
 def get_frame_number(img):
@@ -71,7 +96,7 @@ def get_frame_number(img):
     return img.tell() + 1
 
 
-def imgstack2array(img):
+def imgstack2array(img, dtype=np.uint8, band=0):
     '''
     Loads an entire greyscale tiff stack as a single numpy array.
 
@@ -79,12 +104,21 @@ def imgstack2array(img):
     ----------
     img : PIL.Image
         An image loaded using Pillow Image.
+    dtype : dtype, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
     numpy.ndarray
-        The contents of the TIFF file, parsed into either a 3-
-        or 4-dimensional array, depending on whether the image is
+        The contents of the TIFF file, parsed into a 3-dimensional
+        array, depending on whether the image is
         greyscale or has multiple color channels (a.k.a. bands).
         The output shape is either `(height, width, num_frames)` or
         `(height, width, num_channel, num_frames)` correspondingly.
@@ -94,7 +128,7 @@ def imgstack2array(img):
     tiff2array
     '''
     # Get the first frame
-    array0 = image2array(img)
+    array0 = image2array(img, dtype=dtype, band=band)
     # From the first frame, we can tell the dtype we need to
     # initialize with, as well as the shape of each frame in the image
     shape = list(array0.shape)
@@ -105,12 +139,12 @@ def imgstack2array(img):
 
     # Loop over all frames
     for index, frame in enumerate(ImageSequence.Iterator(img)):
-        contents[..., index] = image2array(frame)
+        contents[..., index] = image2array(frame, dtype=dtype, band=band)
 
     return contents
 
 
-def tiff2array(filename):
+def tiff2array(filename, dtype=np.uint8, band=0):
     '''
     Loads an entire greyscale tiff stack as a single numpy array.
 
@@ -118,6 +152,15 @@ def tiff2array(filename):
     ----------
     filename : string
         Path to greyscale TIFF file.
+    dtype : dtype, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
@@ -129,10 +172,10 @@ def tiff2array(filename):
     --------
     imgstack2array
     '''
-    return imgstack2array(Image.open(filename))
+    return imgstack2array(Image.open(filename), dtype=dtype, band=band)
 
 
-def get_imgstack_mean(img):
+def get_imgstack_mean(img, source_dtype=np.uint8, band=0):
     '''
     Get the mean data for an Pillow image stack or animation.
 
@@ -140,12 +183,21 @@ def get_imgstack_mean(img):
     ----------
     img : PIL.Image
         An animated image loaded using Pillow Image.
+    source_dtype : dtype, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
     numpy.ndarray
         Average pixel values across all frames in the animation or
-        image stack.
+        image stack, within the channel numbered `band`.
 
     See also
     --------
@@ -153,25 +205,19 @@ def get_imgstack_mean(img):
     '''
     # We don't load the entire image into memory at once, because
     # it is likely to be rather large.
-    # Initialise average.
-    shape = [img.size[1], img.size[0]]
-    # If there is more than one colour channel, we need an extra
-    # dimension to contain this.
-    if len(img.getbands()) > 1:
-        shape.append(len(img.getbands()))
     # Initialise holding array with zeros
-    avg = np.zeros(shape, dtype=np.float64)
+    avg = np.zeros(img.size[::-1], dtype=np.float64)
 
     # Loop over all frames and sum the pixel intensities together
     for frame in ImageSequence.Iterator(img):
-        avg += image2array(frame)
+        avg += image2array(frame, dtype=source_dtype, band=band)
 
     # Divide by number of frames to find the average
     avg /= img.n_frames
     return avg
 
 
-def get_mean_tiff(filename):
+def get_mean_tiff(filename, source_dtype=np.uint8, band=0):
     '''
     Get the mean frame for a tiff stack.
 
@@ -179,6 +225,15 @@ def get_mean_tiff(filename):
     ----------
     filename : string
         Path to TIFF file.
+    source_dtype : dtype, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
@@ -190,7 +245,8 @@ def get_mean_tiff(filename):
     --------
     get_imgstack_mean
     '''
-    return get_imgstack_mean(Image.open(filename))
+    return get_imgstack_mean(Image.open(filename), source_dtype=source_dtype,
+                             band=band)
 
 
 def getbox(com, size):
