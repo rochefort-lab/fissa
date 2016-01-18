@@ -9,7 +9,39 @@ Updated:      2015-10-18
 from __future__ import division
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageSequence
+
+
+def image2array(img):
+    '''
+    Convert a single PIL/Pillow image into a numpy array.
+
+    Parameters
+    ----------
+    img : PIL.Image
+        Source image, loaded with PIL or Pillow.
+
+    Returns
+    -------
+    numpy.ndarray
+        3D output array, sized `(height, width, num_channels)`, where
+        `num_channels` is the number of color channels in the image.
+        For instance, this is 3 for RGB images, and 1 greyscale images.
+
+    Raises
+    ------
+    ValueError
+        Since bilevel images would not make sense as input data, an
+        error is thrown if the input appears to be bilevel. This is
+        because it is not possible to infer the units of the image
+        when it is completely white.
+    '''
+    out = np.asarray(img)
+    if out.dtype == bool:
+        raise ValueError('Input image appears to be bilevel or completely '
+                         'black/white. This is not an expected input '
+                         'image format.')
+    return out
 
 
 def get_frame_number(img):
@@ -37,6 +69,128 @@ def get_frame_number(img):
         except EOFError:
             break  # end of sequence
     return img.tell() + 1
+
+
+def imgstack2array(img):
+    '''
+    Loads an entire greyscale tiff stack as a single numpy array.
+
+    Parameters
+    ----------
+    img : PIL.Image
+        An image loaded using Pillow Image.
+
+    Returns
+    -------
+    numpy.ndarray
+        The contents of the TIFF file, parsed into either a 3-
+        or 4-dimensional array, depending on whether the image is
+        greyscale or has multiple color channels (a.k.a. bands).
+        The output shape is either `(height, width, num_frames)` or
+        `(height, width, num_channel, num_frames)` correspondingly.
+
+    See also
+    --------
+    tiff2array
+    '''
+    # Get the first frame
+    array0 = image2array(img)
+    # From the first frame, we can tell the dtype we need to
+    # initialize with, as well as the shape of each frame in the image
+    shape = list(array0.shape)
+    # We need to add an extra dimension to contain the time series
+    shape.append(img.n_frames)
+    # Initialise output array
+    contents = np.zeros(shape, dtype=array0.dtype)
+
+    # Loop over all frames
+    for index, frame in enumerate(ImageSequence.Iterator(img)):
+        contents[..., index] = image2array(frame)
+
+    return contents
+
+
+def tiff2array(filename):
+    '''
+    Loads an entire greyscale tiff stack as a single numpy array.
+
+    Parameters
+    ----------
+    filename : string
+        Path to greyscale TIFF file.
+
+    Returns
+    -------
+    numpy.ndarray
+        The contents of the TIFF file, parsed into a three-dimensional
+        array of [] shape(tiff), with all frames
+
+    See also
+    --------
+    imgstack2array
+    '''
+    return imgstack2array(Image.open(filename))
+
+
+def get_imgstack_mean(img):
+    '''
+    Get the mean data for an Pillow image stack or animation.
+
+    Parameters
+    ----------
+    img : PIL.Image
+        An animated image loaded using Pillow Image.
+
+    Returns
+    -------
+    numpy.ndarray
+        Average pixel values across all frames in the animation or
+        image stack.
+
+    See also
+    --------
+    get_mean_tiff
+    '''
+    # We don't load the entire image into memory at once, because
+    # it is likely to be rather large.
+    # Initialise average.
+    shape = [img.size[1], img.size[0]]
+    # If there is more than one colour channel, we need an extra
+    # dimension to contain this.
+    if len(img.getbands()) > 1:
+        shape.append(len(img.getbands()))
+    # Initialise holding array with zeros
+    avg = np.zeros(shape, dtype=np.float64)
+
+    # Loop over all frames and sum the pixel intensities together
+    for frame in ImageSequence.Iterator(img):
+        avg += image2array(frame)
+
+    # Divide by number of frames to find the average
+    avg /= img.n_frames
+    return avg
+
+
+def get_mean_tiff(filename):
+    '''
+    Get the mean frame for a tiff stack.
+
+    Parameters
+    ----------
+    filename : string
+        Path to TIFF file.
+
+    Returns
+    -------
+    numpy.ndarray
+        Average pixel values across all frames in the animation or
+        image stack.
+
+    See also
+    --------
+    get_imgstack_mean
+    '''
+    return get_imgstack_mean(Image.open(filename))
 
 
 def getbox(com, size):
@@ -183,69 +337,3 @@ def extract_traces(img, masks):
             # get mean data from mask
             data[i, f] = np.mean(tempframe[masks[i]])
     return data
-
-
-def tiff2array(filename):
-    '''
-    Loads an entire greyscale tiff stack as a single numpy array.
-
-    Parameters
-    ----------
-    filename : string
-        Path to greyscale TIFF file.
-
-    Returns
-    -------
-    numpy.ndarray
-        The contents of the TIFF file, parsed into a three-dimensional
-        array of [] shape(tiff), with all frames
-
-    '''
-    # define the pillow image
-    img = Image.open(filename)
-
-    # get an average image
-    nframes = img.n_frames
-
-    # predefine data
-    data = np.zeros((img.size[1], img.size[0], nframes))
-
-    # loop over all frames
-    for i in range(nframes):
-        # switch frame and load into data
-        img.seek(i)
-        data[:, :, i] = img
-
-    return data
-
-
-def get_mean_tiff(filename):
-    ''' Get the mean data for the tiff stack in filename
-
-    Parameters
-    ----------------------
-    filename : string
-        filename for tiff
-
-    Returns
-    ---------------------
-    numpy.ndarray
-        Array of shape(tiff), averaged across frames
-    '''
-    # define the pillow image
-    img = Image.open(filename)
-
-    # get an average image
-    nframes = img.n_frames
-
-    # predefine average
-    avg = np.zeros(img.size[::-1])
-
-    # loop over all frames
-    for i in range(nframes):
-        img.seek(i)
-        avg += img
-    # divide by number of frames to average
-    avg /= nframes
-
-    return avg
