@@ -8,6 +8,7 @@ Author: Scott Lowe
 import numpy as np
 import scipy.signal
 
+
 def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
     '''
     Normalises a fluorescence imaging trace line.
@@ -69,8 +70,8 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
     '''
 
     # Parameters --------------------------------------------------------------
-    min_f0_bl = 0.0 # Lowerbound on f0 for taking mean
-    min_f0_sf = 1.0 # Lowerbound on divisive f0, applied after averaging
+    min_f0_bl = 0.0  # Lowerbound on f0 for taking mean
+    min_f0_sf = 1.0  # Lowerbound on divisive f0, applied after averaging
 
     # Main --------------------------------------------------------------------
     if isinstance(rawF, np.ndarray):
@@ -80,16 +81,17 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
         # Check the axis for averaging over is set to -1, otherwise the input
         # doesn't make sense.
         if ax_recs is not -1:
-            raise ValueError('A list of recordings was input, but the axis to ' +
-                    'average over was also set.')
+            raise ValueError('A list of recordings was input, but the axis ' +
+                             'to average over was also set.')
         # Find the baseline F0 for each ROI in each recording
         bl_list = [findBaselineF0(x, fs, axis=ax_time, keepdims=True)
-                            for x in rawF]
+                   for x in rawF]
         # Concatenate them together along a new, postpended, axis
         baselineF0 = np.concatenate([x[..., np.newaxis] for x in bl_list], -1)
 
     # Take the mean of the baseline F0 values to find a overall typical F0
-    scaleF0 = np.mean(np.maximum(baselineF0, min_f0_bl), ax_recs, keepdims=True)
+    scaleF0 = np.mean(np.maximum(baselineF0, min_f0_bl),
+                      ax_recs, keepdims=True)
     # This should not be less than the declared minimum scale factor
     scaleF0 = np.maximum(scaleF0, min_f0_sf)
 
@@ -98,8 +100,8 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
     if isinstance(rawF, np.ndarray):
         normalisedF = (rawF - baselineF0) / scaleF0
     else:
-        # We were given a list as input, so lets make a list for the output too.
-        # We need to drop the final dimension from scaleF0 again so the
+        # We were given a list as input, so lets make a list for the output
+        # too. We need to drop the final dimension from scaleF0 again so the
         # dimensionality size matches that of the input arrays.
         scaleF0 = np.squeeze(scaleF0, -1)
         # Now normalise each element in the list
@@ -144,9 +146,9 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     '''
 
     # Parameters --------------------------------------------------------------
-    nfilt      = 30 # Number of taps to use in FIR filter
-    fw_base    =  1 # Cut-off frequency for lowpass filter
-    base_pctle =  5 # Percentile to take as baseline value
+    nfilt = 30  # Number of taps to use in FIR filter
+    fw_base = 1  # Cut-off frequency for lowpass filter
+    base_pctle = 5  # Percentile to take as baseline value
 
     # Main --------------------------------------------------------------------
     # Ensure array_like input is a numpy.ndarray
@@ -168,7 +170,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
 
     # Take a percentile of the filtered signal
     baselineF0 = np.percentile(filtered_f, base_pctle, axis=axis,
-                                keepdims=keepdims)
+                               keepdims=keepdims)
 
     return baselineF0
 
@@ -204,21 +206,23 @@ def deltaFF0(S, T, avg_n=1):
     sig = np.asarray(S)
 
     # get some info
-    numT = int(S.shape[0]/T) # number of trials
-    numR = S.shape[1] # number of regions (cell + neuropils)
+    numT = int(S.shape[0]/T)  # number of trials
+    numR = S.shape[1]  # number of regions (cell + neuropils)
 
     # transform S to format expected by df.normaliseF
     traces = np.zeros((numR, T, numT))
     for t in range(numT):
         for n in range(numR):
-            traces[n,:, t] = S[t*T:(t+1)*T, n]
-    norm, baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
+            traces[n, :, t] = S[t*T:(t+1)*T, n]
+    norm, baselineF0, scaleF0 = normaliseF(
+        traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
 
     # return to same format as S
     S_norm = np.zeros(S.shape)
     for n in range(numR):
         for t in range(numT):
-            S_norm[t*T:(t+1)*T, n] = np.convolve(norm[n,:, t], np.ones(avg_n)/avg_n, mode='same')
+            S_norm[t*T:(t+1)*T, n] = np.convolve(
+                norm[n, :, t], np.ones(avg_n)/avg_n, mode='same')
 
     return S_norm
 
@@ -253,21 +257,23 @@ def RemoveBaseline(S, T, avg_n=1):
     S = np.asarray(S)
 
     # get some info
-    numT = int(S.shape[0]/T) # number of trials
-    numR = S.shape[1] # number of regions (cell + neuropils)
+    numT = int(S.shape[0]/T)  # number of trials
+    numR = S.shape[1]  # number of regions (cell + neuropils)
 
     # transform S to format expected by df.normaliseF
     traces = np.zeros((numR, T, numT))
     for t in range(numT):
         for n in range(numR):
-            traces[n,:, t] = S[t*T:(t+1)*T, n]
-    norm, baselineF0, scaleF0 = normaliseF(traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
+            traces[n, :, t] = S[t*T:(t+1)*T, n]
+    norm, baselineF0, scaleF0 = normaliseF(
+        traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
 
     # return to same format as S
     S_norm = np.zeros(S.shape)
     for n in range(numR):
         for t in range(numT):
-            S_norm[t*T:(t+1)*T, n] = np.convolve(norm[n,:, t], np.ones(avg_n)/avg_n, mode='same')
+            S_norm[t*T:(t+1)*T, n] = np.convolve(
+                norm[n, :, t], np.ones(avg_n)/avg_n, mode='same')
             S_norm[t*T:(t+1)*T, n] *= scaleF0[n, 0, 0]
             S_norm[t*T:(t+1)*T, n] += scaleF0[n, 0, 0]
 
