@@ -148,3 +148,39 @@ def test_get_mean_tiff_uniform(row):
     actual = readtiffs.get_mean_tiff(fname)
     # Check they match
     base_test.assert_equal(actual, expected)
+
+
+class Test2dGreyPoints(base_test.BaseTestCase):
+    '''
+    Tests as many readtiff functions as possible on a 2-dimensional
+    unsigned 8-bit integer image resource.
+    '''
+    @classmethod
+    def setUpClass(self):
+        '''
+        Load up the `points_grey_2d.tif` resource, which contains a 2D
+        unit8 image with spot colors in different shades of grey. The
+        contents are verbosely contained in the corresponding text
+        file.
+        '''
+        self.filename = os.path.join(RESOURCE_DIRECTORY, 'points_grey_2d.tif')
+        array_filename = os.path.join(RESOURCE_DIRECTORY, 'points_grey_2d.txt')
+        # Load the expected values from text file
+        self.expected_array = np.loadtxt(array_filename, dtype=np.uint8)
+
+    def test_get_frame_number(self):
+        expected = 1
+        actual = readtiffs.get_frame_number(Image.open(self.filename))
+        self.assertEqual(actual, expected)
+
+    def test_tiff2array(self):
+        # When we get a whole-imagestack version, we have an extra dimension
+        # for frame indices
+        expected = np.expand_dims(self.expected_array, axis=-1)
+        actual = readtiffs.tiff2array(self.filename)
+        self.assert_equal(actual, expected)
+
+    def test_get_mean_tiff(self):
+        # There is only one frame, so it should be the same the image
+        self.assert_equal(readtiffs.get_mean_tiff(self.filename),
+                          self.expected_array)
