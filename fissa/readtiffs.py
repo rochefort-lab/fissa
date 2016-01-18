@@ -20,7 +20,7 @@ def image2array(img, dtype=np.uint8, band=0):
     ----------
     img : PIL.Image
         Source image, loaded with PIL or Pillow.
-    dtype : dtype, optional
+    dtype : data-type, optional
         The data type which corresponds to the encoding of each channel
         in the source image. Default is `numpy.uint8`, which
         corresponds to 8 unsigned bits per channel and is hence encoded
@@ -104,7 +104,7 @@ def imgstack2array(img, dtype=np.uint8, band=0):
     ----------
     img : PIL.Image
         An image loaded using Pillow Image.
-    dtype : dtype, optional
+    dtype : data-type, optional
         The data type which corresponds to the encoding of each channel
         in the source image. Default is `numpy.uint8`, which
         corresponds to 8 unsigned bits per channel.
@@ -152,7 +152,7 @@ def tiff2array(filename, dtype=np.uint8, band=0):
     ----------
     filename : string
         Path to greyscale TIFF file.
-    dtype : dtype, optional
+    dtype : data-type, optional
         The data type which corresponds to the encoding of each channel
         in the source image. Default is `numpy.uint8`, which
         corresponds to 8 unsigned bits per channel.
@@ -183,7 +183,7 @@ def get_imgstack_mean(img, source_dtype=np.uint8, band=0):
     ----------
     img : PIL.Image
         An animated image loaded using Pillow Image.
-    source_dtype : dtype, optional
+    source_dtype : data-type, optional
         The data type which corresponds to the encoding of each channel
         in the source image. Default is `numpy.uint8`, which
         corresponds to 8 unsigned bits per channel.
@@ -225,7 +225,7 @@ def get_mean_tiff(filename, source_dtype=np.uint8, band=0):
     ----------
     filename : string
         Path to TIFF file.
-    source_dtype : dtype, optional
+    source_dtype : data-type, optional
         The data type which corresponds to the encoding of each channel
         in the source image. Default is `numpy.uint8`, which
         corresponds to 8 unsigned bits per channel.
