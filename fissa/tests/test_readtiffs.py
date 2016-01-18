@@ -50,6 +50,71 @@ def get_uniform_resources():
     return resources
 
 
+class TestGetBox(base_test.BaseTestCase):
+    '''
+    Tests getbox()
+    '''
+    def test_getbox_even_even(self):
+        # This box is not quite centered, it has to be offset to give the
+        # desired output shape from the cut. After cut, x-axis will be:
+        # length 4: [8 9 ,10, 11]
+        self.assertEqual(readtiffs.getbox((20, 10), 2), (8, 18, 12, 22))
+
+    def test_getbox_even_odd(self):
+        # This box is not quite centered, it has to be offset to give the
+        # desired output shape from the cut. After cut, x-axis will be:
+        # length 6: [7 8 9 ,10, 11 12]
+        self.assertEqual(readtiffs.getbox((20, 10), 3), (7, 17, 13, 23))
+
+    def test_getbox_odd_even(self):
+        # This box is not quite centered, it has to be offset to give the
+        # desired output shape from the cut. After cut, x-axis will be:
+        # length 4: [9 10 ,11, 12]
+        self.assertEqual(readtiffs.getbox((21, 11), 2), (9, 19, 13, 23))
+
+    def test_getbox_odd_odd(self):
+        # This box is not quite centered, it has to be offset to give the
+        # desired output shape from the cut. After cut, x-axis will be:
+        # length 6: [8 9 10 ,11, 12 13]
+        self.assertEqual(readtiffs.getbox((21, 11), 3), (8, 18, 14, 24))
+
+    def test_getbox_int_half(self):
+        # This box is centered. After cut, x-axis will be:
+        # length 5: [9 10 ,11, 12 13]
+        self.assertEqual(readtiffs.getbox((21, 11), 2.5), (9, 19, 14, 24))
+        # length 5: [8 9 ,10, 11 12]
+        self.assertEqual(readtiffs.getbox((20, 10), 2.5), (8, 18, 13, 23))
+
+    def test_getbox_half_int(self):
+        # This box is centered. After cut, x-axis will be:
+        # length 4: [9 10 , 11 12]
+        self.assertEqual(readtiffs.getbox((20.5, 10.5), 2), (9, 19, 13, 23))
+        # length 6: [8 9 10 , 11 12 13]
+        self.assertEqual(readtiffs.getbox((20.5, 10.5), 3), (8, 18, 14, 24))
+
+    def test_getbox_half_half(self):
+        # This box is not quite centered, it has to be offset to give the
+        # desired output shape from the cut. After cut, x-axis will be:
+        # length 5: [8 9 10 , 11 12]
+        self.assertEqual(readtiffs.getbox((20.5, 10.5), 2.5), (8, 18, 13, 23))
+
+    def test_getbox_float_floatdown(self):
+        # This box cannot be centered exactly, but we get as close as we can.
+        # After cut, x-axis will be:
+        # length round(5.4)=5: [8 9 10, 11 12]
+        # After cut, y-axis will be:
+        # length round(5.4)=5: [19 20 ,21 22 23]
+        self.assertEqual(readtiffs.getbox((20.8, 10.2), 2.7), (8, 19, 13, 24))
+
+    def test_getbox_float_floatup(self):
+        # This box cannot be centered exactly, but we get as close as we can.
+        # After cut, x-axis will be:
+        # length round(4.2)=4: [9 10 ,11 12]
+        # After cut, y-axis will be:
+        # length round(4.2)=4: [19 20, 21 22]
+        self.assertEqual(readtiffs.getbox((20.1, 10.75), 2.1), (9, 19, 13, 23))
+
+
 @pytest.mark.parametrize('row', get_uniform_resources())
 def test_frame_number(row):
     '''
