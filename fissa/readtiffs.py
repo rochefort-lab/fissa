@@ -249,31 +249,41 @@ def get_mean_tiff(filename, source_dtype=np.uint8, band=0):
                              band=band)
 
 
-def getbox(com, size):
+def getbox(center, half_length):
     '''
-    Gives box coordinates given centre of mass and box size*2,
-    formatted so that it can be used to crop images in a pillow Image
-    object.
+    Find the edge co-ordinates of a square box with given center and
+    length.
 
     Parameters
     ----------
-    com : tuple, list, or array
-        The 2d center of mass the box should have (x,y).
-    size : int
-        Half the height of the required output box
+    center : tuple or list
+        The center of the box. Should be a two-dimensional tuple with
+        each entry corresponding to the location of the center in that
+        dimension, `(y, x)`.
+    half_length : scalar
+        Half the length of the required output box.
 
     Returns
     -------
-    numpy.ndarray
-        [left border, upper border, right border, lower border]
+    tuple
+        Pixel co-ordinates to use when cutting an image down to a
+        square of length `2 * half_length`. This output is appropriate
+        for using with `PIL.Image.crop` to get the desired output shape.
+        Output has elements `(x_0, y_0, x_1, y_1)`, which is
+        `(left border, upper border, right border, lower border)`.
 
     Example
     -------
     >>> img = Image.load(filename)
-    >>> box = getbox(com,size)
+    >>> box = getbox(center, half_length)
     >>> cropped_img = img.crop(box)
     '''
-    return np.array([com[1]-size, com[0]-size, com[1]+size, com[0]+size])
+    half_length = np.rint(2 * half_length) / 2
+    x0 = np.ceil(center[1]-half_length)
+    y0 = np.ceil(center[0]-half_length)
+    x1 = np.rint(x0 + 2*half_length)
+    y1 = np.rint(y0 + 2*half_length)
+    return (x0, y0, x1, y1)
 
 
 def getavg(img, box, frames):
