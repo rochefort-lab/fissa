@@ -26,7 +26,10 @@ def get_frame_number(img):
     int
         Number of frames in img
     '''
-    # keep going up one frame, until no such frame exists (resulting in
+    if hasattr(img, 'n_frames'):
+        # Introduced in Pillow 2.9.0
+        return img.n_frames
+    # Keep going up one frame, until no such frame exists (resulting in
     # EOFEerror)
     while True:
         try:
