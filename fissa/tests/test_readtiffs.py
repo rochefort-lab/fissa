@@ -184,3 +184,18 @@ class Test2dGreyPoints(base_test.BaseTestCase):
         # There is only one frame, so it should be the same the image
         self.assert_equal(readtiffs.get_mean_tiff(self.filename),
                           self.expected_array)
+
+    def test_getavg(self):
+        img = Image.open(self.filename)
+        boxes = [
+            (0, 0, 1, 1),
+            (1, 1, 2, 2),
+            (0, 0, 2, 2),
+            (0, 0, self.expected_array.shape[1], self.expected_array.shape[0]),
+            (0, 1, 1, 3)]
+        for box in boxes:
+            print(box)
+            expected = self.expected_array[box[1]:box[3], box[0]:box[2]]
+            actual = readtiffs.getavg(img, box);
+            # There is only one frame, so it should be the same the image
+            self.assert_equal(actual, expected)
