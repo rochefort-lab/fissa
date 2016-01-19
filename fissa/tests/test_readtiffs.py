@@ -196,6 +196,6 @@ class Test2dGreyPoints(base_test.BaseTestCase):
         for box in boxes:
             print(box)
             expected = self.expected_array[box[1]:box[3], box[0]:box[2]]
-            actual = readtiffs.getavg(img, box);
+            actual = readtiffs.getavg(img, box)
             # There is only one frame, so it should be the same the image
             self.assert_equal(actual, expected)
