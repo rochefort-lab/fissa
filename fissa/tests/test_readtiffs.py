@@ -4,8 +4,8 @@ Tests for readtiffs.py
 
 import os.path
 import csv
-import pytest
 
+import pytest
 import numpy as np
 from PIL import Image
 

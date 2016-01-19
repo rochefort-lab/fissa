@@ -9,7 +9,6 @@ import unittest
 import numpy as np
 
 from .base_test import BaseTestCase
-
 from .. import neuropil as npil
 
 
