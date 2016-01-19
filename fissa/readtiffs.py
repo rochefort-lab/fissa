@@ -286,7 +286,7 @@ def getbox(center, half_length):
     return (x0, y0, x1, y1)
 
 
-def getavg(img, box, frames):
+def getavg(img, box, frame_indices=None, source_dtype=np.uint8, band=0):
     '''
     Get the average for the box in pillow Image img, for the specified frames
 
@@ -294,27 +294,42 @@ def getavg(img, box, frames):
     ----------
     img : PIL.Image
         Loaded from a tiff stack
-    box : array
-        Defining which box to get tuple (left, top, right, bottom)
-    frames : array
-        which frames to get
+    box : tuple
+        Box defining which co-ordinates to extract from the image,
+        `(left, top, right, bottom)`.
+    frame_indices : list or None, optional
+        which frames to get. If None, all frames are used
+    source_dtype : data-type, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel and is hence encoded
+        with integers in the range 0-255.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
     numpy.ndarray
         Array of shape of img, which is the averaged image
     '''
-    size = box[3] - box[1]
+    if frame_indices is None:
+        frame_indices = range(img.n_frames)
 
-    # where to store average
-    avg = np.zeros((size, size))
+    width = box[2] - box[0]
+    height = box[3] - box[1]
 
-    for i, f in enumerate(frames):
+    # Initialise floating point array to hold running total
+    avg = np.zeros((height, width), dtype=np.float64)
+
+    for frame_index in frame_indices:
         # get frame (note: best to now get all relevant data from this frame,
         # so don't have to seek again (although takes neglible time)
-        img.seek(f)
-        avg[:] += img.crop(box)
-    avg = avg / len(frames)
+        img.seek(frame_index)
+        avg[:] += image2array(img.crop(box), dtype=source_dtype, band=band)
+    avg = avg / len(frame_indices)
 
     return avg
 
