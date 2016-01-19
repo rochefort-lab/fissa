@@ -1,40 +1,40 @@
 # language setting
 language: python
 
-################################################################################
+###############################################################################
 # version numbers
 python:
   - "2.7"
 
-################################################################################
+###############################################################################
 # environment variables
 env:
   - TEST_NOTEBOOKS=false
   - TEST_NOTEBOOKS=true
 
-################################################################################
+###############################################################################
 # Setup the environment before installing
 before_install:
   # Remember the directory where our repository to test is located
   - pwd
   - REPOPATH=`pwd`
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Test setup by printing some variables
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   - pwd
   - echo "$VIRTUAL_ENV"
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Work out which version of python we are testing
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   - echo "$TRAVIS"
   - echo "$SHIPPABLE"
   - echo "$TRAVIS_PYTHON"
   - echo "$SHIPPABLE_PYTHON"
   - PYTHON_VERSION="$TRAVIS_PYTHON_VERSION"
   - echo "$PYTHON_VERSION"
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Install some packages dependencies with apt-get
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   - sudo apt-get update
   # Install Fortran compiler, BLAS, LAPACK and ATLAS for scipy
   - sudo apt-get install -y gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
@@ -42,10 +42,10 @@ before_install:
   - sudo apt-get install -y libgeos-dev
   # Install JPEG library for Pillow>=3.0.0
   - sudo apt-get install -y libjpeg-dev
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # The following is taken from Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Download miniconda.  If the python version we want is 2.7, we can download
   # a smller miniconda file.
   - if [[ "$PYTHON_VERSION" == "2.7" ]]; then
@@ -66,7 +66,7 @@ before_install:
   - conda create -q -n test-environment python=$PYTHON_VERSION pip
   # Activate the test environment
   - source activate test-environment
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Define a helper function which installs dependencies from a list in a file,
   # which uses conda where it can and pip when it can't.
   #
@@ -98,7 +98,7 @@ before_install:
         done < $1;
     }
 
-################################################################################
+###############################################################################
 # install requirements
 install:
   # Install required packages listed in requirements.txt. Use conda if they are
@@ -110,29 +110,29 @@ install:
   - if [ -f requirements-dev.txt ]; then
       conda_or_pip_install_packages requirements-dev.txt;
     fi;
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install -r requirements_plots.txt;
     fi
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Install our package
   - python setup.py develop
 
-################################################################################
+###############################################################################
 before_script:
   # Double-check we are still in the right directory
   - pwd
   # Check what python packages we have installed
   - pip freeze
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Set up folders for test results
   - if [ "$SHIPPABLE" = "true" ]; then
       mkdir -p shippable/testresults;
       mkdir -p shippable/codecoverage;
     fi;
 
-################################################################################
+###############################################################################
 # commands to run test scripts
 script:
   - which python
@@ -169,7 +169,7 @@ script:
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
 
-################################################################################
+###############################################################################
 # commands to run after tests are done
 after_script:
   # Check where we ended up and what's going on where we are
@@ -179,7 +179,7 @@ after_script:
   - cd ${REPOPATH}
   # Check what results files are here
   - ls -alh
-  # ----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # Move results and coverage files into appropriate places
   - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
       mv testresults.xml shippable/testresults/;
