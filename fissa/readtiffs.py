@@ -376,7 +376,7 @@ def extract_from_single_tiff(filename, masks):
     return traces
 
 
-def extract_traces(img, masks):
+def extract_traces(img, masks, source_dtype=np.uint8, band=0):
     '''
     Get the traces for each mask in masks from the pillow object img for
     nframes.
@@ -385,36 +385,38 @@ def extract_traces(img, masks):
     ----------
     img : PIL.Image
         Pillow loaded tiff stack
-    masks : list
+    masks : list of boolean arrays
         list of masks (boolean arrays)
+    source_dtype : data-type, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel and is hence encoded
+        with integers in the range 0-255.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
-    An array of shape (nrois,nframes), with nrois being the number of ROIs in
-    masks, and nframes as above.
+    numpy.ndarray
+        Traces across frames in image stack `img` for each mask, sized
+        `(num_masks, num_frames)`.
     '''
     # TODO: Try loading in entire image into memory (as a memory intensive
     #       alternative) to see if that speeds up the algorithm much.
     #       Would increase memory needs, but could be worth it.
 
-    # get the number rois
-    nrois = len(masks)
+    # Initialise an array predfine list with the data
+    traces = np.zeros((len(masks), img.n_frames), dtype=np.float64)
 
-    # get number of frames
-    nframes = img.n_frames
+    # For each frame, get the data
+    for frame_index, frame in enumerate(ImageSequence.Iterator(img)):
+        # Get the pixel values for this frame
+        frame_array = image2array(frame, dtype=source_dtype, band=band)
+        # For each mask, extract the contents for this frame
+        for mask_index, mask in enumerate(masks):
+            traces[mask_index, frame_index] = np.mean(frame_array[mask])
 
-    # predfine list with the data
-    data = np.zeros((nrois, nframes))
-
-    # for each frame, get the data
-    for f in range(nframes):  # for frames
-        # set frame
-        img.seek(f)
-
-        # make numpy array
-        tempframe = np.array(img)
-
-        for i in range(nrois):  # for masks
-            # get mean data from mask
-            data[i, f] = np.mean(tempframe[masks[i]])
-    return data
+    return traces
