@@ -4,6 +4,7 @@ Tests for readtiffs.py
 
 import os.path
 import csv
+import ast
 
 import pytest
 import numpy as np
@@ -150,6 +151,42 @@ def test_uniform__get_mean_tiff(row):
     # Take the mean of the image stack stack
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
     actual = readtiffs.get_mean_tiff(fname)
+    # Check they match
+    base_test.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize('row', get_uniform_resources())
+@pytest.mark.parametrize('frame_indices', [None, [0]])
+@pytest.mark.parametrize('fullbox', [False, True])
+def test_uniform__getavg(row, frame_indices, fullbox):
+    '''
+    Tests the function getavg against the uniform TIFF test
+    images.
+    '''
+    print(row)  # To debug any errors
+
+    if fullbox:
+        # Take the whole frame
+        box = (0, 0, int(float(row['width'])), int(float(row['height'])))
+    else:
+        # Just take the first pixel
+        box = (0, 0, 1, 1)
+
+    if frame_indices is None:
+        # Average over all frames
+        expected_colour = float(row['mean_color'])
+    else:
+        # Average over a selection of frames
+        trace = np.asarray(ast.literal_eval(row['trace']))
+        expected_colour = np.mean(trace[frame_indices])
+    # We expect to get a uniform image, the same size as the box
+    expected = expected_colour * np.ones((box[3], box[2]))
+
+    # Take the mean of the image stack within this box
+    fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
+    img = Image.open(fname)
+    actual = readtiffs.getavg(img, box, frame_indices)
+
     # Check they match
     base_test.assert_equal(actual, expected)
 
