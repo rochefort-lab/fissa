@@ -116,7 +116,7 @@ class TestGetBox(base_test.BaseTestCase):
 
 
 @pytest.mark.parametrize('row', get_uniform_resources())
-def test_frame_number(row):
+def test_uniform__frame_number(row):
     '''
     Tests the function get_frame_number
 
@@ -130,7 +130,7 @@ def test_frame_number(row):
 
 
 @pytest.mark.parametrize('row', get_uniform_resources())
-def test_get_mean_tiff_uniform(row):
+def test_uniform__get_mean_tiff(row):
     '''
     Tests the function get_mean_tiff against the uniform TIFF test
     images.
