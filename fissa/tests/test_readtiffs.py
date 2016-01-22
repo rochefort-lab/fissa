@@ -123,6 +123,8 @@ def test_uniform__frame_number(row):
     Use the small set of test resource TIFF files to confirm the
     number of frames is as expected.
     '''
+    print(row)  # To debug any errors
+
     expected = float(row['num_frames'])
     img = Image.open(os.path.join(RESOURCE_DIRECTORY, row['filename']))
     actual = readtiffs.get_frame_number(img)
@@ -135,6 +137,8 @@ def test_uniform__get_mean_tiff(row):
     Tests the function get_mean_tiff against the uniform TIFF test
     images.
     '''
+    print(row)  # To debug any errors
+
     # We expect to get a uniform image
     expected_colour = float(row['mean_color'])
     # NB: dim1 and dim2 might be the other way around to what you
