@@ -334,7 +334,8 @@ def getavg(img, box, frame_indices=None, source_dtype=np.uint8, band=0):
     return avg
 
 
-def extract_from_single_tiff(filename, masks):
+def extract_from_single_tiff(filename, masksets, source_dtype=np.uint8,
+                             band=0):
     '''
     Extract the traces from the tiff stack at filename for given rois and
     trials, using Pillow.
@@ -343,36 +344,38 @@ def extract_from_single_tiff(filename, masks):
     ----------
     filename : string
         Path to source TIFF file.
-    masks : dict
-        A dictionary of masks, where the keys of each map to a list of
-        `numpy.ndarray`s. The keys of the dictionary will be used to
-        map to their outputs.
-        Each maskset should be a list of binary arrays for each mask in that
-        set, with 1's for pixels part of the roi, and 0's if not.
+    masksets : dict of lists of boolean arrays
+        A dictionary of masks, where each key maps to a maskset. A
+        maskset is a list of boolean arrays masks, with each array
+        indicating the spatial extent of a region of interest (ROI)
+        within the image - `True` inside the ROI and `False` outside.
+    source_dtype : data-type, optional
+        The data type which corresponds to the encoding of each channel
+        in the source image. Default is `numpy.uint8`, which
+        corresponds to 8 unsigned bits per channel and is hence encoded
+        with integers in the range 0-255.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
-    traces : dict
-        A dictionary such that traces[roiset] is data for each roi set
-        (cell/noncell + local neuropils).
-
-        out[roiset] is an array such that out[roi][:,mask] gives you the trace
-        for the corresponding mask. Usually:
-             mask = 0 : somatic roi
-             mask > 0 : any defined neuropil rois
+    traces : dict of numpy.ndarray
+        A dictionary with keys the same as that of `masksets`, each
+        mapping to a two-dimensional `numpy.ndarray`, sized
+        `(num_masks, num_frames)`, of traces extracted from the pixels
+        constituting each mask.
     '''
-    # Get useful info based on reference image
-    img = Image.open(filename)  # pillow loaded reference image
-
-    # Extract the data and put in output dictionary
+    img = Image.open(filename)
     # Initiaise an empty dictionary for containing the output
     traces = {}
-    # loop over all roi sets
-    for label, mask in masks.items():
+    # Extract the data and put in output dictionary
+    for label, maskset in masksets.items():
         # Extract traces for this maskset
-        traces[label] = extract_traces(img, mask)
-
-    # Return data
+        traces[label] = extract_traces(img, maskset, source_dtype=source_dtype,
+                                       band=band)
     return traces
 
 
