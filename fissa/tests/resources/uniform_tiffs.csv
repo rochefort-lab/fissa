@@ -1,6 +1,8 @@
 filename;bit_depth;num_frames;width;height;mean_color;trace
 lgrey_4x5x1.tif;8;1;4;5;170;[170]
+lgrey_4x5x1.tif;;1;4;5;170;[170]
 lgrey_4x5x1_16bit.tif;16;1;4;5;43690;[43690]
+lgrey_4x5x1_16bit.tif;;1;4;5;43690;[43690]
 black_1x2x3.tif;8;3;1;2;0;[0,0,0]
 white_1x2x3.tif;8;3;1;2;255;[255,255,255]
 grey_1x1x5.tif;8;5;1;1;132;[128,130,132,134,136]
