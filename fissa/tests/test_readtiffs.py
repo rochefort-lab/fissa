@@ -32,6 +32,9 @@ def get_uniform_resources():
     resources/lgrey_4x5x1.tif
         A single tiff (no stack), created with the command:
         convert -depth 8 -size 4x5 xc:#aaa lgrey_4x5x1.tif
+    resources/lgrey_4x5x1_16bit.tif
+        A single tiff (no stack), created with the command:
+        convert -depth 16 -size 4x5 xc:#aaa lgrey_4x5x1_16bit.tif
     resources/black_1x2x3.tif
         3 frames of black with width 1px and height 2px.
         convert -depth 8 -size 1x2 xc:#000 xc:#000 xc:#000 \
