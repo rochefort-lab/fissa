@@ -161,7 +161,7 @@ def test_uniform__get_mean_tiff(row):
             ).format(row['bit_depth']))
     expected = expected_colour * np.ones((expected_dim1, expected_dim2),
                                          dtype=dtype)
-    # Take the mean of the image stack stack
+    # Take the mean of the image stack
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
     actual = readtiffs.get_mean_tiff(fname, bit_depth=bit_depth)
     # Check they match
@@ -217,7 +217,7 @@ class Test2dGreyPoints(base_test.BaseTestCase):
     def setUpClass(self):
         '''
         Load up the `points_grey_2d.tif` resource, which contains a 2D
-        unit8 image with spot colors in different shades of grey. The
+        uint8 image with spot colors in different shades of grey. The
         contents are verbosely contained in the corresponding text
         file.
         '''
@@ -239,7 +239,7 @@ class Test2dGreyPoints(base_test.BaseTestCase):
         self.assert_equal(actual, expected)
 
     def test_get_mean_tiff(self):
-        # There is only one frame, so it should be the same the image
+        # There is only one frame, so it should be the same as the image
         self.assert_equal(readtiffs.get_mean_tiff(self.filename),
                           self.expected_array)
 
