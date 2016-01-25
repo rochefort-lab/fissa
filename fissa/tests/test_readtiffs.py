@@ -146,11 +146,24 @@ def test_uniform__get_mean_tiff(row):
     # expect here, but this is correct!
     expected_dim1 = float(row['height'])
     expected_dim2 = float(row['width'])
+
+    if row['bit_depth'] is '':
+        bit_depth = None
+    else:
+        bit_depth = float(row['bit_depth'])
+    if bit_depth is None or bit_depth == 16:
+        dtype = np.uint16
+    elif bit_depth == 8:
+        dtype = np.uint8
+    else:
+        raise ValueError((
+            'Unfamiliar bit_depth of {} value in resource'
+            ).format(row['bit_depth']))
     expected = expected_colour * np.ones((expected_dim1, expected_dim2),
-                                         dtype=np.uint8)
+                                         dtype=dtype)
     # Take the mean of the image stack stack
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
-    actual = readtiffs.get_mean_tiff(fname)
+    actual = readtiffs.get_mean_tiff(fname, bit_depth=bit_depth)
     # Check they match
     base_test.assert_equal(actual, expected)
 
@@ -185,7 +198,11 @@ def test_uniform__getavg(row, frame_indices, fullbox):
     # Take the mean of the image stack within this box
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
     img = Image.open(fname)
-    actual = readtiffs.getavg(img, box, frame_indices)
+    if row['bit_depth'] is '':
+        bit_depth = None
+    else:
+        bit_depth = float(row['bit_depth'])
+    actual = readtiffs.getavg(img, box, frame_indices, bit_depth=bit_depth)
 
     # Check they match
     base_test.assert_equal(actual, expected)
