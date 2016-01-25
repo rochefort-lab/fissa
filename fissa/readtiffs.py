@@ -26,7 +26,7 @@ def image2array(img, dtype=np.uint8, band=0):
         corresponds to 8 unsigned bits per channel and is hence encoded
         with integers in the range 0-255.
     band : int, optional
-        Which band (color channel) to get extract data from. If `img`
+        Which band (color channel) to extract the data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
         format, the data will be taken from band number `band`. Default
         is 0.
@@ -81,7 +81,7 @@ def get_frame_number(img):
     Returns
     -------
     int
-        Number of frames in img
+        Number of frames in img.
     '''
     if hasattr(img, 'n_frames'):
         # Introduced in Pillow 2.9.0
