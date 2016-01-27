@@ -41,6 +41,10 @@ def get_uniform_resources():
     resources/white_1x2x3.tif
         3 frames of white with width 1px and height 2px.
         convert -depth 8 -size 1x2 xc:#fff xc:#fff xc:#fff white_1x2x3.tif
+    resources/white_1x2x3_1bit.tif
+        3 frames of white with width 1px and height 2px, with single
+        pixel depth (binary image).
+        convert -depth 1 -size 1x2 xc:#fff xc:#fff xc:#fff white_1x2x3_1bit.tif
     resources/grey_1x1x5.tif
         A tiff stack (multipage tiff) containing 5 images with
         increasing shades of grey.
