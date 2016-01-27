@@ -35,8 +35,8 @@ env:
   global:
     - USE_OLDEST_DEPENDENCIES="false"
   matrix:
-      - TEST_NOTEBOOKS=false
-      - TEST_NOTEBOOKS=true
+      - TEST_NOTEBOOKS="false"
+      - TEST_NOTEBOOKS="true"
 
 ###############################################################################
 # Setup the environment before installing
