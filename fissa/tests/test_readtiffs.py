@@ -211,6 +211,51 @@ def test_uniform__getavg(row, frame_indices, fullbox):
     base_test.assert_equal(actual, expected)
 
 
+@pytest.mark.parametrize('row', get_uniform_resources())
+def test_uniform__extract_from_single_tiff(row):
+    '''
+    Tests the function getavg against the uniform TIFF test
+    images.
+    '''
+    print(row)  # To debug any errors
+
+    # Get attributes of the TIFF needed for setting up the output
+    shape = (float(row['height']), float(row['width']))
+    trace = np.asarray(ast.literal_eval(row['trace']), dtype=np.float64)
+
+    # Set up a few masks we can use
+    mask_all = np.ones(shape, bool)
+    mask_top_left = np.zeros(shape, bool)
+    mask_top_left[0, 0] = True
+    mask_bottom_right = np.zeros(shape, bool)
+    mask_bottom_right[-1, -1] = True
+
+    # Make masksets dictionary from the simple masks
+    masksets = {
+        'a': [mask_all],
+        'b': [mask_top_left, mask_bottom_right]
+    }
+
+    # Assemble expected output, given the masksets and the trace
+    expected = {}
+    for key, value in masksets.items():
+        expected[key] = np.tile(trace, (len(value), 1))
+
+    # Get attributes needed to put into the function
+    fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
+    if row['bit_depth'] is '':
+        bit_depth = None
+    else:
+        bit_depth = float(row['bit_depth'])
+
+    # Compute the actual output
+    actual = readtiffs.extract_from_single_tiff(
+                fname, masksets, bit_depth=bit_depth)
+
+    # Check they match
+    base_test.assert_equal(actual, expected)
+
+
 class Test2dGreyPoints(base_test.BaseTestCase):
     '''
     Tests as many readtiff functions as possible on a 2-dimensional
