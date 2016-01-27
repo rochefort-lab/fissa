@@ -150,17 +150,18 @@ def test_uniform__get_mean_tiff(row):
     expected_dim1 = float(row['height'])
     expected_dim2 = float(row['width'])
 
-    if row['bit_depth'] is '':
-        bit_depth = None
-    else:
-        bit_depth = float(row['bit_depth'])
-
     expected = expected_colour * np.ones((expected_dim1, expected_dim2),
                                          np.float64)
 
     # Take the mean of the image stack
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
-    actual = readtiffs.get_mean_tiff(fname, bit_depth=bit_depth)
+    kwargs = {}
+    if row['bit_depth'] is not '':
+        kwargs['bit_depth'] = float(row['bit_depth'])
+    if row['band'] is not '':
+        kwargs['band'] = int(float(row['band']))
+    actual = readtiffs.get_mean_tiff(fname, **kwargs)
+
     # Check they match
     base_test.assert_equal(actual, expected)
 
@@ -195,11 +196,12 @@ def test_uniform__getavg(row, frame_indices, fullbox):
     # Take the mean of the image stack within this box
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
     img = Image.open(fname)
-    if row['bit_depth'] is '':
-        bit_depth = None
-    else:
-        bit_depth = float(row['bit_depth'])
-    actual = readtiffs.getavg(img, box, frame_indices, bit_depth=bit_depth)
+    kwargs = {}
+    if row['bit_depth'] is not '':
+        kwargs['bit_depth'] = float(row['bit_depth'])
+    if row['band'] is not '':
+        kwargs['band'] = int(float(row['band']))
+    actual = readtiffs.getavg(img, box, frame_indices, **kwargs)
 
     # Check they match
     base_test.assert_equal(actual, expected)
@@ -237,14 +239,13 @@ def test_uniform__extract_from_single_tiff(row):
 
     # Get attributes needed to put into the function
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
-    if row['bit_depth'] is '':
-        bit_depth = None
-    else:
-        bit_depth = float(row['bit_depth'])
-
+    kwargs = {}
+    if row['bit_depth'] is not '':
+        kwargs['bit_depth'] = float(row['bit_depth'])
+    if row['band'] is not '':
+        kwargs['band'] = int(float(row['band']))
     # Compute the actual output
-    actual = readtiffs.extract_from_single_tiff(
-                fname, masksets, bit_depth=bit_depth)
+    actual = readtiffs.extract_from_single_tiff(fname, masksets, **kwargs)
 
     # Check they match
     base_test.assert_equal(actual, expected)
