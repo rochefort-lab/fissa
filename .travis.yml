@@ -57,13 +57,13 @@ before_install:
     fi;
   # ---------------------------------------------------------------------------
   # Update the package list
-  - sudo apt-get update
+  - travis_retry sudo apt-get update
   # Install numpy/scipy dependencies with apt-get. We want ATLAS and LAPACK.
-  - sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
+  - travis_retry sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
   # Install GEOS for Shapely
-  - sudo apt-get install -y libgeos-dev
+  - travis_retry sudo apt-get install -y libgeos-dev
   # Install JPEG library for Pillow>=3.0.0
-  - sudo apt-get install -y libjpeg-dev
+  - travis_retry sudo apt-get install -y libjpeg-dev
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
