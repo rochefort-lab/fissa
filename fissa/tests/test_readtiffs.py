@@ -154,16 +154,10 @@ def test_uniform__get_mean_tiff(row):
         bit_depth = None
     else:
         bit_depth = float(row['bit_depth'])
-    if bit_depth is None or bit_depth == 16:
-        dtype = np.uint16
-    elif bit_depth == 8:
-        dtype = np.uint8
-    else:
-        raise ValueError((
-            'Unfamiliar bit_depth of {} value in resource'
-            ).format(row['bit_depth']))
+
     expected = expected_colour * np.ones((expected_dim1, expected_dim2),
-                                         dtype=dtype)
+                                         np.float64)
+
     # Take the mean of the image stack
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
     actual = readtiffs.get_mean_tiff(fname, bit_depth=bit_depth)
