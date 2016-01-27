@@ -65,6 +65,79 @@ def get_uniform_resources():
     return resources
 
 
+class TestImage2Array(base_test.BaseTestCase):
+    '''
+    Tests image2array()
+
+    Note that this function is also tested extensively by the tests of
+    other, higher-level, functions.
+    '''
+    def test_8bit(self):
+        expected = np.arange(8, dtype=np.uint8).reshape((2,4))
+        img = Image.fromarray(expected, 'L')
+        actual = readtiffs.image2array(img, bit_depth=8)
+        self.assert_equal(actual, expected)
+
+    def test_8bit_uint8(self):
+        expected = np.arange(8, dtype=np.uint8).reshape((2,4))
+        img = Image.fromarray(expected, 'L')
+        actual = readtiffs.image2array(img, bit_depth=np.uint8)
+        self.assert_equal(actual, expected)
+
+    def test_8bit_implicit(self):
+        expected = np.arange(8, dtype=np.uint8).reshape((2,4))
+        img = Image.fromarray(expected, 'L')
+        actual = readtiffs.image2array(img)
+        self.assert_equal(actual, expected)
+
+    def test_16bit(self):
+        expected = np.arange(257, 265, dtype=np.uint16).reshape((2,4))
+        img = Image.fromarray(expected, 'I;16')
+        actual = readtiffs.image2array(img, bit_depth=16)
+        self.assert_equal(actual, expected)
+
+    def test_32bit(self):
+        expected = np.arange(65536, 65544, dtype=np.uint32).reshape((2,4))
+        img = Image.fromarray(expected, 'I')
+        actual = readtiffs.image2array(img, bit_depth=32)
+        self.assert_equal(actual, expected)
+
+    def test_1bit(self):
+        expected = np.array([[0,1,1],[1,0,1]], dtype=bool)
+        array = 255 * np.asarray(expected, dtype=np.uint8)
+        img = Image.fromarray(array, 'L').convert('1', dither=None)
+        actual = readtiffs.image2array(img, bit_depth=1)
+        self.assert_equal(actual, expected)
+
+    @pytest.mark.xfail
+    def test_1bit_implicit(self):
+        expected = np.array([[0,1,1],[1,0,1]], dtype=bool)
+        array = 255 * np.asarray(expected, dtype=np.uint8)
+        img = Image.fromarray(array, 'L').convert('1', dither=None)
+        actual = readtiffs.image2array(img)
+        self.assert_equal(actual, expected)
+
+    def test_8bit_color(self):
+        array = np.array([[(1,101,201),(2,102,202)]], np.uint8)
+        img = Image.fromarray(array, 'RGB')
+        # R channel
+        self.assert_equal(readtiffs.image2array(img, band=0), array[:, :, 0])
+        # G channel
+        self.assert_equal(readtiffs.image2array(img, band=1), array[:, :, 1])
+        # B channel
+        self.assert_equal(readtiffs.image2array(img, band=2), array[:, :, 2])
+
+    def test_raise_too_many_bands(self):
+        img = Image.new('L', (4, 5), color=0)
+        with self.assertRaises(ValueError):
+            readtiffs.image2array(img, band=2)
+
+    def test_raise_unspecified_band(self):
+        img = Image.new('RGB', (4, 5), color=1)
+        with self.assertRaises(ValueError):
+            readtiffs.image2array(img, band=None)
+
+
 class TestGetBox(base_test.BaseTestCase):
     '''
     Tests getbox()
