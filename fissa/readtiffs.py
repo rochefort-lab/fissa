@@ -182,6 +182,10 @@ def imgstack2array(img, bit_depth=None, band=0):
     # Initialise output array
     contents = np.zeros(shape, dtype=array0.dtype)
 
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    img.seek(0)
     # Loop over all frames
     for index, frame in enumerate(ImageSequence.Iterator(img)):
         contents[..., index] = image2array(frame, bit_depth=bit_depth,
@@ -266,6 +270,10 @@ def get_imgstack_mean(img, bit_depth=None, band=0):
     # Initialise holding array with zeros
     avg = np.zeros(img.size[::-1], dtype=np.float64)
 
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    img.seek(0)
     # Loop over all frames and sum the pixel intensities together
     for frame in ImageSequence.Iterator(img):
         avg += image2array(frame, bit_depth=bit_depth, band=band)
@@ -493,6 +501,10 @@ def extract_traces(img, masks, bit_depth=None, band=0):
     # Initialise an array predfine list with the data
     traces = np.zeros((len(masks), img.n_frames), dtype=np.float64)
 
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    img.seek(0)
     # For each frame, get the data
     for frame_index, frame in enumerate(ImageSequence.Iterator(img)):
         # Get the pixel values for this frame
