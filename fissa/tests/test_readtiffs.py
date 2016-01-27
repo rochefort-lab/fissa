@@ -50,6 +50,10 @@ def get_uniform_resources():
         increasing shades of grey.
         convert -depth 8 -size 1x1 xc:#808080 xc:#828282 \
             xc:#848484 xc:#868686 xc:#888888 grey_1x1x5.tif
+        ... or ...
+        convert -depth 8 -size 1x1 xc:'rgb(128,128,128)' \
+            xc:'rgb(130,130,130)' xc:'rgb(132,132,132)' xc:'rgb(134,134,134)' \
+            xc:'rgb(136,136,136)' grey_1x1x5.tif
     '''
     uniform_datafile = os.path.join(RESOURCE_DIRECTORY, 'uniform_tiffs.csv')
     resources = csv.DictReader(open(uniform_datafile), delimiter=';')
