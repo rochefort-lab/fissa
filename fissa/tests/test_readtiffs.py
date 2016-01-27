@@ -54,6 +54,11 @@ def get_uniform_resources():
         convert -depth 8 -size 1x1 xc:'rgb(128,128,128)' \
             xc:'rgb(130,130,130)' xc:'rgb(132,132,132)' xc:'rgb(134,134,134)' \
             xc:'rgb(136,136,136)' grey_1x1x5.tif
+    resources/orange_2x1x4.tif
+        A tiff stack (multipage tiff) containing 5 images with
+        different shades of orange.
+        convert -depth 8 -size 2x1 xc:'rgb(200,100,45)' xc:'rgb(210,112,80)' \
+            xc:'rgb(220,123,21)' xc:'rgb(234,134,13)' orange_2x1x4.tif
     '''
     uniform_datafile = os.path.join(RESOURCE_DIRECTORY, 'uniform_tiffs.csv')
     resources = csv.DictReader(open(uniform_datafile), delimiter=';')
