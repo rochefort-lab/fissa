@@ -206,7 +206,7 @@ script:
     fi;
   # ---------------------------------------------------------------------------
   # Test the main code base
-  - py.test --flake8 --junitxml=testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
+  - py.test --flake8 --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Test the notebooks
   - function check_notebooks {
       RETURNVALUE=0;
