@@ -29,6 +29,7 @@
 *.tab       text
 *.tsv       text
 *.sql       text
+*.bat       eol=crlf
 
 # Graphics
 # ============
