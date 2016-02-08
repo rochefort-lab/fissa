@@ -1,7 +1,7 @@
 '''
 Functions for removal of neuropil from calcium signals.
 
-Author: Sander Keemink (swkeemink@scimail.eu)
+Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 Created: 2015-05-15
 '''
 
@@ -62,7 +62,7 @@ def separate(
 
     Implementation
     --------------
-    Concept by Scott Lowe.
+    Concept by Scott Lowe and Sander Keemink.
     Normalize the columns in estimated mixing matrix A so that sum(column)=1
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
@@ -167,7 +167,6 @@ def separate(
     # make empty matched structure
     S_matched = np.zeros(np.shape(S_sep))
 
-    # Concept by Scott Lowe.
     # Normalize the columns in A so that sum(column)=1 (can be done in one line
     # too).
     # This results in a relative score of how strongly each separated signal
