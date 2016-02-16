@@ -1,9 +1,8 @@
 '''
 Various functions to read and extract from Tiff stacks using the pillow library
 
-Author: swk, swkeemink@scimail.eu
+Authors: Sander Keemink (swkeemink@scimail.eu), Scott Lowe
 Initial date: 2015-05-29
-Updated:      2015-10-18
 '''
 
 from __future__ import division
