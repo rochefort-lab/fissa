@@ -4,6 +4,7 @@ Tests for readtiffs.py
 
 import os.path
 import csv
+import ast
 
 import pytest
 import numpy as np
@@ -31,23 +32,110 @@ def get_uniform_resources():
     resources/lgrey_4x5x1.tif
         A single tiff (no stack), created with the command:
         convert -depth 8 -size 4x5 xc:#aaa lgrey_4x5x1.tif
+    resources/lgrey_4x5x1_16bit.tif
+        A single tiff (no stack), created with the command:
+        convert -depth 16 -size 4x5 xc:#aaa lgrey_4x5x1_16bit.tif
     resources/black_1x2x3.tif
         3 frames of black with width 1px and height 2px.
-        convert -depth 8 -size 1x2 xc:#000 xc:#000 xc:#000 \
-            black_1x2x3.tif
+        convert -depth 8 -size 1x2 xc:#000 xc:#000 xc:#000 black_1x2x3.tif
     resources/white_1x2x3.tif
         3 frames of white with width 1px and height 2px.
-        convert -depth 8 -size 1x2 xc:#fff xc:#fff xc:#fff \
-            white_1x2x3.tif
+        convert -depth 8 -size 1x2 xc:#fff xc:#fff xc:#fff white_1x2x3.tif
+    resources/white_1x2x3_1bit.tif
+        3 frames of white with width 1px and height 2px, with single
+        pixel depth (binary image).
+        convert -depth 1 -size 1x2 xc:#fff xc:#fff xc:#fff white_1x2x3_1bit.tif
     resources/grey_1x1x5.tif
         A tiff stack (multipage tiff) containing 5 images with
         increasing shades of grey.
         convert -depth 8 -size 1x1 xc:#808080 xc:#828282 \
             xc:#848484 xc:#868686 xc:#888888 grey_1x1x5.tif
+        ... or ...
+        convert -depth 8 -size 1x1 xc:'rgb(128,128,128)' \
+            xc:'rgb(130,130,130)' xc:'rgb(132,132,132)' xc:'rgb(134,134,134)' \
+            xc:'rgb(136,136,136)' grey_1x1x5.tif
+    resources/orange_2x1x4.tif
+        A tiff stack (multipage tiff) containing 5 images with
+        different shades of orange.
+        convert -depth 8 -size 2x1 xc:'rgb(200,100,45)' xc:'rgb(210,112,80)' \
+            xc:'rgb(220,123,21)' xc:'rgb(234,134,13)' orange_2x1x4.tif
     '''
     uniform_datafile = os.path.join(RESOURCE_DIRECTORY, 'uniform_tiffs.csv')
     resources = csv.DictReader(open(uniform_datafile), delimiter=';')
     return resources
+
+
+class TestImage2Array(base_test.BaseTestCase):
+    '''
+    Tests image2array()
+
+    Note that this function is also tested extensively by the tests of
+    other, higher-level, functions.
+    '''
+    def test_8bit(self):
+        expected = np.arange(8, dtype=np.uint8).reshape((2, 4))
+        img = Image.fromarray(expected, 'L')
+        actual = readtiffs.image2array(img, bit_depth=8)
+        self.assert_equal(actual, expected)
+
+    def test_8bit_uint8(self):
+        expected = np.arange(8, dtype=np.uint8).reshape((2, 4))
+        img = Image.fromarray(expected, 'L')
+        actual = readtiffs.image2array(img, bit_depth=np.uint8)
+        self.assert_equal(actual, expected)
+
+    def test_8bit_implicit(self):
+        expected = np.arange(8, dtype=np.uint8).reshape((2, 4))
+        img = Image.fromarray(expected, 'L')
+        actual = readtiffs.image2array(img)
+        self.assert_equal(actual, expected)
+
+    def test_16bit(self):
+        expected = np.arange(257, 265, dtype=np.uint16).reshape((2, 4))
+        img = Image.fromarray(expected, 'I;16')
+        actual = readtiffs.image2array(img, bit_depth=16)
+        self.assert_equal(actual, expected)
+
+    def test_32bit(self):
+        expected = np.arange(65536, 65544, dtype=np.uint32).reshape((2, 4))
+        img = Image.fromarray(expected, 'I')
+        actual = readtiffs.image2array(img, bit_depth=32)
+        self.assert_equal(actual, expected)
+
+    def test_1bit(self):
+        expected = np.array([[0, 1, 1], [1, 0, 1]], dtype=bool)
+        array = 255 * np.asarray(expected, dtype=np.uint8)
+        img = Image.fromarray(array, 'L').convert('1', dither=None)
+        actual = readtiffs.image2array(img, bit_depth=1)
+        self.assert_equal(actual, expected)
+
+    @pytest.mark.xfail
+    def test_1bit_implicit(self):
+        expected = np.array([[0, 1, 1], [1, 0, 1]], dtype=bool)
+        array = 255 * np.asarray(expected, dtype=np.uint8)
+        img = Image.fromarray(array, 'L').convert('1', dither=None)
+        actual = readtiffs.image2array(img)
+        self.assert_equal(actual, expected)
+
+    def test_8bit_color(self):
+        array = np.array([[(1, 101, 201), (2, 102, 202)]], np.uint8)
+        img = Image.fromarray(array, 'RGB')
+        # R channel
+        self.assert_equal(readtiffs.image2array(img, band=0), array[:, :, 0])
+        # G channel
+        self.assert_equal(readtiffs.image2array(img, band=1), array[:, :, 1])
+        # B channel
+        self.assert_equal(readtiffs.image2array(img, band=2), array[:, :, 2])
+
+    def test_raise_too_many_bands(self):
+        img = Image.new('L', (4, 5), color=0)
+        with self.assertRaises(ValueError):
+            readtiffs.image2array(img, band=2)
+
+    def test_raise_unspecified_band(self):
+        img = Image.new('RGB', (4, 5), color=1)
+        with self.assertRaises(ValueError):
+            readtiffs.image2array(img, band=None)
 
 
 class TestGetBox(base_test.BaseTestCase):
@@ -116,13 +204,15 @@ class TestGetBox(base_test.BaseTestCase):
 
 
 @pytest.mark.parametrize('row', get_uniform_resources())
-def test_frame_number(row):
+def test_uniform__frame_number(row):
     '''
     Tests the function get_frame_number
 
     Use the small set of test resource TIFF files to confirm the
     number of frames is as expected.
     '''
+    print(row)  # To debug any errors
+
     expected = float(row['num_frames'])
     img = Image.open(os.path.join(RESOURCE_DIRECTORY, row['filename']))
     actual = readtiffs.get_frame_number(img)
@@ -130,22 +220,117 @@ def test_frame_number(row):
 
 
 @pytest.mark.parametrize('row', get_uniform_resources())
-def test_get_mean_tiff_uniform(row):
+def test_uniform__get_mean_tiff(row):
     '''
     Tests the function get_mean_tiff against the uniform TIFF test
     images.
     '''
+    print(row)  # To debug any errors
+
     # We expect to get a uniform image
     expected_colour = float(row['mean_color'])
     # NB: dim1 and dim2 might be the other way around to what you
     # expect here, but this is correct!
     expected_dim1 = float(row['height'])
     expected_dim2 = float(row['width'])
+
     expected = expected_colour * np.ones((expected_dim1, expected_dim2),
-                                         dtype=np.uint8)
-    # Take the mean of the image stack stack
+                                         np.float64)
+
+    # Take the mean of the image stack
     fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
-    actual = readtiffs.get_mean_tiff(fname)
+    kwargs = {}
+    if row['bit_depth'] is not '':
+        kwargs['bit_depth'] = float(row['bit_depth'])
+    if row['band'] is not '':
+        kwargs['band'] = int(float(row['band']))
+    actual = readtiffs.get_mean_tiff(fname, **kwargs)
+
+    # Check they match
+    base_test.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize('row', get_uniform_resources())
+@pytest.mark.parametrize('frame_indices', [None, [0]])
+@pytest.mark.parametrize('fullbox', [False, True])
+def test_uniform__getavg(row, frame_indices, fullbox):
+    '''
+    Tests the function getavg against the uniform TIFF test
+    images.
+    '''
+    print(row)  # To debug any errors
+
+    if fullbox:
+        # Take the whole frame
+        box = (0, 0, int(float(row['width'])), int(float(row['height'])))
+    else:
+        # Just take the first pixel
+        box = (0, 0, 1, 1)
+
+    if frame_indices is None:
+        # Average over all frames
+        expected_colour = float(row['mean_color'])
+    else:
+        # Average over a selection of frames
+        trace = np.asarray(ast.literal_eval(row['trace']))
+        expected_colour = np.mean(trace[frame_indices])
+    # We expect to get a uniform image, the same size as the box
+    expected = expected_colour * np.ones((box[3], box[2]))
+
+    # Take the mean of the image stack within this box
+    fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
+    img = Image.open(fname)
+    kwargs = {}
+    if row['bit_depth'] is not '':
+        kwargs['bit_depth'] = float(row['bit_depth'])
+    if row['band'] is not '':
+        kwargs['band'] = int(float(row['band']))
+    actual = readtiffs.getavg(img, box, frame_indices, **kwargs)
+
+    # Check they match
+    base_test.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize('row', get_uniform_resources())
+def test_uniform__extract_from_single_tiff(row):
+    '''
+    Tests the function getavg against the uniform TIFF test
+    images.
+    '''
+    print(row)  # To debug any errors
+
+    # Get attributes of the TIFF needed for setting up the output
+    shape = (float(row['height']), float(row['width']))
+    trace = np.asarray(ast.literal_eval(row['trace']), dtype=np.float64)
+
+    # Set up a few masks we can use
+    mask_all = np.ones(shape, bool)
+    mask_top_left = np.zeros(shape, bool)
+    mask_top_left[0, 0] = True
+    mask_bottom_right = np.zeros(shape, bool)
+    mask_bottom_right[-1, -1] = True
+
+    # Make masksets dictionary from the simple masks
+    masksets = {
+        'a': [mask_all],
+        'b': [mask_top_left, mask_bottom_right]
+    }
+
+    # Assemble expected output, given the masksets and the trace
+    expected = {}
+    for key, value in masksets.items():
+        expected[key] = np.tile(trace, (len(value), 1))
+
+    # Get attributes needed to put into the function
+    fname = os.path.join(RESOURCE_DIRECTORY, row['filename'])
+    kwargs = {}
+    if row['bit_depth'] is not '':
+        kwargs['bit_depth'] = float(row['bit_depth'])
+    if row['band'] is not '':
+        kwargs['band'] = int(float(row['band']))
+    # Compute the actual output
+    actual = readtiffs.extract_from_single_tiff(fname, masksets, **kwargs)
+
     # Check they match
     base_test.assert_equal(actual, expected)
 
@@ -159,7 +344,7 @@ class Test2dGreyPoints(base_test.BaseTestCase):
     def setUpClass(self):
         '''
         Load up the `points_grey_2d.tif` resource, which contains a 2D
-        unit8 image with spot colors in different shades of grey. The
+        uint8 image with spot colors in different shades of grey. The
         contents are verbosely contained in the corresponding text
         file.
         '''
@@ -181,7 +366,7 @@ class Test2dGreyPoints(base_test.BaseTestCase):
         self.assert_equal(actual, expected)
 
     def test_get_mean_tiff(self):
-        # There is only one frame, so it should be the same the image
+        # There is only one frame, so it should be the same as the image
         self.assert_equal(readtiffs.get_mean_tiff(self.filename),
                           self.expected_array)
 

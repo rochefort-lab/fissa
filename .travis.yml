@@ -32,11 +32,13 @@ python:
 ###############################################################################
 # environment variables
 env:
-  global:
-    - USE_OLDEST_DEPENDENCIES="false"
   matrix:
-      - TEST_NOTEBOOKS=false
-      - TEST_NOTEBOOKS=true
+      - TEST_NOTEBOOKS="false"
+        USE_OLDEST_DEPENDENCIES="false"
+      - TEST_NOTEBOOKS="true"
+        USE_OLDEST_DEPENDENCIES="false"
+      - TEST_NOTEBOOKS="true"
+        USE_OLDEST_DEPENDENCIES="true"
 
 ###############################################################################
 # Setup the environment before installing
@@ -57,19 +59,19 @@ before_install:
     fi;
   # ---------------------------------------------------------------------------
   # Update the package list
-  - sudo apt-get update
+  - travis_retry sudo apt-get update
   # Install numpy/scipy dependencies with apt-get. We want ATLAS and LAPACK.
-  - sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
+  - travis_retry sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
   # Install GEOS for Shapely
-  - sudo apt-get install -y libgeos-dev
+  - travis_retry sudo apt-get install -y libgeos-dev
   # Install JPEG library for Pillow>=3.0.0
-  - sudo apt-get install -y libjpeg-dev
+  - travis_retry sudo apt-get install -y libjpeg-dev
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
   - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
       for FILE in *requirements*.txt; do
-          sed -e 's/>=/==/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+          sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
       done;
     fi;
   # ---------------------------------------------------------------------------
@@ -79,7 +81,7 @@ before_install:
   # Download miniconda. Only do this if the cached file isn't present.
   - mkdir -p $HOME/Downloads;
     if [ ! -f $HOME/Downloads/miniconda.sh ]; then
-      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O "$HOME/Downloads/miniconda.sh";
+      travis_retry wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O "$HOME/Downloads/miniconda.sh";
     fi;
   # Install miniconda to the home directory, if it isn't there already.
   - if [ ! -d "$HOME/miniconda/bin" ]; then
@@ -94,7 +96,7 @@ before_install:
   # Remove test environment from conda, if it's still there from last time
   - conda remove -n test-environment --all || echo "No test-environment to remove";
   # Update conda
-  - conda update -q conda
+  - travis_retry conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
   - conda list
@@ -154,10 +156,12 @@ install:
   # with the upgrade ('-U') flag to ensure we have the most recent version of
   # the dependency which is compatible with the specification.
   - cat requirements.txt;
-    pip install -Ur requirements.txt;
+    pip install --no-deps --upgrade -r requirements.txt;
+    pip install -r requirements.txt;
   # Also install any developmental requirements
   - cat requirements-dev.txt;
-    pip install -Ur requirements-dev.txt;
+    pip install --no-deps --upgrade -r requirements-dev.txt;
+    pip install -r requirements-dev.txt;
   # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
@@ -178,8 +182,14 @@ before_script:
   - conda env export > environment.yml && cat environment.yml
   - pip freeze
   # ---------------------------------------------------------------------------
-  # Set up folders for test results
+  # Remove any cached results files from previous build, if present
+  - rm -f testresults.xml;
+    rm -f coverage.xml;
+    rm -f .coverage;
+  # ---------------------------------------------------------------------------
+  # Set up folders for test results on Shippable
   - if [ "$SHIPPABLE" = "true" ]; then
+      rm -fr shippable;
       mkdir -p shippable/testresults;
       mkdir -p shippable/codecoverage;
     fi;
@@ -196,7 +206,7 @@ script:
     fi;
   # ---------------------------------------------------------------------------
   # Test the main code base
-  - py.test --flake8 --junitxml=testresults.xml --cov=fissa --cov-report xml --cov-config .coveragerc
+  - py.test --flake8 --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Test the notebooks
   - function check_notebooks {
       RETURNVALUE=0;

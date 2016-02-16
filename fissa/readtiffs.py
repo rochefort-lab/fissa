@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image, ImageSequence
 
 
-def image2array(img, dtype=np.uint8, band=0):
+def image2array(img, bit_depth=None, band=0):
     '''
     Convert a single PIL/Pillow image into a numpy array.
 
@@ -20,13 +20,18 @@ def image2array(img, dtype=np.uint8, band=0):
     ----------
     img : PIL.Image
         Source image, loaded with PIL or Pillow.
-    dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel and is hence encoded
-        with integers in the range 0-255.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
-        Which band (color channel) to get extract data from. If `img`
+        Which band (color channel) to extract the data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
         format, the data will be taken from band number `band`. Default
         is 0.
@@ -62,11 +67,45 @@ def image2array(img, dtype=np.uint8, band=0):
         raise ValueError(
             'This function can not load the entire contents of a multi-'
             'channel (i.e. color) image.')
-    # Use the `getdata` method to get an iterable sequence which runs
-    # through every pixel in the image. Since this is flat, we need
-    # to reshape the result. Note here that the width is the second
-    # and height is the first dimension in the converted numpy array.
-    return np.asarray(img.getdata(band), dtype).reshape((height, width))
+
+    # If bit depth is known, we need to pick the appropriate (unsigned
+    # integer) data-type to use when making the numpy array, so it will
+    # read the encoded bits correctly.
+    if bit_depth is None:
+        pass
+    elif bit_depth == 1:
+        dtype = bool
+    elif bit_depth == 8:
+        dtype = np.uint8
+    elif bit_depth == 16:
+        dtype = np.uint16
+    elif bit_depth == 32:
+        dtype = np.uint32
+    elif bit_depth == 64:
+        dtype = np.uint64
+    elif isinstance(bit_depth, int):
+        raise ValueError((
+            'Unfamiliar bit_depth value: {}'
+            ).format(bit_depth))
+    else:
+        # Assume bit_depth is a data-type instance
+        dtype = bit_depth
+
+    if bit_depth is not None:
+        # Use the `getdata` method to get an iterable sequence which runs
+        # through every pixel in the image. Since this is flat, we need
+        # to reshape the result. Note here that the width is the second
+        # and height is the first dimension in the converted numpy array.
+        return np.asarray(img.getdata(band), dtype).reshape((height, width))
+
+    elif num_bands == 1:
+        # Let numpy interpret the datastream it gets from img as best it can
+        return np.asarray(img)
+
+    else:
+        # Let numpy interpret the datastream as best as it can, then cut down
+        # the third dimension to only have the relevant band
+        return np.asarray(img)[:, :, band]
 
 
 def get_frame_number(img):
@@ -81,7 +120,7 @@ def get_frame_number(img):
     Returns
     -------
     int
-        Number of frames in img
+        Number of frames in img.
     '''
     if hasattr(img, 'n_frames'):
         # Introduced in Pillow 2.9.0
@@ -96,7 +135,7 @@ def get_frame_number(img):
     return img.tell() + 1
 
 
-def imgstack2array(img, dtype=np.uint8, band=0):
+def imgstack2array(img, bit_depth=None, band=0):
     '''
     Loads an entire greyscale tiff stack as a single numpy array.
 
@@ -104,10 +143,16 @@ def imgstack2array(img, dtype=np.uint8, band=0):
     ----------
     img : PIL.Image
         An image loaded using Pillow Image.
-    dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
         Which band (color channel) to get extract data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
@@ -128,7 +173,7 @@ def imgstack2array(img, dtype=np.uint8, band=0):
     tiff2array
     '''
     # Get the first frame
-    array0 = image2array(img, dtype=dtype, band=band)
+    array0 = image2array(img, bit_depth=bit_depth, band=band)
     # From the first frame, we can tell the dtype we need to
     # initialize with, as well as the shape of each frame in the image
     shape = list(array0.shape)
@@ -137,14 +182,19 @@ def imgstack2array(img, dtype=np.uint8, band=0):
     # Initialise output array
     contents = np.zeros(shape, dtype=array0.dtype)
 
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    img.seek(0)
     # Loop over all frames
     for index, frame in enumerate(ImageSequence.Iterator(img)):
-        contents[..., index] = image2array(frame, dtype=dtype, band=band)
+        contents[..., index] = image2array(frame, bit_depth=bit_depth,
+                                           band=band)
 
     return contents
 
 
-def tiff2array(filename, dtype=np.uint8, band=0):
+def tiff2array(filename, bit_depth=None, band=0):
     '''
     Loads an entire greyscale tiff stack as a single numpy array.
 
@@ -152,10 +202,16 @@ def tiff2array(filename, dtype=np.uint8, band=0):
     ----------
     filename : string
         Path to greyscale TIFF file.
-    dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
         Which band (color channel) to get extract data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
@@ -172,10 +228,10 @@ def tiff2array(filename, dtype=np.uint8, band=0):
     --------
     imgstack2array
     '''
-    return imgstack2array(Image.open(filename), dtype=dtype, band=band)
+    return imgstack2array(Image.open(filename), bit_depth=bit_depth, band=band)
 
 
-def get_imgstack_mean(img, source_dtype=np.uint8, band=0):
+def get_imgstack_mean(img, bit_depth=None, band=0):
     '''
     Get the mean data for an Pillow image stack or animation.
 
@@ -183,10 +239,16 @@ def get_imgstack_mean(img, source_dtype=np.uint8, band=0):
     ----------
     img : PIL.Image
         An animated image loaded using Pillow Image.
-    source_dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
         Which band (color channel) to get extract data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
@@ -208,16 +270,20 @@ def get_imgstack_mean(img, source_dtype=np.uint8, band=0):
     # Initialise holding array with zeros
     avg = np.zeros(img.size[::-1], dtype=np.float64)
 
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    img.seek(0)
     # Loop over all frames and sum the pixel intensities together
     for frame in ImageSequence.Iterator(img):
-        avg += image2array(frame, dtype=source_dtype, band=band)
+        avg += image2array(frame, bit_depth=bit_depth, band=band)
 
     # Divide by number of frames to find the average
     avg /= img.n_frames
     return avg
 
 
-def get_mean_tiff(filename, source_dtype=np.uint8, band=0):
+def get_mean_tiff(filename, bit_depth=None, band=0):
     '''
     Get the mean frame for a tiff stack.
 
@@ -225,10 +291,16 @@ def get_mean_tiff(filename, source_dtype=np.uint8, band=0):
     ----------
     filename : string
         Path to TIFF file.
-    source_dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
         Which band (color channel) to get extract data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
@@ -245,7 +317,7 @@ def get_mean_tiff(filename, source_dtype=np.uint8, band=0):
     --------
     get_imgstack_mean
     '''
-    return get_imgstack_mean(Image.open(filename), source_dtype=source_dtype,
+    return get_imgstack_mean(Image.open(filename), bit_depth=bit_depth,
                              band=band)
 
 
@@ -286,7 +358,7 @@ def getbox(center, half_length):
     return (x0, y0, x1, y1)
 
 
-def getavg(img, box, frame_indices=None, source_dtype=np.uint8, band=0):
+def getavg(img, box, frame_indices=None, bit_depth=None, band=0):
     '''
     Get the average for the box in pillow Image img, for the specified frames
 
@@ -299,11 +371,16 @@ def getavg(img, box, frame_indices=None, source_dtype=np.uint8, band=0):
         `(left, top, right, bottom)`.
     frame_indices : list or None, optional
         which frames to get. If None, all frames are used
-    source_dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel and is hence encoded
-        with integers in the range 0-255.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
         Which band (color channel) to get extract data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
@@ -328,13 +405,14 @@ def getavg(img, box, frame_indices=None, source_dtype=np.uint8, band=0):
         # get frame (note: best to now get all relevant data from this frame,
         # so don't have to seek again (although takes neglible time)
         img.seek(frame_index)
-        avg[:] += image2array(img.crop(box), dtype=source_dtype, band=band)
+        avg[:] += image2array(img.crop(box), bit_depth=bit_depth, band=band)
     avg = avg / len(frame_indices)
 
     return avg
 
 
-def extract_from_single_tiff(filename, masks):
+def extract_from_single_tiff(filename, masksets, bit_depth=None,
+                             band=0):
     '''
     Extract the traces from the tiff stack at filename for given rois and
     trials, using Pillow.
@@ -343,40 +421,47 @@ def extract_from_single_tiff(filename, masks):
     ----------
     filename : string
         Path to source TIFF file.
-    masks : dict
-        A dictionary of masks, where the keys of each map to a list of
-        `numpy.ndarray`s. The keys of the dictionary will be used to
-        map to their outputs.
-        Each maskset should be a list of binary arrays for each mask in that
-        set, with 1's for pixels part of the roi, and 0's if not.
+    masksets : dict of lists of boolean arrays
+        A dictionary of masks, where each key maps to a maskset. A
+        maskset is a list of boolean arrays masks, with each array
+        indicating the spatial extent of a region of interest (ROI)
+        within the image - `True` inside the ROI and `False` outside.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
+    band : int, optional
+        Which band (color channel) to get extract data from. If `img`
+        is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
+        format, the data will be taken from band number `band`. Default
+        is 0.
 
     Returns
     -------
-    traces : dict
-        A dictionary such that traces[roiset] is data for each roi set
-        (cell/noncell + local neuropils).
-
-        out[roiset] is an array such that out[roi][:,mask] gives you the trace
-        for the corresponding mask. Usually:
-             mask = 0 : somatic roi
-             mask > 0 : any defined neuropil rois
+    traces : dict of numpy.ndarray
+        A dictionary with keys the same as that of `masksets`, each
+        mapping to a two-dimensional `numpy.ndarray`, sized
+        `(num_masks, num_frames)`, of traces extracted from the pixels
+        constituting each mask.
     '''
-    # Get useful info based on reference image
-    img = Image.open(filename)  # pillow loaded reference image
-
-    # Extract the data and put in output dictionary
+    img = Image.open(filename)
     # Initiaise an empty dictionary for containing the output
     traces = {}
-    # loop over all roi sets
-    for label, mask in masks.items():
+    # Extract the data and put in output dictionary
+    for label, maskset in masksets.items():
         # Extract traces for this maskset
-        traces[label] = extract_traces(img, mask)
-
-    # Return data
+        traces[label] = extract_traces(img, maskset, bit_depth=bit_depth,
+                                       band=band)
     return traces
 
 
-def extract_traces(img, masks, source_dtype=np.uint8, band=0):
+def extract_traces(img, masks, bit_depth=None, band=0):
     '''
     Get the traces for each mask in masks from the pillow object img for
     nframes.
@@ -387,11 +472,16 @@ def extract_traces(img, masks, source_dtype=np.uint8, band=0):
         Pillow loaded tiff stack
     masks : list of boolean arrays
         list of masks (boolean arrays)
-    source_dtype : data-type, optional
-        The data type which corresponds to the encoding of each channel
-        in the source image. Default is `numpy.uint8`, which
-        corresponds to 8 unsigned bits per channel and is hence encoded
-        with integers in the range 0-255.
+    bit_depth : int or data-type or None, optional
+        The bit depth of the image, also known as bits-per-channel.
+        This can be provided as an integer, where `8` and `16` bit
+        depth is the most common value. Alternatively, this can be
+        a `numpy.dtype` instance, such as `numpy.uint8` or
+        `numpy.uint16`, in which case the bit depth is implied by the
+        encoding used by the dtype, and the output `numpy.ndarray`
+        will have the data-type specified. If this is `None` (default),
+        the bit depth will be inferred from the image, however this
+        is not 100% reliable.
     band : int, optional
         Which band (color channel) to get extract data from. If `img`
         is greyscale, this must be 0. If `img` is in RGB, BGR or CMYK,
@@ -411,10 +501,14 @@ def extract_traces(img, masks, source_dtype=np.uint8, band=0):
     # Initialise an array predfine list with the data
     traces = np.zeros((len(masks), img.n_frames), dtype=np.float64)
 
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    img.seek(0)
     # For each frame, get the data
     for frame_index, frame in enumerate(ImageSequence.Iterator(img)):
         # Get the pixel values for this frame
-        frame_array = image2array(frame, dtype=source_dtype, band=band)
+        frame_array = image2array(frame, bit_depth=bit_depth, band=band)
         # For each mask, extract the contents for this frame
         for mask_index, mask in enumerate(masks):
             traces[mask_index, frame_index] = np.mean(frame_array[mask])
