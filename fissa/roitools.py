@@ -12,6 +12,7 @@ from scipy.signal import convolve2d
 from sima_borrowed.readimagejrois import read_imagej_roi_zip
 from sima_borrowed.ROI import poly2mask
 
+from skimage.measure import find_contours
 
 def get_mask_com(mask):
     '''
@@ -307,43 +308,36 @@ def getmasks(rois, shpe):
     return masks
 
 
-def find_roi_edge(mask):
+def find_roi_edge(mask,level):
     '''
-    Finds the edges of a mask
-     Define kernel such that:
-         1 1 1
-     k = 1 0 1
-         1 1 1
-    Convolve mask with kernel, and find those mask pixels where the kernel
-    sums to max 7. (If sum to 9, then it must be inside mask)
+    Finds the outline of a mask, using the find_contour function from 
+    skimage.measure.
 
     Parameters
     ----------
     mask : array_like
         the mask, a binary array
+    level : float
+        Value along which to find contours in the array.
 
     Returns
     -------
     Array with coordinates of pixels in the outline of the mask
     '''
+
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
+    
+    # Pad with 0s to make sure that edge ROIs are properly estimated
+    mask_shape = np.shape(mask)
+    padded_shape = (mask_shape[0]+2,mask_shape[1]+2)
+    padded_mask = np.zeros(padded_shape)
+    padded_mask[1:-1,1:-1] = mask
+    
+    # detect contours
+    outline = find_contours(padded_mask, level=0.5)
 
-    # Can be quite slow for large rois
-    kernel = np.ones((3, 3))
-    kernel[1, 1] = 0
-
-    # convolve the kernel with the image
-    con = convolve2d(mask, kernel, mode='same')
-
-    # TODO: The following has a bug due to which it is not the same as above.
-    # Until fixed will have to use above slower method
-    # this is a bit faster, move the entire mask up down left right and
-    # diagonal and add
-#    con = np.zeros(np.shape(mask))
-#    for i in [-1,0,1]:
-#        for j in [-1,0,1]:
-#            con+=shift_2d_array(shift_2d_array(mask,shift=i,axis=0),shift=j,axis=0)
-#    con-=mask
-
-    return(np.logical_and(mask, con < 7)).nonzero()
+    # update coordinates
+    outline[0] -= 1
+    
+    return (outline[0][:,0],outline[0][:,1])
