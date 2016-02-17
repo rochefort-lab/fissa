@@ -268,9 +268,23 @@ def readrois(roiset):
     '''
     # read rois
     rois = read_imagej_roi_zip(roiset)
+
     # set frame number to 0 for every roi
     for i in range(len(rois)):
-        rois[i] = rois[i]['polygons'][:, :2]
+        # check if we are looking at an oval roi
+        if rois[i].keys()[0] == 'mask':
+            # this is an oval roi, which gets imported as a 3D mask.
+            # First get the frame that has the mask in it by finding the
+            # nonzero frame
+            mask_frame = np.nonzero(rois[i]['mask'])[0][0]
+
+            # get the mask
+            mask = rois[i]['mask'][mask_frame, :, :]
+
+            # finally, get the outline coordinates
+            rois[i] = find_roi_edge(mask)[0]
+        else:
+            rois[i] = rois[i]['polygons'][:, :2]
 
     return rois
 
