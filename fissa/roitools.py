@@ -7,12 +7,12 @@ Author: S W Keemink swkeemink@scimail.eu
 from builtins import range
 
 import numpy as np
-from scipy.signal import convolve2d
 
 from sima_borrowed.readimagejrois import read_imagej_roi_zip
 from sima_borrowed.ROI import poly2mask
 
 from skimage.measure import find_contours
+
 
 def get_mask_com(mask):
     '''
