@@ -322,17 +322,15 @@ def getmasks(rois, shpe):
     return masks
 
 
-def find_roi_edge(mask,level):
+def find_roi_edge(mask):
     '''
-    Finds the outline of a mask, using the find_contour function from 
+    Finds the outline of a mask, using the find_contour function from
     skimage.measure.
 
     Parameters
     ----------
     mask : array_like
         the mask, a binary array
-    level : float
-        Value along which to find contours in the array.
 
     Returns
     -------
@@ -341,13 +339,13 @@ def find_roi_edge(mask,level):
 
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
-    
+
     # Pad with 0s to make sure that edge ROIs are properly estimated
     mask_shape = np.shape(mask)
-    padded_shape = (mask_shape[0]+2,mask_shape[1]+2)
+    padded_shape = (mask_shape[0]+2, mask_shape[1]+2)
     padded_mask = np.zeros(padded_shape)
-    padded_mask[1:-1,1:-1] = mask
-    
+    padded_mask[1:-1, 1:-1] = mask
+
     # detect contours
     outline = find_contours(padded_mask, level=0.5)
 
@@ -356,3 +354,5 @@ def find_roi_edge(mask,level):
     # in SIMA https://github.com/losonczylab/sima/blob/master/sima/ROI.py)
     for i in range(len(outline)):
         outline[i] -= 0.5
+
+    return outline
