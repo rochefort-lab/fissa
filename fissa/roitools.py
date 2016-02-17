@@ -337,7 +337,8 @@ def find_roi_edge(mask,level):
     # detect contours
     outline = find_contours(padded_mask, level=0.5)
 
-    # update coordinates
-    outline[0] -= 1
-    
-    return (outline[0][:,0],outline[0][:,1])
+    # update coordinates to take into account padding and set so that the
+    # coordinates are defined from the corners (as in the mask2poly function
+    # in SIMA https://github.com/losonczylab/sima/blob/master/sima/ROI.py)
+    for i in range(len(outline)):
+        outline[i] -= 0.5
