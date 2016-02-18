@@ -31,8 +31,9 @@ Make sure you mention the following things:
 If you have a new feature or enhancement to an existing feature you
 would like to see implemented, please check the list of
 [existing issues][issues] and if you can't find it make a [new issue]
-to request it. If you do find it in the list, you can post a `+1` or
-`:+1:` to indicate your support for this feature.
+to request it. If you do find it in the list, you can post a comment
+saying `+1` (or `:+1:` if you are a fan of emoticons) to indicate your
+support for this feature.
 
 
 Documentation
