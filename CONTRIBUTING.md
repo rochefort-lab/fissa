@@ -136,7 +136,7 @@ following rules before submitting a pull request.
    AutoPEP8 can help you fix some of the easier PEP8 errors.
 
         $ pip install autopep8
-        $ autopep8 -i -a -a path/to/pep8.py
+        $ autopep8 -i -a -a path/to/module.py
 
    Note that using the `-i` flag will modify your existing file in-place,
    so be sure to save any changes made in your editor beforehand.
