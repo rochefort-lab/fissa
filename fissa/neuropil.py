@@ -138,7 +138,7 @@ def separate(
         # Make an instance of the Nmf class from nimfa
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
                         method='snmf', version='l', objective='conn',
-                        conn_change=300,eta=1e-5,beta=1e-5)
+                        conn_change=300, eta=1e-5, beta=1e-5)
         # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
 
         # fit the model
