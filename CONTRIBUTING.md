@@ -31,8 +31,9 @@ Make sure you mention the following things:
 If you have a new feature or enhancement to an existing feature you
 would like to see implemented, please check the list of
 [existing issues][issues] and if you can't find it make a [new issue]
-to request it. If you do find it in the list, you can post a `+1` or
-`:+1:` to indicate your support for this feature.
+to request it. If you do find it in the list, you can post a comment
+saying `+1` (or `:+1:` if you are a fan of emoticons) to indicate your
+support for this feature.
 
 
 Documentation
@@ -136,7 +137,7 @@ following rules before submitting a pull request.
    AutoPEP8 can help you fix some of the easier PEP8 errors.
 
         $ pip install autopep8
-        $ autopep8 -i -a -a path/to/pep8.py
+        $ autopep8 -i -a -a path/to/module.py
 
    Note that using the `-i` flag will modify your existing file in-place,
    so be sure to save any changes made in your editor beforehand.

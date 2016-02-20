@@ -7,10 +7,11 @@ Author: S W Keemink swkeemink@scimail.eu
 from builtins import range
 
 import numpy as np
-from scipy.signal import convolve2d
 
 from sima_borrowed.readimagejrois import read_imagej_roi_zip
 from sima_borrowed.ROI import poly2mask
+
+from skimage.measure import find_contours
 
 
 def get_mask_com(mask):
@@ -267,9 +268,23 @@ def readrois(roiset):
     '''
     # read rois
     rois = read_imagej_roi_zip(roiset)
+
     # set frame number to 0 for every roi
     for i in range(len(rois)):
-        rois[i] = rois[i]['polygons'][:, :2]
+        # check if we are looking at an oval roi
+        if rois[i].keys()[0] == 'mask':
+            # this is an oval roi, which gets imported as a 3D mask.
+            # First get the frame that has the mask in it by finding the
+            # nonzero frame
+            mask_frame = np.nonzero(rois[i]['mask'])[0][0]
+
+            # get the mask
+            mask = rois[i]['mask'][mask_frame, :, :]
+
+            # finally, get the outline coordinates
+            rois[i] = find_roi_edge(mask)[0]
+        else:
+            rois[i] = rois[i]['polygons'][:, :2]
 
     return rois
 
@@ -309,13 +324,8 @@ def getmasks(rois, shpe):
 
 def find_roi_edge(mask):
     '''
-    Finds the edges of a mask
-     Define kernel such that:
-         1 1 1
-     k = 1 0 1
-         1 1 1
-    Convolve mask with kernel, and find those mask pixels where the kernel
-    sums to max 7. (If sum to 9, then it must be inside mask)
+    Finds the outline of a mask, using the find_contour function from
+    skimage.measure.
 
     Parameters
     ----------
@@ -326,24 +336,23 @@ def find_roi_edge(mask):
     -------
     Array with coordinates of pixels in the outline of the mask
     '''
+
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
-    # Can be quite slow for large rois
-    kernel = np.ones((3, 3))
-    kernel[1, 1] = 0
+    # Pad with 0s to make sure that edge ROIs are properly estimated
+    mask_shape = np.shape(mask)
+    padded_shape = (mask_shape[0]+2, mask_shape[1]+2)
+    padded_mask = np.zeros(padded_shape)
+    padded_mask[1:-1, 1:-1] = mask
 
-    # convolve the kernel with the image
-    con = convolve2d(mask, kernel, mode='same')
+    # detect contours
+    outline = find_contours(padded_mask, level=0.5)
 
-    # TODO: The following has a bug due to which it is not the same as above.
-    # Until fixed will have to use above slower method
-    # this is a bit faster, move the entire mask up down left right and
-    # diagonal and add
-#    con = np.zeros(np.shape(mask))
-#    for i in [-1,0,1]:
-#        for j in [-1,0,1]:
-#            con+=shift_2d_array(shift_2d_array(mask,shift=i,axis=0),shift=j,axis=0)
-#    con-=mask
+    # update coordinates to take into account padding and set so that the
+    # coordinates are defined from the corners (as in the mask2poly function
+    # in SIMA https://github.com/losonczylab/sima/blob/master/sima/ROI.py)
+    for i in range(len(outline)):
+        outline[i] -= 0.5
 
-    return(np.logical_and(mask, con < 7)).nonzero()
+    return outline
