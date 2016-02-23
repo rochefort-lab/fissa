@@ -1,0 +1,276 @@
+###############################################################################
+# language setting
+language: python
+
+###############################################################################
+# Cache data which has to be downloaded on every build.
+# This is just for Travis and doesn't do anything on Shippable.
+cache:
+  directories:
+    # Cache files downloaded by pip
+    - $HOME/.cache/pip
+    # Cache our miniconda download.
+    # Cautionary note: if a new version of Python is released and added to
+    # conda and you want to test on the new version, your cached copy will be
+    # out of date and you'll need to wipe the cache. Details are here
+    # https://docs.travis-ci.com/user/caching/#Clearing-Caches
+    # but if this sounds like too much hassle, you can just comment out this
+    # line to stop caching.
+    - $HOME/Downloads
+    - $HOME/miniconda
+
+###############################################################################
+# version numbers
+python:
+  # This is a flag for the built-in version of Python provided by the CI-server
+  # provider, which we don't use in favour of conda. But we use this to pick
+  # out which python version we install with conda, since it means the provider
+  # gets appropriate metadata to keep things organised.
+  # - "2.6" # Not well supported by unittest - no skip decorators available.
+  - "2.7"
+
+###############################################################################
+# environment variables
+env:
+  matrix:
+      - TEST_NOTEBOOKS="false"
+        USE_OLDEST_DEPENDENCIES="false"
+      - TEST_NOTEBOOKS="true"
+        USE_OLDEST_DEPENDENCIES="false"
+      - TEST_NOTEBOOKS="true"
+        USE_OLDEST_DEPENDENCIES="true"
+
+###############################################################################
+# Setup the environment before installing
+before_install:
+  # Remember the directory where our repository to test is located
+  - REPOPATH="$(pwd)" && pwd
+  # ---------------------------------------------------------------------------
+  # Check which versions of numpy and scipy we are using, then remove these
+  # lines from requirements.txt
+  - if [ -f requirements.txt ]; then
+      NUMPY_REQUIREMENT="$(grep '^numpy\([<>=!]\|$\)' requirements.txt)";
+      echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
+      SCIPY_REQUIREMENT="$(grep '^scipy\([<>=!]\|$\)' requirements.txt)";
+      echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
+      sed '/^\(num\|sci\)py\([<>=!]\|$\)/d' requirements.txt >
+        requirements.txt.tmp &&
+        mv requirements.txt.tmp requirements.txt;
+    fi;
+  # ---------------------------------------------------------------------------
+  # Update the package list
+  - travis_retry sudo apt-get update
+  # Install numpy/scipy dependencies with apt-get. We want ATLAS and LAPACK.
+  - travis_retry sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
+  # Install GEOS for Shapely
+  - travis_retry sudo apt-get install -y libgeos-dev
+  # Install JPEG library for Pillow>=3.0.0
+  - travis_retry sudo apt-get install -y libjpeg-dev
+  # ---------------------------------------------------------------------------
+  # If we want to run the tests using the oldest set of dependencies we
+  # support, modify any *requirements*.txt files every '>=' becomes '=='.
+  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+      for FILE in *requirements*.txt; do
+          sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+      done;
+    fi;
+  # ---------------------------------------------------------------------------
+  # The following is based on Minicoda's how-to Travis page
+  # http://conda.pydata.org/docs/travis.html
+  # ---------------------------------------------------------------------------
+  # Download miniconda. Only do this if the cached file isn't present.
+  - mkdir -p $HOME/Downloads;
+    if [ ! -f $HOME/Downloads/miniconda.sh ]; then
+      travis_retry wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O "$HOME/Downloads/miniconda.sh";
+    fi;
+  # Install miniconda to the home directory, if it isn't there already.
+  - if [ ! -d "$HOME/miniconda/bin" ]; then
+      if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
+      bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
+    fi;
+  - ls -alh "$HOME/miniconda";
+  # Add conda to the path and automatically say yes to any check from conda
+  - export PATH="$HOME/miniconda/bin:$PATH";
+    hash -r;
+    conda config --set always_yes yes --set changeps1 no
+  # Remove test environment from conda, if it's still there from last time
+  - conda remove -n test-environment --all || echo "No test-environment to remove";
+  # Update conda
+  - travis_retry conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda list
+  #
+  # If necessary, check which is the earliest version of numpy and scipy
+  # available on conda for this version of python.
+  # Because any given version of scipy is only available for a narrow range
+  # of numpy versions, we constrain only scipy and not numpy to its oldest
+  # possible requirement when scipy is being installed. The version of numpy
+  # we end up must still satisfy the original requirement.txt setting, and
+  # be from around the time of the oldest supported scipy release.
+  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+      if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
+          SCIPY_REQUIREMENT="scipy==$(bash
+              ./continuous_integration/conda_min_version.sh
+              "$SCIPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+      elif [[ "$NUMPY_REQUIREMENT" != "" ]]; then
+          NUMPY_REQUIREMENT="numpy==$(bash
+              ./continuous_integration/conda_min_version.sh
+              "$NUMPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+      fi;
+    fi;
+  # Create the conda environment with pip, numpy and scipy installed (if they
+  # are in requirements.txt)
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
+      pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT
+  # If you get an error from this command which looks like this:
+  #   Error: Unsatisfiable package specifications.
+  #   Generating hint:
+  #   [      COMPLETE      ]|###########| 100%
+  #   Hint: the following packages conflict with each other:
+  #     - numpy >=1.9.0
+  #     - scipy ==0.12.0
+  #
+  # This is because you have constrained the numpy version in requirements.txt
+  # to a more recent set of values (e.g. numpy>=1.9.0) than the scipy
+  # constraint (e.g. scipy>=0.12.0). The USE_OLDEST_DEPENDENCIES code has
+  # looked up the oldest compatible version available on conda (scipy==0.12.0)
+  # but there is no numpy version for this which matches your constraint.
+  #
+  # You can resolve this by doing a search of the conda packages available
+  #   conda search scipy
+  # and changing your scipy constraint to be scipy>=x.y.z, where x.y.z is the
+  # oldest version which has a matching numpy version in its buildstring.
+  # To resolve the example, we look for the first scipy version which has
+  # 'np19' in its buildstring, and find it is scipy version 0.14.0, so we
+  # update the requirements.txt file to have 'scipy>=0.14.0' instead of
+  # 'scipy>=0.12.0'.
+  #
+  # Activate the test environment
+  - source activate test-environment
+
+###############################################################################
+# install requirements
+install:
+  # Install required packages listed in requirements.txt. We install this
+  # with the upgrade ('-U') flag to ensure we have the most recent version of
+  # the dependency which is compatible with the specification.
+  - cat requirements.txt;
+    pip install --no-deps --upgrade -r requirements.txt;
+    pip install -r requirements.txt;
+  # Also install any developmental requirements
+  - cat requirements-dev.txt;
+    pip install --no-deps --upgrade -r requirements-dev.txt;
+    pip install -r requirements-dev.txt;
+  # ---------------------------------------------------------------------------
+  # Conditionally install the packages which are needed for plotting
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install -r requirements_plots.txt;
+    fi
+  # ---------------------------------------------------------------------------
+  # Install our package
+  - python setup.py develop
+
+###############################################################################
+before_script:
+  # Double-check we are still in the right directory
+  - pwd
+  # Check what python packages we have installed
+  - conda info -a
+  - which python
+  - python --version
+  - conda env export > environment.yml && cat environment.yml
+  - pip freeze
+  # ---------------------------------------------------------------------------
+  # Remove any cached results files from previous build, if present
+  - rm -f testresults.xml;
+    rm -f coverage.xml;
+    rm -f .coverage;
+  # ---------------------------------------------------------------------------
+  # Set up folders for test results on Shippable
+  - if [ "$SHIPPABLE" = "true" ]; then
+      rm -fr shippable;
+      mkdir -p shippable/testresults;
+      mkdir -p shippable/codecoverage;
+    fi;
+
+###############################################################################
+# commands to run test scripts
+script:
+  - python --version;
+    if [[ "$NUMPY_REQUIREMENT" != "" ]]; then
+      python -c "import numpy; print('numpy %s' % numpy.__version__)";
+    fi;
+    if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
+      python -c "import scipy; print('scipy %s' % scipy.__version__)";
+    fi;
+  # ---------------------------------------------------------------------------
+  # Test the main code base
+  - py.test --flake8 --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+  # Test the notebooks
+  - function check_notebooks {
+      RETURNVALUE=0;
+      for NBFILE in *.ipynb;
+      do
+        echo "==================================================================";
+        echo "Converting $NBFILE to a script";
+        echo "------------------------------------------------------------------";
+        jupyter nbconvert --to=script "$NBFILE";
+        PYFILE="${NBFILE%.*}.py";
+        echo "Commenting out any lines in $PYFILE which are calls to help()";
+        sed -ie 's/^\(help(.*)\)/#\ \1/' "$PYFILE";
+        echo "------------------------------------------------------------------";
+        echo "Trying to run the generated script $PYFILE";
+        echo "------------------------------------------------------------------";
+        ipython "$PYFILE";
+        ((RETURNVALUE+=$?));
+        echo "------------------------------------------------------------------";
+        echo "Current exit code is $RETURNVALUE";
+      done;
+      return $RETURNVALUE;
+    }
+  # Need a more up-to-date version of ipython
+  # Use this line until they release 4.1.0, then we can use that official release
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
+    fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd doc; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
+
+###############################################################################
+# commands to run after tests are done
+after_script:
+  # Show where we ended up
+  - pwd
+  # Go back to the repository directory, just in case
+  # Show what results files there are
+  - cd ${REPOPATH} && ls -alh;
+  # ---------------------------------------------------------------------------
+  # Move results and coverage files into appropriate places
+  - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
+      mv testresults.xml shippable/testresults/;
+    fi;
+    if [ "$SHIPPABLE" = "true" ] && [ -f coverage.xml ]; then
+      cp coverage.xml shippable/codecoverage/;
+    fi;
+
+###############################################################################
+# Steps to take before archiving on Shippable (does nothing on Travis)
+before_archive:
+  # Have shippable archive the environment.yml artifact by putting it in
+  # the REPO/shippable folder. This is available to download as a tar file for
+  # each build.
+  # Since this build was successful, you can share it for users to install from
+  # with the command `conda env create -f environment.yml` and know they have
+  # a working build.
+  # If you want to save this file on Travis, you will need to turn on the
+  # artifacts addon (or do something else with it). See here for details
+  # https://docs.travis-ci.com/user/uploading-artifacts/
+  - if [ "$SHIPPABLE" = "true" ] && [ -f environment.yml ]; then
+      cp environment.yml shippable/;
+    fi;
+
+###############################################################################
+# Enable archiving of artifacts on Shippable (does nothing on Travis)
+archive: true

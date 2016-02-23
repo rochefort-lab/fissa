@@ -6,9 +6,8 @@ http://www.losonczylab.org/sima version 1.3.0.
 
 License
 -------
-This file is
-
-Copyright (C) 2014  The Trustees of Columbia University in the City of New York.
+This file is Copyright (C) 2014 The Trustees of Columbia University in the
+City of New York.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,6 +30,7 @@ from itertools import product
 from warnings import warn
 
 from shapely.geometry import MultiPolygon, Polygon, Point
+
 
 def poly2mask(polygons, im_size):
     """Converts polygons to a sparse binary mask.
@@ -92,6 +92,7 @@ def poly2mask(polygons, im_size):
     for z_coord in np.arange(mask.shape[0]):
         masks.append(lil_matrix(mask[z_coord, :, :]))
     return masks
+
 
 def _reformat_polygons(polygons):
     """Convert polygons to a MulitPolygon
