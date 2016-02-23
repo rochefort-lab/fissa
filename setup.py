@@ -26,7 +26,7 @@ def read(fname):
 
 setup(
     name=NAME,
-    version="0.2.1",
+    version="0.3.0",
     author="Sander Keemink & Scott Lowe & Nathalie Rochefort",
     author_email="swkeemink@scimail.eu",
     description="A Python Library estimating somatic signals in 2-photon data",
