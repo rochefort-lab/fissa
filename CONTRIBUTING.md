@@ -89,8 +89,9 @@ The preferred way to contribute to FISSA is to fork the
         $ git push -u origin my-feature
 
 5. Finally, go to the web page of your fork of the FISSA repo, and
-   click 'Pull request' to send your changes to the maintainers for
-   review. This will send an email to the committers.
+   click 'Pull request' to issue a [pull request] and send your changes
+   to the maintainers for review.
+   This will also send a notification email to the committers.
 
 If any of the above seems like magic to you, then look up the 
 [Git documentation] on the web.
@@ -185,6 +186,7 @@ This document was based on the contribution guidelines for
   [our repo]: http://github.com/rochefort-tools/fissa/
   [issues]: https://github.com/rochefort-lab/fissa/issues
   [new issue]:https://github.com/rochefort-lab/fissa/issues/new
+  [pull request]: https://help.github.com/articles/using-pull-requests
   [gitter channel]: https://gitter.im/rochefort-lab/fissa
   [PEP8]: https://www.python.org/dev/peps/pep-0008/
   [pyflakes]: https://pypi.python.org/pypi/pyflakes
