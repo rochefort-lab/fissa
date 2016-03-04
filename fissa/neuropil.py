@@ -8,7 +8,7 @@ Created: 2015-05-15
 import numpy as np
 import numpy.random as rand
 import nimfa
-from sklearn.decomposition import FastICA, ProjectedGradientNMF, PCA
+from sklearn.decomposition import FastICA, NMF, PCA
 from scipy.optimize import minimize_scalar
 
 
@@ -120,17 +120,38 @@ def separate(
         A_sep = ica.mixing_
 
     elif sep_method == 'nmf_sklearn':
-        # The sklearn nmf implementation is slow and can't tell how many
-        # iterations were used.
-
-        # Make an instance of the sklearn NMF class
-        nmf = ProjectedGradientNMF(
-            init='nndsvd', sparseness='data', n_components=n, tol=tol,
+	for ith_try in range(maxtries):
+            # Make an instance of the sklearn NMF class
+            nmf = NMF(
+            init='nndsvd', l1_ratio=1,n_components=n, tol=tol,
             max_iter=maxiter, random_state=random_state)
 
-        # separate signals and get mixing matrix
-        S_sep = nmf.fit_transform(S.T)
+            # Perform ICA and find separated signals
+            S_sep = nmf.fit_transform(S.T)
+
+            # check if max number of iterations was reached
+            if nmf.n_iter_ < maxiter-1:
+                print((
+                    'NMF converged after {} iterations.'
+                    ).format(nmf.n_iter_+1))
+                break
+            print((
+                'Attempt {} failed to converge at {} iterations.'
+                ).format(ith_try, nmf.n_iter_+1))
+            if ith_try+1 < maxtries:
+                print('Trying a new random state.')
+                # Change to a new random_state
+                random_state = rand.randint(8000)
+
+        if nmf.n_iter_ == maxiter-1:
+            print((
+                'Warning: maximum number of allowed tries reached at {} '
+                'iterations for {} tries of different random seed states.'
+                ).format(nmf.n_iter_+1, ith_try+1))
+
         A_sep = nmf.components_.T
+
+
 
     elif sep_method == 'nmf':
         # The NIMFA implementation of NMF is fast and reliable.
