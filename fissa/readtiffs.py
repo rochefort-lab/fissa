@@ -8,6 +8,7 @@ Initial date: 2015-05-29
 from __future__ import division
 
 import numpy as np
+import roitools as ROI
 from PIL import Image, ImageSequence
 
 
@@ -496,6 +497,7 @@ def extract_traces(img, masks, bit_depth=None, band=0):
     # TODO: Try loading in entire image into memory (as a memory intensive
     #       alternative) to see if that speeds up the algorithm much.
     #       Would increase memory needs, but could be worth it.
+    #       - Early tries seem to indicate it is actually slower
 
     # Initialise an array predfine list with the data
     traces = np.zeros((len(masks), img.n_frames), dtype=np.float64)
@@ -513,3 +515,127 @@ def extract_traces(img, masks, bit_depth=None, band=0):
             traces[mask_index, frame_index] = np.mean(frame_array[mask])
 
     return traces
+
+
+def extract_dataset(tiffs, ROIs,nNpil=4,iterations=15):
+    ''' Sets up and saves an entire dataset, given a set of ImageJ ROI zips,
+    and a set of TIFF files. Either there should be one zip for every tiff,
+    or there should be one zip for all tiffs. 
+    
+    This will extract the given ROIs' traces, find the surrounding neuropil,
+    and extract the neuropil traces.
+    
+    Every tiff is seen as a trial, from 0 to N as they are ordered in the 
+    inputlist 'tiffs'. 
+    
+    Make sure that the input lists (tiffs and ROIs, see below), are sorted
+    as you want them to be sorted (use the python 'sorted()' command to 
+    sort them by filename).
+    
+    Parameters
+    ------------------------
+    tiffs : list
+        A list of strings, listing the locations of every tiff.
+    ROIs : list
+        A list of strings, listing the location of every ImageJ ROI zip. 
+        Should be either len(tiffs) or length 1. In the former case every
+        tiff has their own set of ROIs, in the latter every tiff is assumed
+        to have the same ROIs. The ROIs are only assumed to have moved across
+        trials, there should be the same ROIs (and number thereof) in every 
+        zip.
+    nNpil : int, optional [4]
+        Number of neuropils to be generated.
+    iterations : int, optional [15]
+        Number of iterations used for growing the neuropil. 
+    
+    Returns
+    -----------------------
+    dictionary
+        Returns a dictionary S with the following keys:
+        'Data'
+            This is where the data will be stored. The content itself is a 
+            dictionary, with the keys 0 to M being the traces for each cell. 
+            A trace from a given cell from a given trial is called as follows:
+            S['Data'][ROI number][trial number] = trace
+            Where 'trace' is a 2D array containing the input ROI's trace,
+            as well as the surrounding neuropil traces, as specified.
+        'ROIs'
+            This contains the outlines for each ROI.
+    
+    TODO
+    -------------------------
+    - Variable trial length for each tiff.
+    - Add bit depth etc.
+    - Write a test function
+    '''
+    # find number of cells (needs to be same in every roi set in ROIs!)
+    l    = ROIs[0]
+    rois = ROI.readrois(l)
+    nRois = len(rois)
+
+    # setup data structures where data will be stored
+    S = {} # for traces and ROI outlines
+    S['Data'] = {} # where traces will be stored
+    S['ROIs'] = {} # where ROI outlines will be stored
+    # gener
+    for m in range(nRois):
+        S['Data'][m] = {}
+        S['ROIs'][m] = {}
+
+    # loop over the trials
+    for i,tiffloc in enumerate(tiffs):
+        # get ROI number (checking if there's a single zip, or one for 
+        # every trial)
+        if len(ROIs) == 1:
+            ROIid = 0
+        elif len(ROIs) == len(tiffs):
+            ROIid = i
+        else:
+            raise ValueError('Length of ROIs should be either 1' +
+                             ' or len(tiffs)')
+    
+        # load tiff
+        img = Image.open(tiffloc) # pillow loaded reference image
+        shpe = img.size[::-1]
+
+        # load in basic rois
+        rois = ROI.readrois(ROIs[ROIid])
+
+        # calculate masks (can take a while for large ROIs)
+        soma_masks = ROI.getmasks(rois, shpe)
+
+        # for each soma mask, calculate the surrounding neuropil rois
+        Masks = {} # where to store the masks
+        Mask_outlines = {} # where to store mask outlines
+
+        # loop over masks (skipping the first)
+        for m,mask in enumerate(soma_masks):
+            # get neuropil masks
+            npil_masks = ROI.getmasks_npil(mask, nNpil=nNpil,
+                                           iterations=iterations)
+
+            # store the masks
+            Masks[m] = [mask]
+            Masks[m]+= npil_masks
+
+            # calculate the outlines
+            Mask_outlines[m] = {}
+            for j in range(len(Masks[m])):
+                # calculate outline
+                outline = ROI.find_roi_edge(Masks[m][j])
+
+                # store the outline coordinates
+                Mask_outlines[m][j] = outline
+
+        # extract traces for current trial and rois
+        data = extract_from_single_tiff(tiffloc,Masks)
+
+        # loop over rois again
+        for m in range(nRois):
+            # store traces
+            S['Data'][m][i]  = data[m]
+
+            # store mask outlines
+            S['ROIs'][m][i] = Mask_outlines[m]
+
+    return S
