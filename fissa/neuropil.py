@@ -120,11 +120,11 @@ def separate(
         A_sep = ica.mixing_
 
     elif sep_method == 'nmf_sklearn':
-	for ith_try in range(maxtries):
+        for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
-            init='nndsvd', l1_ratio=1,n_components=n, tol=tol,
-            max_iter=maxiter, random_state=random_state)
+                init='nndsvd', l1_ratio=1, n_components=n, tol=tol,
+                max_iter=maxiter, random_state=random_state)
 
             # Perform ICA and find separated signals
             S_sep = nmf.fit_transform(S.T)
@@ -151,15 +151,13 @@ def separate(
 
         A_sep = nmf.components_.T
 
-
-
     elif sep_method == 'nmf':
         # The NIMFA implementation of NMF is fast and reliable.
 
         # Make an instance of the Nmf class from nimfa
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
-                        method='snmf', version='l', objective='conn',
-                        conn_change=300, eta=1e-5, beta=1e-5)
+                        method='nmf', version='l', objective='conn',
+                        conn_change=3000, eta=1e-5, beta=1e-5)
         # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
 
         # fit the model
