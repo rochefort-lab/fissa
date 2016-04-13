@@ -67,8 +67,10 @@ def separate(
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     '''
-    # TODO Return several candidates for each signal, so can more easily
-    # compare
+    # TODO for edge cases, reduce the number of npil regions according to 
+    #      possible orientations
+    # TODO don't do cumulative variance, find how many explain at
+    # least X percent
     # TODO split into several functions. Maybe turn into a class.
 
     # Ensure array_like input is a numpy.ndarray
@@ -78,12 +80,18 @@ def separate(
     if n is None:
         # Perform PCA, without whitening because the mean is important to us.
         pca = PCA(whiten=False)
-        pca.fit(S)
-        # Find cumulative explained variance
-        exp_var = np.cumsum(pca.explained_variance_ratio_)
-        # Find the number of components which are needed to explain a
-        # set fraction of the variance
-        n = np.where(exp_var > 0.99)[0][0]+1
+        pca.fit(S.T)
+        # Find cumulative explained variance (old method)
+#        exp_var = np.cumsum(pca.explained_variance_ratio_)
+#        # Find the number of components which are needed to explain a
+#        # set fraction of the variance
+#        # dependent on number of signals, see when variance exceeds
+#        # n= 4: 0.9, n=5, 0.99, etc.
+#        n = np.where(exp_var > 0.99)[0][0]+1
+#        print exp_var
+        # find number of components with at least x percent explained var
+        print pca.explained_variance_ratio_
+        n = sum(pca.explained_variance_ratio_ > 0.01)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -156,7 +164,7 @@ def separate(
 
         # Make an instance of the Nmf class from nimfa
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
-                        method='nmf', version='l', objective='conn',
+                        method='snmf', version='l', objective='conn',
                         conn_change=3000, eta=1e-5, beta=1e-5)
         # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
 
