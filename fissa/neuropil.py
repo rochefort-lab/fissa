@@ -89,7 +89,7 @@ def separate(
 #        print exp_var
         # find number of components with at least x percent explained var
         print pca.explained_variance_ratio_
-        n = sum(pca.explained_variance_ratio_ > 0.01)
+        n = sum(pca.explained_variance_ratio_ > 0.005)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
