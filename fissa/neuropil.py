@@ -69,8 +69,6 @@ def separate(
     '''
     # TODO for edge cases, reduce the number of npil regions according to 
     #      possible orientations
-    # TODO don't do cumulative variance, find how many explain at
-    # least X percent
     # TODO split into several functions. Maybe turn into a class.
 
     # Ensure array_like input is a numpy.ndarray
