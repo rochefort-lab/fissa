@@ -197,7 +197,8 @@ def separate(
     # is represented in each ROI signal.
     A = abs(np.copy(A_sep))
     for j in range(n):
-        A[:, j] /= np.sum(A[:, j])
+        if np.sum(A[:, j]) != 0:
+            A[:, j] /= np.sum(A[:, j])            
 
     # get the scores for the somatic signal
     scores = abs(A[0, :])
