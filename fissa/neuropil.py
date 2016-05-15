@@ -201,7 +201,7 @@ def separate(
             A[:, j] /= np.sum(A[:, j])            
 
     # get the scores for the somatic signal
-    scores = abs(A[0, :])
+    scores = A[0, :]
 
     # get the order of scores
     order = np.argsort(scores)[::-1]
