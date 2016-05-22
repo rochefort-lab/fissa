@@ -60,19 +60,22 @@ def split_npil(mask, com, num_slices):
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
-    # get the x,y positions of the pixels that are in the mask
+    # Get the (x,y) co-ordinates of the pixels in the mask
     x, y = mask.nonzero()
 
-    # find the positional angle of each point
+    # Find the angle of the vector from the mask centre to each pixel
     theta = np.arctan2(x - com[0], y - com[1])
 
-    # find smallest bin
+    # Find where the mask comes closest to the centre. We will put a
+    # slice boundary here, to prevent one slice being non-contiguous
+    # for masks near the image boundary.
     # TODO: give it the bins to use
     bins = np.linspace(-np.pi, np.pi, 21)
     n, bins = np.histogram(theta, bins=bins)
     binmin = np.argmin(n)
 
-    # adjust angles so that they start at the smallest bin
+    # Change theta so it is the angle relative to a new zero-point,
+    # the middle of the bin which is least populated by mask pixels.
     nmin = bins[binmin] + np.pi / 40
     theta = (theta - nmin) % (2 * np.pi) - np.pi
 
