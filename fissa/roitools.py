@@ -60,9 +60,6 @@ def split_npil(mask, com, num_slices):
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
-    # get the percentage for each slice
-    slice_perc = 100.0 / num_slices
-
     # get the x,y positions of the pixels that are in the mask
     x, y = mask.nonzero()
 
@@ -82,7 +79,7 @@ def split_npil(mask, com, num_slices):
     # get the boundaries
     bounds = {}
     for i in range(num_slices):
-        bounds[i] = np.percentile(theta, slice_perc * (i + 1))
+        bounds[i] = np.percentile(theta, 100.0 * (i + 1) / num_slices)
 
     # predefine the masks
     masks = []
