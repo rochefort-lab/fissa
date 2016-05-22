@@ -150,74 +150,92 @@ def shift_2d_array(a, shift=1, axis=None):
 
 def get_npil_mask(mask, iterations=15):
     '''
-    Given the masks for cell rois, find the surround neuropil as follows:
-        for all iterations
-            move original roi either
-                - move polygon around one pixel in each 4 cardinal directions
-                - move polygon around one pixel in each 4 diagonal directions
-            Fill in all overlapped pixels
-    This will generate a neuropil close the the roi shape (more square, the
-    bigger the neuropil).
+    Given the masks for a ROI, find the surrounding neuropil.
 
     Parameters
     ----------
     mask : array_like
-        the reference mask to expand the neuropil from
-    iterations : int
-        number of iterations for neuropil
+        The reference ROI mask to expand the neuropil from. The array
+        should contain only boolean values.
+    iterations : int, optional
+        Number of iterations of region expansion. This is a measure
+        of how far away from the ROI pixels will be included in the
+        neuropil region. Afterwards, the furthest pixels in the output
+        mask will be approximately `iterations` pixels away from the
+        ROI, in a straight-line distance. Default is 15.
 
     Returns
     -------
-    A dictionary with a boolean 2d array containing the neuropil mask for each
-    iteration
+    array
+        A boolean numpy.ndarray mask, where the region surrounding
+        the input is now True and the region of the input mask is
+        False.
+
+    Implementation
+    --------------
+    Our implementation is as follows:
+        - On even iterations (where indexing begins at zero), expand
+          the mask in each of the 4 cardinal directions.
+        - On odd numbered iterations, expand the mask in each of the 4
+          diagonal directions.
+    This procedure generates a neuropil whose shape is similar to the
+    shape of the input ROI mask.
+
+    Notes
+    -----
+    For fixed number of `iterations`, more square input masks will have
+    larger output neuropil masks.
     '''
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
-    # initate masks
-    masks = {}
-    masks[0] = np.copy(mask)    # initial mask
+    # Keep a copy of the original mask. This isn't going to be part
+    # of the neuropil (surround) mask, because it is the ROI.
+    original_mask = np.copy(mask)
 
-    # keep adding area until enough is added
     for count in range(iterations):
-        # get reference mask
-        refmask = np.copy(masks[count])
 
-        # initiate next mask
-        masks[count + 1] = np.copy(refmask)
-
-        # define case, it swaps between 0 and 1
+        # Check which case to use. In current version, we alternate
+        # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
 
+        # Make a copy of the mask without any new additions. We will
+        # need to keep using this mask to mark new changes, so we
+        # don't use a partially updated version.
+        refmask = np.copy(mask)
+
         if case == 2:
-            # move polygon around one pixel in each 8 directions
+            # Move polygon around one pixel in each 8 directions
+            # N, NE, E, SE, S, SW, W, NW, (the centre is also redone)
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
-                    masks[count + 1][movedmask] = True
+                    mask[movedmask] = True
+
         elif case == 0:
-            # move polygon around one pixel in each 4 cardinal direction
+            # Move polygon around one pixel in each of the 4 cardinal
+            # directions: N, E, S, W.
             for dx in [-1, 1]:
-                movedmask = shift_2d_array(refmask, dx, 0)
-                masks[count + 1][movedmask] = True
+                mask[shift_2d_array(refmask, dx, 0)] = True
             for dy in [-1, 1]:
-                movedmask = shift_2d_array(refmask, dy, 1)
-                masks[count + 1][movedmask] = True
+                mask[shift_2d_array(refmask, dy, 1)] = True
+
         elif case == 1:
-            # move polygon around one pixel in each 4 diagonal direction
+            # Move polygon around one pixel in each of the 4 diagonal
+            # directions: NE, SE, SW, NW
             for dx in [-1, 1]:
                 for dy in [-1, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
-                    masks[count + 1][movedmask] = True
+                    mask[movedmask] = True
 
-        masks[count + 1][mask] = False
+        # Don't expand based on the original mask; any expansion into
+        # this region is marked as False once more.
+        mask[original_mask] = False
 
-    masks[0][:] = False
-
-    # return the masks
-    return masks
+    # Return the finished neuropil mask
+    return mask
 
 
 def getmasks_npil(cellMask, nNpil=4, iterations=15):
@@ -241,7 +259,7 @@ def getmasks_npil(cellMask, nNpil=4, iterations=15):
     cellMask = np.asarray(cellMask)
 
     # get the total neuropil for this cell
-    mask = get_npil_mask(cellMask, iterations=iterations)[iterations]
+    mask = get_npil_mask(cellMask, iterations=iterations)
 
     # get the center of mass for the cell
     centre = get_mask_com(cellMask)
