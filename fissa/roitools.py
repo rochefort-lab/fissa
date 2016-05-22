@@ -77,7 +77,7 @@ def split_npil(mask, com, num_slices):
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
-    theta_offset = bins[bin_min_index] + np.pi / n_bins / 2
+    theta_offset = bins[bin_min_index] + np.pi / n_bins
     theta = (theta - theta_offset) % (2 * np.pi) - np.pi
 
     # get the boundaries
