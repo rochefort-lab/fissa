@@ -4,6 +4,7 @@ Functions used for ROI manipulation.
 Author: S W Keemink swkeemink@scimail.eu
 '''
 
+from __future__ import division
 from builtins import range
 
 import numpy as np
@@ -37,7 +38,7 @@ def get_mask_com(mask):
     return np.mean(x), np.mean(y)
 
 
-def split_npil(mask, centre, num_slices):
+def split_npil(mask, centre, num_slices, adaptive_num=False):
     '''
     Splits a mask into a number of approximately equal slices by area around
     the center of the mask.
@@ -50,6 +51,11 @@ def split_npil(mask, centre, num_slices):
         The center co-ordinates around which the mask will be split.
     num_slices : int
         The number of slices into which the mask will be divided.
+    adaptive_num : bool, optional
+        If True, the `num_slices` input is treated as the number of
+        slices to use if the ROI is surrounded by valid pixels, and
+        automatically reduces the number of slices if it is on the
+        boundary of the sampled region.
 
     Returns
     -------
@@ -74,6 +80,11 @@ def split_npil(mask, centre, num_slices):
     bins = np.linspace(-np.pi, np.pi, n_bins + 1)
     bin_counts, bins = np.histogram(theta, bins=bins)
     bin_min_index = np.argmin(bin_counts)
+
+    if adaptive_num:
+        # Change the number of slices we will used based on the
+        # proportion of these bins which are empty
+        num_slices = round(num_slices * sum(bin_counts > 0) / n_bins)
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
