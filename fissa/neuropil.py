@@ -13,7 +13,7 @@ from scipy.optimize import minimize_scalar
 
 
 def separate(
-        S, sep_method='ica', n=None, maxiter=500, tol=1e-5,
+        S, sep_method='ica', n_components=None, maxiter=500, tol=1e-5,
         random_state=892, maxtries=10):
     '''
     For the signals in S, finds the independent signals underlying it,
@@ -32,7 +32,7 @@ def separate(
               factorization.
             * nmf_sklearn: The sklearn implementation of non-negative
               matrix factorization (which is slower).
-    n : int, optional
+    n_components : int, optional
         How many components to estimate. If None, use PCA to estimate
         how many components would explain at least 99% of the variance.
     maxiter : int, optional
@@ -75,7 +75,7 @@ def separate(
     S = np.asarray(S)
 
     # estimate number of signals to find, if not given
-    if n is None:
+    if n_components is None:
         # Perform PCA, without whitening because the mean is important to us.
         pca = PCA(whiten=False)
         pca.fit(S.T)
@@ -84,11 +84,11 @@ def separate(
         # Find the number of components which are needed to explain a
         # set fraction of the variance
         # dependent on number of signals, see when variance exceeds
-        # n= 4: 0.9, n=5, 0.99, etc.
-        #        n = np.where(exp_var > 0.99)[0][0]+1
+        # n_components= 4: 0.9, n_components=5, 0.99, etc.
+        #        n_components = np.where(exp_var > 0.99)[0][0]+1
         #        print exp_var
         # find number of components with at least x percent explained var
-        n = sum(pca.explained_variance_ratio_ > 0.001)
+        n_components = sum(pca.explained_variance_ratio_ > 0.001)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -96,8 +96,10 @@ def separate(
         for ith_try in range(maxtries):
             # Make an instance of the FastICA class. We can do whitening of
             # the data now.
-            ica = FastICA(n_components=n, whiten=True, max_iter=maxiter,
-                          tol=tol, random_state=random_state)
+            ica = FastICA(
+                n_components=n_components, whiten=True, max_iter=maxiter,
+                tol=tol, random_state=random_state,
+                )
 
             # Perform ICA and find separated signals
             S_sep = ica.fit_transform(S.T)
@@ -128,8 +130,9 @@ def separate(
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
-                init='nndsvd', l1_ratio=0.25, alpha=5, n_components=n, tol=tol,
-                max_iter=maxiter, random_state=random_state)
+                init='nndsvd', l1_ratio=0.25, alpha=5, max_iter=maxiter,
+                n_components=n_components, tol=tol, random_state=random_state,
+                )
 
             # Perform ICA and find separated signals
             S_sep = nmf.fit_transform(S.T)
@@ -160,9 +163,11 @@ def separate(
         # The NIMFA implementation of NMF is fast and reliable.
 
         # Make an instance of the Nmf class from nimfa
-        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
-                        method='snmf', version='l', objective='conn',
-                        conn_change=3000, eta=1e-5, beta=1e-5)
+        nmf = nimfa.Nmf(
+            S.T, max_iter=maxiter, rank=n_components, seed='random_vcol',
+            method='snmf', version='l', objective='conn',
+            conn_change=3000, eta=1e-5, beta=1e-5,
+            )
         # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
 
         # fit the model
@@ -196,7 +201,7 @@ def separate(
     # This results in a relative score of how strongly each separated signal
     # is represented in each ROI signal.
     A = abs(np.copy(A_sep))
-    for j in range(n):
+    for j in range(n_components):
         if np.sum(A[:, j]) != 0:
             A[:, j] /= np.sum(A[:, j])
 
@@ -207,7 +212,7 @@ def separate(
     order = np.argsort(scores)[::-1]
 
     # order the signals according to their scores
-    for j in range(n):
+    for j in range(n_components):
         s_ = A_sep[0, order[j]]*S_sep[:, order[j]]
         S_matched[:, j] = s_
         # set the mean to be the same as the raw data
