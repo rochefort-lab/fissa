@@ -81,9 +81,8 @@ def split_npil(mask, centre, num_slices):
     theta = (theta - theta_offset) % (2 * np.pi) - np.pi
 
     # get the boundaries
-    bounds = {}
-    for i in range(num_slices):
-        bounds[i] = np.percentile(theta, 100.0 * (i + 1) / num_slices)
+    bounds = [np.percentile(theta, 100.0 * (i + 1) / num_slices)
+              for i in range(num_slices)]
 
     # predefine the masks
     masks = []
