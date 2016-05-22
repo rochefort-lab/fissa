@@ -70,13 +70,14 @@ def split_npil(mask, com, num_slices):
     # slice boundary here, to prevent one slice being non-contiguous
     # for masks near the image boundary.
     # TODO: give it the bins to use
-    bins = np.linspace(-np.pi, np.pi, 21)
+    n_bins = 20
+    bins = np.linspace(-np.pi, np.pi, n_bins + 1)
     n, bins = np.histogram(theta, bins=bins)
     bin_min_index = np.argmin(n)
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
-    theta_offset = bins[bin_min_index] + np.pi / 40
+    theta_offset = bins[bin_min_index] + np.pi / n_bins / 2
     theta = (theta - theta_offset) % (2 * np.pi) - np.pi
 
     # get the boundaries
