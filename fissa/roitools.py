@@ -8,8 +8,8 @@ from builtins import range
 
 import numpy as np
 
-from sima_borrowed.readimagejrois import read_imagej_roi_zip
-from sima_borrowed.ROI import poly2mask
+from readimagejrois import read_imagej_roi_zip
+from ROI import poly2mask
 
 from skimage.measure import find_contours
 
