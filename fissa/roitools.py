@@ -37,7 +37,7 @@ def get_mask_com(mask):
     return np.mean(x), np.mean(y)
 
 
-def split_npil(mask, com, num_slices):
+def split_npil(mask, centre, num_slices):
     '''
     Splits a mask into a number of approximately equal slices by area around
     the center of the mask.
@@ -46,7 +46,7 @@ def split_npil(mask, com, num_slices):
     ----------
     mask : array_like
         Mask as a 2d boolean array.
-    com : tuple
+    centre : tuple
         The center co-ordinates around which the mask will be split.
     num_slices : int
         The number of slices into which the mask will be divided.
@@ -64,7 +64,7 @@ def split_npil(mask, com, num_slices):
     x, y = mask.nonzero()
 
     # Find the angle of the vector from the mask centre to each pixel
-    theta = np.arctan2(x - com[0], y - com[1])
+    theta = np.arctan2(x - centre[0], y - centre[1])
 
     # Find where the mask comes closest to the centre. We will put a
     # slice boundary here, to prevent one slice being non-contiguous
@@ -245,10 +245,10 @@ def getmasks_npil(cellMask, nNpil=4, iterations=15):
     mask = get_npil_mask(cellMask, iterations=iterations)[iterations]
 
     # get the center of mass for the cell
-    com = get_mask_com(cellMask)
+    centre = get_mask_com(cellMask)
 
     # split it up in nNpil neuropils
-    masks_split = split_npil(mask, com, nNpil)
+    masks_split = split_npil(mask, centre, nNpil)
 
     return masks_split
 
