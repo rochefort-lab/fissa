@@ -72,8 +72,8 @@ def split_npil(mask, centre, num_slices):
     # TODO: give it the bins to use
     n_bins = 20
     bins = np.linspace(-np.pi, np.pi, n_bins + 1)
-    n, bins = np.histogram(theta, bins=bins)
-    bin_min_index = np.argmin(n)
+    bin_counts, bins = np.histogram(theta, bins=bins)
+    bin_min_index = np.argmin(bin_counts)
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
