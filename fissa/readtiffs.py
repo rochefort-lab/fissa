@@ -57,7 +57,7 @@ def image2array(img, bit_depth=None, band=0):
         raise ValueError((
             'Requested band number {} exceeds the number of bands available '
             'in the image, which is {}.'
-            ).format(band, num_bands))
+        ).format(band, num_bands))
     # If there is only one band, we need to request None instead of 0.
     if num_bands == 1:
         band = None
@@ -86,7 +86,7 @@ def image2array(img, bit_depth=None, band=0):
     elif isinstance(bit_depth, int):
         raise ValueError((
             'Unfamiliar bit_depth value: {}'
-            ).format(bit_depth))
+        ).format(bit_depth))
     else:
         # Assume bit_depth is a data-type instance
         dtype = bit_depth
@@ -351,10 +351,10 @@ def getbox(center, half_length):
     >>> cropped_img = img.crop(box)
     '''
     half_length = np.rint(2 * half_length) / 2
-    x0 = np.ceil(center[1]-half_length)
-    y0 = np.ceil(center[0]-half_length)
-    x1 = np.rint(x0 + 2*half_length)
-    y1 = np.rint(y0 + 2*half_length)
+    x0 = np.ceil(center[1] - half_length)
+    y0 = np.ceil(center[0] - half_length)
+    x1 = np.rint(x0 + 2 * half_length)
+    y1 = np.rint(y0 + 2 * half_length)
     return (x0, y0, x1, y1)
 
 

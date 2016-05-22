@@ -62,13 +62,13 @@ def split_npil(mask, com, num_slices):
     mask = np.asarray(mask)
 
     # get the percentage for each slice
-    slice_perc = 100.0/num_slices
+    slice_perc = 100.0 / num_slices
 
     # get the x,y positions of the pixels that are in the mask
     x, y = mask.nonzero()
 
     # find the positional angle of each point
-    theta = np.arctan2(x-com[0], y-com[1])
+    theta = np.arctan2(x - com[0], y - com[1])
 
     # find smallest bin
     # TODO: give it the bins to use
@@ -77,13 +77,13 @@ def split_npil(mask, com, num_slices):
     binmin = np.argmin(n)
 
     # adjust angles so that they start at the smallest bin
-    nmin = bins[binmin]+np.pi/40
-    theta = (theta-nmin) % (2*np.pi)-np.pi
+    nmin = bins[binmin] + np.pi / 40
+    theta = (theta - nmin) % (2 * np.pi) - np.pi
 
     # get the boundaries
     bounds = {}
     for i in range(num_slices):
-        bounds[i] = np.percentile(theta, slice_perc*(i+1))
+        bounds[i] = np.percentile(theta, slice_perc * (i + 1))
 
     # predefine the masks
     masks = []
@@ -95,7 +95,7 @@ def split_npil(mask, com, num_slices):
     # get the rest of the masks
     for i in range(1, num_slices):
         # find which pixels are within bounds
-        truths = (theta > bounds[i-1])*(theta <= bounds[i])
+        truths = (theta > bounds[i - 1]) * (theta <= bounds[i])
         # empty predefinition
         masks += [np.zeros(np.shape(mask), dtype=bool)]
         # set relevant pixels to True
@@ -185,7 +185,7 @@ def get_npil_mask(mask, iterations=15):
         refmask = np.copy(masks[count])
 
         # initiate next mask
-        masks[count+1] = np.copy(refmask)
+        masks[count + 1] = np.copy(refmask)
 
         # define case, it swaps between 0 and 1
         case = count % 2
@@ -196,24 +196,24 @@ def get_npil_mask(mask, iterations=15):
                 for dy in [-1, 0, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
-                    masks[count+1][movedmask] = True
+                    masks[count + 1][movedmask] = True
         elif case == 0:
             # move polygon around one pixel in each 4 cardinal direction
             for dx in [-1, 1]:
                 movedmask = shift_2d_array(refmask, dx, 0)
-                masks[count+1][movedmask] = True
+                masks[count + 1][movedmask] = True
             for dy in [-1, 1]:
                 movedmask = shift_2d_array(refmask, dy, 1)
-                masks[count+1][movedmask] = True
+                masks[count + 1][movedmask] = True
         elif case == 1:
             # move polygon around one pixel in each 4 diagonal direction
             for dx in [-1, 1]:
                 for dy in [-1, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
-                    masks[count+1][movedmask] = True
+                    masks[count + 1][movedmask] = True
 
-        masks[count+1][mask] = False
+        masks[count + 1][mask] = False
 
     masks[0][:] = False
 
@@ -311,7 +311,7 @@ def getmasks(rois, shpe):
     nrois = len(rois)
 
     # start empty mask list
-    masks = ['']*nrois
+    masks = [''] * nrois
 
     for i in range(nrois):
         # transform current roi to mask
@@ -342,7 +342,7 @@ def find_roi_edge(mask):
 
     # Pad with 0s to make sure that edge ROIs are properly estimated
     mask_shape = np.shape(mask)
-    padded_shape = (mask_shape[0]+2, mask_shape[1]+2)
+    padded_shape = (mask_shape[0] + 2, mask_shape[1] + 2)
     padded_mask = np.zeros(padded_shape)
     padded_mask[1:-1, 1:-1] = mask
 

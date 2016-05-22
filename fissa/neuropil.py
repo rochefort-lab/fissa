@@ -67,7 +67,7 @@ def separate(
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     '''
-    # TODO for edge cases, reduce the number of npil regions according to 
+    # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
 
@@ -80,15 +80,15 @@ def separate(
         pca = PCA(whiten=False)
         pca.fit(S.T)
         # Find cumulative explained variance (old method)
-#        exp_var = np.cumsum(pca.explained_variance_ratio_)
-#        # Find the number of components which are needed to explain a
-#        # set fraction of the variance
-#        # dependent on number of signals, see when variance exceeds
-#        # n= 4: 0.9, n=5, 0.99, etc.
-#        n = np.where(exp_var > 0.99)[0][0]+1
-#        print exp_var
+        #        exp_var = np.cumsum(pca.explained_variance_ratio_)
+        # Find the number of components which are needed to explain a
+        # set fraction of the variance
+        # dependent on number of signals, see when variance exceeds
+        # n= 4: 0.9, n=5, 0.99, etc.
+        #        n = np.where(exp_var > 0.99)[0][0]+1
+        #        print exp_var
         # find number of components with at least x percent explained var
-        n = sum(pca.explained_variance_ratio_ > 0.001    )
+        n = sum(pca.explained_variance_ratio_ > 0.001)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -128,7 +128,7 @@ def separate(
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
-                init='nndsvd', l1_ratio=0.25,alpha=5, n_components=n, tol=tol,
+                init='nndsvd', l1_ratio=0.25, alpha=5, n_components=n, tol=tol,
                 max_iter=maxiter, random_state=random_state)
 
             # Perform ICA and find separated signals
@@ -198,10 +198,10 @@ def separate(
     A = abs(np.copy(A_sep))
     for j in range(n):
         if np.sum(A[:, j]) != 0:
-            A[:, j] /= np.sum(A[:, j])            
+            A[:, j] /= np.sum(A[:, j])
 
     # get the scores for the somatic signal
-    scores = A[0, :]
+    scores = A[0,:]
 
     # get the order of scores
     order = np.argsort(scores)[::-1]
@@ -212,9 +212,9 @@ def separate(
         S_matched[:, j] = s_
         # set the mean to be the same as the raw data
         if sep_method == 'ica':
-            S_matched[:, j] += S[0, :].mean()
+            S_matched[:, j] += S[0,:].mean()
         elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
-            S_matched[:, j] += S[0, :].mean() - S_matched[:, j].mean()
+            S_matched[:, j] += S[0,:].mean() - S_matched[:, j].mean()
 
     # save the algorithm convergence info
     convergence = {}
