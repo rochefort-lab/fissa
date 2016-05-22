@@ -13,7 +13,7 @@ from scipy.optimize import minimize_scalar
 
 
 def separate(
-        S, sep_method='ica', n_components=None, maxiter=500, tol=1e-5,
+        S, sep_method='ica', n_components=0.001, maxiter=500, tol=1e-5,
         random_state=892, maxtries=10):
     '''
     For the signals in S, finds the independent signals underlying it,
@@ -33,8 +33,13 @@ def separate(
             * nmf_sklearn: The sklearn implementation of non-negative
               matrix factorization (which is slower).
     n_components : int, optional
-        How many components to estimate. If None, use PCA to estimate
-        how many components would explain at least 99% of the variance.
+        How many source components to estimate from the observed
+        signals. If `0 < n_components < 1`, PCA is used on the observed
+        signals and there is a source component included for every PCA
+        component which explains at least this much of the overall
+        variance. Default is `0.001`, so there are assumed to be as
+        many source components as there are PCA components which
+        explain 0.1% of the overall variance.
     maxiter : int, optional
         Number of maximally allowed iterations. Default is 500.
     tol : float, optional
@@ -75,20 +80,24 @@ def separate(
     S = np.asarray(S)
 
     # estimate number of signals to find, if not given
-    if n_components is None:
+    if 0 < n_components < 1:
         # Perform PCA, without whitening because the mean is important to us.
         pca = PCA(whiten=False)
         pca.fit(S.T)
+        # Method 1:
         # Find cumulative explained variance (old method)
-        #        exp_var = np.cumsum(pca.explained_variance_ratio_)
+        #   exp_var = np.cumsum(pca.explained_variance_ratio_)
         # Find the number of components which are needed to explain a
-        # set fraction of the variance
-        # dependent on number of signals, see when variance exceeds
+        # set fraction of the variance.
+        # The optimal fraction of variance is dependent on number of
+        # signals, see when variance exceeds
         # n_components= 4: 0.9, n_components=5, 0.99, etc.
-        #        n_components = np.where(exp_var > 0.99)[0][0]+1
-        #        print exp_var
-        # find number of components with at least x percent explained var
-        n_components = sum(pca.explained_variance_ratio_ > 0.001)
+        #   n_components = np.where(exp_var > 0.99)[0][0]+1
+        #   print exp_var
+        # Method 2:
+        # Find how many components explain at least `x` fraction of
+        # the overall observed variance.
+        n_components = sum(pca.explained_variance_ratio_ > n_components)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
