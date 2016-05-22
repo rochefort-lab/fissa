@@ -235,12 +235,10 @@ def separate(
     return S_sep.T, S_matched.T, A_sep, convergence
 
 
-def subtract_pil(sig, pil):
+def subtract_pil(sig, pil, lower_bound=0, upper_bound=1.5):
     '''
-    Subtract the neuropil from the signal (sig), in such a manner
-    that that the correlation between the two is minimized:
-        sig_ = sig - a*pil
-    find `a` such that `cor(sig_, pil)` is minimized. A is bound to be 0-1.5.
+    Subtract the neuropil from the signal, weighted such that the
+    correlation between the two is minimized.
 
     Parameters
     ----------
@@ -248,13 +246,27 @@ def subtract_pil(sig, pil):
         Signal
     pil : array_like
         Neuropil/s.
+    lower_bound : float, optional
+        Lower bound on the value of `a`, the gain on the neuropil
+        before subtraction. Default is `0`.
+    upper_bound : float, optional
+        Upper bound on the value of `a`, the gain on the neuropil
+        before subtraction. Default is `1.5`.
 
     Returns
     -------
-    sig_ : numpy.ndarray
+    sig_corrected : numpy.ndarray
         The neuropil-subtracted signal.
     a : float
         The subtraction parameter that results in the best subtraction.
+
+    Notes
+    -----
+    Will return
+        sig_corrected = sig - a * pil
+    where the `a` has been set so that `cor(sig_corrected, pil)` is
+    minimized. The region of values for `a` which is searched is given
+    by `(lower_bound, upper_bound)`.
     '''
     # Ensure array_like input is a numpy.ndarray
     sig = np.asarray(sig)
@@ -267,11 +279,12 @@ def subtract_pil(sig, pil):
         corr = np.corrcoef(sig_, pil)[0, 1]
         return np.sqrt(corr**2)
 
-    res = minimize_scalar(mincorr, bounds=(0, 1.5), method='bounded')
-    a = res.x  # the resulting gain
-    sig_ = sig - a*pil + np.mean(a*pil)  # the output signal
+    search_bounds = (lower_bound, upper_bound)
+    res = minimize_scalar(mincorr, bounds=search_bounds, method='bounded')
+    a = res.x  # the gain resulting in minimal correlation
+    sig_corrected = sig - a*pil + np.mean(a*pil)
 
-    return sig_, a
+    return sig_corrected, a
 
 
 def subtract_dict(S, n_noncell):
