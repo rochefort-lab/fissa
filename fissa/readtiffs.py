@@ -518,7 +518,8 @@ def extract_traces(img, masks, bit_depth=None, band=0):
 
 
 def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
-    ''' Sets up and saves an entire dataset, given a set of ImageJ ROI zips,
+    '''
+    Sets up and saves an entire dataset, given a set of ImageJ ROI zips,
     and a set of TIFF files. Either there should be one zip for every tiff,
     or there should be one zip for all tiffs.
 
@@ -533,7 +534,7 @@ def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
     sort them by filename).
 
     Parameters
-    ------------------------
+    ----------
     tiffs : list
         A list of strings, listing the locations of every tiff.
     ROIs : list
@@ -543,14 +544,14 @@ def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
         to have the same ROIs. The ROIs are only assumed to have moved across
         trials, there should be the same ROIs (and number thereof) in every
         zip.
-    nNpil : int, optional [4]
-        Number of neuropils to be generated.
-    iterations : int, optional [15]
-        Number of iterations used for growing the neuropil.
+    nNpil : int, optional
+        Number of neuropils to be generated. Default is 4.
+    iterations : int, optional
+        Number of iterations used for growing the neuropil. Default is 15.
 
     Returns
-    -----------------------
-    dictionary
+    -------
+    S : dict
         Returns a dictionary S with the following keys:
         'Data'
             This is where the data will be stored. The content itself is a
@@ -563,7 +564,7 @@ def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
             This contains the outlines for each ROI.
 
     TODO
-    -------------------------
+    ----
     - Variable trial length for each tiff.
     - Add bit depth etc.
     - Write a test function
