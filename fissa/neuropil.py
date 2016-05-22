@@ -8,7 +8,7 @@ Created: 2015-05-15
 import numpy as np
 import numpy.random as rand
 import nimfa
-from sklearn.decomposition import FastICA, ProjectedGradientNMF, PCA
+from sklearn.decomposition import FastICA, NMF, PCA
 from scipy.optimize import minimize_scalar
 
 
@@ -67,8 +67,8 @@ def separate(
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     '''
-    # TODO Return several candidates for each signal, so can more easily
-    # compare
+    # TODO for edge cases, reduce the number of npil regions according to 
+    #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
 
     # Ensure array_like input is a numpy.ndarray
@@ -78,12 +78,17 @@ def separate(
     if n is None:
         # Perform PCA, without whitening because the mean is important to us.
         pca = PCA(whiten=False)
-        pca.fit(S)
-        # Find cumulative explained variance
-        exp_var = np.cumsum(pca.explained_variance_ratio_)
-        # Find the number of components which are needed to explain a
-        # set fraction of the variance
-        n = np.where(exp_var > 0.99)[0][0]+1
+        pca.fit(S.T)
+        # Find cumulative explained variance (old method)
+#        exp_var = np.cumsum(pca.explained_variance_ratio_)
+#        # Find the number of components which are needed to explain a
+#        # set fraction of the variance
+#        # dependent on number of signals, see when variance exceeds
+#        # n= 4: 0.9, n=5, 0.99, etc.
+#        n = np.where(exp_var > 0.99)[0][0]+1
+#        print exp_var
+        # find number of components with at least x percent explained var
+        n = sum(pca.explained_variance_ratio_ > 0.001    )
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -120,16 +125,35 @@ def separate(
         A_sep = ica.mixing_
 
     elif sep_method == 'nmf_sklearn':
-        # The sklearn nmf implementation is slow and can't tell how many
-        # iterations were used.
+        for ith_try in range(maxtries):
+            # Make an instance of the sklearn NMF class
+            nmf = NMF(
+                init='nndsvd', l1_ratio=0.25,alpha=5, n_components=n, tol=tol,
+                max_iter=maxiter, random_state=random_state)
 
-        # Make an instance of the sklearn NMF class
-        nmf = ProjectedGradientNMF(
-            init='nndsvd', sparseness='data', n_components=n, tol=tol,
-            max_iter=maxiter, random_state=random_state)
+            # Perform ICA and find separated signals
+            S_sep = nmf.fit_transform(S.T)
 
-        # separate signals and get mixing matrix
-        S_sep = nmf.fit_transform(S.T)
+            # check if max number of iterations was reached
+            if nmf.n_iter_ < maxiter-1:
+                print((
+                    'NMF converged after {} iterations.'
+                    ).format(nmf.n_iter_+1))
+                break
+            print((
+                'Attempt {} failed to converge at {} iterations.'
+                ).format(ith_try, nmf.n_iter_+1))
+            if ith_try+1 < maxtries:
+                print('Trying a new random state.')
+                # Change to a new random_state
+                random_state = rand.randint(8000)
+
+        if nmf.n_iter_ == maxiter-1:
+            print((
+                'Warning: maximum number of allowed tries reached at {} '
+                'iterations for {} tries of different random seed states.'
+                ).format(nmf.n_iter_+1, ith_try+1))
+
         A_sep = nmf.components_.T
 
     elif sep_method == 'nmf':
@@ -138,7 +162,7 @@ def separate(
         # Make an instance of the Nmf class from nimfa
         nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
                         method='snmf', version='l', objective='conn',
-                        conn_change=300, eta=1e-5, beta=1e-5)
+                        conn_change=3000, eta=1e-5, beta=1e-5)
         # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
 
         # fit the model
@@ -173,10 +197,11 @@ def separate(
     # is represented in each ROI signal.
     A = abs(np.copy(A_sep))
     for j in range(n):
-        A[:, j] /= np.sum(A[:, j])
+        if np.sum(A[:, j]) != 0:
+            A[:, j] /= np.sum(A[:, j])            
 
     # get the scores for the somatic signal
-    scores = abs(A[0, :])
+    scores = A[0, :]
 
     # get the order of scores
     order = np.argsort(scores)[::-1]
