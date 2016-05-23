@@ -88,7 +88,7 @@ def separate(
 #        n = np.where(exp_var > 0.99)[0][0]+1
 #        print exp_var
         # find number of components with at least x percent explained var
-        n = sum(pca.explained_variance_ratio_ > 0.001    )
+        n = sum(pca.explained_variance_ratio_ > 0.001)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -128,7 +128,7 @@ def separate(
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
-                init='nndsvd', l1_ratio=0.25,alpha=5, n_components=n, tol=tol,
+                init='nndsvd', l1_ratio=0.25, alpha=5, n_components=n, tol=tol,
                 max_iter=maxiter, random_state=random_state)
 
             # Perform ICA and find separated signals
@@ -198,7 +198,7 @@ def separate(
     A = abs(np.copy(A_sep))
     for j in range(n):
         if np.sum(A[:, j]) != 0:
-            A[:, j] /= np.sum(A[:, j])            
+            A[:, j] /= np.sum(A[:, j])
 
     # get the scores for the somatic signal
     scores = A[0, :]
