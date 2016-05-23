@@ -13,8 +13,8 @@ from scipy.optimize import minimize_scalar
 
 
 def separate(
-        S, sep_method='ica', n_components=0.001, maxiter=500, tol=1e-5,
-        random_state=892, maxtries=10):
+        S, sep_method='ica', n_components=0.001, max_iter=500, tol=1e-5,
+        random_state=892, max_tries=10):
     '''
     For the signals in S, finds the independent signals underlying it,
     using ica or nmf. Several methods for signal picking are
@@ -40,13 +40,13 @@ def separate(
         variance. Default is `0.001`, so there are assumed to be as
         many source components as there are PCA components which
         explain 0.1% of the overall variance.
-    maxiter : int, optional
+    max_iter : int, optional
         Number of maximally allowed iterations. Default is 500.
     tol : float, optional
         Error tolerance for termination. Default is 1e-5.
     random_state : int, optional
         Initial random state for seeding. Default is 892.
-    maxtries : int, optional
+    max_tries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is 10.
 
@@ -102,11 +102,11 @@ def separate(
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
 
-        for ith_try in range(maxtries):
+        for ith_try in range(max_tries):
             # Make an instance of the FastICA class. We can do whitening of
             # the data now.
             ica = FastICA(
-                n_components=n_components, whiten=True, max_iter=maxiter,
+                n_components=n_components, whiten=True, max_iter=max_iter,
                 tol=tol, random_state=random_state,
                 )
 
@@ -114,7 +114,7 @@ def separate(
             S_sep = ica.fit_transform(S.T)
 
             # check if max number of iterations was reached
-            if ica.n_iter_ < maxiter:
+            if ica.n_iter_ < max_iter:
                 print((
                     'ICA converged after {} iterations.'
                     ).format(ica.n_iter_))
@@ -122,12 +122,12 @@ def separate(
             print((
                 'Attempt {} failed to converge at {} iterations.'
                 ).format(ith_try+1, ica.n_iter_))
-            if ith_try+1 < maxtries:
+            if ith_try+1 < max_tries:
                 print('Trying a new random state.')
                 # Change to a new random_state
                 random_state = rand.randint(8000)
 
-        if ica.n_iter_ == maxiter:
+        if ica.n_iter_ == max_iter:
             print((
                 'Warning: maximum number of allowed tries reached at {} '
                 'iterations for {} tries of different random seed states.'
@@ -136,10 +136,10 @@ def separate(
         A_sep = ica.mixing_
 
     elif sep_method == 'nmf_sklearn':
-        for ith_try in range(maxtries):
+        for ith_try in range(max_tries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
-                init='nndsvd', l1_ratio=0.25, alpha=5, max_iter=maxiter,
+                init='nndsvd', l1_ratio=0.25, alpha=5, max_iter=max_iter,
                 n_components=n_components, tol=tol, random_state=random_state,
                 )
 
@@ -147,7 +147,7 @@ def separate(
             S_sep = nmf.fit_transform(S.T)
 
             # check if max number of iterations was reached
-            if nmf.n_iter_ < maxiter-1:
+            if nmf.n_iter_ < max_iter-1:
                 print((
                     'NMF converged after {} iterations.'
                     ).format(nmf.n_iter_+1))
@@ -155,12 +155,12 @@ def separate(
             print((
                 'Attempt {} failed to converge at {} iterations.'
                 ).format(ith_try, nmf.n_iter_+1))
-            if ith_try+1 < maxtries:
+            if ith_try+1 < max_tries:
                 print('Trying a new random state.')
                 # Change to a new random_state
                 random_state = rand.randint(8000)
 
-        if nmf.n_iter_ == maxiter-1:
+        if nmf.n_iter_ == max_iter-1:
             print((
                 'Warning: maximum number of allowed tries reached at {} '
                 'iterations for {} tries of different random seed states.'
@@ -173,7 +173,7 @@ def separate(
 
         # Make an instance of the Nmf class from nimfa
         nmf = nimfa.Nmf(
-            S.T, max_iter=maxiter, rank=n_components, seed='random_vcol',
+            S.T, max_iter=max_iter, rank=n_components, seed='random_vcol',
             method='snmf', version='l', objective='conn',
             conn_change=3000, eta=1e-5, beta=1e-5,
             )
@@ -185,7 +185,7 @@ def separate(
         # get fit summary
         fs = nmf_fit.summary()
         # check if max number of iterations was reached
-        if fs['n_iter'] < maxiter:
+        if fs['n_iter'] < max_iter:
             print((
                 'NMF converged after {} iterations.'
                 ).format(fs['n_iter']))
@@ -232,15 +232,15 @@ def separate(
 
     # save the algorithm convergence info
     convergence = {}
-    convergence['max_iterations'] = maxiter
+    convergence['max_iterations'] = max_iter
     if sep_method == 'ica':
         convergence['random_state'] = random_state
         convergence['iterations'] = ica.n_iter_
-        convergence['converged'] = not ica.n_iter_ == maxiter
+        convergence['converged'] = not ica.n_iter_ == max_iter
     elif sep_method == 'nmf':
         convergence['random_state'] = 'not yet implemented'
         convergence['iterations'] = fs['n_iter']
-        convergence['converged'] = not fs['n_iter'] == maxiter
+        convergence['converged'] = not fs['n_iter'] == max_iter
     elif sep_method == 'nmf_sklearn':
         convergence['random_state'] = 'not yet implemented'
         convergence['iterations'] = 'not yet implemented'
