@@ -75,6 +75,10 @@ def separate(
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
 
+    # normalize 
+    median = np.median(S)
+    S /= median
+
     # estimate number of signals to find, if not given
     if n is None:
         # Perform PCA, without whitening because the mean is important to us.
@@ -232,7 +236,10 @@ def separate(
         convergence['random_state'] = 'not yet implemented'
         convergence['iterations'] = 'not yet implemented'
         convergence['converged'] = 'not yet implemented'
-
+    
+    # return median
+    S_matched *= median
+    S *= median
     return S_sep.T, S_matched.T, A_sep, convergence
 
 
