@@ -62,6 +62,10 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     dict
         A dictionary with `num_slices` many masks, each of which is a 2d
         boolean numpy array.
+
+    Notes
+    -----
+    This should be an iterable.
     '''
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
