@@ -133,8 +133,9 @@ def separate(
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
-                init='nndsvd', l1_ratio=0.25, alpha=5, n_components=n, tol=tol,
-                max_iter=maxiter, random_state=random_state)
+                init='nndsvdar', n_components=n,
+                alpha=0.1, l1_ratio=0.5,
+                tol=tol, max_iter=maxiter, random_state=random_state)
 
             # Perform ICA and find separated signals
             S_sep = nmf.fit_transform(S.T)
