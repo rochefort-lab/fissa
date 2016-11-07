@@ -297,3 +297,42 @@ def subtract_dict(S, n_noncell):
                                            np.mean(S[i][:, 1:], axis=1))
 
     return S_subtract, a
+
+
+def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
+    '''
+    Low pass filters a fluorescence imaging trace line.
+
+    Parameters
+    ----------
+    F : array_like
+        Fluorescence signal.
+    fs : float, optional
+        Sampling frequency of F, in Hz. Default 40.
+    nfilt : int, optional
+        Number of taps to use in FIR filter, default 40
+    fw_base : float, optional
+        Cut-off frequency for lowpass filter, default 1
+    axis : int, optional
+        Along which axis to apply low pass filtering, default 0
+
+    Returns
+    -------
+    array
+        Low pass filtered signal of len(F)
+    '''
+    # Remove the first datapoint, because it can be an erroneous sample
+#     rawF = np.split(rawF, [1], axis)[1]
+
+    # The Nyquist rate of the signal is half the sampling frequency
+    nyq_rate = fs / 2.0
+
+    # Make a set of weights to use with our taps.
+    # We use an FIR filter with a Hamming window.
+    b = signal.firwin(nfilt, cutoff=fw_base/nyq_rate, window='hamming')
+
+    # Use lfilter to filter with the FIR filter.
+    # We filter along the second dimension because that represents time
+    filtered_f = signal.filtfilt(b, [1.0], F, axis=axis)
+
+    return filtered_f
