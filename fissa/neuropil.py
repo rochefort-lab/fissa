@@ -130,7 +130,7 @@ def separate(
         A_sep = ica.mixing_
 
     elif sep_method == 'nmf_sklearn':
-        for ith_try in range(maxtries):
+        for ith_try in range(maxtries):            
             # Make an instance of the sklearn NMF class
             nmf = NMF(
                 init='nndsvdar', n_components=n,
