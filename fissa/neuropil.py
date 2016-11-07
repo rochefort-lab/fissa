@@ -68,14 +68,14 @@ def separate(
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     '''
-    # TODO for edge cases, reduce the number of npil regions according to 
+    # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
 
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
 
-    # normalize 
+    # normalize
     median = np.median(S)
     S /= median
 
@@ -130,7 +130,7 @@ def separate(
         A_sep = ica.mixing_
 
     elif sep_method == 'nmf_sklearn':
-        for ith_try in range(maxtries):            
+        for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
                 init='nndsvdar', n_components=n,
@@ -237,7 +237,7 @@ def separate(
         convergence['random_state'] = 'not yet implemented'
         convergence['iterations'] = 'not yet implemented'
         convergence['converged'] = 'not yet implemented'
-    
+
     # return median
     S_matched *= median
     S *= median
