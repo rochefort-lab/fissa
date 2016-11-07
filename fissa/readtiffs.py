@@ -1,7 +1,9 @@
 '''
 Various functions to read and extract from Tiff stacks using the pillow library
 
-Authors: Sander Keemink (swkeemink@scimail.eu), Scott Lowe
+Authors:
+    Sander W Keemink <swkeemink@scimail.eu>
+    Scott C Lowe <scott.code.lowe@gmail.com>
 Initial date: 2015-05-29
 '''
 

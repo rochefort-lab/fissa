@@ -1,7 +1,8 @@
 '''
 Functions used for ROI manipulation.
 
-Author: S W Keemink swkeemink@scimail.eu
+Authors:
+    Sander W Keemink <swkeemink@scimail.eu>
 '''
 
 from __future__ import division

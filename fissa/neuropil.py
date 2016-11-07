@@ -1,7 +1,9 @@
 '''
 Functions for removal of neuropil from calcium signals.
 
-Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
+Authors:
+    Sander W Keemink <swkeemink@scimail.eu>
+    Scott C Lowe <scott.code.lowe@gmail.com>
 Created: 2015-05-15
 '''
 
