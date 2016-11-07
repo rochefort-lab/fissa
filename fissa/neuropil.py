@@ -73,6 +73,10 @@ def separate(
     Normalize the columns in estimated mixing matrix A so that sum(column)=1
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
+
+    Notes
+    -----
+    This should be a class.
     '''
     # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
@@ -81,125 +85,14 @@ def separate(
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
 
-    # estimate number of signals to find, if not given
-    if 0 < n_components < 1:
-        # Perform PCA, without whitening because the mean is important to us.
-        pca = PCA(whiten=False)
-        pca.fit(S.T)
-        # Method 1:
-        # Find cumulative explained variance (old method)
-        #   exp_var = np.cumsum(pca.explained_variance_ratio_)
-        # Find the number of components which are needed to explain a
-        # set fraction of the variance.
-        # The optimal fraction of variance is dependent on number of
-        # signals, see when variance exceeds
-        # n_components= 4: 0.9, n_components=5, 0.99, etc.
-        #   n_components = np.where(exp_var > 0.99)[0][0]+1
-        #   print exp_var
-        # Method 2:
-        # Find how many components explain at least `x` fraction of
-        # the overall observed variance.
-        n_components = sum(pca.explained_variance_ratio_ > n_components)
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
 
-        for ith_try in range(max_tries):
-            # Make an instance of the FastICA class. We can do whitening of
-            # the data now.
-            ica = FastICA(
-                n_components=n_components, whiten=True, max_iter=max_iter,
-                tol=tol, random_state=random_state,
-                )
-
-            # Perform ICA and find separated signals
-            S_sep = ica.fit_transform(S.T)
-
-            # check if max number of iterations was reached
-            if ica.n_iter_ < max_iter:
-                print((
-                    'ICA converged after {} iterations.'
-                    ).format(ica.n_iter_))
-                break
-            print((
-                'Attempt {} failed to converge at {} iterations.'
-                ).format(ith_try+1, ica.n_iter_))
-            if ith_try+1 < max_tries:
-                print('Trying a new random state.')
-                # Change to a new random_state
-                random_state = rand.randint(8000)
-
-        if ica.n_iter_ == max_iter:
-            print((
-                'Warning: maximum number of allowed tries reached at {} '
-                'iterations for {} tries of different random seed states.'
-                ).format(ica.n_iter_, ith_try+1))
-
-        A_sep = ica.mixing_
-
     elif sep_method == 'nmf_sklearn':
-        for ith_try in range(max_tries):
-            # Make an instance of the sklearn NMF class
-            nmf = NMF(
-                init='nndsvd', l1_ratio=0.25, alpha=5, max_iter=max_iter,
-                n_components=n_components, tol=tol, random_state=random_state,
-                )
-
-            # Perform ICA and find separated signals
-            S_sep = nmf.fit_transform(S.T)
-
-            # check if max number of iterations was reached
-            if nmf.n_iter_ < max_iter-1:
-                print((
-                    'NMF converged after {} iterations.'
-                    ).format(nmf.n_iter_+1))
-                break
-            print((
-                'Attempt {} failed to converge at {} iterations.'
-                ).format(ith_try, nmf.n_iter_+1))
-            if ith_try+1 < max_tries:
-                print('Trying a new random state.')
-                # Change to a new random_state
-                random_state = rand.randint(8000)
-
-        if nmf.n_iter_ == max_iter-1:
-            print((
-                'Warning: maximum number of allowed tries reached at {} '
-                'iterations for {} tries of different random seed states.'
-                ).format(nmf.n_iter_+1, ith_try+1))
-
-        A_sep = nmf.components_.T
 
     elif sep_method == 'nmf':
         # The NIMFA implementation of NMF is fast and reliable.
-
-        # Make an instance of the Nmf class from nimfa
-        nmf = nimfa.Nmf(
-            S.T, max_iter=max_iter, rank=n_components, seed='random_vcol',
-            method='snmf', version='l', objective='conn',
-            conn_change=3000, eta=1e-5, beta=1e-5,
-            )
-        # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
-
-        # fit the model
-        nmf_fit = nmf()
-
-        # get fit summary
-        fs = nmf_fit.summary()
-        # check if max number of iterations was reached
-        if fs['n_iter'] < max_iter:
-            print((
-                'NMF converged after {} iterations.'
-                ).format(fs['n_iter']))
-        else:
-            print((
-                'Warning: maximum number of allowed iterations reached at {} '
-                'iterations.'
-                ).format(fs['n_iter']))
-
-        # get the mixing matrix and estimated data
-        S_sep = np.array(nmf_fit.basis())
-        A_sep = np.array(nmf_fit.coef()).T
 
     else:
         raise ValueError('Unknown separation method "{}".'.format(sep_method))
@@ -249,6 +142,254 @@ def separate(
         convergence['converged'] = 'not yet implemented'
 
     return S_sep.T, S_matched.T, A_sep, convergence
+
+
+class SeparatorBase(object):
+
+    def fit_transform(self, X, y=None, **fit_params):
+        return self.fit(X, **fit_params).transform(X)
+
+    def _parse_n_components(self, n_components, X):
+        '''
+        Helper method to find out how many components should be
+        identified with the source separation method.
+        '''
+
+        if n_components is None:
+            # Use as many output components as there are input
+            # components.
+            return X.shape[0]  # NB: I am swapping the order of shape around compared to before!!!!
+
+        if n_components <= 0:
+            raise ValueError(
+                'The number of source components can not be 0 or'
+                'negative.'
+                )
+
+        if n_components > X.shape[0]:
+            raise ValueError((
+                'The number of source components can not exceed the'
+                'number of input signals, which is {} (whereas {} '
+                'output signals were requested)'
+                ).format(X.shape[0], n_components)
+            )
+
+        if n_components >= 1:
+            # No changes necessary
+            return n_components
+
+        # We have 0 < n_components < 1, which means we should estimate
+        # the number of signals to find using PCA. We perform PCA
+        # without whitening, because the mean is important to us.
+        pca = PCA(whiten=False)
+        pca.fit(X)
+        # Method 1:
+        # Find cumulative explained variance (old method)
+        #   exp_var = np.cumsum(pca.explained_variance_ratio_)
+        # Find the number of components which are needed to explain a
+        # set fraction of the variance.
+        # The optimal fraction of variance is dependent on number of
+        # signals, see when variance exceeds
+        # n_components= 4: 0.9, n_components=5, 0.99, etc.
+        #   n_components = np.where(exp_var > 0.99)[0][0]+1
+        #   print exp_var
+        # Method 2:
+        # Find how many components explain at least `x` fraction of
+        # the overall observed variance.
+        return sum(pca.explained_variance_ratio_ > n_components)
+
+
+class SeparatorIca(SeparatorBase):
+    '''
+    '''
+
+    def __init__(self, n_components=0.001, tol=1e-5, max_iter=500,
+                 random_state=892, max_tries=10, verboseness=1,
+                 ):
+        self.n_components = n_components
+        self.tol = tol
+        self.max_iter = max_iter
+        self.random_state = random_state
+        self.verboseness = verboseness
+
+    def fit_transform(self, X):
+        '''
+        '''
+        self._n_components = self._parse_n_components(n_components, X)
+        self._random_state = self.random_state
+
+        for ith_try in range(max_tries):
+            # Make an instance of the FastICA class. We can do whitening of
+            # the data now.
+            ica = FastICA(
+                n_components=self._n_components, tol=self.tol,
+                max_iter=self.max_iter, random_state=self._random_state,
+                whiten=True,
+                )
+
+            # Perform ICA and find separated signals
+            S_sep = ica.fit_transform(X)
+
+            # check if max number of iterations was reached
+            if ica.n_iter_ < max_iter:
+                print((
+                    'ICA converged after {} iterations.'
+                    ).format(ica.n_iter_))
+                break
+            print((
+                'Attempt {} failed to converge at {} iterations.'
+                ).format(ith_try+1, ica.n_iter_))
+            if ith_try+1 < max_tries:
+                print('Trying a new random state.')
+                # Change to a new random_state
+                self._random_state = rand.randint(8000)
+
+        if ica.n_iter_ == max_iter:
+            print((
+                'Warning: maximum number of allowed tries reached at {} '
+                'iterations for {} tries of different random seed states.'
+                ).format(ica.n_iter_, ith_try+1))
+
+        # A_sep = ica.mixing_
+        self._transformer = ica
+        self.A_sep = ica.mixing_
+        self.S_sep = S_sep
+        self.n_iter = ica.n_iter_
+
+
+class SeparatorNmfSklearn(SeparatorBase):
+    '''
+    '''
+
+    def __init__(self, n_components=0.001, tol=1e-5, max_iter=500,
+                 random_state=892, max_tries=10, verboseness=1,
+                 init='nndsvd', l1_ratio=0.25, alpha=5,
+                 ):
+        self.n_components = n_components
+        self.tol = tol
+        self.max_iter = max_iter
+        self.random_state = random_state
+        self.verboseness = verboseness
+        self.init = init
+        self.l1_ratio = l1_ratio
+        self.alpha = alpha
+
+    def fit_transform(self, X):
+        '''
+        '''
+        self._n_components = self._parse_n_components(n_components, X)
+        self._random_state = self.random_state
+
+        for ith_try in range(max_tries):
+            # Make an instance of the sklearn NMF class
+            nmf = NMF(
+                n_components=self._n_components, tol=self.tol,
+                max_iter=self.max_iter, random_state=self._random_state,
+                init=self.init, l1_ratio=self.l1_ratio, alpha=self.alpha,
+                )
+
+            # Perform NMF and find separated signals
+            S_sep = nmf.fit_transform(X)
+
+            # check if max number of iterations was reached
+            if nmf.n_iter_ < max_iter-1:
+                print((
+                    'NMF converged after {} iterations.'
+                    ).format(nmf.n_iter_+1))
+                break
+            print((
+                'Attempt {} failed to converge at {} iterations.'
+                ).format(ith_try, nmf.n_iter_+1))
+            if ith_try+1 < max_tries:
+                print('Trying a new random state.')
+                # Change to a new random_state
+                self._random_state = rand.randint(8000)
+
+        if nmf.n_iter_ == max_iter-1:
+            print((
+                'Warning: maximum number of allowed tries reached at {} '
+                'iterations for {} tries of different random seed states.'
+                ).format(nmf.n_iter_+1, ith_try+1))
+
+        # A_sep = nmf.components_.T
+        self._transformer = nmf
+        self.A_sep = nmf.components_.T
+        self.S_sep = S_sep
+        self.n_iter = nmf.n_iter_
+
+
+class SeparatorNmfNimfa(SeparatorBase):
+    '''
+    '''
+
+    def __init__(self, n_components=0.001, max_iter=500,
+                 seed='random_vcol', max_tries=10, verboseness=1,
+                 method='snmf', version='l', objective='conn',
+                 conn_change=3000, eta=1e-5, beta=1e-5,
+                 ):
+        self.n_components = n_components
+        self.tol = tol
+        self.max_iter = max_iter
+        self.seed = seed
+        self.verboseness = verboseness
+        self.method = method
+        self.version = version
+        self.objective = objective
+        self.conn_change = conn_change
+        self.eta = eta
+        self.beta = beta
+
+    def fit_transform(self, X):
+        '''
+        '''
+        self._n_components = self._parse_n_components(n_components, X)
+        self._random_state = self.random_state
+
+        # Make an instance of the Nmf class from nimfa
+        nmf = nimfa.Nmf(
+            X, max_iter=self._max_iter, rank=self._n_components,
+            seed=self.seed, method=self.method, version=self.version,
+            objective=self.objective, conn_change=self.conn_change,
+            eta=self.eta, beta=self.beta,
+            )
+
+        # fit the model
+        nmf_fit = nmf()
+
+        # get fit summary
+        fs = nmf_fit.summary()
+        # check if max number of iterations was reached
+        if fs['n_iter'] < max_iter:
+            print((
+                'NMF converged after {} iterations.'
+                ).format(fs['n_iter']))
+        else:
+            print((
+                'Warning: maximum number of allowed iterations reached at {} '
+                'iterations.'
+                ).format(fs['n_iter']))
+
+        # get the mixing matrix and estimated data
+        # S_sep = np.array(nmf_fit.basis())
+        # A_sep = np.array(nmf_fit.coef()).T
+
+        self.S_sep = np.array(nmf_fit.basis())
+        self.A_sep = np.array(nmf_fit.coef()).T
+
+        self._transformer = nmf_fit
+        self.n_iter = nmf.n_iter_
+
+
+class SeparatorSubtract(SeparatorBase):
+    def __init__(self, lower_bound=0, upper_bound=1.5):
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+
+    def fit_transform(self, X):
+        S_sep, a = subtract_pil(X[0], X[1:], lower_bound=self.lower_bound,
+                                upper_bound=self.upper_bound)
+        self.S_sep = S_sep
+        self.n_iter_ = None  # res.nit
 
 
 def subtract_pil(sig, pil, lower_bound=0, upper_bound=1.5):
