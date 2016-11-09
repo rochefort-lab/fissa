@@ -8,6 +8,7 @@ Created: 2015-05-15
 '''
 
 import numpy as np
+import scipy.signal as signal
 import numpy.random as rand
 import nimfa
 from sklearn.decomposition import FastICA, NMF, PCA
@@ -84,7 +85,6 @@ def separate(
 
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
-
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -391,6 +391,15 @@ class SeparatorSubtract(SeparatorBase):
         self.S_sep = S_sep
         self.n_iter_ = None  # res.nit
 
+    # order the signals according to their scores
+    for j in range(n):
+        s_ = A_sep[0, order[j]]*S_sep[:, order[j]]
+        S_matched[:, j] = s_
+        # set the mean to be the same as the raw data
+        if sep_method == 'ica':
+            S_matched[:, j] += S[0, :].mean()
+        elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
+            S_matched[:, j] += S[0, :].mean() - S_matched[:, j].mean()
 
 def subtract_pil(sig, pil, lower_bound=0, upper_bound=1.5):
     '''
@@ -467,3 +476,42 @@ def subtract_dict(S, n_noncell):
                                            np.mean(S[i][:, 1:], axis=1))
 
     return S_subtract, a
+
+
+def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
+    '''
+    Low pass filters a fluorescence imaging trace line.
+
+    Parameters
+    ----------
+    F : array_like
+        Fluorescence signal.
+    fs : float, optional
+        Sampling frequency of F, in Hz. Default 40.
+    nfilt : int, optional
+        Number of taps to use in FIR filter, default 40
+    fw_base : float, optional
+        Cut-off frequency for lowpass filter, default 1
+    axis : int, optional
+        Along which axis to apply low pass filtering, default 0
+
+    Returns
+    -------
+    array
+        Low pass filtered signal of len(F)
+    '''
+    # Remove the first datapoint, because it can be an erroneous sample
+#     rawF = np.split(rawF, [1], axis)[1]
+
+    # The Nyquist rate of the signal is half the sampling frequency
+    nyq_rate = fs / 2.0
+
+    # Make a set of weights to use with our taps.
+    # We use an FIR filter with a Hamming window.
+    b = signal.firwin(nfilt, cutoff=fw_base/nyq_rate, window='hamming')
+
+    # Use lfilter to filter with the FIR filter.
+    # We filter along the second dimension because that represents time
+    filtered_f = signal.filtfilt(b, [1.0], F, axis=axis)
+
+    return filtered_f
