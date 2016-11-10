@@ -48,20 +48,20 @@ class TestRois2Masks(base_test.BaseTestCase):
     def test_imagej_zip(self):
         # load zip of rois
         ROI_loc = 'resources/RoiSet.zip'
-        actual = datahandler.rois2arrays(ROI_loc)
+        actual = datahandler.rois2arrays(ROI_loc,(176, 156))
         
         # assert equality
         self.assert_equal(actual, self.expected)
         
     def test_arrays(self):
         # load from array
-        actual = datahandler.rois2masks(self.polys)
+        actual = datahandler.rois2masks(self.polys,(176, 156))
         # assert equality
         self.assert_equal(actual, self.expected)
         
     def test_masks(self):
         # load from masks
-        actual = datahandler.image2array(self.expected)
+        actual = datahandler.image2array(self.expected,(176, 156))
         
         # assert equality
         self.assert_equal(actual, self.expected)
