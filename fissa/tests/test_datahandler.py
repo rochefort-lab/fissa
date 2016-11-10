@@ -43,7 +43,7 @@ class TestRois2Masks(base_test.BaseTestCase):
     def __init__(self):
         self.polys = [np.array([[39., 62.], [60., 45.], [48., 71.]]),
                          np.array([[72., 107.], [78., 130.], [100., 110.]])]
-        self.expected = roitools..getmasks(self.polys, (176, 156))
+        self.expected = roitools.getmasks(self.polys, (176, 156))
 
     def test_imagej_zip(self):
         # load zip of rois
