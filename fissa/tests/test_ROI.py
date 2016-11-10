@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from numpy.testing import assert_equal
 import numpy as np
 
-from ..sima_borrowed import ROI
+from .. import ROI
 
 
 def test_poly2mask():
