@@ -2,7 +2,6 @@
 Main user interface for FISSA.
 '''
 
-import neuropil as npil
 import datahandler
 import roitools
 
