@@ -5,7 +5,8 @@ Main user interface for FISSA.
 import datahandler
 import roitools
 import glob
-
+import numpy as np
+import neuropil as npil
 
 class Experiment():
     '''
