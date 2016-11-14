@@ -57,28 +57,45 @@ class Experiment():
         * load in ROIs as masks
         * grow and seaparate ROIs to get neuropil regions
         * using neuropil and original regions, extract traces from data
-        
+
         After running this you can access the data as self.data and 
         self.rois. self.data is a dictionary of arrays. self.data[cell,trial]
         gives you the traces of a specific cell and trial, across cell and
         neuropil regions. self.roi_polys is a dictioary of lists of arrays. 
-        self.roi_polys[cell,trial][region] gives you the polygon for the region 
+        self.roi_polys[cell,trial][region][0] gives you the polygon for the region 
         for a specific cell, trial and region. region=0 is the cell, and 
         region>0 gives the different neuropil regions.
+        For separateable masks, it is possible multiple outlines are found,
+        which can be accessed as self.roi_polys[cell,trial][region][i], 
+        where 'i' is the outline index.
         '''
-        self.data = {}
-        self.roi_polys = {}
-        
+        data = {}
+        roi_polys = {}
+
         # across trials
         for trial in range(len(self.images)):
             # get data as arrays and rois as maks
             curdata = datahandler.image2array(self.images[trial])
-            masks = datahandler.rois2masks(self.rois[trial],curdata.shape[1:])
-            
-            # get neuropil masks
-            for cell in range(len(masks)):
-                npil_masks = roitools.getmasks_npil(masks[cell],nNpil=4,
+            base_masks = datahandler.rois2masks(self.rois[trial], curdata.shape[1:])
+
+            # get neuropil masks and extract signals
+            for cell in range(len(base_masks)):
+                # neuropil masks                
+                npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=4,
                                                     iterations=15)
+                # add all current masks together
+                masks = [base_masks[cell]]+npil_masks
+                
+                # extract traces
+                data[cell,trial] = datahandler.extracttraces(curdata, masks)
+                
+                # store ROI outlines
+                roi_polys[cell, trial] = ['']*5
+                for i in range(5):
+                    roi_polys[cell, trial][i] = roitools.find_roi_edge(masks[i])
+
+        self.data = data
+        self.roi_polys = roi_polys
 
     def fit(self, data, rois, which_rois=None):
         '''
@@ -104,7 +121,6 @@ class Experiment():
 
     def main(self, *args, **kwargs):
         return self.fit_and_transform(*args, **kwargs)
-
 
 
 def run_fissa(*args, **kwargs):
