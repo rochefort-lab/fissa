@@ -205,9 +205,8 @@ def get_npil_mask(mask, iterations=15):
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
-    # Keep a copy of the original mask. This isn't going to be part
-    # of the neuropil (surround) mask, because it is the ROI.
-    original_mask = np.copy(mask)
+    # Make a copy of original mask which will be grown
+    grown_mask = np.copy(mask)
 
     for count in range(iterations):
 
@@ -218,7 +217,7 @@ def get_npil_mask(mask, iterations=15):
         # Make a copy of the mask without any new additions. We will
         # need to keep using this mask to mark new changes, so we
         # don't use a partially updated version.
-        refmask = np.copy(mask)
+        refmask = np.copy(grown_mask)
 
         if case == 2:
             # Move polygon around one pixel in each 8 directions
@@ -227,15 +226,15 @@ def get_npil_mask(mask, iterations=15):
                 for dy in [-1, 0, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
-                    mask[movedmask] = True
+                    grown_mask[movedmask] = True
 
         elif case == 0:
             # Move polygon around one pixel in each of the 4 cardinal
             # directions: N, E, S, W.
             for dx in [-1, 1]:
-                mask[shift_2d_array(refmask, dx, 0)] = True
+                grown_mask[shift_2d_array(refmask, dx, 0)] = True
             for dy in [-1, 1]:
-                mask[shift_2d_array(refmask, dy, 1)] = True
+                grown_mask[shift_2d_array(refmask, dy, 1)] = True
 
         elif case == 1:
             # Move polygon around one pixel in each of the 4 diagonal
@@ -244,14 +243,14 @@ def get_npil_mask(mask, iterations=15):
                 for dy in [-1, 1]:
                     movedmask = shift_2d_array(refmask, dx, 0)
                     movedmask = shift_2d_array(movedmask, dy, 1)
-                    mask[movedmask] = True
+                    grown_mask[movedmask] = True
 
         # Don't expand based on the original mask; any expansion into
         # this region is marked as False once more.
-        mask[original_mask] = False
+        grown_mask[mask] = False
 
     # Return the finished neuropil mask
-    return mask
+    return grown_mask
 
 
 def getmasks_npil(cellMask, nNpil=4, iterations=15):
