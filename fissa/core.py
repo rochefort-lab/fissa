@@ -54,6 +54,11 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
+            
+        self.raw = None
+        self.sep = None
+        self.matched = None
+        self.nTrials = len(self.images)  # number of trials
 
     def separation_prep(self):
         ''' This will prepare the data to be separated in the following steps,
