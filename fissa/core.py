@@ -34,6 +34,10 @@ class Experiment():
             roi polygons, or a list of lists of binary arrays representing roi masks.
             Should be either a single roiset for all trials, or a different
             roiset for each trial.
+
+        TOOD:
+        * inputs such as imaging frequency, number of neuropil regions,
+        general FISSA options, etc
         '''
         if type(images) == str:
             self.images = sorted(glob.glob(images+'/*.tif'))
