@@ -66,3 +66,28 @@ def rois2masks(rois, shape):
 
     else:
         raise ValueError('Wrong rois input format')
+
+
+def extracttraces(data, masks):
+    ''' Get the traces for each mask in masks from data
+
+    Inputs
+    --------------------
+    data : array
+        Data array as made by image2array. Should be of shape [frames,y,x].
+    masks : list
+        list of binary arrays (masks)
+    '''
+    # get the number rois and frames
+    nrois = len(masks)
+    nframes = data.shape[0]
+
+    # predefine output data
+    out = np.zeros((nrois, nframes))
+
+    # loop over masks
+    for i in range(nrois):  # for masks
+        # get mean data from mask
+        out[i, :] = data[:, masks[i]].mean(axis=1)
+
+    return out
