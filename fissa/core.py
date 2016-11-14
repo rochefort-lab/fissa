@@ -58,17 +58,19 @@ class Experiment():
         * grow and seaparate ROIs to get neuropil regions
         * using neuropil and original regions, extract traces from data
 
-        After running this you can access the data as self.data and 
-        self.rois. self.data is a dictionary of arrays. self.data[cell,trial]
-        gives you the traces of a specific cell and trial, across cell and
-        neuropil regions. self.roi_polys is a dictioary of lists of arrays. 
-        self.roi_polys[cell,trial][region][0] gives you the polygon for the region 
-        for a specific cell, trial and region. region=0 is the cell, and 
-        region>0 gives the different neuropil regions.
+        After running this you can access the raw data (i.e. pre separation)
+        as self.raw and self.rois. self.raw is a dictionary of arrays.
+        self.raw[cell,trial] gives you the traces of a specific cell and trial,
+        across cell and neuropil regions. self.roi_polys is a dictioary of
+        lists of arrays. self.roi_polys[cell,trial][region][0] gives you the
+        polygon for the region for a specific cell, trial and region. region=0
+        is the cell, and region>0 gives the different neuropil regions.
         For separateable masks, it is possible multiple outlines are found,
-        which can be accessed as self.roi_polys[cell,trial][region][i], 
+        which can be accessed as self.roi_polys[cell,trial][region][i],
         where 'i' is the outline index.
         '''
+        print 'Doing region growing and data extraction....'        
+        
         data = {}
         roi_polys = {}
 
