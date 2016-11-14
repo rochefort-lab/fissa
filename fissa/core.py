@@ -80,12 +80,12 @@ class Experiment():
         where 'i' is the outline index.
         '''
         print 'Doing region growing and data extraction....'        
-        
+        # predefine data structures
         data = {}
         roi_polys = {}
 
         # across trials
-        for trial in range(len(self.images)):
+        for trial in range(self.nTrials):
             # get data as arrays and rois as maks
             curdata = datahandler.image2array(self.images[trial])
             base_masks = datahandler.rois2masks(self.rois[trial], curdata.shape[1:])
@@ -102,18 +102,93 @@ class Experiment():
                 data[cell,trial] = datahandler.extracttraces(curdata, masks)
                 
                 # store ROI outlines
-                roi_polys[cell, trial] = ['']*5
-                for i in range(5):
+                roi_polys[cell, trial] = ['']*len(masks)
+                for i in range(len(masks)):
                     roi_polys[cell, trial][i] = roitools.find_roi_edge(masks[i])
 
+        # store relevant info
+        self.nCell = len(base_masks)  # number of cells
         self.raw = data
         self.roi_polys = roi_polys
 
+    def separate(self):
+        ''' Separate all the trials with FISSA algorithm.
+
+        After running separate, data can be found as follows:
+
+        self.sepa
+            Raw separation output, without being matched. Signal 'i' for
+            a specific cell and trial can be found as
+            self.sep[cell,trial][i,:]
+        self.matched
+            Matched output, in order of presence in cell ROI
+            Signal 'i' for a specific cell and trial can be found as
+            self.matched[cell,trial][i,:]
+        self.mixmat
+            The mixing matrix (how to go between self.separated and
+            self.raw from the separation_prep function)
+        self.info
+            Info about separation algorithm, iterations needed, etc.
 
         '''
-        return self.fit_and_transform(*args, **kwargs)
-
-
+        # do separation prep (if necessary)
+        if self.raw is None:
+            self.separation_prep()
+        
+        print 'Doing signal separation for trial....' 
+        # predefine data structures
+        sep = {}
+        matched = {}
+        mixmat = {}
+        info = {}
+        trial_lens = np.zeros(len(self.images),dtype=int)  # trial lengths
+        
+        # loop over cells
+        for cell in range(self.nCell):
+            # get first trial data
+            cur_signal = self.raw[cell,0]
+            
+            # low pass filter
+#            cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
+            
+            # initiate concatenated data
+            X = cur_signal
+            trial_lens[0] = X.shape[1]
+            
+            # concatenate all trials
+            for trial in range(1,self.nTrials):
+                # get current trial data
+                cur_signal = self.raw[cell,trial]
+                
+                # low pass filter
+#                cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=15).T
+                
+                # concatenate
+                X = np.concatenate((X,cur_signal),axis=1)
+                trial_lens[trial] = X.shape[1]-trial_lens[trial-1]
+            
+            # do FISSA
+            Xsep, Xmatch, Xmixmat, convergence = npil.separate(X,
+            'nmf_sklearn',maxiter=20000,tol=1e-4,maxtries=1)
+            
+            # separate by trial again and store
+            curTrial = 0  # trial count
+            for trial in range(self.nTrials):
+                nextTrial = curTrial+trial_lens[trial]
+                sep[cell,trial] = Xsep[:,curTrial:nextTrial]
+                matched[cell,trial] = Xmatch[:,curTrial:nextTrial]                
+                curTrial = nextTrial
+            
+            # store other info
+            mixmat[cell,trial] = Xmixmat
+            info[cell,trial] = convergence
+            
+        # store
+        self.info = info
+        self.mixmat = mixmat
+        self.sep = sep
+        self.matched = matched
+        
 def run_fissa(*args, **kwargs):
     '''
     Shorthand for making Fissa instance and running it on
