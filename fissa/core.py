@@ -4,26 +4,29 @@ Main user interface for FISSA.
 
 import datahandler
 import roitools
+import glob
+
 
 class Experiment():
     '''
     Does all the steps for FISSA in one swoop.
     '''
+
     def __init__(self, images, rois, **params):
         '''
         Initialisation. Set the parameters for your Fissa instance.
         You can set all the parameters for all the functions
-        
+
         Parameters
         ----------
-        images : list
+        images : string or list
             The raw images data.
             Should be the path to a folder with tiffs, 
             an explicit list of tiff locations (strings),
             or a list of already loaded in arrays.
             Each tiff/array is seen as a single trial.
             Non tiff data should be formatted as (frames,y-coords,x-coords)
-        rois : list
+        rois : string or list
             The roi definitions. 
             Should be the path of a folder with imagej zips, 
             an explicit list of imagej zip locations, a list of arrays encoding
@@ -31,9 +34,22 @@ class Experiment():
             Should be either a single roiset for all trials, or a different
             roiset for each trial.
         '''
-        self.images = images
-        self.rois = rois
-    
+        if type(images) == str:
+            self.images = sorted(glob.glob(images+'/*.tif'))
+        elif type(images) == list:
+            self.images = images
+        else:
+            raise ValueError('images should either be string or list')
+        
+        if type(rois) == str:
+            self.rois = sorted(glob.glob(images+'/*.zip'))
+        elif type(rois) == list:
+            self.rois = rois
+            if len(rois) == 1: # if only one roiset is specified
+                self.rois *= len(self.images)
+        else:
+            raise ValueError('rois should either be string or list')
+
     def separation_prep(self):
         ''' This will prepare the data to be separated in the following steps,
         per trial:
