@@ -99,29 +99,8 @@ class Experiment():
         self.raw = data
         self.roi_polys = roi_polys
 
-    def fit(self, data, rois, which_rois=None):
-        '''
-        Do the computation required to go from inital input to final output.
-
-        Parameters
-        ----------
-        data : maybe this is the path to a tiff?
-            maybe this is a numpy array?
-        rois : maybe this is the path to a zip file containing imagej stuff?
-            maybe this is a numpy-array of masks?
-            maybe this is a list of co-ordinates for the ROI?
-        which_rois : list or an int (default all)
 
         '''
-        pass
-
-    def transform(self):
-        pass
-
-    def fit_and_transform(self):
-        pass
-
-    def main(self, *args, **kwargs):
         return self.fit_and_transform(*args, **kwargs)
 
 
