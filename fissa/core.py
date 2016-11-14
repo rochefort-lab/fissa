@@ -96,7 +96,7 @@ class Experiment():
                 for i in range(5):
                     roi_polys[cell, trial][i] = roitools.find_roi_edge(masks[i])
 
-        self.data = data
+        self.raw = data
         self.roi_polys = roi_polys
 
     def fit(self, data, rois, which_rois=None):
