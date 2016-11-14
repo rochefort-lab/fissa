@@ -12,6 +12,8 @@ import numpy as np
 import tifffile
 import roitools
 
+    
+    
 
 def image2array(image):
     ''' Takes the object 'image' and returns an array.
