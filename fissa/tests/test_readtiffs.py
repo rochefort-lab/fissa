@@ -66,12 +66,14 @@ def get_uniform_resources():
 
 
 class TestImage2Array(base_test.BaseTestCase):
+
     '''
     Tests image2array()
 
     Note that this function is also tested extensively by the tests of
     other, higher-level, functions.
     '''
+
     def test_8bit(self):
         expected = np.arange(8, dtype=np.uint8).reshape((2, 4))
         img = Image.fromarray(expected, 'L')
@@ -139,9 +141,11 @@ class TestImage2Array(base_test.BaseTestCase):
 
 
 class TestGetBox(base_test.BaseTestCase):
+
     '''
     Tests getbox()
     '''
+
     def test_getbox_even_even(self):
         # This box is not quite centered, it has to be offset to give the
         # desired output shape from the cut. After cut, x-axis will be:
@@ -336,6 +340,7 @@ def test_uniform__extract_from_single_tiff(row):
 
 
 class Test2dGreyPoints(base_test.BaseTestCase):
+
     '''
     Tests as many readtiff functions as possible on a 2-dimensional
     unsigned 8-bit integer image resource.
