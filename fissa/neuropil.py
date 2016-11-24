@@ -68,6 +68,7 @@ def separate(
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     '''
+
     # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
@@ -93,7 +94,7 @@ def separate(
 #        n = np.where(exp_var > 0.99)[0][0]+1
 #        print exp_var
         # find number of components with at least x percent explained var
-        n = sum(pca.explained_variance_ratio_ > 0.001)
+        n = max([2,sum(pca.explained_variance_ratio_ > 0.01)])
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
