@@ -153,7 +153,7 @@ class Experiment():
             
             # initiate concatenated data
             X = cur_signal
-            trial_lens[0] = X.shape[1]
+            trial_lens[0] = cur_signal.shape[1]
             
             # concatenate all trials
             for trial in range(1,self.nTrials):
@@ -161,11 +161,13 @@ class Experiment():
                 cur_signal = self.raw[cell,trial]
                 
                 # low pass filter
-#                cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=15).T
+                cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
                 
                 # concatenate
                 X = np.concatenate((X,cur_signal),axis=1)
-                trial_lens[trial] = X.shape[1]-trial_lens[trial-1]
+                
+                trial_lens[trial] = cur_signal.shape[1]
+                
             
             # do FISSA
             Xsep, Xmatch, Xmixmat, convergence = npil.separate(X,
