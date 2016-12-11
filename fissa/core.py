@@ -168,6 +168,9 @@ class Experiment():
                 
                 trial_lens[trial] = cur_signal.shape[1]
                 
+            # check for below 0 values
+            if X.min() < 0:
+                X -= X.min()
             
             # do FISSA
             Xsep, Xmatch, Xmixmat, convergence = npil.separate(X,
