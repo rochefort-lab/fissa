@@ -149,7 +149,7 @@ class Experiment():
             cur_signal = self.raw[cell,0]
             
             # low pass filter
-#            cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
+            cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
             
             # initiate concatenated data
             X = cur_signal
