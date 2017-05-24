@@ -1,9 +1,8 @@
-'''
-Functions for removal of neuropil from calcium signals.
+"""Functions for removal of neuropil from calcium signals.
 
 Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 Created: 2015-05-15
-'''
+"""
 
 import numpy as np
 import scipy.signal as signal
@@ -16,8 +15,7 @@ from scipy.optimize import minimize_scalar
 def separate(
         S, sep_method='ica', n=None, maxiter=10000, tol=1e-3,
         random_state=892, maxtries=10, W0=None, H0=None):
-    '''
-    For the signals in S, finds the independent signals underlying it,
+    """For the signals in S, finds the independent signals underlying it,
     using ica or nmf. Several methods for signal picking are
     implemented, see below, of which method 5 works best in general.
 
@@ -67,8 +65,7 @@ def separate(
     Normalize the columns in estimated mixing matrix A so that sum(column)=1
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
-    '''
-
+    """
     # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
