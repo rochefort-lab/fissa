@@ -14,8 +14,8 @@ from scipy.optimize import minimize_scalar
 
 
 def separate(
-        S, sep_method='ica', n=None, maxiter=500, tol=1e-5,
-        random_state=892, maxtries=10):
+        S, sep_method='ica', n=None, maxiter=10000, tol=1e-3,
+        random_state=892, maxtries=10, W0=None, H0=None):
     '''
     For the signals in S, finds the independent signals underlying it,
     using ica or nmf. Several methods for signal picking are
