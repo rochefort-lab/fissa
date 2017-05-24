@@ -268,7 +268,7 @@ class Experiment():
             Whether to redo the extraction, i.e. replace the filename file.
         """
         # do separation prep (if necessary)
-        if self.raw is None:
+        if self.raw is None or redo:
             self.separation_prep(filename, redo)
 
         print 'Doing signal separation....'
