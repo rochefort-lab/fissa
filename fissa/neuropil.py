@@ -40,7 +40,7 @@ def separate(
         Maximum number of tries before algorithm should terminate.
         Default is 10.
     W0, H0 : arrays, optional
-        Starting conditions
+        Optional starting conditions for nmf
 
     Returns
     -------
