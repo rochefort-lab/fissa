@@ -70,27 +70,29 @@ class Experiment():
     Does all the steps for FISSA in one swoop.
     '''
 
-    def __init__(self, images, rois, **params):
-        '''
-        Initialisation. Set the parameters for your Fissa instance.
-        You can set all the parameters for all the functions
+    def __init__(self, images, rois, nRegions=4, **params):
+        """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
         ----------
         images : string or list
             The raw images data.
-            Should be the path to a folder with tiffs, 
+            Should be the path to a folder with tiffs,
             an explicit list of tiff locations (strings),
             or a list of already loaded in arrays.
             Each tiff/array is seen as a single trial.
             Non tiff data should be formatted as (frames,y-coords,x-coords)
         rois : string or list
-            The roi definitions. 
-            Should be the path of a folder with imagej zips, 
+            The roi definitions.
+            Should be the path of a folder with imagej zips,
             an explicit list of imagej zip locations, a list of arrays encoding
-            roi polygons, or a list of lists of binary arrays representing roi masks.
+            roi polygons, or a list of lists of binary arrays representing roi
+            masks.
             Should be either a single roiset for all trials, or a different
             roiset for each trial.
+        nRegions : int, optional (default: 4)
+            Number of neuropil regions to draw. Use higher number for densely
+            labelled tissue.
 
         TOOD:
         * inputs such as imaging frequency, number of neuropil regions,
