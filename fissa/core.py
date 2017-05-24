@@ -1,6 +1,7 @@
-'''
-Main user interface for FISSA.
-'''
+"""Main user interface for FISSA.
+
+Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
+"""
 
 import datahandler
 import roitools
@@ -18,9 +19,8 @@ except:
     multiprocessing = False
 
 
-
 def extract_func(lst):
-    '''Extraction function for multiprocessing.
+    """Extraction function for multiprocessing.
 
     Parameters
     ----------
@@ -35,7 +35,7 @@ def extract_func(lst):
         dictionary containing data across cells
     dictionary
         dictionary containing polygons for each ROI
-    '''
+    """
     image = lst[0]
     rois = lst[1]
 
