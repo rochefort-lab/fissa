@@ -65,6 +65,30 @@ def extract_func(lst):
 
     return data, roi_polys
 
+
+def separate_func(lst):
+    """Extraction function for multiprocessing.
+
+    Parameters
+    ----------
+    lst : list
+        list of inputs
+        [0] : Array with signals to separate
+        [1] : current ROI number
+
+    Returns
+    -------
+    some output
+
+    """
+    X = lst[0]
+    ROInum = lst[1]
+    print 'doing ROI number ' + str(ROInum)
+    Xsep, Xmatch, Xmixmat, convergence = npil.separate(
+                X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
+    return Xsep, Xmatch, Xmixmat, convergence
+
+
 class Experiment():
     """Does all the steps for FISSA in one swoop."""
 
@@ -248,44 +272,92 @@ class Experiment():
         info = {}
         trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
 
-        # loop over cells
-        for cell in range(self.nCell):
-            # get first trial data
-            cur_signal = self.raw[cell, 0]
+        if multiprocessing:
+            # define pool
+            pool = Pool()
 
-            # initiate concatenated data
-            X = cur_signal
-            trial_lens[0] = cur_signal.shape[1]
+            # loop over cells to define multiproc function inputs
+            inputs = []
+            for cell in range(self.nCell):
+                # get first trial data
+                cur_signal = self.raw[cell, 0]
 
-            # concatenate all trials
-            for trial in range(1, self.nTrials):
-                # get current trial data
-                cur_signal = self.raw[cell, trial]
+                # initiate concatenated data
+                X = cur_signal
+                trial_lens[0] = cur_signal.shape[1]
 
-                # concatenate
-                X = np.concatenate((X, cur_signal), axis=1)
+                # concatenate all trials
+                for trial in range(1, self.nTrials):
+                    # get current trial data
+                    cur_signal = self.raw[cell, trial]
 
-                trial_lens[trial] = cur_signal.shape[1]
+                    # concatenate
+                    X = np.concatenate((X, cur_signal), axis=1)
 
-            # check for below 0 values
-            if X.min() < 0:
-                X -= X.min()
+                    trial_lens[trial] = cur_signal.shape[1]
 
-            # do FISSA
-            Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-                        X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
+                # check for below 0 values
+                if X.min() < 0:
+                    X -= X.min()
 
-            # separate by trial again and store
-            curTrial = 0  # trial count
-            for trial in range(self.nTrials):
-                nextTrial = curTrial+trial_lens[trial]
-                sep[cell, trial] = Xsep[:, curTrial:nextTrial]
-                matched[cell, trial] = Xmatch[:, curTrial:nextTrial]
-                curTrial = nextTrial
+                # update inputs
+                inputs += [[X, cell]]
 
-                # store other info
-                mixmat[cell, trial] = Xmixmat
-                info[cell, trial] = convergence
+            # run separation
+            results = pool.map(separate_func, inputs)
+
+            # read results
+            for cell in range(self.nCell):
+                curTrial = 0
+                Xsep, Xmatch, Xmixmat, convergence = results[cell]
+                for trial in range(self.nTrials):
+                    nextTrial = curTrial+trial_lens[trial]
+                    sep[cell, trial] = Xsep[:, curTrial:nextTrial]
+                    matched[cell, trial] = Xmatch[:, curTrial:nextTrial]
+                    curTrial = nextTrial
+
+                    # store other info
+                    mixmat[cell, trial] = Xmixmat
+                    info[cell, trial] = convergence
+        else:
+            # loop over cells
+            for cell in range(self.nCell):
+                # get first trial data
+                cur_signal = self.raw[cell, 0]
+
+                # initiate concatenated data
+                X = cur_signal
+                trial_lens[0] = cur_signal.shape[1]
+
+                # concatenate all trials
+                for trial in range(1, self.nTrials):
+                    # get current trial data
+                    cur_signal = self.raw[cell, trial]
+
+                    # concatenate
+                    X = np.concatenate((X, cur_signal), axis=1)
+
+                    trial_lens[trial] = cur_signal.shape[1]
+
+                # check for below 0 values
+                if X.min() < 0:
+                    X -= X.min()
+
+                # do FISSA
+                Xsep, Xmatch, Xmixmat, convergence = npil.separate(
+                            X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
+
+                # separate by trial again and store
+                curTrial = 0  # trial count
+                for trial in range(self.nTrials):
+                    nextTrial = curTrial+trial_lens[trial]
+                    sep[cell, trial] = Xsep[:, curTrial:nextTrial]
+                    matched[cell, trial] = Xmatch[:, curTrial:nextTrial]
+                    curTrial = nextTrial
+
+                    # store other info
+                    mixmat[cell, trial] = Xmixmat
+                    info[cell, trial] = convergence
 
         # store
         self.info = info
