@@ -118,7 +118,7 @@ class Experiment():
         self.nRegions = nRegions
         self.nTrials = len(self.images)  # number of trials
 
-    def separation_prep(self, filename='default.p', redo=False):
+    def separation_prep(self, filename='default.npy', redo=False):
         """This will prepare the data to be separated in the following steps,
         per trial:
         * load in data as arrays
@@ -136,11 +136,23 @@ class Experiment():
         For separateable masks, it is possible multiple outlines are found,
         which can be accessed as self.roi_polys[cell,trial][region][i],
         where 'i' is the outline index.
+
+        Parameters
+        ----------
+        filename : string, optional
+            Where to store the extracted data.
+            Should be of form 'folder/file.npy'.
+        redo : bool, optional
+            Whether to redo the extraction, i.e. replace the filename file.
         """
         # try to load data from filename
-        try:
-            nCell, data, roi_polys = np.load(filename)
-        except:
+        if not redo:
+            try:
+                nCell, data, roi_polys = np.load(filename)
+            except:
+                print filename + ' does not exist yet, doing extraction...'
+                redo = True
+        if redo:
             print 'Doing region growing and data extraction....'
             # predefine data structures
             data = {}
