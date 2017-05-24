@@ -1,9 +1,8 @@
-numpy>=1.9.0
-scipy>=0.16.0
-six>=1.9.0
-future>=0.15.2
-Pillow>=2.9.0
-scikit-learn>=0.16.1
-scikit-image>=0.11.3
-nimfa>=1.2.2
-Shapely>=1.5.11
+numpy>=1.12.1
+scipy>=0.19.0
+future>=0.16.0
+scikit-learn>=0.17.0
+scikit-image>=0.12.3
+shapely>=1.5.17.post1
+tiffile>=0.10.0
+multiprocessing>=2.6.2.1
