@@ -147,28 +147,56 @@ class Experiment():
             roi_polys = {}
 
             # across trials
-            for trial in range(self.nTrials):
-                # get data as arrays and rois as maks
-                curdata = datahandler.image2array(self.images[trial])
-                base_masks = datahandler.rois2masks(self.rois[trial], curdata.shape[1:])
-    
-                # get neuropil masks and extract signals
-                for cell in range(len(base_masks)):
-                    # neuropil masks                
-                    npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=4,
-                                                        iterations=15)
-                    # add all current masks together
-                    masks = [base_masks[cell]]+npil_masks
-                    
-                    # extract traces
-                    data[cell,trial] = datahandler.extracttraces(curdata, masks)
-                    
-                    # store ROI outlines
-                    roi_polys[cell, trial] = ['']*len(masks)
-                    for i in range(len(masks)):
-                        roi_polys[cell, trial][i] = roitools.find_roi_edge(masks[i])
-                        
-            nCell = len(base_masks) 
+            if multiprocessing:
+                # define pool
+                print 'running signal separation....'
+                pool = Pool()
+
+                # run extraction
+                inputs = []
+                for trial in range(self.nTrials):
+                    inputs += [[self.images[trial], self.rois[trial]]]
+                results = pool.map(extract_func, inputs)
+
+                # get number of cells
+                nCell = len(results[0][1])
+                print nCell
+                # store results
+                for trial in range(self.nTrials):
+                    for cell in range(nCell):
+                        data[cell, trial] = results[trial][0][cell]
+                        roi_polys[cell, trial] = results[trial][1][0][cell]
+                pool.close()
+            else:
+                for trial in range(self.nTrials):
+                    # get data as arrays and rois as maks
+                    curdata = datahandler.image2array(self.images[trial])
+                    base_masks = datahandler.rois2masks(self.rois[trial],
+                                                        curdata.shape[1:])
+                    curdata = curdata
+
+                    # get neuropil masks and extract signals
+                    for cell in range(len(base_masks)):
+                        # neuropil masks
+                        npil_masks = roitools.getmasks_npil(
+                                                        base_masks[cell],
+                                                        nNpil=self.nRegions,
+                                                        expansion=5)
+                        # add all current masks together
+                        masks = [base_masks[cell]]+npil_masks
+
+                        # extract traces
+                        data[cell, trial] = datahandler.extracttraces(curdata,
+                                                                      masks)
+
+                        # store ROI outlines
+                        roi_polys[cell, trial] = ['']*len(masks)
+                        for i in range(len(masks)):
+                            roi_polys[cell, trial][i] = roitools.find_roi_edge(
+                                                                      masks[i])
+
+                nCell = len(base_masks)
+
             # save
             np.save(filename, (nCell, data, roi_polys))
 
