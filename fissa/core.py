@@ -5,8 +5,65 @@ Main user interface for FISSA.
 import datahandler
 import roitools
 import glob
+import warnings
 import numpy as np
 import neuropil as npil
+try:
+    from multiprocessing import Pool
+    multiprocessing = True
+except:
+    warnings.warn('Multiprocessing library is not installed, using single ' +
+                  'core instead. To use multiprocessing install it by: ' +
+                  'pip install multiprocessing')
+    multiprocessing = False
+
+
+
+def extract_func(lst):
+    '''Extraction function for multiprocessing.
+
+    Parameters
+    ----------
+    lst : list
+        list of inputs
+        [0] : image array
+        [1] : the rois
+
+    Returns
+    -------
+    dictionary
+        dictionary containing data across cells
+    dictionary
+        dictionary containing polygons for each ROI
+    '''
+    image = lst[0]
+    rois = lst[1]
+
+    # get data as arrays and rois as maks
+    curdata = datahandler.image2array(image)
+    base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
+
+    # predefine dictionaries
+    data = {}
+    roi_polys = {}
+
+    # get neuropil masks and extract signals
+    for cell in range(len(base_masks)):
+        # neuropil masks
+        npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=4,
+                                            expansion=6)
+        # add all current masks together
+        masks = [base_masks[cell]]+npil_masks
+
+        # extract traces
+        data[cell] = datahandler.extracttraces(curdata, masks)
+
+        # store ROI outlines
+        roi_polys[cell] = ['']*len(masks)
+        for i in range(len(masks)):
+            roi_polys[cell][i] = roitools.find_roi_edge(masks[i])
+
+    return data, roi_polys
 
 class Experiment():
     '''
