@@ -200,7 +200,7 @@ class Experiment():
                 for trial in range(self.nTrials):
                     for cell in range(nCell):
                         data[cell, trial] = results[trial][0][cell]
-                        roi_polys[cell, trial] = results[trial][1][0][cell]
+                        roi_polys[cell, trial] = results[trial][1][cell]
                 pool.close()
             else:
                 for trial in range(self.nTrials):
