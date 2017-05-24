@@ -7,13 +7,11 @@ Created: 2015-05-15
 import numpy as np
 import scipy.signal as signal
 import numpy.random as rand
-import nimfa
 from sklearn.decomposition import FastICA, NMF, PCA
 from scipy.optimize import minimize_scalar
 
-
 def separate(
-        S, sep_method='ica', n=None, maxiter=10000, tol=1e-3,
+        S, sep_method='nmf', n=None, maxiter=10000, tol=1e-3,
         random_state=892, maxtries=10, W0=None, H0=None):
     """For the signals in S, finds the independent signals underlying it,
     using ica or nmf. Several methods for signal picking are
@@ -27,10 +25,7 @@ def separate(
     sep_method : {'ica','nmf','nmf_sklearn'}
         Which source separation method to use, ica or nmf.
             * ica: independent component analysis
-            * nmf: The nimfa implementation of non-negative matrix
-              factorization.
-            * nmf_sklearn: The sklearn implementation of non-negative
-              matrix factorization (which is slower).
+            * nmf: Non-negative matrix factorization
     n : int, optional
         How many components to estimate. If None, use PCA to estimate
         how many components would explain at least 99% of the variance.
@@ -127,7 +122,7 @@ def separate(
 
         A_sep = ica.mixing_
 
-    elif sep_method == 'nmf_sklearn':
+    elif sep_method == 'nmf':
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
             nmf = NMF(
@@ -159,35 +154,6 @@ def separate(
                 ).format(nmf.n_iter_+1, ith_try+1))
 
         A_sep = nmf.components_.T
-
-    elif sep_method == 'nmf':
-        # The NIMFA implementation of NMF is fast and reliable.
-
-        # Make an instance of the Nmf class from nimfa
-        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
-                        method='snmf', version='l', objective='conn',
-                        conn_change=3000, eta=1e-5, beta=1e-5)
-        # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
-
-        # fit the model
-        nmf_fit = nmf()
-
-        # get fit summary
-        fs = nmf_fit.summary()
-        # check if max number of iterations was reached
-        if fs['n_iter'] < maxiter:
-            print((
-                'NMF converged after {} iterations.'
-                ).format(fs['n_iter']))
-        else:
-            print((
-                'Warning: maximum number of allowed iterations reached at {} '
-                'iterations.'
-                ).format(fs['n_iter']))
-
-        # get the mixing matrix and estimated data
-        S_sep = np.array(nmf_fit.basis())
-        A_sep = np.array(nmf_fit.coef()).T
 
     else:
         raise ValueError('Unknown separation method "{}".'.format(sep_method))
@@ -228,13 +194,9 @@ def separate(
         convergence['iterations'] = ica.n_iter_
         convergence['converged'] = not ica.n_iter_ == maxiter
     elif sep_method == 'nmf':
-        convergence['random_state'] = 'not yet implemented'
-        convergence['iterations'] = fs['n_iter']
-        convergence['converged'] = not fs['n_iter'] == maxiter
-    elif sep_method == 'nmf_sklearn':
-        convergence['random_state'] = 'not yet implemented'
-        convergence['iterations'] = 'not yet implemented'
-        convergence['converged'] = 'not yet implemented'
+        convergence['random_state'] = random_state
+        convergence['iterations'] = nmf.n_iter_
+        convergence['converged'] = not nmf.n_iter_ == maxiter
 
     # return median
     S_matched *= median
