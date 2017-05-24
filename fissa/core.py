@@ -185,7 +185,6 @@ class Experiment():
             # across trials
             if multiprocessing:
                 # define pool
-                print 'running signal separation....'
                 pool = Pool()
 
                 # run extraction
