@@ -212,9 +212,7 @@ class Experiment():
         for cell in range(self.nCell):
             # get first trial data
             cur_signal = self.raw[cell, 0]
-            # low pass filter
-            cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
-            
+
             # initiate concatenated data
             X = cur_signal
             trial_lens[0] = cur_signal.shape[1]
@@ -222,11 +220,7 @@ class Experiment():
             # concatenate all trials
             for trial in range(1, self.nTrials):
                 # get current trial data
-                cur_signal = self.raw[cell,trial]
-                
-                # low pass filter
-                cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
-                
+                cur_signal = self.raw[cell, trial]
 
                 # concatenate
                 X = np.concatenate((X, cur_signal), axis=1)
