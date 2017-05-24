@@ -115,6 +115,7 @@ class Experiment():
         self.raw = None
         self.sep = None
         self.matched = None
+        self.nRegions = nRegions
         self.nTrials = len(self.images)  # number of trials
 
     def separation_prep(self, filename='default.p', redo=False):
