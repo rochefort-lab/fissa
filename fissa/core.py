@@ -261,7 +261,7 @@ class Experiment():
 
             # do FISSA
             Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-                        X, 'nmf_sklearn', maxiter=20000, tol=1e-4, maxtries=1)
+                        X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
 
             # separate by trial again and store
             curTrial = 0  # trial count
