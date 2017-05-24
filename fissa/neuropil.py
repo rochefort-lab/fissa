@@ -136,7 +136,7 @@ def separate(
             else:
                 nmf = NMF(
                     init='custom', n_components=n,
-                    alpha=0.001*S.shape[1], l1_ratio=0.5,
+                    alpha=0.1, l1_ratio=0.5,
                     tol=tol, max_iter=maxiter, random_state=random_state)
 
                 # Perform NMF and find separated signals
