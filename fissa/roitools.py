@@ -164,7 +164,7 @@ def shift_2d_array(a, shift=1, axis=None):
     return out
 
 
-def get_npil_mask(mask, iterations=15):
+def get_npil_mask(mask, expansion=16):
     '''
     Given the masks for a ROI, find the surrounding neuropil.
 
@@ -173,12 +173,9 @@ def get_npil_mask(mask, iterations=15):
     mask : array_like
         The reference ROI mask to expand the neuropil from. The array
         should contain only boolean values.
-    iterations : int, optional
-        Number of iterations of region expansion. This is a measure
-        of how far away from the ROI pixels will be included in the
-        neuropil region. Afterwards, the furthest pixels in the output
-        mask will be approximately `iterations` pixels away from the
-        ROI, in a straight-line distance. Default is 15.
+    expansion : int, optional (default)
+        How much larger to make neuropil area than ROI area.
+        Full neuropil area will be expansion*R
 
     Returns
     -------
@@ -207,9 +204,14 @@ def get_npil_mask(mask, iterations=15):
 
     # Make a copy of original mask which will be grown
     grown_mask = np.copy(mask)
+    area_orig = grown_mask.sum()  # original area
+    area_current = 0  # current size
+    shpe = np.shape(mask)
+    area_total = shpe[0]*shpe[1]
+    count = 0
 
-    for count in range(iterations):
-
+#    for count in range(iterations):
+    while area_current < expansion*area_orig and area_current < area_total-area_orig:
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
@@ -249,11 +251,17 @@ def get_npil_mask(mask, iterations=15):
         # this region is marked as False once more.
         grown_mask[mask] = False
 
+        # update area
+        area_current = grown_mask.sum()
+
+        # iterate counter
+        count += 1
+
     # Return the finished neuropil mask
     return grown_mask
 
 
-def getmasks_npil(cellMask, nNpil=4, iterations=15):
+def getmasks_npil(cellMask, nNpil=4, expansion=16):
     '''
     Generates neuropil masks using the get_npil_mask function.
 
@@ -263,8 +271,8 @@ def getmasks_npil(cellMask, nNpil=4, iterations=15):
         the cell mask (boolean 2d arrays)
     nNpil : int
         number of neuropils
-    iterations : int
-        number of iterations for neuropil expansion
+    expansion : int
+        How much larger to make neuropil region area
 
     Returns
     -------
@@ -274,7 +282,7 @@ def getmasks_npil(cellMask, nNpil=4, iterations=15):
     cellMask = np.asarray(cellMask)
 
     # get the total neuropil for this cell
-    mask = get_npil_mask(cellMask, iterations=iterations)
+    mask = get_npil_mask(cellMask, expansion=expansion)
 
     # get the center of mass for the cell
     centre = get_mask_com(cellMask)
