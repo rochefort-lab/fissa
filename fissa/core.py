@@ -139,7 +139,7 @@ class Experiment():
         """
         # try to load data from filename
         try:
-            nCell,data,roi_polys = np.load(filename)
+            nCell, data, roi_polys = np.load(filename)
         except:
             print 'Doing region growing and data extraction....'
             # predefine data structures
