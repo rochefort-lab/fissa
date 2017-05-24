@@ -141,8 +141,8 @@ def _reformat_polygons(polygons):
         if poly.has_z:
             z_polygons.append(poly)
         else:
-            warn('Polygon initialized without z-coordinate. ' +
-                 'Assigning to zeroth plane (z = 0)')
+#            warn('Polygon initialized without z-coordinate. ' +
+#                 'Assigning to zeroth plane (z = 0)')
             z_polygons.append(
                 Polygon([point + (0,) for point in poly.exterior.coords]))
     return MultiPolygon(z_polygons)
