@@ -39,6 +39,8 @@ def separate(
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is 10.
+    W0, H0 : arrays, optional
+        Starting conditions
 
     Returns
     -------
@@ -122,13 +124,23 @@ def separate(
     elif sep_method == 'nmf':
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
-            nmf = NMF(
-                init='nndsvdar', n_components=n,
-                alpha=0.1, l1_ratio=0.5,
-                tol=tol, max_iter=maxiter, random_state=random_state)
+            if W0 is None:
+                nmf = NMF(
+                    init='nndsvdar', n_components=n,
+                    alpha=0.1, l1_ratio=0.5,
+                    tol=tol, max_iter=maxiter, random_state=random_state)
 
-            # Perform ICA and find separated signals
-            S_sep = nmf.fit_transform(S.T)
+                # Perform NMF and find separated signals
+                S_sep = nmf.fit_transform(S.T)
+
+            else:
+                nmf = NMF(
+                    init='custom', n_components=n,
+                    alpha=0.001*S.shape[1], l1_ratio=0.5,
+                    tol=tol, max_iter=maxiter, random_state=random_state)
+
+                # Perform NMF and find separated signals
+                S_sep = nmf.fit_transform(S.T, W=W0, H=H0)
 
             # check if max number of iterations was reached
             if nmf.n_iter_ < maxiter-1:
