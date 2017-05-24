@@ -10,6 +10,7 @@ import numpy.random as rand
 from sklearn.decomposition import FastICA, NMF, PCA
 from scipy.optimize import minimize_scalar
 
+
 def separate(
         S, sep_method='nmf', n=None, maxiter=10000, tol=1e-3,
         random_state=892, maxtries=10, W0=None, H0=None):
