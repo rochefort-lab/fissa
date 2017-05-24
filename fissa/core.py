@@ -66,9 +66,7 @@ def extract_func(lst):
     return data, roi_polys
 
 class Experiment():
-    '''
-    Does all the steps for FISSA in one swoop.
-    '''
+    """Does all the steps for FISSA in one swoop."""
 
     def __init__(self, images, rois, nRegions=4, **params):
         """Initialisation. Set the parameters for your Fissa instance.
@@ -97,30 +95,30 @@ class Experiment():
         TOOD:
         * inputs such as imaging frequency, number of neuropil regions,
         general FISSA options, etc
-        '''
+        """
         if type(images) == str:
             self.images = sorted(glob.glob(images+'/*.tif'))
         elif type(images) == list:
             self.images = images
         else:
             raise ValueError('images should either be string or list')
-        
+
         if type(rois) == str:
             self.rois = sorted(glob.glob(images+'/*.zip'))
         elif type(rois) == list:
             self.rois = rois
-            if len(rois) == 1: # if only one roiset is specified
+            if len(rois) == 1:  # if only one roiset is specified
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
-            
+
         self.raw = None
         self.sep = None
         self.matched = None
         self.nTrials = len(self.images)  # number of trials
 
-    def separation_prep(self,filename='default.p'):
-        ''' This will prepare the data to be separated in the following steps,
+    def separation_prep(self, filename='default.p', redo=False):
+        """This will prepare the data to be separated in the following steps,
         per trial:
         * load in data as arrays
         * load in ROIs as masks
@@ -137,16 +135,16 @@ class Experiment():
         For separateable masks, it is possible multiple outlines are found,
         which can be accessed as self.roi_polys[cell,trial][region][i],
         where 'i' is the outline index.
-        '''
+        """
         # try to load data from filename
         try:
             nCell,data,roi_polys = np.load(filename)
         except:
-            print 'Doing region growing and data extraction....'        
+            print 'Doing region growing and data extraction....'
             # predefine data structures
             data = {}
             roi_polys = {}
-    
+
             # across trials
             for trial in range(self.nTrials):
                 # get data as arrays and rois as maks
@@ -171,15 +169,15 @@ class Experiment():
                         
             nCell = len(base_masks) 
             # save
-            np.save(filename,(len(base_masks),data,roi_polys))
+            np.save(filename, (nCell, data, roi_polys))
 
         # store relevant info
-        self.nCell = nCell # number of cells
+        self.nCell = nCell  # number of cells
         self.raw = data
         self.roi_polys = roi_polys
 
     def separate(self):
-        ''' Separate all the trials with FISSA algorithm.
+        """Separate all the trials with FISSA algorithm.
 
         After running separate, data can be found as follows:
 
@@ -196,71 +194,71 @@ class Experiment():
             self.raw from the separation_prep function)
         self.info
             Info about separation algorithm, iterations needed, etc.
-
-        '''
+        """
         # do separation prep (if necessary)
         if self.raw is None:
             self.separation_prep()
-        
-        print 'Doing signal separation for trial....' 
+
+        print 'Doing signal separation....'
         # predefine data structures
         sep = {}
         matched = {}
         mixmat = {}
         info = {}
-        trial_lens = np.zeros(len(self.images),dtype=int)  # trial lengths
-        
+        trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
+
         # loop over cells
         for cell in range(self.nCell):
             # get first trial data
-            cur_signal = self.raw[cell,0]
-            
+            cur_signal = self.raw[cell, 0]
             # low pass filter
             cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
             
             # initiate concatenated data
             X = cur_signal
             trial_lens[0] = cur_signal.shape[1]
-            
+
             # concatenate all trials
-            for trial in range(1,self.nTrials):
+            for trial in range(1, self.nTrials):
                 # get current trial data
                 cur_signal = self.raw[cell,trial]
                 
                 # low pass filter
                 cur_signal = npil.lowPassFilter(cur_signal.T,fs=40,fw_base=5).T
                 
+
                 # concatenate
-                X = np.concatenate((X,cur_signal),axis=1)
-                
+                X = np.concatenate((X, cur_signal), axis=1)
+
                 trial_lens[trial] = cur_signal.shape[1]
-                
+
             # check for below 0 values
             if X.min() < 0:
                 X -= X.min()
-            
+
             # do FISSA
-            Xsep, Xmatch, Xmixmat, convergence = npil.separate(X,
-            'nmf_sklearn',maxiter=20000,tol=1e-4,maxtries=1)
-            
+            Xsep, Xmatch, Xmixmat, convergence = npil.separate(
+                        X, 'nmf_sklearn', maxiter=20000, tol=1e-4, maxtries=1)
+
             # separate by trial again and store
             curTrial = 0  # trial count
             for trial in range(self.nTrials):
                 nextTrial = curTrial+trial_lens[trial]
-                sep[cell,trial] = Xsep[:,curTrial:nextTrial]
-                matched[cell,trial] = Xmatch[:,curTrial:nextTrial]                
+                sep[cell, trial] = Xsep[:, curTrial:nextTrial]
+                matched[cell, trial] = Xmatch[:, curTrial:nextTrial]
                 curTrial = nextTrial
-            
-            # store other info
-            mixmat[cell,trial] = Xmixmat
-            info[cell,trial] = convergence
-            
+
+                # store other info
+                mixmat[cell, trial] = Xmixmat
+                info[cell, trial] = convergence
+
         # store
         self.info = info
         self.mixmat = mixmat
         self.sep = sep
         self.matched = matched
-        
+
+
 def run_fissa(*args, **kwargs):
     '''
     Shorthand for making Fissa instance and running it on
