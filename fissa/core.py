@@ -240,7 +240,7 @@ class Experiment():
         self.raw = data
         self.roi_polys = roi_polys
 
-    def separate(self):
+    def separate(self, filename='default.npy', redo=False):
         """Separate all the trials with FISSA algorithm.
 
         After running separate, data can be found as follows:
@@ -258,10 +258,18 @@ class Experiment():
             self.raw from the separation_prep function)
         self.info
             Info about separation algorithm, iterations needed, etc.
+
+        Parameters
+        ----------
+        filename : string, optional
+            Where to store the extracted data.
+            Should be of form 'folder/file.npy'.
+        redo : bool, optional
+            Whether to redo the extraction, i.e. replace the filename file.
         """
         # do separation prep (if necessary)
         if self.raw is None:
-            self.separation_prep()
+            self.separation_prep(filename, redo)
 
         print 'Doing signal separation....'
         # predefine data structures
