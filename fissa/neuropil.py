@@ -12,7 +12,7 @@ from scipy.optimize import minimize_scalar
 
 
 def separate(
-        S, sep_method='nmf', n=None, maxiter=10000, tol=1e-3,
+        S, sep_method='nmf', n=None, maxiter=10000, tol=1e-4,
         random_state=892, maxtries=10, W0=None, H0=None):
     """For the signals in S, finds the independent signals underlying it,
     using ica or nmf. Several methods for signal picking are
