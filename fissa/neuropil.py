@@ -75,19 +75,15 @@ def separate(
 
     # estimate number of signals to find, if not given
     if n is None:
-        # Perform PCA, without whitening because the mean is important to us.
-        pca = PCA(whiten=False)
-        pca.fit(S.T)
-        # Find cumulative explained variance (old method)
-#        exp_var = np.cumsum(pca.explained_variance_ratio_)
-#        # Find the number of components which are needed to explain a
-#        # set fraction of the variance
-#        # dependent on number of signals, see when variance exceeds
-#        # n= 4: 0.9, n=5, 0.99, etc.
-#        n = np.where(exp_var > 0.99)[0][0]+1
-#        print exp_var
-        # find number of components with at least x percent explained var
-        n = max([2,sum(pca.explained_variance_ratio_ > 0.01)])
+        if sep_method == 'ica':
+            # Perform PCA
+            pca = PCA(whiten=False)
+            pca.fit(S.T)
+
+            # find number of components with at least x percent explained var
+            n = sum(pca.explained_variance_ratio_ > 0.01)
+        else:
+            n = S.shape[1]
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
