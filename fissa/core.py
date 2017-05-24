@@ -9,6 +9,7 @@ import glob
 import warnings
 import numpy as np
 import neuropil as npil
+from scipy.io import savemat
 try:
     from multiprocessing import Pool
     multiprocessing = True
@@ -371,6 +372,35 @@ class Experiment():
         self.mixmat = mixmat
         self.sep = sep
         self.matched = matched
+
+    def save_to_matlab(self, filename='default.mat'):
+        """Save the results to a matlab file.
+
+        Can be accessed as...
+
+        """
+        # initialize dictionary to save
+        M = {}
+        M['ROIs'] = {}
+        M['raw'] = {}
+        M['fissa'] = {}
+
+        # loop over cells and trial
+        for cell in range(self.nCell):
+            # get current cell label
+            c_lab = 'cell'+str(cell)
+            # update dictionary
+            M['ROIs'][c_lab] = {}
+            M['raw'][c_lab] = {}
+            M['fissa'][c_lab] = {}
+            for trial in range(self.nTrials):
+                # get current trial label
+                t_lab = 'trial'+str(trial)
+                # update dictionary
+                M['ROIs'][c_lab][t_lab] = self.roi_polys[cell, trial]
+                M['raw'][c_lab][t_lab] = self.raw[cell, trial]
+                M['fissa'][c_lab][t_lab] = self.matched[cell, trial]
+        savemat(filename, M)
 
 
 def run_fissa(*args, **kwargs):
