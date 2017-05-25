@@ -196,7 +196,6 @@ class Experiment():
 
                 # get number of cells
                 nCell = len(results[0][1])
-                print nCell
 
                 # store results
                 for trial in range(self.nTrials):
