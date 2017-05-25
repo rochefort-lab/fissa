@@ -83,10 +83,10 @@ def separate_func(lst):
 
     """
     X = lst[0]
-    ROInum = lst[1]
-    print 'doing ROI number ' + str(ROInum)
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
                 X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
+    ROInum = lst[1]
+    print 'Finished ROI number ' + str(ROInum)
     return Xsep, Xmatch, Xmixmat, convergence
 
 
