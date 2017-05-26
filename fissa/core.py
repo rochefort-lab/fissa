@@ -7,6 +7,7 @@ import datahandler
 import roitools
 import glob
 import warnings
+import os.path
 import numpy as np
 import neuropil as npil
 from scipy.io import savemat
@@ -93,7 +94,7 @@ def separate_func(lst):
 class Experiment():
     """Does all the steps for FISSA in one swoop."""
 
-    def __init__(self, images, rois, nRegions=4, **params):
+    def __init__(self, images, rois, filename, nRegions=4, **params):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -113,6 +114,9 @@ class Experiment():
             masks.
             Should be either a single roiset for all trials, or a different
             roiset for each trial.
+        filename : string
+            Where to store the extracted data.
+            Should be of form or 'folder/file' without an extension.
         nRegions : int, optional (default: 4)
             Number of neuropil regions to draw. Use higher number for densely
             labelled tissue.
@@ -136,6 +140,9 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
+
+        if os.path.isfile(filename):
+            self.separate()
 
         self.raw = None
         self.sep = None
