@@ -198,61 +198,40 @@ class Experiment():
                 print 'Reloading previously prepared data...'
             except:
                 redo = True
+
         if redo:
             print 'Doing region growing and data extraction....'
             # predefine data structures
             data = {}
             roi_polys = {}
 
-            # across trials
+            # define inputs
+            inputs = [0]*self.nTrials
+            for trial in range(self.nTrials):
+                inputs[trial] = [self.images[trial], self.rois[trial]]
+
+            # Do the extraction
             if multiprocessing:
                 # define pool
-                pool = Pool()
+                pool = Pool(self.ncores_separation)
 
                 # run extraction
-                inputs = []
-                for trial in range(self.nTrials):
-                    inputs += [[self.images[trial], self.rois[trial]]]
                 results = pool.map(extract_func, inputs)
-
-                # get number of cells
-                nCell = len(results[0][1])
-
-                # store results
-                for trial in range(self.nTrials):
-                    for cell in range(nCell):
-                        data[cell, trial] = results[trial][0][cell]
-                        roi_polys[cell, trial] = results[trial][1][cell]
                 pool.close()
             else:
+                results = [0]*self.nTrials
                 for trial in range(self.nTrials):
-                    # get data as arrays and rois as maks
-                    curdata = datahandler.image2array(self.images[trial])
-                    base_masks = datahandler.rois2masks(self.rois[trial],
-                                                        curdata.shape[1:])
-                    curdata = curdata
+                    results[trial] = extract_func(inputs[trial])
 
-                    # get neuropil masks and extract signals
-                    for cell in range(len(base_masks)):
-                        # neuropil masks
-                        npil_masks = roitools.getmasks_npil(
-                                                        base_masks[cell],
-                                                        nNpil=self.nRegions,
-                                                        expansion=5)
-                        # add all current masks together
-                        masks = [base_masks[cell]]+npil_masks
+            # get number of cells
+            nCell = len(results[0][1])
 
-                        # extract traces
-                        data[cell, trial] = datahandler.extracttraces(curdata,
-                                                                      masks)
-
-                        # store ROI outlines
-                        roi_polys[cell, trial] = ['']*len(masks)
-                        for i in range(len(masks)):
-                            roi_polys[cell, trial][i] = roitools.find_roi_edge(
-                                                                      masks[i])
-
-                nCell = len(base_masks)
+            # store results
+            for trial in range(self.nTrials):
+                self.means += [results[trial][2]]
+                for cell in range(nCell):
+                    data[cell, trial] = results[trial][0][cell]
+                    roi_polys[cell, trial] = results[trial][1][cell]
 
             # save
             np.save(fname, (nCell, data, roi_polys))
@@ -304,12 +283,18 @@ class Experiment():
             except:
                 redo_sep = True
 
-        if multiprocessing:
-            # define pool
-            pool = Pool()
+        # separate data, if necessary
+        if redo_sep:
+            print 'Doing signal separation....'
+            # predefine data structures
+            sep = {}
+            result = {}
+            mixmat = {}
+            info = {}
+            trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
 
-            # loop over cells to define multiproc function inputs
-            inputs = []
+            # loop over cells to define function inputs
+            inputs = [0]*self.nCell
             for cell in range(self.nCell):
                 # get first trial data
                 cur_signal = self.raw[cell, 0]
@@ -333,10 +318,19 @@ class Experiment():
                     X -= X.min()
 
                 # update inputs
-                inputs += [[X, cell]]
+                inputs[cell] = [X, cell]
 
-            # run separation
-            results = pool.map(separate_func, inputs)
+            if multiprocessing:
+                # define pool
+                pool = Pool()
+
+                # run separation
+                results = pool.map(separate_func, inputs)
+                pool.close()
+            else:
+                results = [0]*self.nCell
+                for cell in range(self.nCell):
+                    results[cell] = separate_func(inputs[cell])
 
             # read results
             for cell in range(self.nCell):
@@ -351,45 +345,7 @@ class Experiment():
                     # store other info
                     mixmat[cell, trial] = Xmixmat
                     info[cell, trial] = convergence
-        else:
-            # loop over cells
-            for cell in range(self.nCell):
-                # get first trial data
-                cur_signal = self.raw[cell, 0]
 
-                # initiate concatenated data
-                X = cur_signal
-                trial_lens[0] = cur_signal.shape[1]
-
-                # concatenate all trials
-                for trial in range(1, self.nTrials):
-                    # get current trial data
-                    cur_signal = self.raw[cell, trial]
-
-                    # concatenate
-                    X = np.concatenate((X, cur_signal), axis=1)
-
-                    trial_lens[trial] = cur_signal.shape[1]
-
-                # check for below 0 values
-                if X.min() < 0:
-                    X -= X.min()
-
-                # do FISSA
-                Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-                            X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
-
-                # separate by trial again and store
-                curTrial = 0  # trial count
-                for trial in range(self.nTrials):
-                    nextTrial = curTrial+trial_lens[trial]
-                    sep[cell, trial] = Xsep[:, curTrial:nextTrial]
-                    matched[cell, trial] = Xmatch[:, curTrial:nextTrial]
-                    curTrial = nextTrial
-
-                    # store other info
-                    mixmat[cell, trial] = Xmixmat
-                    info[cell, trial] = convergence
             # save
             np.save(fname, (info, mixmat, sep, result))
 
