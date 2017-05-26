@@ -45,6 +45,9 @@ def extract_func(lst):
     curdata = datahandler.image2array(image)
     base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
 
+    # get the mean image
+    mean = curdata.mean(axis=0)
+
     # predefine dictionaries
     data = {}
     roi_polys = {}
@@ -65,7 +68,7 @@ def extract_func(lst):
         for i in range(len(masks)):
             roi_polys[cell][i] = roitools.find_roi_edge(masks[i])
 
-    return data, roi_polys
+    return data, roi_polys, mean
 
 
 def separate_func(lst):
@@ -149,6 +152,7 @@ class Experiment():
         self.matched = None
         self.nRegions = nRegions
         self.nTrials = len(self.images)  # number of trials
+        self.means = []
 
     def separation_prep(self, filename='default.npy', redo=False):
         """This will prepare the data to be separated in the following steps,
