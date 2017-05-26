@@ -128,7 +128,7 @@ class Experiment():
         general FISSA options, etc
         """
         if type(images) == str:
-            self.images = sorted(glob.glob(images+'/*.tif'))
+            self.images = sorted(glob.glob(images+'/*.tif*'))
         elif type(images) == list:
             self.images = images
         else:
