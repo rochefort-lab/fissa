@@ -128,7 +128,9 @@ or on your system if you know how to use ipython notebooks
 (http://ipython.org/ipython-doc/stable/notebook/index.html).
 You can open the .html pages instead.
 
-For a basic tutorial of using FISSA see ```Basic usage.ipynb``` or ```Basic usage.html```. For integrating FISSA with another toolbox (in this case SIMA)
+For a basic tutorial of using FISSA see ```Basic usage.ipynb``` or ```Basic usage.html```. An example workflow is shown in ```basic_usage.py```.
+
+For integrating FISSA with another toolbox (in this case SIMA)
 see ```SIMA example.ipynb``` or ```SIMA example.html```.
 
 
