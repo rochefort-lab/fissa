@@ -264,11 +264,11 @@ class Experiment():
 
         Parameters
         ----------
-        filename : string, optional
-            Where to store the extracted data.
-            Should be of form 'folder/file.npy'.
-        redo : bool, optional
-            Whether to redo the extraction, i.e. replace the filename file.
+        redo_prep : bool, optional
+            Whether to redo the preparation. This will always set
+            redo_sep = True as well.
+        redo_sep : bool, optional
+            Whether to redo the separation
         """
         # Do data preparation
         self.separation_prep(redo_prep)
