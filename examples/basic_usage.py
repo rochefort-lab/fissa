@@ -1,3 +1,4 @@
+"""Basic FISSA usage."""
 # FISSA toolbox import
 import fissa.core as fissa
 
