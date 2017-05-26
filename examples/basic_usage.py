@@ -2,17 +2,18 @@
 import fissa.core as fissa
 
 # data location
-rois = ['../exampleData/MC_20150429_A01.zip']
-images = '../exampleData/20150529_mini'
+rois = ['../exampleData/20150429.zip']
+images = '../exampleData/20150529'
+
+# extraction location
+folder = 'fissa_example'
+# make sure you use a different folder for each experiment!
 
 # experiment definition
-experiment = fissa.Experiment(images, rois)
+experiment = fissa.Experiment(images, rois, folder)
 
 # do separation
-filename = 'example_experiment'
-# make sure you use a different filename for each experiment!
-experiment.separate(filename)
+experiment.separate()
 
 # (optional) export to matlab
-filename = 'extracted.mat'
-experiment.save_to_matlab(filename)
+experiment.save_to_matlab()
