@@ -97,7 +97,7 @@ def separate_func(lst):
 class Experiment():
     """Does all the steps for FISSA in one swoop."""
 
-    def __init__(self, images, rois, filename, nRegions=4, **params):
+    def __init__(self, images, rois, folder, nRegions=4, **params):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -117,9 +117,8 @@ class Experiment():
             masks.
             Should be either a single roiset for all trials, or a different
             roiset for each trial.
-        filename : string
+        folder : string
             Where to store the extracted data.
-            Should be of form or 'folder/file' without an extension.
         nRegions : int, optional (default: 4)
             Number of neuropil regions to draw. Use higher number for densely
             labelled tissue.
@@ -147,6 +146,8 @@ class Experiment():
         if os.path.isfile(filename):
             self.separate()
 
+        # define class variables
+        self.folder = folder
         self.raw = None
         self.sep = None
         self.matched = None
@@ -154,10 +155,14 @@ class Experiment():
         self.nTrials = len(self.images)  # number of trials
         self.means = []
 
-    def separation_prep(self, filename='default.npy', redo=False):
-        """This will prepare the data to be separated in the following steps,
-        per trial:
-        * load in data as arrays
+        # check if any data already exists
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        if os.path.isfile(folder + '/preparation.npy'):
+            if os.path.isfile(folder+'/separated.npy'):
+                self.separate()
+            else:
+                self.separation_prep()
         * load in ROIs as masks
         * grow and seaparate ROIs to get neuropil regions
         * using neuropil and original regions, extract traces from data
@@ -175,16 +180,16 @@ class Experiment():
 
         Parameters
         ----------
-        filename : string, optional
-            Where to store the extracted data.
-            Should be of form 'folder/file.npy'.
-        redo : bool, optional
-            Whether to redo the extraction, i.e. replace the filename file.
+        redo : bool
+            Redo the preparation even if done before
         """
+        # define filename where data will be present
+        fname = self.folder+'/preparation.npy'
+
         # try to load data from filename
         if not redo:
             try:
-                nCell, data, roi_polys = np.load(filename)
+                nCell, data, roi_polys = np.load(fname)
             except:
                 print filename + ' does not exist yet, doing extraction...'
                 redo = True
@@ -245,7 +250,7 @@ class Experiment():
                 nCell = len(base_masks)
 
             # save
-            np.save(filename, (nCell, data, roi_polys))
+            np.save(fname, (nCell, data, roi_polys))
 
         # store relevant info
         self.nCell = nCell  # number of cells
@@ -283,13 +288,14 @@ class Experiment():
         if self.raw is None or redo:
             self.separation_prep(filename, redo)
 
-        print 'Doing signal separation....'
-        # predefine data structures
-        sep = {}
-        matched = {}
-        mixmat = {}
-        info = {}
-        trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
+        # Define filename to store data in
+        fname = self.folder + '/separated.npy'
+        if not redo_sep:
+            try:
+                info, mixmat, sep, result = np.load(fname)
+                print 'Reloading previously separated data...'
+            except:
+                redo_sep = True
 
         if multiprocessing:
             # define pool
@@ -377,6 +383,8 @@ class Experiment():
                     # store other info
                     mixmat[cell, trial] = Xmixmat
                     info[cell, trial] = convergence
+            # save
+            np.save(fname, (info, mixmat, sep, result))
 
         # store
         self.info = info
@@ -384,12 +392,14 @@ class Experiment():
         self.sep = sep
         self.matched = matched
 
-    def save_to_matlab(self, filename='default.mat'):
+    def save_to_matlab(self):
         """Save the results to a matlab file.
 
         Can be accessed as...
 
         """
+        # define filename
+        fname = self.folder + '/matlab.mat'
         # initialize dictionary to save
         M = {}
         M['ROIs'] = {}
@@ -410,8 +420,9 @@ class Experiment():
                 # update dictionary
                 M['ROIs'][c_lab][t_lab] = self.roi_polys[cell, trial]
                 M['raw'][c_lab][t_lab] = self.raw[cell, trial]
-                M['fissa'][c_lab][t_lab] = self.matched[cell, trial]
-        savemat(filename, M)
+                M['fissa'][c_lab][t_lab] = self.result[cell, trial]
+
+        savemat(fname, M)
 
 
 def run_fissa(*args, **kwargs):
