@@ -162,6 +162,8 @@ class Experiment():
                 self.separate()
             else:
                 self.separation_prep()
+
+    def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
 
         Per trial:
@@ -193,8 +195,8 @@ class Experiment():
         if not redo:
             try:
                 nCell, data, roi_polys = np.load(fname)
+                print 'Reloading previously prepared data...'
             except:
-                print filename + ' does not exist yet, doing extraction...'
                 redo = True
         if redo:
             print 'Doing region growing and data extraction....'
