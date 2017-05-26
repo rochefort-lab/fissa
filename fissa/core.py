@@ -41,7 +41,7 @@ def extract_func(lst):
     image = lst[0]
     rois = lst[1]
 
-    # get data as arrays and rois as maks
+    # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
     base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
 
