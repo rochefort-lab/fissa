@@ -154,6 +154,8 @@ class Experiment():
         self.nRegions = nRegions
         self.nTrials = len(self.images)  # number of trials
         self.means = []
+        self.ncores_preparation = None
+        self.ncores_separation = None
 
         # check if any data already exists
         if not os.path.exists(folder):
