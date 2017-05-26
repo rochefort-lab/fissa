@@ -143,9 +143,6 @@ class Experiment():
         else:
             raise ValueError('rois should either be string or list')
 
-        if os.path.isfile(filename):
-            self.separate()
-
         # define class variables
         self.folder = folder
         self.raw = None
