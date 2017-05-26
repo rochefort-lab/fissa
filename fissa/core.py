@@ -241,7 +241,7 @@ class Experiment():
         self.raw = data
         self.roi_polys = roi_polys
 
-    def separate(self, filename='default.npy', redo=False):
+    def separate(self, redo_prep=False, redo_sep=False):
         """Separate all the trials with FISSA algorithm.
 
         After running separate, data can be found as follows:
@@ -270,9 +270,10 @@ class Experiment():
         redo : bool, optional
             Whether to redo the extraction, i.e. replace the filename file.
         """
-        # do separation prep (if necessary)
-        if self.raw is None or redo:
-            self.separation_prep(filename, redo)
+        # Do data preparation
+        self.separation_prep(redo_prep)
+        if redo_prep:
+            redo_sep = True
 
         # Define filename to store data in
         fname = self.folder + '/separated.npy'
@@ -373,6 +374,7 @@ class Experiment():
         """
         # define filename
         fname = self.folder + '/matlab.mat'
+
         # initialize dictionary to save
         M = {}
         M['ROIs'] = {}
