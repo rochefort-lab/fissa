@@ -246,7 +246,7 @@ class Experiment():
 
         After running separate, data can be found as follows:
 
-        self.sepa
+        self.sep
             Raw separation output, without being matched. Signal 'i' for
             a specific cell and trial can be found as
             self.sep[cell,trial][i,:]
