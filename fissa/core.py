@@ -150,7 +150,7 @@ class Experiment():
         self.folder = folder
         self.raw = None
         self.sep = None
-        self.matched = None
+        self.result = None
         self.nRegions = nRegions
         self.nTrials = len(self.images)  # number of trials
         self.means = []
@@ -266,10 +266,12 @@ class Experiment():
             Raw separation output, without being matched. Signal 'i' for
             a specific cell and trial can be found as
             self.sep[cell,trial][i,:]
-        self.matched
-            Matched output, in order of presence in cell ROI
+        self.result
+            Final output, in order of presence in cell ROI.
             Signal 'i' for a specific cell and trial can be found as
-            self.matched[cell,trial][i,:]
+            self.result[cell,trial][i,:]
+            i = 0 is most strongly present signal
+            i = 1 less so, etc.
         self.mixmat
             The mixing matrix (how to go between self.separated and
             self.raw from the separation_prep function)
@@ -338,7 +340,7 @@ class Experiment():
                 for trial in range(self.nTrials):
                     nextTrial = curTrial+trial_lens[trial]
                     sep[cell, trial] = Xsep[:, curTrial:nextTrial]
-                    matched[cell, trial] = Xmatch[:, curTrial:nextTrial]
+                    result[cell, trial] = Xmatch[:, curTrial:nextTrial]
                     curTrial = nextTrial
 
                     # store other info
@@ -390,7 +392,7 @@ class Experiment():
         self.info = info
         self.mixmat = mixmat
         self.sep = sep
-        self.matched = matched
+        self.result = result
 
     def save_to_matlab(self):
         """Save the results to a matlab file.
