@@ -162,6 +162,10 @@ class Experiment():
                 self.separate()
             else:
                 self.separation_prep()
+        """Prepare and extract the data to be separated.
+
+        Per trial:
+        * Load in data as arrays
         * load in ROIs as masks
         * grow and seaparate ROIs to get neuropil regions
         * using neuropil and original regions, extract traces from data
