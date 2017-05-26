@@ -1,309 +1,398 @@
-""" Contains several functions used for ROI manipulation.
+'''
+Functions used for ROI manipulation.
 
-Author: S W Keemink swkeemink@scimail.eu
+Authors:
+    Sander W Keemink <swkeemink@scimail.eu>
+'''
 
-"""
+from __future__ import division
 from builtins import range
 
 import numpy as np
+from skimage.measure import find_contours
 
-from scipy.signal import convolve2d
+from readimagejrois import read_imagej_roi_zip
+from ROI import poly2mask
 
-from sima_borrowed.readimagejrois import read_imagej_roi_zip
-from sima_borrowed.ROI import poly2mask
 
 def get_mask_com(mask):
-    ''' get the center of mass for a mask 
-    
-    Inputs
-    -------------------
-    mask : array
-        the mask (boolean 2d array)    
-    
-    Returns
-    --------------------
-    A tuple with center of mass of first and second dimensions (x,y)
     '''
-    x,y = mask.nonzero()
-    return np.mean(x),np.mean(y)
+    Get the center of mass for a boolean mask.
 
-def split_npil(mask,com,n_slices):
-    '''
-    Splits a neuropil mask into n slices
-    
     Parameters
-    ------------------
-    mask : 2d boolean array
-        the mask
-    com : tuple
-        the center of mass of the cell for the neuropil (tuple with (first axis, second axis))
-    n_slices : int
-        the number of slices
-    
+    ----------
+    mask : array_like
+        A two-dimensional boolean-mask.
+
     Returns
-    -------------------
-    Returns a dictionary with n_slices masks, each of which is a 2d boolean array
+    -------
+    float
+        Center of mass along first dimension.
+    float
+        Center of mass along second dimension.
     '''
-    # get the percentage for each slice
-    slice_perc = 100.0/n_slices
-    
-    # get the x,y positions of the pixels that are in the mask
-    x,y = mask.nonzero()
-    
-    # find the positional angle of each point
-    theta = np.arctan2(x-com[0],y-com[1])
-    
-    # find smallest bin
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
+
+    # TODO: make this work for non-boolean masks too
+    x, y = mask.nonzero()
+    return np.mean(x), np.mean(y)
+
+
+def split_npil(mask, centre, num_slices, adaptive_num=False):
+    '''
+    Splits a mask into a number of approximately equal slices by area around
+    the center of the mask.
+
+    Parameters
+    ----------
+    mask : array_like
+        Mask as a 2d boolean array.
+    centre : tuple
+        The center co-ordinates around which the mask will be split.
+    num_slices : int
+        The number of slices into which the mask will be divided.
+    adaptive_num : bool, optional
+        If True, the `num_slices` input is treated as the number of
+        slices to use if the ROI is surrounded by valid pixels, and
+        automatically reduces the number of slices if it is on the
+        boundary of the sampled region.
+
+    Returns
+    -------
+    dict
+        A dictionary with `num_slices` many masks, each of which is a 2d
+        boolean numpy array.
+
+    Notes
+    -----
+    This should be an iterable.
+    '''
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
+
+    # Get the (x,y) co-ordinates of the pixels in the mask
+    x, y = mask.nonzero()
+
+    # Find the angle of the vector from the mask centre to each pixel
+    theta = np.arctan2(x - centre[0], y - centre[1])
+
+    # Find where the mask comes closest to the centre. We will put a
+    # slice boundary here, to prevent one slice being non-contiguous
+    # for masks near the image boundary.
     # TODO: give it the bins to use
-    bins = np.linspace(-np.pi,np.pi,21)
-    n,bins=np.histogram(theta,bins=bins)
-    binmin= np.argmin(n)
-    
-    # adjust angles so that they start at the smallest bin
-    nmin = bins[binmin]+np.pi/40
-    theta=(theta-nmin)%(2*np.pi)-np.pi
-    
+    n_bins = 20
+    bins = np.linspace(-np.pi, np.pi, n_bins + 1)
+    bin_counts, bins = np.histogram(theta, bins=bins)
+    bin_min_index = np.argmin(bin_counts)
+
+    if adaptive_num:
+        # Change the number of slices we will used based on the
+        # proportion of these bins which are empty
+        num_slices = round(num_slices * sum(bin_counts > 0) / n_bins)
+
+    # Change theta so it is the angle relative to a new zero-point,
+    # the middle of the bin which is least populated by mask pixels.
+    theta_offset = bins[bin_min_index] + np.pi / n_bins
+    theta = (theta - theta_offset) % (2 * np.pi) - np.pi
+
     # get the boundaries
-    bounds = {}
-    for i in range(n_slices):
-        bounds[i] = np.percentile(theta,slice_perc*(i+1))
-    
+    bounds = [np.percentile(theta, 100.0 * (i + 1) / num_slices)
+              for i in range(num_slices)]
+
     # predefine the masks
     masks = []
     # get the first mask
-    masks += [np.zeros(np.shape(mask),dtype=bool)] # empty predefinition
-    masks[0][x[theta<=bounds[0]],y[theta<=bounds[0]]] = True # set relevant pixels to True
+    # empty predefinition
+    masks += [np.zeros(np.shape(mask), dtype=bool)]
+    # set relevant pixels to True
+    masks[0][x[theta <= bounds[0]], y[theta <= bounds[0]]] = True
     # get the rest of the masks
-    for i in range(1,n_slices):
-        truths = (theta>bounds[i-1])*(theta<=bounds[i]) # find which pixels are within bounds
-        masks += [np.zeros(np.shape(mask),dtype=bool)] # empty predefinition
-        masks[i][x[truths],y[truths]] = True # set relevant pixels to True
-        
+    for i in range(1, num_slices):
+        # find which pixels are within bounds
+        truths = (theta > bounds[i - 1]) * (theta <= bounds[i])
+        # empty predefinition
+        masks += [np.zeros(np.shape(mask), dtype=bool)]
+        # set relevant pixels to True
+        masks[i][x[truths], y[truths]] = True
+
     return masks
-   
-def shift_2d_array(a,shift=1,axis=None):
+
+
+def shift_2d_array(a, shift=1, axis=None):
     '''
-    Shifts an entire array in the direction of axis by the amount shift, without refilling the array. 
-    
+    Shifts an entire array in the direction of axis by the amount shift,
+    without refilling the array.
+
     Uses numpy.roll the shift, then empties the refilled parts of the array.
-    
+
     Parameters
-    ---------------------
-    a : array
+    ----------
+    a : array_like
         input array
     shift : int
         how much to shift array by
     axis : int
         From numpy.roll doc:
-        The axis along which elements are shifted. 
-        By default, the array is flattened before shifting, 
+        The axis along which elements are shifted.
+        By default, the array is flattened before shifting,
         after which the original shape is restored.
-        
+
     Returns
-    ---------------------
+    -------
     Array of same shape as a, but shifted as per above
     '''
+    # Ensure array_like input is a numpy.ndarray
+    a = np.asarray(a)
+
     # do initial shift
-    out = np.roll(a,shift,axis)
-    
+    out = np.roll(a, shift, axis)
+
     # then fill in refilled parts of the array
     if axis == 0:
-        if shift>0:
-            out[:shift,:] = 0
-        elif shift<0:
-            out[shift:,:] = 0
+        if shift > 0:
+            out[:shift, :] = 0
+        elif shift < 0:
+            out[shift:, :] = 0
     elif axis == 1:
-        if shift>0:
-            out[:,:shift] = 0
-        elif shift<0:
-            out[:,shift:] = 0
-            
-    # return shifted array        
+        if shift > 0:
+            out[:, :shift] = 0
+        elif shift < 0:
+            out[:, shift:] = 0
+
+    # return shifted array
     return out
 
-def get_npil_mask(mask,iterations=15):
-    '''
-    Given the masks for cell rois, find the surround neuropil as follows: 
-        for all iterations
-            move original roi either
-                - move polygon around one pixel in each 4 cardinal directions
-                - move polygon around one pixel in each 4 diagonal directions
-            Fill in all overlapped pixels
-    This will generate a neuropil close the the roi shape (more square, the bigger the neuropil)
-    
-    Parameters
-    ------------------------
-    mask : array
-        the reference mask to expand the neuropil from
-    iterations : int
-        number of iterations for neuropil
-    
-    Returns
-    -------------------------
-    A dictionary with a boolean 2d array containing the neuropil mask for each iteration
-    '''    
-    
-    # initate masks
-    masks = {} 
-    masks[0] = np.copy(mask)    # initial mask    
-    
-    # keep adding area until enough is added
-    for count in range(iterations):
-        # get reference mask
-        refmask  = np.copy(masks[count])
-        
-        # initiate next mask
-        masks[count+1] = np.copy(refmask)
-                
-        # define case, it swaps between 0 and 1
-        case = count % 2
-        
-        if case==2:
-            # move polygon around one pixel in each 8 directions
-            for dx in [-1,0,1]: # x direction
-                for dy in [-1,0,1]: # y direction
-                    movedmask = shift_2d_array(refmask,dx,0)
-                    movedmask = shift_2d_array(movedmask,dy,1)
-                    masks[count+1][movedmask] = True
-        elif case==0:
-            # move polygon around one pixel in each 4 cardinal direction
-            for dx in [-1,1]: # x direction
-                movedmask = shift_2d_array(refmask,dx,0)
-                masks[count+1][movedmask] = True
-            for dy in [-1,1]: # y direction
-                movedmask = shift_2d_array(refmask,dy,1)
-                masks[count+1][movedmask] = True
-        elif case==1:
-            # move polygon around one pixel in each 4 diagonal direction
-            for dx in [-1,1]: # x direction
-                for dy in [-1,1]: # y direction
-                    movedmask = shift_2d_array(refmask,dx,0)
-                    movedmask = shift_2d_array(movedmask,dy,1)
-                    masks[count+1][movedmask] = True
 
-        masks[count+1][mask]      = False
-        
-    masks[0][:] = False
-    
-    # return the masks
-    return masks
-    
-def getmasks_npil(cellMask,nNpil=4,iterations=15):
+def get_npil_mask(mask, expansion=16):
+    '''
+    Given the masks for a ROI, find the surrounding neuropil.
+
+    Parameters
+    ----------
+    mask : array_like
+        The reference ROI mask to expand the neuropil from. The array
+        should contain only boolean values.
+    expansion : int, optional (default)
+        How much larger to make neuropil area than ROI area.
+        Full neuropil area will be expansion*R
+
+    Returns
+    -------
+    array
+        A boolean numpy.ndarray mask, where the region surrounding
+        the input is now True and the region of the input mask is
+        False.
+
+    Implementation
+    --------------
+    Our implementation is as follows:
+        - On even iterations (where indexing begins at zero), expand
+          the mask in each of the 4 cardinal directions.
+        - On odd numbered iterations, expand the mask in each of the 4
+          diagonal directions.
+    This procedure generates a neuropil whose shape is similar to the
+    shape of the input ROI mask.
+
+    Notes
+    -----
+    For fixed number of `iterations`, more square input masks will have
+    larger output neuropil masks.
+    '''
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
+
+    # Make a copy of original mask which will be grown
+    grown_mask = np.copy(mask)
+    area_orig = grown_mask.sum()  # original area
+    area_current = 0  # current size
+    shpe = np.shape(mask)
+    area_total = shpe[0]*shpe[1]
+    count = 0
+
+#    for count in range(iterations):
+    while area_current < expansion*area_orig and area_current < area_total-area_orig:
+        # Check which case to use. In current version, we alternate
+        # between case 0 (cardinals) and case 1 (diagonals).
+        case = count % 2
+
+        # Make a copy of the mask without any new additions. We will
+        # need to keep using this mask to mark new changes, so we
+        # don't use a partially updated version.
+        refmask = np.copy(grown_mask)
+
+        if case == 2:
+            # Move polygon around one pixel in each 8 directions
+            # N, NE, E, SE, S, SW, W, NW, (the centre is also redone)
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    movedmask = shift_2d_array(refmask, dx, 0)
+                    movedmask = shift_2d_array(movedmask, dy, 1)
+                    grown_mask[movedmask] = True
+
+        elif case == 0:
+            # Move polygon around one pixel in each of the 4 cardinal
+            # directions: N, E, S, W.
+            for dx in [-1, 1]:
+                grown_mask[shift_2d_array(refmask, dx, 0)] = True
+            for dy in [-1, 1]:
+                grown_mask[shift_2d_array(refmask, dy, 1)] = True
+
+        elif case == 1:
+            # Move polygon around one pixel in each of the 4 diagonal
+            # directions: NE, SE, SW, NW
+            for dx in [-1, 1]:
+                for dy in [-1, 1]:
+                    movedmask = shift_2d_array(refmask, dx, 0)
+                    movedmask = shift_2d_array(movedmask, dy, 1)
+                    grown_mask[movedmask] = True
+
+        # Don't expand based on the original mask; any expansion into
+        # this region is marked as False once more.
+        grown_mask[mask] = False
+
+        # update area
+        area_current = grown_mask.sum()
+
+        # iterate counter
+        count += 1
+
+    # Return the finished neuropil mask
+    return grown_mask
+
+
+def getmasks_npil(cellMask, nNpil=4, expansion=16):
     '''
     Generates neuropil masks using the get_npil_mask function.
-    
+
     Parameters
-    -----------------------
-    cellMask : array
+    ----------
+    cellMask : array_like
         the cell mask (boolean 2d arrays)
     nNpil : int
         number of neuropils
-    iterations : int
-        number of iterations for neuropil expansion
-    
+    expansion : int
+        How much larger to make neuropil region area
+
     Returns
-    -----------------------
+    -------
     Returns a list with soma + neuropil masks (boolean 2d arrays)
     '''
+    # Ensure array_like input is a numpy.ndarray
+    cellMask = np.asarray(cellMask)
+
     # get the total neuropil for this cell
-    mask = get_npil_mask(cellMask,iterations=iterations)[iterations]
-    
+    mask = get_npil_mask(cellMask, expansion=expansion)
+
     # get the center of mass for the cell
-    com = get_mask_com(cellMask)    
-    
+    centre = get_mask_com(cellMask)
+
     # split it up in nNpil neuropils
-    masks_split = split_npil(mask,com,nNpil)
-    
+    masks_split = split_npil(mask, centre, nNpil)
+
     return masks_split
 
+
 def readrois(roiset):
-    ''' read the imagej rois in the zipfile roiset, and make sure that the 
+    ''' read the imagej rois in the zipfile roiset, and make sure that the
     third dimension (i.e. frame number) is always zero.
-    
+
     Parameters
-    --------------------
+    ----------
     roiset : string
         folder to a zip file with rois
-    
+
     Returns
-    --------------------
+    -------
     Returns the rois as polygons
     '''
     # read rois
     rois = read_imagej_roi_zip(roiset)
-    # set frame number to 0 for every roi   
+
+    # set frame number to 0 for every roi
     for i in range(len(rois)):
-        rois[i]=rois[i]['polygons'][:,:2]
-        
+        # check if we are looking at an oval roi
+        if rois[i].keys()[0] == 'mask':
+            # this is an oval roi, which gets imported as a 3D mask.
+            # First get the frame that has the mask in it by finding the
+            # nonzero frame
+            mask_frame = np.nonzero(rois[i]['mask'])[0][0]
+
+            # get the mask
+            mask = rois[i]['mask'][mask_frame, :, :]
+
+            # finally, get the outline coordinates
+            rois[i] = find_roi_edge(mask)[0]
+        else:
+            rois[i] = rois[i]['polygons'][:, :2]
+
     return rois
-    
-def getmasks(rois,shpe):
+
+
+def getmasks(rois, shpe):
     ''' get the masks for the specified rois
-    
+
     Parameters
-    -----------------
+    ----------
     rois : list
-        list of roi coordinates. Each roi coordinate should be a 2d-array 
+        list of roi coordinates. Each roi coordinate should be a 2d-array
         or equivalent list. I.e.:
         roi = [[0,0], [0,1], [1,1], [1,0]]
         or
         roi = np.array([[0,0], [0,1], [1,1], [1,0]])
     shpe : array/list
         shape of underlying image [width,height]
-    
+
     Returns
-    -----------------
+    -------
     List of masks for each roi in the rois list
     '''
     # get number of rois
-    nrois = len(rois)    
-    
+    nrois = len(rois)
+
     # start empty mask list
-    masks = ['']*nrois
-    
-    for i in range(nrois): # loop over rois
-        # transform current roi to mask 
-        mask     = poly2mask(rois[i],shpe)
+    masks = [''] * nrois
+
+    for i in range(nrois):
+        # transform current roi to mask
+        mask = poly2mask(rois[i], shpe)
         # store in list
         masks[i] = np.array(mask[0].todense())
-        
+
     return masks
 
 
 def find_roi_edge(mask):
-    ''' Finds the edges of a mask 
-     Define kernel such that:
-         1 1 1
-     k = 1 0 1
-         1 1 1
-     Convolve mask with kernel, and find those mask pixels where the kernel
-     sums to max 7. (If sum to 9, then it must be inside mask)
-     
-     Parameters
-     -------------------
-     mask : array
-         the mask, a binary array
-         
-    Returns 
-    ---------------------
+    '''
+    Finds the outline of a mask, using the find_contour function from
+    skimage.measure.
+
+    Parameters
+    ----------
+    mask : array_like
+        the mask, a binary array
+
+    Returns
+    -------
     Array with coordinates of pixels in the outline of the mask
     '''
-    #### Can be quite slow for large rois
-    kernel = np.ones((3,3))
-    kernel[1,1] = 0
-    
-    # convolve the kernel with the image
-    con = convolve2d(mask, kernel, mode='same')
 
-    # TODO: The following has a bug due to which it is not the same as above. 
-    # Until fixed will have to use above slower method
-    ####this is a bit faster, move the entire mask up down left right and diagonal and add
-#    con = np.zeros(np.shape(mask))
-#    for i in [-1,0,1]:
-#        for j in [-1,0,1]:
-#            con+=shift_2d_array(shift_2d_array(mask,shift=i,axis=0),shift=j,axis=0)
-#    con-=mask
-    
-    return(np.logical_and(mask, con<7)).nonzero()
+    # Ensure array_like input is a numpy.ndarray
+    mask = np.asarray(mask)
 
+    # Pad with 0s to make sure that edge ROIs are properly estimated
+    mask_shape = np.shape(mask)
+    padded_shape = (mask_shape[0] + 2, mask_shape[1] + 2)
+    padded_mask = np.zeros(padded_shape)
+    padded_mask[1:-1, 1:-1] = mask
 
+    # detect contours
+    outline = find_contours(padded_mask, level=0.5)
+
+    # update coordinates to take into account padding and set so that the
+    # coordinates are defined from the corners (as in the mask2poly function
+    # in SIMA https://github.com/losonczylab/sima/blob/master/sima/ROI.py)
+    for i in range(len(outline)):
+        outline[i] -= 0.5
+
+    return outline
