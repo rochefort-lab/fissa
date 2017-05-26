@@ -1,23 +1,20 @@
-'''
-Functions for removal of neuropil from calcium signals.
+"""Functions for removal of neuropil from calcium signals.
 
 Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 Created: 2015-05-15
-'''
+"""
 
 import numpy as np
 import scipy.signal as signal
 import numpy.random as rand
-import nimfa
 from sklearn.decomposition import FastICA, NMF, PCA
 from scipy.optimize import minimize_scalar
 
 
 def separate(
-        S, sep_method='ica', n=None, maxiter=500, tol=1e-5,
-        random_state=892, maxtries=10):
-    '''
-    For the signals in S, finds the independent signals underlying it,
+        S, sep_method='nmf', n=None, maxiter=10000, tol=1e-4,
+        random_state=892, maxtries=10, W0=None, H0=None):
+    """For the signals in S, finds the independent signals underlying it,
     using ica or nmf. Several methods for signal picking are
     implemented, see below, of which method 5 works best in general.
 
@@ -29,10 +26,7 @@ def separate(
     sep_method : {'ica','nmf','nmf_sklearn'}
         Which source separation method to use, ica or nmf.
             * ica: independent component analysis
-            * nmf: The nimfa implementation of non-negative matrix
-              factorization.
-            * nmf_sklearn: The sklearn implementation of non-negative
-              matrix factorization (which is slower).
+            * nmf: Non-negative matrix factorization
     n : int, optional
         How many components to estimate. If None, use PCA to estimate
         how many components would explain at least 99% of the variance.
@@ -45,6 +39,8 @@ def separate(
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is 10.
+    W0, H0 : arrays, optional
+        Optional starting conditions for nmf
 
     Returns
     -------
@@ -67,7 +63,7 @@ def separate(
     Normalize the columns in estimated mixing matrix A so that sum(column)=1
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
-    '''
+    """
     # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
@@ -81,19 +77,15 @@ def separate(
 
     # estimate number of signals to find, if not given
     if n is None:
-        # Perform PCA, without whitening because the mean is important to us.
-        pca = PCA(whiten=False)
-        pca.fit(S.T)
-        # Find cumulative explained variance (old method)
-#        exp_var = np.cumsum(pca.explained_variance_ratio_)
-#        # Find the number of components which are needed to explain a
-#        # set fraction of the variance
-#        # dependent on number of signals, see when variance exceeds
-#        # n= 4: 0.9, n=5, 0.99, etc.
-#        n = np.where(exp_var > 0.99)[0][0]+1
-#        print exp_var
-        # find number of components with at least x percent explained var
-        n = sum(pca.explained_variance_ratio_ > 0.001)
+        if sep_method == 'ica':
+            # Perform PCA
+            pca = PCA(whiten=False)
+            pca.fit(S.T)
+
+            # find number of components with at least x percent explained var
+            n = sum(pca.explained_variance_ratio_ > 0.01)
+        else:
+            n = S.shape[0]
 
     if sep_method == 'ica':
         # Use sklearn's implementation of ICA.
@@ -129,16 +121,26 @@ def separate(
 
         A_sep = ica.mixing_
 
-    elif sep_method == 'nmf_sklearn':
+    elif sep_method == 'nmf':
         for ith_try in range(maxtries):
             # Make an instance of the sklearn NMF class
-            nmf = NMF(
-                init='nndsvdar', n_components=n,
-                alpha=0.1, l1_ratio=0.5,
-                tol=tol, max_iter=maxiter, random_state=random_state)
+            if W0 is None:
+                nmf = NMF(
+                    init='nndsvdar', n_components=n,
+                    alpha=0.1, l1_ratio=0.5,
+                    tol=tol, max_iter=maxiter, random_state=random_state)
 
-            # Perform ICA and find separated signals
-            S_sep = nmf.fit_transform(S.T)
+                # Perform NMF and find separated signals
+                S_sep = nmf.fit_transform(S.T)
+
+            else:
+                nmf = NMF(
+                    init='custom', n_components=n,
+                    alpha=0.1, l1_ratio=0.5,
+                    tol=tol, max_iter=maxiter, random_state=random_state)
+
+                # Perform NMF and find separated signals
+                S_sep = nmf.fit_transform(S.T, W=W0, H=H0)
 
             # check if max number of iterations was reached
             if nmf.n_iter_ < maxiter-1:
@@ -161,35 +163,6 @@ def separate(
                 ).format(nmf.n_iter_+1, ith_try+1))
 
         A_sep = nmf.components_.T
-
-    elif sep_method == 'nmf':
-        # The NIMFA implementation of NMF is fast and reliable.
-
-        # Make an instance of the Nmf class from nimfa
-        nmf = nimfa.Nmf(S.T, max_iter=maxiter, rank=n, seed='random_vcol',
-                        method='snmf', version='l', objective='conn',
-                        conn_change=3000, eta=1e-5, beta=1e-5)
-        # NB: Previously was using `eta=1e-5`, `beta=1e-5` too
-
-        # fit the model
-        nmf_fit = nmf()
-
-        # get fit summary
-        fs = nmf_fit.summary()
-        # check if max number of iterations was reached
-        if fs['n_iter'] < maxiter:
-            print((
-                'NMF converged after {} iterations.'
-                ).format(fs['n_iter']))
-        else:
-            print((
-                'Warning: maximum number of allowed iterations reached at {} '
-                'iterations.'
-                ).format(fs['n_iter']))
-
-        # get the mixing matrix and estimated data
-        S_sep = np.array(nmf_fit.basis())
-        A_sep = np.array(nmf_fit.coef()).T
 
     else:
         raise ValueError('Unknown separation method "{}".'.format(sep_method))
@@ -230,13 +203,9 @@ def separate(
         convergence['iterations'] = ica.n_iter_
         convergence['converged'] = not ica.n_iter_ == maxiter
     elif sep_method == 'nmf':
-        convergence['random_state'] = 'not yet implemented'
-        convergence['iterations'] = fs['n_iter']
-        convergence['converged'] = not fs['n_iter'] == maxiter
-    elif sep_method == 'nmf_sklearn':
-        convergence['random_state'] = 'not yet implemented'
-        convergence['iterations'] = 'not yet implemented'
-        convergence['converged'] = 'not yet implemented'
+        convergence['random_state'] = random_state
+        convergence['iterations'] = nmf.n_iter_
+        convergence['converged'] = not nmf.n_iter_ == maxiter
 
     # return median
     S_matched *= median

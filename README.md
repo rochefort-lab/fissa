@@ -6,10 +6,10 @@ FISSA
 
 FISSA (Fast Image Source Separation Analysis) is a Python library for extracting
 somatic signals from 2-photon calcium imaging data.
-It requires images in tiff format as well as predefined ROIs around somas. 
+It requires images in tiff format as well as predefined ROIs around somas.
 
-FISSA offers the use of ICA and several NMF algorithms to do so, as well as 
-ROI manipulation routines for generating neuropil ROIs. 
+FISSA offers the use of ICA and several NMF algorithms to do so, as well as
+ROI manipulation routines for generating neuropil ROIs.
 
 Currently, FISSA is only available for Python 2.7, and has been tested on
 Ubuntu 15.04 and on Windows 7 with the
@@ -43,12 +43,6 @@ Python 2.7 and pip installed. It is highly likely that your Linux distribution s
 
 * [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS.
 
-* [Pillow>=3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) requires a
-  [JPEG library](http://pillow.readthedocs.org/en/3.0.x/installation.html#external-libraries).
-  Alternatively, you can install
-  [Pillow 2.9.0](https://pypi.python.org/pypi/Pillow/2.9.0),
-  which we also support.
-
 These packages can be installed on *Debian/Ubuntu* with the following shell
 commands.
 
@@ -57,12 +51,11 @@ sudo apt-get update
 sudo apt-get install git
 sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
 sudo apt-get install libgeos-dev
-sudo apt-get install libjpeg-dev
 ```
 
 #### Installation into user site-packages
 
-You can download the package source from GitHub, and then install FISSA and its 
+You can download the package source from GitHub, and then install FISSA and its
 dependencies as follows:
 
 ```bash
@@ -153,7 +146,7 @@ command prompt:
 pip install filename
 ```
 
-Finally, if everything above worked well, you can install FISSA as 
+Finally, if everything above worked well, you can install FISSA as
 follows (from the folder above fissa).
 
 ```
@@ -174,15 +167,15 @@ Folder Structure
 ----------------
 
 ### doc
-Contains example code. You can load the notebooks as .ipynb directly in GitHub, 
-or on your system if you know how to use ipython notebooks 
-(http://ipython.org/ipython-doc/stable/notebook/index.html). 
-You can also read the .html pages instead. 
+Contains example code. You can load the notebooks as .ipynb directly in GitHub,
+or on your system if you know how to use ipython notebooks
+(http://ipython.org/ipython-doc/stable/notebook/index.html).
+You can also read the .html pages instead.
 
 ### exampleData
-Contains example data. It has two zips with region of interests from ImageJ. 
-It also contains three tiff stacks, which have been downsampled and cropped 
-from full data from the Rochefort lab. 
+Contains example data. It has two zips with region of interests from ImageJ.
+It also contains three tiff stacks, which have been downsampled and cropped
+from full data from the Rochefort lab.
 
 ### fissa
 Contains the toolbox. See the tutorial in doc for how to use it, and the
@@ -192,7 +185,7 @@ comments in the different modules inside FISSA.
 Citing FISSA
 ------------
 
-If you use FISSA for your research, please cite the following paper 
+If you use FISSA for your research, please cite the following paper
 in any resulting publications:
 
 _Paper in preparation_

@@ -1,7 +1,9 @@
 '''
 Various functions to read and extract from Tiff stacks using the pillow library
 
-Authors: Sander Keemink (swkeemink@scimail.eu), Scott Lowe
+Authors:
+    Sander W Keemink <swkeemink@scimail.eu>
+    Scott C Lowe <scott.code.lowe@gmail.com>
 Initial date: 2015-05-29
 '''
 
@@ -57,7 +59,7 @@ def image2array(img, bit_depth=None, band=0):
         raise ValueError((
             'Requested band number {} exceeds the number of bands available '
             'in the image, which is {}.'
-            ).format(band, num_bands))
+        ).format(band, num_bands))
     # If there is only one band, we need to request None instead of 0.
     if num_bands == 1:
         band = None
@@ -86,7 +88,7 @@ def image2array(img, bit_depth=None, band=0):
     elif isinstance(bit_depth, int):
         raise ValueError((
             'Unfamiliar bit_depth value: {}'
-            ).format(bit_depth))
+        ).format(bit_depth))
     else:
         # Assume bit_depth is a data-type instance
         dtype = bit_depth
@@ -351,10 +353,10 @@ def getbox(center, half_length):
     >>> cropped_img = img.crop(box)
     '''
     half_length = np.rint(2 * half_length) / 2
-    x0 = np.ceil(center[1]-half_length)
-    y0 = np.ceil(center[0]-half_length)
-    x1 = np.rint(x0 + 2*half_length)
-    y1 = np.rint(y0 + 2*half_length)
+    x0 = np.ceil(center[1] - half_length)
+    y0 = np.ceil(center[0] - half_length)
+    x1 = np.rint(x0 + 2 * half_length)
+    y1 = np.rint(y0 + 2 * half_length)
     return (x0, y0, x1, y1)
 
 
@@ -518,7 +520,8 @@ def extract_traces(img, masks, bit_depth=None, band=0):
 
 
 def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
-    ''' Sets up and saves an entire dataset, given a set of ImageJ ROI zips,
+    '''
+    Sets up and saves an entire dataset, given a set of ImageJ ROI zips,
     and a set of TIFF files. Either there should be one zip for every tiff,
     or there should be one zip for all tiffs.
 
@@ -533,7 +536,7 @@ def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
     sort them by filename).
 
     Parameters
-    ------------------------
+    ----------
     tiffs : list
         A list of strings, listing the locations of every tiff.
     ROIs : list
@@ -543,14 +546,14 @@ def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
         to have the same ROIs. The ROIs are only assumed to have moved across
         trials, there should be the same ROIs (and number thereof) in every
         zip.
-    nNpil : int, optional [4]
-        Number of neuropils to be generated.
-    iterations : int, optional [15]
-        Number of iterations used for growing the neuropil.
+    nNpil : int, optional
+        Number of neuropils to be generated. Default is 4.
+    iterations : int, optional
+        Number of iterations used for growing the neuropil. Default is 15.
 
     Returns
-    -----------------------
-    dictionary
+    -------
+    S : dict
         Returns a dictionary S with the following keys:
         'Data'
             This is where the data will be stored. The content itself is a
@@ -563,7 +566,7 @@ def extract_dataset(tiffs, ROIs, nNpil=4, iterations=15):
             This contains the outlines for each ROI.
 
     TODO
-    -------------------------
+    ----
     - Variable trial length for each tiff.
     - Add bit depth etc.
     - Write a test function

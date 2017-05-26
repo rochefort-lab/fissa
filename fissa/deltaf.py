@@ -107,7 +107,7 @@ def normaliseF(rawF, fs=40, ax_time=1, ax_recs=-1, output_f0=False):
         # Now normalise each element in the list
         normalisedF = []
         for i, x in enumerate(rawF):
-            normalisedF.append((x-bl_list[i])/scaleF0)
+            normalisedF.append((x - bl_list[i]) / scaleF0)
         # We should output the baseline values as a list too
         baselineF0 = bl_list
 
@@ -162,7 +162,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
 
     # Make a set of weights to use with our taps.
     # We use an FIR filter with a Hamming window.
-    b = scipy.signal.firwin(nfilt, cutoff=fw_base/nyq_rate, window='hamming')
+    b = scipy.signal.firwin(nfilt, cutoff=fw_base / nyq_rate, window='hamming')
 
     # Use lfilter to filter with the FIR filter.
     # We filter along the second dimension because that represents time
@@ -206,14 +206,14 @@ def deltaFF0(S, T, avg_n=1):
     S = np.asarray(S)
 
     # get some info
-    numT = int(S.shape[0]/T)  # number of trials
+    numT = int(S.shape[0] / T)  # number of trials
     numR = S.shape[1]  # number of regions (cell + neuropils)
 
     # transform S to format expected by df.normaliseF
     traces = np.zeros((numR, T, numT))
     for t in range(numT):
         for n in range(numR):
-            traces[n, :, t] = S[t*T:(t+1)*T, n]
+            traces[n, :, t] = S[t * T:(t + 1) * T, n]
     norm, baselineF0, scaleF0 = normaliseF(
         traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
 
@@ -221,8 +221,8 @@ def deltaFF0(S, T, avg_n=1):
     S_norm = np.zeros(S.shape)
     for n in range(numR):
         for t in range(numT):
-            S_norm[t*T:(t+1)*T, n] = np.convolve(
-                norm[n, :, t], np.ones(avg_n)/avg_n, mode='same')
+            S_norm[t * T:(t + 1) * T, n] = np.convolve(
+                norm[n, :, t], np.ones(avg_n) / avg_n, mode='same')
 
     return S_norm
 
@@ -257,14 +257,14 @@ def RemoveBaseline(S, T, avg_n=1):
     S = np.asarray(S)
 
     # get some info
-    numT = int(S.shape[0]/T)  # number of trials
+    numT = int(S.shape[0] / T)  # number of trials
     numR = S.shape[1]  # number of regions (cell + neuropils)
 
     # transform S to format expected by df.normaliseF
     traces = np.zeros((numR, T, numT))
     for t in range(numT):
         for n in range(numR):
-            traces[n, :, t] = S[t*T:(t+1)*T, n]
+            traces[n, :, t] = S[t * T:(t + 1) * T, n]
     norm, baselineF0, scaleF0 = normaliseF(
         traces, fs=40, ax_time=1, ax_recs=-1, output_f0=True)
 
@@ -272,9 +272,9 @@ def RemoveBaseline(S, T, avg_n=1):
     S_norm = np.zeros(S.shape)
     for n in range(numR):
         for t in range(numT):
-            S_norm[t*T:(t+1)*T, n] = np.convolve(
-                norm[n, :, t], np.ones(avg_n)/avg_n, mode='same')
-            S_norm[t*T:(t+1)*T, n] *= scaleF0[n, 0, 0]
-            S_norm[t*T:(t+1)*T, n] += scaleF0[n, 0, 0]
+            S_norm[t * T:(t + 1) * T, n] = np.convolve(
+                norm[n, :, t], np.ones(avg_n) / avg_n, mode='same')
+            S_norm[t * T:(t + 1) * T, n] *= scaleF0[n, 0, 0]
+            S_norm[t * T:(t + 1) * T, n] += scaleF0[n, 0, 0]
 
     return S_norm
