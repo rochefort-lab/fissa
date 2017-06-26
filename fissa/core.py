@@ -21,12 +21,12 @@ except:
     has_multiprocessing = False
 
 
-def extract_func(lst):
+def extract_func(inputs):
     """Extraction function for multiprocessing.
 
     Parameters
     ----------
-    lst : list
+    inputs : list
         list of inputs
         [0] : image array
         [1] : the rois
@@ -38,9 +38,8 @@ def extract_func(lst):
     dictionary
         dictionary containing polygons for each ROI
     """
-    image = lst[0]
-    rois = lst[1]
-
+    image = inputs[0]
+    rois = inputs[1]
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
     base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
@@ -71,12 +70,12 @@ def extract_func(lst):
     return data, roi_polys, mean
 
 
-def separate_func(lst):
+def separate_func(inputs):
     """Extraction function for multiprocessing.
 
     Parameters
     ----------
-    lst : list
+    inputs : list
         list of inputs
         [0] : Array with signals to separate
         [1] : current ROI number
@@ -86,10 +85,10 @@ def separate_func(lst):
     some output
 
     """
-    X = lst[0]
+    X = inputs[0]
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
                 X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
-    ROInum = lst[1]
+    ROInum = inputs[1]
     print 'Finished ROI number ' + str(ROInum)
     return Xsep, Xmatch, Xmixmat, convergence
 
