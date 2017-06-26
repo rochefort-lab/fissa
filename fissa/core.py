@@ -13,12 +13,12 @@ import neuropil as npil
 from scipy.io import savemat
 try:
     from multiprocessing import Pool
-    multiprocessing = True
+    has_multiprocessing = True
 except:
     warnings.warn('Multiprocessing library is not installed, using single ' +
                   'core instead. To use multiprocessing install it by: ' +
                   'pip install multiprocessing')
-    multiprocessing = False
+    has_multiprocessing = False
 
 
 def extract_func(lst):
@@ -211,7 +211,7 @@ class Experiment():
                 inputs[trial] = [self.images[trial], self.rois[trial]]
 
             # Do the extraction
-            if multiprocessing:
+            if has_multiprocessing:
                 # define pool
                 pool = Pool(self.ncores_separation)
 
@@ -321,7 +321,7 @@ class Experiment():
                 # update inputs
                 inputs[cell] = [X, cell]
 
-            if multiprocessing:
+            if has_multiprocessing:
                 # define pool
                 pool = Pool()
 
