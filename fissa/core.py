@@ -126,16 +126,16 @@ class Experiment():
         * inputs such as imaging frequency, number of neuropil regions,
         general FISSA options, etc
         """
-        if type(images) == str:
+        if isinstance(images, str):
             self.images = sorted(glob.glob(images+'/*.tif*'))
-        elif type(images) == list:
+        elif isinstance(images, list):
             self.images = images
         else:
             raise ValueError('images should either be string or list')
 
-        if type(rois) == str:
+        if isinstance(rois, str):
             self.rois = sorted(glob.glob(images+'/*.zip'))
-        elif type(rois) == list:
+        elif isinstance(rois, list):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
                 self.rois *= len(self.images)

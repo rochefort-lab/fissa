@@ -26,10 +26,10 @@ def image2array(image):
     np.array
         A 3D array containing the data as (frames, y coordinate, x coordinate)
     '''
-    if type(image) == str:
+    if isinstance(image, str):
         return tifffile.imread(image)
 
-    if type(image) == np.array:
+    if isinstance(image, np.array):
         return image
 
 
@@ -50,9 +50,9 @@ def rois2masks(rois, shape):
 
     '''
     # if it's a list of strings
-    if type(rois) == str:
+    if isinstance(rois, str):
         rois = roitools.readrois(rois)
-    if type(rois) == list:
+    if isinstance(rois, list):
         # if it's a something by 2 array, assume polygons
         if rois[0].shape[1] == 2:
             return roitools.getmasks(rois, shape)
