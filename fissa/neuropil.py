@@ -8,15 +8,12 @@ import numpy as np
 import scipy.signal as signal
 import numpy.random as rand
 from sklearn.decomposition import FastICA, NMF, PCA
-from scipy.optimize import minimize_scalar
-
 
 def separate(
         S, sep_method='nmf', n=None, maxiter=10000, tol=1e-4,
-        random_state=892, maxtries=10, W0=None, H0=None):
+        random_state=892, maxtries=10, W0=None, H0=None, alpha=0.1):
     """For the signals in S, finds the independent signals underlying it,
-    using ica or nmf. Several methods for signal picking are
-    implemented, see below, of which method 5 works best in general.
+    using ica or nmf.
 
     Parameters
     ----------
@@ -41,6 +38,8 @@ def separate(
         Default is 10.
     W0, H0 : arrays, optional
         Optional starting conditions for nmf
+    alpha : float
+        [expand explanation] Roughly the sparsity constraint
 
     Returns
     -------
@@ -123,11 +122,18 @@ def separate(
 
     elif sep_method == 'nmf':
         for ith_try in range(maxtries):
+            # nSignals = nRegions +1
+            # ICA = FastICA(n_components=nSignals)
+            # ica = ICA.fit_transform(mixed.T)  # Reconstruct signals
+            # A_ica = ICA.mixing_  # Get estimated mixing matrix
+            #
+            #
+
             # Make an instance of the sklearn NMF class
             if W0 is None:
                 nmf = NMF(
                     init='nndsvdar', n_components=n,
-                    alpha=0.1, l1_ratio=0.5,
+                    alpha=alpha, l1_ratio=0.5,
                     tol=tol, max_iter=maxiter, random_state=random_state)
 
                 # Perform NMF and find separated signals
@@ -136,7 +142,7 @@ def separate(
             else:
                 nmf = NMF(
                     init='custom', n_components=n,
-                    alpha=0.1, l1_ratio=0.5,
+                    alpha=alpha, l1_ratio=0.5,
                     tol=tol, max_iter=maxiter, random_state=random_state)
 
                 # Perform NMF and find separated signals
@@ -189,11 +195,6 @@ def separate(
     for j in range(n):
         s_ = A_sep[0, order[j]]*S_sep[:, order[j]]
         S_matched[:, j] = s_
-        # set the mean to be the same as the raw data
-        if sep_method == 'ica':
-            S_matched[:, j] += S[0, :].mean()
-        elif sep_method == 'nmf' or sep_method == 'nmf_sklearn':
-            S_matched[:, j] += S[0, :].mean() - S_matched[:, j].mean()
 
     # save the algorithm convergence info
     convergence = {}
@@ -207,79 +208,14 @@ def separate(
         convergence['iterations'] = nmf.n_iter_
         convergence['converged'] = not nmf.n_iter_ == maxiter
 
-    # return median
+    # scale back to raw magnitudes
     S_matched *= median
     S *= median
     return S_sep.T, S_matched.T, A_sep, convergence
 
 
-def subtract_pil(sig, pil):
-    '''
-    Subtract the neuropil from the signal (sig), in such a manner
-    that that the correlation between the two is minimized:
-        sig_ = sig - a*pil
-    find `a` such that `cor(sig_, pil)` is minimized. A is bound to be 0-1.5.
-
-    Parameters
-    ----------
-    sig : array_like
-        Signal
-    pil : array_like
-        Neuropil/s.
-
-    Returns
-    -------
-    sig_ : numpy.ndarray
-        The neuropil-subtracted signal.
-    a : float
-        The subtraction parameter that results in the best subtraction.
-    '''
-    # Ensure array_like input is a numpy.ndarray
-    sig = np.asarray(sig)
-    pil = np.asarray(pil)
-
-    def mincorr(x):
-        '''Find the correlation between sig and pil, for subtraction
-        with gain equal to `x`.'''
-        sig_ = sig - x*pil
-        corr = np.corrcoef(sig_, pil)[0, 1]
-        return np.sqrt(corr**2)
-
-    res = minimize_scalar(mincorr, bounds=(0, 1.5), method='bounded')
-    a = res.x  # the resulting gain
-    sig_ = sig - a*pil + np.mean(a*pil)  # the output signal
-
-    return sig_, a
-
-
-def subtract_dict(S, n_noncell):
-    '''
-    Returns dictionary with the cell traces minus the background traces,
-    with the subtraction method in subtractpil
-
-    Parameters
-    ----------
-    S : dict
-        Dictionary containing sets of traces
-    n_noncell : int
-        How many noncells there are (i.e. ROIs without neuropils)
-
-    Returns
-    -------
-    ???
-    '''
-    S_subtract = {}
-    a = {}
-    for i in range(n_noncell, len(S)):
-        S_subtract[i], a[i] = subtract_pil(S[i][:, 0],
-                                           np.mean(S[i][:, 1:], axis=1))
-
-    return S_subtract, a
-
-
 def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
-    '''
-    Low pass filters a fluorescence imaging trace line.
+    '''Low pass filters a fluorescence imaging trace line.
 
     Parameters
     ----------
@@ -299,9 +235,6 @@ def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
     array
         Low pass filtered signal of len(F)
     '''
-    # Remove the first datapoint, because it can be an erroneous sample
-#     rawF = np.split(rawF, [1], axis)[1]
-
     # The Nyquist rate of the signal is half the sampling frequency
     nyq_rate = fs / 2.0
 
