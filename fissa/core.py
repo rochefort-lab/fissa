@@ -423,7 +423,7 @@ class Experiment():
                 # update dictionary
                 M['ROIs'][c_lab][t_lab] = self.roi_polys[cell, trial]
                 M['raw'][c_lab][t_lab] = self.raw[cell, trial]
-                M['fissa'][c_lab][t_lab] = self.result[cell, trial]
+                M['result'][c_lab][t_lab] = self.result[cell, trial]
 
         savemat(fname, M)
 
