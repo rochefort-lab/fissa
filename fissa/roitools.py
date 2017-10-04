@@ -328,7 +328,7 @@ def readrois(roiset):
 
 
 def getmasks(rois, shpe):
-    ''' get the masks for the specified rois
+    '''Get the masks for the specified rois.
 
     Parameters
     ----------
