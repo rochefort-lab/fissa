@@ -11,6 +11,7 @@ import os.path
 import numpy as np
 import neuropil as npil
 from scipy.io import savemat
+import deltaf
 try:
     from multiprocessing import Pool
     has_multiprocessing = True
@@ -375,6 +376,83 @@ class Experiment():
         self.mixmat = mixmat
         self.sep = sep
         self.result = result
+
+    def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
+        """Calculate deltaf/f0 for raw and result traces.
+
+        The results can be accessed as self.deltaf_raw and self.deltaf_result.
+        self.deltaf_raw is only the ROI trace instead of the traces across all
+        subregions.
+
+        Parameters
+        ----------
+        freq : float
+            Imaging frequency in Hz.
+        use_raw_f0 : bool
+            If True (default), use the f0 from the raw ROI trace for both
+            raw and result traces. If False, use the f0 of each trace.
+        across_trials : bool
+            Whether to do calculate the deltaf/f0 across all trials (default),
+            or per trial.
+
+        """
+        deltaf_raw = [[None for t in range(self.nTrials)]
+                      for c in range(self.nCell)]
+        deltaf_result = np.copy(deltaf_raw)
+
+        # loop over cells
+        for cell in range(self.nCell):
+            # if deltaf should be calculated across all trials
+            if across_trials:
+                # get concatenated traces
+                raw_conc = np.concatenate(self.raw[cell], axis=1)[0, :]
+                result_conc = np.concatenate(self.result[cell], axis=1)
+
+                # calculate deltaf/f0
+                raw_f0 = deltaf.findBaselineF0(raw_conc, freq)
+                raw_conc = (raw_conc-raw_f0)/raw_f0
+                result_f0 = deltaf.findBaselineF0(
+                                                    result_conc, freq, 1
+                                                 ).T[:, None]
+                if use_raw_f0:
+                    result_conc = (result_conc-result_f0)/raw_f0
+                else:
+                    result_conc = (result_conc-result_f0)/result_f0
+
+                # store deltaf/f0s
+                curTrial = 0
+                for trial in range(self.nTrials):
+                    nextTrial = curTrial + self.raw[cell][trial].shape[1]
+                    signal = raw_conc[curTrial:nextTrial]
+                    deltaf_raw[cell][trial] = signal
+                    signal = result_conc[:, curTrial:nextTrial]
+                    deltaf_result[cell][trial] = signal
+                    curTrial = nextTrial
+            else:
+                # loop across trials
+                for trial in range(self.nTrials):
+                    # get current signals
+                    raw_sig = self.raw[cell][trial][0, :]
+                    result_sig = self.result[cell][trial]
+
+                    # calculate deltaf/fo
+                    raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
+                    result_f0 = deltaf.findBaselineF0(
+                                                        result_sig, freq, 1
+                                                     ).T[:, None]
+                    result_f0[result_f0<0]=0
+                    raw_sig = (raw_sig-raw_f0)/raw_f0
+                    if use_raw_f0:
+                        result_sig = (result_sig-result_f0)/raw_f0
+                    else:
+                        result_sig = (result_sig-result_f0)/result_f0
+
+                    # store deltaf/f0s
+                    deltaf_raw[cell][trial] = raw_sig
+                    deltaf_result[cell][trial] = result_sig
+
+        self.deltaf_raw = deltaf_raw
+        self.deltaf_result = deltaf_result
 
     def save_to_matlab(self):
         """Save the results to a matlab file.
