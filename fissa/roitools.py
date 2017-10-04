@@ -164,7 +164,7 @@ def shift_2d_array(a, shift=1, axis=None):
     return out
 
 
-def get_npil_mask(mask, expansion=16):
+def get_npil_mask(mask, totalexpansion=4):
     '''
     Given the masks for a ROI, find the surrounding neuropil.
 
@@ -173,9 +173,8 @@ def get_npil_mask(mask, expansion=16):
     mask : array_like
         The reference ROI mask to expand the neuropil from. The array
         should contain only boolean values.
-    expansion : int, optional (default)
-        How much larger to make neuropil area than ROI area.
-        Full neuropil area will be expansion*R
+    expansion : float, optional
+        How much larger to make the neuropil total area than mask area.
 
     Returns
     -------
@@ -210,8 +209,8 @@ def get_npil_mask(mask, expansion=16):
     area_total = shpe[0]*shpe[1]
     count = 0
 
-#    for count in range(iterations):
-    while area_current < expansion*area_orig and area_current < area_total-area_orig:
+    # for count in range(iterations):
+    while area_current < totalexpansion*area_orig and area_current < area_total-area_orig:
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
