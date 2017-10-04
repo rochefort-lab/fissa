@@ -203,13 +203,13 @@ class Experiment():
 
         After running this you can access the raw data (i.e. pre separation)
         as self.raw and self.rois. self.raw is a dictionary of arrays.
-        self.raw[cell,trial] gives you the traces of a specific cell and trial,
+        self.raw[cell][trial] gives you the traces of a specific cell and trial,
         across cell and neuropil regions. self.roi_polys is a dictioary of
-        lists of arrays. self.roi_polys[cell,trial][region][0] gives you the
+        lists of arrays. self.roi_polys[cell][trial][region][0] gives you the
         polygon for the region for a specific cell, trial and region. region=0
         is the cell, and region>0 gives the different neuropil regions.
         For separateable masks, it is possible multiple outlines are found,
-        which can be accessed as self.roi_polys[cell,trial][region][i],
+        which can be accessed as self.roi_polys[cell][trial][region][i],
         where 'i' is the outline index.
 
         Parameters
@@ -223,17 +223,13 @@ class Experiment():
         # try to load data from filename
         if not redo:
             try:
-                nCell, data, roi_polys = np.load(fname)
+                nCell, raw, roi_polys = np.load(fname)
                 print 'Reloading previously prepared data...'
             except:
                 redo = True
 
         if redo:
             print 'Doing region growing and data extraction....'
-            # predefine data structures
-            data = collections.OrderedDict()
-            roi_polys = collections.OrderedDict()
-
             # define inputs
             inputs = [0]*self.nTrials
             for trial in range(self.nTrials):
@@ -256,19 +252,23 @@ class Experiment():
             # get number of cells
             nCell = len(results[0][1])
 
+            # predefine data structures
+            raw = [[None for t in range(self.nTrials)] for c in range(nCell)]
+            roi_polys = np.copy(raw)
+
             # store results
             for trial in range(self.nTrials):
                 self.means += [results[trial][2]]
                 for cell in range(nCell):
-                    data[cell, trial] = results[trial][0][cell]
-                    roi_polys[cell, trial] = results[trial][1][cell]
+                    raw[cell][trial] = results[trial][0][cell]
+                    roi_polys[cell][trial] = results[trial][1][cell]
 
             # save
-            np.save(fname, (nCell, data, roi_polys))
+            np.save(fname, (nCell, raw, roi_polys))
 
         # store relevant info
         self.nCell = nCell  # number of cells
-        self.raw = data
+        self.raw = raw
         self.roi_polys = roi_polys
 
     def separate(self, redo_prep=False, redo_sep=False):
@@ -279,11 +279,11 @@ class Experiment():
         self.sep
             Raw separation output, without being matched. Signal 'i' for
             a specific cell and trial can be found as
-            self.sep[cell,trial][i,:]
+            self.sep[cell][trial][i,:]
         self.result
             Final output, in order of presence in cell ROI.
             Signal 'i' for a specific cell and trial can be found as
-            self.result[cell,trial][i,:]
+            self.result[cell][trial][i,:]
             i = 0 is most strongly present signal
             i = 1 less so, etc.
         self.mixmat
@@ -318,17 +318,18 @@ class Experiment():
         if redo_sep:
             print 'Doing signal separation....'
             # predefine data structures
-            sep = collections.OrderedDict()
-            result = collections.OrderedDict()
-            mixmat = collections.OrderedDict()
-            info = collections.OrderedDict()
+            sep = [[None for t in range(self.nTrials)]
+                   for c in range(self.nCell)]
+            result = np.copy(sep)
+            mixmat = np.copy(sep)
+            info = np.copy(sep)
             trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
 
             # loop over cells to define function inputs
             inputs = [0]*self.nCell
             for cell in range(self.nCell):
                 # get first trial data
-                cur_signal = self.raw[cell, 0]
+                cur_signal = self.raw[cell][0]
 
                 # initiate concatenated data
                 X = cur_signal
@@ -337,7 +338,7 @@ class Experiment():
                 # concatenate all trials
                 for trial in range(1, self.nTrials):
                     # get current trial data
-                    cur_signal = self.raw[cell, trial]
+                    cur_signal = self.raw[cell][trial]
                     # concatenate
                     X = np.concatenate((X, cur_signal), axis=1)
 
@@ -370,13 +371,13 @@ class Experiment():
                 Xsep, Xmatch, Xmixmat, convergence = results[cell]
                 for trial in range(self.nTrials):
                     nextTrial = curTrial+trial_lens[trial]
-                    sep[cell, trial] = Xsep[:, curTrial:nextTrial]
-                    result[cell, trial] = Xmatch[:, curTrial:nextTrial]
+                    sep[cell][trial] = Xsep[:, curTrial:nextTrial]
+                    result[cell][trial] = Xmatch[:, curTrial:nextTrial]
                     curTrial = nextTrial
 
                     # store other info
-                    mixmat[cell, trial] = Xmixmat
-                    info[cell, trial] = convergence
+                    mixmat[cell][trial] = Xmixmat
+                    info[cell][trial] = convergence
 
             # save
             np.save(fname, (info, mixmat, sep, result))
@@ -424,9 +425,9 @@ class Experiment():
                 # get current trial label
                 t_lab = 'trial'+str(trial)
                 # update dictionary
-                M['ROIs'][c_lab][t_lab] = self.roi_polys[cell, trial]
-                M['raw'][c_lab][t_lab] = self.raw[cell, trial]
-                M['result'][c_lab][t_lab] = self.result[cell, trial]
+                M['ROIs'][c_lab][t_lab] = self.roi_polys[cell][trial]
+                M['raw'][c_lab][t_lab] = self.raw[cell][trial]
+                M['result'][c_lab][t_lab] = self.result[cell][trial]
 
         savemat(fname, M)
 
