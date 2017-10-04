@@ -8,9 +8,9 @@ Author: Scott Lowe
 import numpy as np
 import scipy.signal
 
+
 def findBaselineF0(rawF, fs, axis=0, keepdims=False):
-    '''
-    Finds the baseline for a fluorescence imaging trace line.
+    """Find the baseline for a fluorescence imaging trace line.
 
     Parameters
     ----------
@@ -33,8 +33,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     (numROI, numTimePoints, numRecs)
     and the output will then be sized (numROI, 1, numRecs)
     if keepdims is True.
-    '''
-
+    """
     # Parameters --------------------------------------------------------------
     nfilt = 30  # Number of taps to use in FIR filter
     fw_base = 1  # Cut-off frequency for lowpass filter
