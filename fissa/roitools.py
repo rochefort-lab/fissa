@@ -338,6 +338,8 @@ def getmasks(rois, shpe):
         roi = [[0,0], [0,1], [1,1], [1,0]]
         or
         roi = np.array([[0,0], [0,1], [1,1], [1,0]])
+        I.e. a n by 2 array, where n is the number of coordinates.
+        If a 2 by n array is given, this will be transposed.
     shpe : array/list
         shape of underlying image [width,height]
 
@@ -352,6 +354,10 @@ def getmasks(rois, shpe):
     masks = [''] * nrois
 
     for i in range(nrois):
+        # transpose if array of 2 by n
+        if np.asarray(rois[i]).shape[0] == 2:
+            rois[i] = np.asarray(rois[i]).T
+
         # transform current roi to mask
         mask = poly2mask(rois[i], shpe)
         # store in list
