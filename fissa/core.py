@@ -347,7 +347,7 @@ class Experiment():
                     X -= X.min()
 
                 # update inputs
-                inputs[cell] = [X, cell]
+                inputs[cell] = [X, self.alpha, cell]
 
             if has_multiprocessing:
                 # define pool
