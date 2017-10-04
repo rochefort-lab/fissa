@@ -22,7 +22,7 @@ except:
 
 
 def extract_func(inputs):
-    """Extraction function for multiprocessing.
+    """Extract data using multiprocessing.
 
     Parameters
     ----------
@@ -30,6 +30,8 @@ def extract_func(inputs):
         list of inputs
         [0] : image array
         [1] : the rois
+        [2] : number of neuropil regions
+        [3] : how much larger neuropil region should be then central ROI
 
     Returns
     -------
@@ -40,6 +42,9 @@ def extract_func(inputs):
     """
     image = inputs[0]
     rois = inputs[1]
+    nNpil = inputs[2]
+    expansion = inputs[3]
+
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
     base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
@@ -54,8 +59,8 @@ def extract_func(inputs):
     # get neuropil masks and extract signals
     for cell in range(len(base_masks)):
         # neuropil masks
-        npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=4,
-                                            expansion=6)
+        npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=nNpil,
+                                            expansion=expansion)
         # add all current masks together
         masks = [base_masks[cell]]+npil_masks
 
