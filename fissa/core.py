@@ -103,7 +103,9 @@ def separate_func(inputs):
 class Experiment():
     """Does all the steps for FISSA in one swoop."""
 
-    def __init__(self, images, rois, folder, nRegions=4, **params):
+    def __init__(self, images, rois, folder, nRegions=4,
+                 expansion=1, alpha=0.2, ncores_preparation=None,
+                 ncores_separation=None, **kwargs):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -128,6 +130,22 @@ class Experiment():
         nRegions : int, optional (default: 4)
             Number of neuropil regions to draw. Use higher number for densely
             labelled tissue.
+        expansion : float
+            How much larger to make each neuropil subregion than ROI area.
+            Full neuropil area will be nRegions*expansion*ROI area
+        alpha : float
+            Sparsity constraint for NMF
+        ncores_preparation : int
+            Sets the number of processes to be used for data preparation
+            (ROI and subregions definitions, data extraction from tifs,
+            etc.)
+            By default FISSA uses all the available processing threads.
+            This can, especially for the data preparation step,
+            quickly fill up your memory.
+        ncores_separation : int
+            Same as ncores_preparation, but for the separation step.
+            As a rule, this can be set higher than ncores_preparation, as
+            the separation step takes much less memory.
 
         TOOD:
         * inputs such as imaging frequency, number of neuropil regions,
@@ -155,10 +173,12 @@ class Experiment():
         self.sep = None
         self.result = None
         self.nRegions = nRegions
+        self.expansion = expansion
+        self.alpha = alpha
         self.nTrials = len(self.images)  # number of trials
         self.means = []
-        self.ncores_preparation = None
-        self.ncores_separation = None
+        self.ncores_preparation = ncores_preparation
+        self.ncores_separation = ncores_separation
 
         # check if any data already exists
         if not os.path.exists(folder):
