@@ -260,18 +260,17 @@ def get_npil_mask(mask, totalexpansion=4):
     return grown_mask
 
 
-def getmasks_npil(cellMask, nNpil=4, expansion=16):
-    '''
-    Generates neuropil masks using the get_npil_mask function.
+def getmasks_npil(cellMask, nNpil=4, expansion=1):
+    '''Generate neuropil masks using the get_npil_mask function.
 
     Parameters
     ----------
     cellMask : array_like
         the cell mask (boolean 2d arrays)
     nNpil : int
-        number of neuropils
-    expansion : int
-        How much larger to make neuropil region area
+        number of neuropil subregions
+    expansion : float
+        How much larger to make neuropil subregion area than cellMask's
 
     Returns
     -------
@@ -281,7 +280,7 @@ def getmasks_npil(cellMask, nNpil=4, expansion=16):
     cellMask = np.asarray(cellMask)
 
     # get the total neuropil for this cell
-    mask = get_npil_mask(cellMask, expansion=expansion)
+    mask = get_npil_mask(cellMask, totalexpansion=expansion*nNpil)
 
     # get the center of mass for the cell
     centre = get_mask_com(cellMask)
