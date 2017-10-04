@@ -159,7 +159,10 @@ class Experiment():
             raise ValueError('images should either be string or list')
 
         if isinstance(rois, str):
-            self.rois = sorted(glob.glob(images+'/*.zip'))
+            if rois[-3:] == 'zip':
+                self.rois = [rois]*len(self.images)
+            else:
+                self.rois = sorted(glob.glob(rois+'/*.zip'))
         elif isinstance(rois, list):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
