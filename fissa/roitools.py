@@ -56,7 +56,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         If True, the `num_slices` input is treated as the number of
         slices to use if the ROI is surrounded by valid pixels, and
         automatically reduces the number of slices if it is on the
-        boundary of the sampled region.
+        boundary of the sampled region. NOT IMPLEMENTED.
 
     Returns
     -------
