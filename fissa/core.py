@@ -83,7 +83,8 @@ def separate_func(inputs):
     inputs : list
         list of inputs
         [0] : Array with signals to separate
-        [1] : current ROI number
+        [1] : Alpha input to npil.separate
+        [2] : current ROI number
 
     Returns
     -------
@@ -91,9 +92,10 @@ def separate_func(inputs):
 
     """
     X = inputs[0]
+    alpha = inputs[1]
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-                X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1)
-    ROInum = inputs[1]
+                X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha)
+    ROInum = inputs[2]
     print 'Finished ROI number ' + str(ROInum)
     return Xsep, Xmatch, Xmixmat, convergence
 
