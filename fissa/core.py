@@ -216,6 +216,7 @@ class Experiment():
         ----------
         redo : bool
             Redo the preparation even if done before
+
         """
         # define filename where data will be present
         fname = self.folder+'/preparation.npy'
@@ -299,6 +300,7 @@ class Experiment():
             redo_sep = True as well.
         redo_sep : bool, optional
             Whether to redo the separation
+
         """
         # Do data preparation
         self.separation_prep(redo_prep)
@@ -323,26 +325,12 @@ class Experiment():
             result = np.copy(sep)
             mixmat = np.copy(sep)
             info = np.copy(sep)
-            trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
 
             # loop over cells to define function inputs
             inputs = [0]*self.nCell
             for cell in range(self.nCell):
-                # get first trial data
-                cur_signal = self.raw[cell][0]
-
                 # initiate concatenated data
-                X = cur_signal
-                trial_lens[0] = cur_signal.shape[1]
-
-                # concatenate all trials
-                for trial in range(1, self.nTrials):
-                    # get current trial data
-                    cur_signal = self.raw[cell][trial]
-                    # concatenate
-                    X = np.concatenate((X, cur_signal), axis=1)
-
-                    trial_lens[trial] = cur_signal.shape[1]
+                X = np.concatenate(self.raw[cell], axis=1)
 
                 # check for below 0 values
                 if X.min() < 0:
@@ -370,7 +358,7 @@ class Experiment():
                 curTrial = 0
                 Xsep, Xmatch, Xmixmat, convergence = results[cell]
                 for trial in range(self.nTrials):
-                    nextTrial = curTrial+trial_lens[trial]
+                    nextTrial = curTrial + self.raw[cell][trial].shape[1]
                     sep[cell][trial] = Xsep[:, curTrial:nextTrial]
                     result[cell][trial] = Xmatch[:, curTrial:nextTrial]
                     curTrial = nextTrial
