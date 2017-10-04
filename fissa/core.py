@@ -342,6 +342,8 @@ class Experiment():
 
                 # check for below 0 values
                 if X.min() < 0:
+                    warnings.warn('Found values below zero in signal, ' +
+                                  'setting minimum to 0.')
                     X -= X.min()
 
                 # update inputs
