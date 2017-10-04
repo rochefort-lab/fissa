@@ -4,6 +4,7 @@ Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 """
 
 import datahandler
+import collections
 import roitools
 import glob
 import warnings
@@ -48,8 +49,8 @@ def extract_func(inputs):
     mean = curdata.mean(axis=0)
 
     # predefine dictionaries
-    data = {}
-    roi_polys = {}
+    data = collections.OrderedDict()
+    roi_polys = collections.OrderedDict()
 
     # get neuropil masks and extract signals
     for cell in range(len(base_masks)):
@@ -201,8 +202,8 @@ class Experiment():
         if redo:
             print 'Doing region growing and data extraction....'
             # predefine data structures
-            data = {}
-            roi_polys = {}
+            data = collections.OrderedDict()
+            roi_polys = collections.OrderedDict()
 
             # define inputs
             inputs = [0]*self.nTrials
@@ -287,10 +288,10 @@ class Experiment():
         if redo_sep:
             print 'Doing signal separation....'
             # predefine data structures
-            sep = {}
-            result = {}
-            mixmat = {}
-            info = {}
+            sep = collections.OrderedDict()
+            result = collections.OrderedDict()
+            mixmat = collections.OrderedDict()
+            info = collections.OrderedDict()
             trial_lens = np.zeros(len(self.images), dtype=int)  # trial lengths
 
             # loop over cells to define function inputs
@@ -375,19 +376,19 @@ class Experiment():
         fname = self.folder + '/matlab.mat'
 
         # initialize dictionary to save
-        M = {}
-        M['ROIs'] = {}
-        M['raw'] = {}
-        M['fissa'] = {}
+        M = collections.OrderedDict()
+        M['ROIs'] = collections.OrderedDict()
+        M['raw'] = collections.OrderedDict()
+        M['result'] = collections.OrderedDict()
 
         # loop over cells and trial
         for cell in range(self.nCell):
             # get current cell label
             c_lab = 'cell'+str(cell)
             # update dictionary
-            M['ROIs'][c_lab] = {}
-            M['raw'][c_lab] = {}
-            M['fissa'][c_lab] = {}
+            M['ROIs'][c_lab] = collections.OrderedDict()
+            M['raw'][c_lab] = collections.OrderedDict()
+            M['result'][c_lab] = collections.OrderedDict()
             for trial in range(self.nTrials):
                 # get current trial label
                 t_lab = 'trial'+str(trial)
