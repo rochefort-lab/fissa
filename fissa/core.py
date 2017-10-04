@@ -2,7 +2,6 @@
 
 Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 """
-
 import datahandler
 import collections
 import roitools
