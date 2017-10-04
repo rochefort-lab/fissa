@@ -24,6 +24,7 @@ def image2array(image):
     -------
     np.array
         A 3D array containing the data as (frames, y coordinate, x coordinate)
+
     """
     if isinstance(image, str):
         return tifffile.imread(image)
@@ -47,6 +48,7 @@ def rois2masks(rois, shape):
     -------
     list
         List of binary arrays (i.e. masks)
+
     """
     # if it's a list of strings
     if isinstance(rois, str):
@@ -72,6 +74,7 @@ def extracttraces(data, masks):
         Data array as made by image2array. Should be of shape [frames,y,x]
     masks : list
         list of binary arrays (masks)
+
     """
     # get the number rois and frames
     nrois = len(masks)
