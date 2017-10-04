@@ -460,13 +460,16 @@ class Experiment():
         Can be found in 'folder/matlab.mat'.
 
         This will give you a filename.mat file which if loaded in Matlab gives
-        the following structs: ROIs, fissa, raw.
+        the following structs: ROIs, result, raw.
+
+        If df/f0 was calculated, these will also be stored as df_result
+        and df_raw, which will have the same format as result and raw.
 
         These can be interfaced with as follows, for cell 0, trial 0:
             ROIs.cell0.trial0{1} % polygon for the ROI
             ROIs.cell0.trial0{2} % polygon for first neuropil region
-            fissa.cell0.trial0(1,:) % final extracted cell signal
-            fissa.cell0.trial0(2,:) % contaminating signal
+            result.cell0.trial0(1,:) % final extracted cell signal
+            result.cell0.trial0(2,:) % contaminating signal
             raw.cell0.trial0(1,:) % raw measured celll signal
             raw.cell0.trial0(2,:) % raw signal from first neuropil region
         """
