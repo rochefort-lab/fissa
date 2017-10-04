@@ -24,10 +24,6 @@ def image2array(image):
     -------
     np.array
         A 3D array containing the data as (frames, y coordinate, x coordinate)
-
-    TODO
-    ----
-    - Raise error if wrong type
     """
     if isinstance(image, str):
         return tifffile.imread(image)
