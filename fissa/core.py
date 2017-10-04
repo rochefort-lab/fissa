@@ -101,7 +101,7 @@ def separate_func(inputs):
 
 
 class Experiment():
-    """Does all the steps for FISSA in one swoop."""
+    """Does all the steps for FISSA."""
 
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.2, ncores_preparation=None,
@@ -119,10 +119,10 @@ class Experiment():
             Non tiff data should be formatted as (frames,y-coords,x-coords)
         rois : string or list
             The roi definitions.
-            Should be the path of a folder with imagej zips,
-            an explicit list of imagej zip locations, a list of arrays encoding
-            roi polygons, or a list of lists of binary arrays representing roi
-            masks.
+            Should be the path of a folder with imagej zips, the explicit path
+            of a single imagej zip, an explicit list of imagej zip locations,
+            a list of arrays encoding roi polygons, or a list of lists of
+            binary arrays representing roi masks.
             Should be either a single roiset for all trials, or a different
             roiset for each trial.
         folder : string
