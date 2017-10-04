@@ -237,7 +237,8 @@ class Experiment():
             # define inputs
             inputs = [0]*self.nTrials
             for trial in range(self.nTrials):
-                inputs[trial] = [self.images[trial], self.rois[trial]]
+                inputs[trial] = [self.images[trial], self.rois[trial],
+                                 self.nRegions, self.expansion]
 
             # Do the extraction
             if has_multiprocessing:
@@ -337,7 +338,6 @@ class Experiment():
                 for trial in range(1, self.nTrials):
                     # get current trial data
                     cur_signal = self.raw[cell, trial]
-
                     # concatenate
                     X = np.concatenate((X, cur_signal), axis=1)
 
