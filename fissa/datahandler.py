@@ -32,7 +32,7 @@ def image2array(image):
     if isinstance(image, str):
         return tifffile.imread(image)
 
-    if isinstance(image, np.ndarray):
+    if isinstance(image, np.array):
         return image
 
 
