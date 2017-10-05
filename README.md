@@ -39,7 +39,7 @@ Download and install:
 * Microsoft Visual C++ Compiler for Python 2.7: <https://www.microsoft.com/en-us/download/details.aspx?id=44266>
 
 * Python 2.7 Anaconda as the Python environment, available from
-<https://www.anaconda.com/download/#linux>.
+<https://www.anaconda.com/download/>.
 
 
 #### Installing FISSA
