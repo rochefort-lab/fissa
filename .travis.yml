@@ -234,7 +234,7 @@ script:
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
     fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd doc; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd examples; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
 
