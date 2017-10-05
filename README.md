@@ -20,7 +20,7 @@ For general discussion and help with installation or setup, please see the
 
 Usage
 -----
-A general tutorial on the use of FISSA can be found at
+A general tutorial on the use of FISSA can be found at:
 <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>
 
 An example workflow with another Python toolbox (SIMA):
@@ -55,8 +55,9 @@ Install FISSA as follows (from the folder above fissa).
 ```
 pip install fissa
 ```
+
 If you want use the interactive plotting from the notebooks also install
-the HoloViews plotting toolobo
+the HoloViews plotting toolbox
 
 ```
 conda install -c holoviews
