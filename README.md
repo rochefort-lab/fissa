@@ -29,7 +29,8 @@ An example workflow with another Python toolbox (SIMA):
 An example workflow importing data exported from a MATLAB toolbox (cNMF):
 <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>
 
-These notebooks can also be downloaded from this repository and run on your own machine, by downloading the examples folder.
+These notebooks can also be downloaded from this repository and run on your own machine, by downloading the examples folder: <https://github.com/rochefort-lab/fissa/tree/master/examples>
+and then running them in a jupyter notebook (for a tutorial see https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook).
 
 Installation
 ------------
@@ -64,7 +65,7 @@ and then
 ```
 import fissa
 ```
-If no errors show up, FISSA installed correctly. Leave Python by typing exit().
+If no errors show up, FISSA installed correctly. 
 
 If you want to use the interactive plotting from the notebooks also install
 the HoloViews plotting toolbox as follows
@@ -73,6 +74,7 @@ the HoloViews plotting toolbox as follows
 conda install -c ioam holoviews
 ```
 
+Leave Python by typing exit(), or just close the window. See usage above for how to use FISSA.
 
 ### Installation on Linux
 
@@ -125,10 +127,7 @@ Folder Structure
 
 ### examples
 Contains example code. You can load the notebooks as .ipynb directly in GitHub,
-or on your system if you know how to use jupyter notebooks
-(for a tutorial see https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook).
-
-For a basic tutorial of using FISSA see ```Basic usage.ipynb``` or ```Basic usage.html```. An example workflow is shown in ```basic_usage.py```.
+or on your system if you know how to use jupyter notebooks.
 
 ### exampleData
 Contains example data. It a zipfile with region of interests from ImageJ.
