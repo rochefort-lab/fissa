@@ -56,7 +56,7 @@ setup(
     author_email="swkeemink@scimail.eu",
     description="A Python Library estimating somatic signals in 2-photon data",
     url="https://github.com/rochefort-lab/fissa",
-    download_url="NA",
+    download_url="https://github.com/rochefort-lab/fissa/archive/1.0.tar.gz",
     package_dir={NAME: "./fissa"},
     packages=[NAME],
     license="GNU",
