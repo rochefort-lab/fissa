@@ -12541,6 +12541,25 @@ rois = ['rois1.zip', 'rois2.zip',...] # for a roiset for each image</code></pre>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Reloading previously prepared data...
+Reloading previously separated data...
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
@@ -12565,6 +12584,37 @@ rois = ['rois1.zip', 'rois2.zip',...] # for a roiset for each image</code></pre>
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">separation_prep</span><span class="p">(</span><span class="n">redo</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Doing region growing and data extraction....
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">separate</span><span class="p">(</span><span class="n">redo_prep</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">redo_sep</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
@@ -12584,14 +12634,14 @@ rois = ['rois1.zip', 'rois2.zip',...] # for a roiset for each image</code></pre>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Doing region growing and data extraction....
 Doing signal separation....
-NMF converged after 618 iterations.
-Finished ROI number 0
 NMF converged after 575 iterations.
 Finished ROI number 1
 NMF converged after 636 iterations.
 Finished ROI number 2
 NMF converged after 610 iterations.
 Finished ROI number 3
+NMF converged after 618 iterations.
+Finished ROI number 0
 </pre>
 </div>
 </div>
@@ -12607,7 +12657,7 @@ Finished ROI number 3
 <p>If you want to redo preparation and/or separation you can set:</p>
 
 <pre><code>experiment.separate(redo_prep=True, redo_sep=True)</code></pre>
-<p>(If you redo prepartion this will also redo the separation, to make sure these always match up)</p>
+<p>(If you redo prepartion this will also redo the separation, to make sure these always match up).</p>
 
 </div>
 </div>
@@ -12619,11 +12669,11 @@ Finished ROI number 3
 <h2 id="Accessing-results">Accessing results<a class="anchor-link" href="#Accessing-results">&#194;&#182;</a></h2><p>After running <code>experiment.separate()</code> the results are stored as follows.</p>
 <h4 id="ROI-outlines">ROI outlines<a class="anchor-link" href="#ROI-outlines">&#194;&#182;</a></h4><p>The ROI outlines, as well as the extra neuropil regions, can be found as in <code>experiment.roi_polys</code> as follows. For cell number <code>c</code> and tiff number <code>t</code>, the set of ROIs for that cell and tiff is at</p>
 
-<pre><code>experiment.roi_polys[c,t][0][0] # basic ROI
-experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></pre>
+<pre><code>experiment.roi_polys[c][t][0][0] # basic ROI
+experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></pre>
 <p>Sometimes ROIs cannot be expressed as a single polygon (e.g. a ring-ROI), in those cases several polygons are used to describe it as:</p>
 
-<pre><code>experiment.roi_polys[c,t][0][i] # i iterates over the different polygons</code></pre>
+<pre><code>experiment.roi_polys[c][t][0][i] # i iterates over the different polygons</code></pre>
 <p>As an example, plotting the first region of interest plus its first neuropil sub:</p>
 
 </div>
@@ -12631,13 +12681,13 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">cell</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">roi_polys</span><span class="p">[</span><span class="n">c</span><span class="p">,</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">neuropil1</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">roi_polys</span><span class="p">[</span><span class="n">c</span><span class="p">,</span><span class="n">t</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">cell</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">roi_polys</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">neuropil1</span> <span class="o">=</span> <span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">roi_polys</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">t</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">cell</span><span class="o">*</span><span class="n">neuropil1</span>
 </pre></div>
 
@@ -12651,7 +12701,7 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[5]:</div>
+<div class="prompt output_prompt">Out[6]:</div>
 
 
 
@@ -12671,22 +12721,22 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 <div class="text_cell_render border-box-sizing rendered_html">
 <h4 id="FISSA-extracted-traces">FISSA extracted traces<a class="anchor-link" href="#FISSA-extracted-traces">&#194;&#182;</a></h4><p>The final extracted traces can be found in <code>experiment.result</code> as follows. For cell number <code>c</code> and tiff number <code>t</code>, the final extracted trace is given by:</p>
 
-<pre><code>experiment.result[c,t][0,:]</code></pre>
-<p>In <code>experiment.result</code> one can find the signals present in the cell ROI, ordered by how strongly they are present (relative to the surrounding regions). <code>experiment.result[c,t][0,:]</code> gives the most strongly present signal, and is seen as the cell's 'true' signal. <code>[i,:]</code> for <code>i=1,2,3,...</code> gives the other signals which are present in the cell ROI.</p>
-<h4 id="Before-decontamination">Before decontamination<a class="anchor-link" href="#Before-decontamination">&#194;&#182;</a></h4><p>The raw extracted signals can be found in <code>experiment.raw</code> in the same way. Now in  <code>experiment.raw[c,t][i,:]</code>, <code>i</code> indicates the region number, with <code>i=0</code> being the cell, and <code>i=1,2,3,...</code> indicating the surrounding regions.</p>
-<p>As an example, plotting the raw and extracted signals for the second trial for the first cell:</p>
+<pre><code>experiment.result[c][t][0,:]</code></pre>
+<p>In <code>experiment.result</code> one can find the signals present in the cell ROI, ordered by how strongly they are present (relative to the surrounding regions). <code>experiment.result[c][t][0,:]</code> gives the most strongly present signal, and is seen as the cell's 'true' signal. <code>[i,:]</code> for <code>i=1,2,3,...</code> gives the other signals which are present in the cell ROI.</p>
+<h4 id="Before-decontamination">Before decontamination<a class="anchor-link" href="#Before-decontamination">&#194;&#182;</a></h4><p>The raw extracted signals can be found in <code>experiment.raw</code> in the same way. Now in  <code>experiment.raw[c][t][i,:]</code>, <code>i</code> indicates the region number, with <code>i=0</code> being the cell, and <code>i=1,2,3,...</code> indicating the surrounding regions.</p>
+<p>As an example, plotting the raw and extracted signals for the second trial for the third cell:</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">t</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">c</span><span class="p">,</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">)</span><span class="o">*</span><span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">c</span><span class="p">,</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;decontaminated&#39;</span><span class="p">)</span>
+<span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">)</span><span class="o">*</span><span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">c</span><span class="p">,</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;decontaminated&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12699,7 +12749,7 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[6]:</div>
+<div class="prompt output_prompt">Out[7]:</div>
 
 
 
@@ -12717,6 +12767,71 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="df/f0">df/f0<a class="anchor-link" href="#df/f0">&#194;&#182;</a></h4><p>It is often useful to calculate the df/f0 of traces. This can be done as follows. By default it is done across all trials, but it can also be done per trial by setting across_trials to False.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">calc_deltaf</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">across_trials</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">deltaf_raw</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">t</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="n">vdims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;df/f0&#39;</span><span class="p">])</span><span class="o">*</span><span class="n">hv</span><span class="o">.</span><span class="n">Curve</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">deltaf_result</span><span class="p">[</span><span class="n">c</span><span class="p">,</span><span class="n">t</span><span class="p">][</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;decontaminated&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[9]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<img src='data:image/png;base64,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' style='max-width:100%; margin: auto; display: block; '/>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that this uses the F0 from the raw trace for both</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Exporting-to-MATLAB">Exporting to MATLAB<a class="anchor-link" href="#Exporting-to-MATLAB">&#194;&#182;</a></h2><p>The results can easily be exported to MATLAB as follows:</p>
 
 </div>
@@ -12724,7 +12839,7 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">save_to_matlab</span><span class="p">()</span>
@@ -12744,11 +12859,11 @@ experiment.roi_polys[c,t][n][0] # n = 1, 2, 3.... the neuropil regions</code></p
 <p>These interface similarly as <code>experiment.ROIs</code>, <code>experiment.raw</code>, and <code>experiment.result</code> described above. However, Matlab counts from 1 (as opposed to Python counting from 0), such that the ROI, raw trace, and decontaminated trace are all found for cell 0 trial 0 as:</p>
 
 <pre><code>ROIs.cell0.trial0{1} % polygon for the ROI
-ROIs.cell0.trial0{2} % polygon for first neuropil region
+ROIs.cell0.trial0{2} % polygon for first neuropil subregion
 result.cell0.trial0(1,:) % final extracted cell signal
 result.cell0.trial0(2,:) % contaminating signal
 raw.cell0.trial0(1,:) % raw measured celll signal
-raw.cell0.trial0(2,:) % raw signal from first neuropil region</code></pre>
+raw.cell0.trial0(2,:) % raw signal from first neuropil subregion</code></pre>
 
 </div>
 </div>
@@ -12772,7 +12887,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil region</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">trial</span> <span class="o">=</span> <span class="mi">1</span>
@@ -12789,7 +12904,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil region</code></pre>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[8]:</div>
+<div class="prompt output_prompt">Out[11]:</div>
 
 
 
@@ -12823,7 +12938,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil region</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">t</span><span class="o">=</span><span class="mi">0</span>
@@ -12840,7 +12955,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil region</code></pre>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[9]:</div>
+<div class="prompt output_prompt">Out[12]:</div>
 
 
 
@@ -12865,7 +12980,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil region</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># By default FISSA uses all the available processing threads. </span>
@@ -12926,7 +13041,7 @@ Reloading previously separated data...
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">ncores_preparation</span> <span class="o">=</span> <span class="mi">4</span>
