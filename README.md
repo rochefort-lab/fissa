@@ -70,7 +70,7 @@ If you want to use the interactive plotting from the notebooks also install
 the HoloViews plotting toolbox as follows
 
 ```
-conda install -c holoviews
+conda install -c ioam holoviews
 ```
 
 
