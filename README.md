@@ -55,6 +55,15 @@ Install FISSA as follows (from the folder above fissa).
 ```
 pip install fissa
 ```
+To test if FISSA installed correctly type
+```
+python
+```
+and then
+```
+import fissa
+```
+If no errors show up, FISSA installed correctly.
 
 If you want use the interactive plotting from the notebooks also install
 the HoloViews plotting toolbox
@@ -99,6 +108,16 @@ With the libraries required to run the notebooks with plots:
 ```
 pip install fissa['plotting']
 ```
+
+To test if FISSA installed correctly type
+```
+python
+```
+and then
+```
+import fissa
+```
+If no errors show up, FISSA installed correctly.
 
 Folder Structure
 ----------------
