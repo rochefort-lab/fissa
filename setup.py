@@ -8,13 +8,13 @@ from setuptools.command.test import test as TestCommand
 NAME = 'fissa'
 
 
-install_requires = [	'numpy>=1.12.1',
-                     'scipy>=0.19.0',
+install_requires = [	'numpy>=1.13.1',
+                     'scipy>=0.19.1',
                      'future>=0.16.0',
-                     'scikit-learn>=0.17.0',
-                     'scikit-image>=0.12.3',
+                     'scikit-learn>=0.18.2',
+                     'scikit-image>=0.13.0',
                      'shapely>=1.5.17.post1',
-                     'tifffile>=0.10.0',
+                     'tifffile>=0.12.1',
                      'multiprocessing>=2.6.2.1']
 extras_require = {}
 
@@ -22,7 +22,7 @@ extras_require = {}
 extras_require['plotting'] = (['holoviews>=1.8.2'])
 
 # Dev dependencies
-extras_require['dev'] = (['pytest>=2.8.1',
+extras_require['dev'] = (['pytest>=3.2.2',
                           'pytest-cov',
                           'pytest-flake8'])
 
