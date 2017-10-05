@@ -15,7 +15,7 @@ import deltaf
 try:
     from multiprocessing import Pool
     has_multiprocessing = True
-except:
+except BaseException:
     warnings.warn('Multiprocessing library is not installed, using single ' +
                   'core instead. To use multiprocessing install it by: ' +
                   'pip install multiprocessing')
@@ -63,13 +63,13 @@ def extract_func(inputs):
         npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=nNpil,
                                             expansion=expansion)
         # add all current masks together
-        masks = [base_masks[cell]]+npil_masks
+        masks = [base_masks[cell]] + npil_masks
 
         # extract traces
         data[cell] = datahandler.extracttraces(curdata, masks)
 
         # store ROI outlines
-        roi_polys[cell] = ['']*len(masks)
+        roi_polys[cell] = [''] * len(masks)
         for i in range(len(masks)):
             roi_polys[cell][i] = roitools.find_roi_edge(masks[i])
 
@@ -95,7 +95,8 @@ def separate_func(inputs):
     X = inputs[0]
     alpha = inputs[1]
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-                X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha)
+        X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
+    )
     ROInum = inputs[2]
     print 'Finished ROI number ' + str(ROInum)
     return Xsep, Xmatch, Xmixmat, convergence
@@ -153,7 +154,7 @@ class Experiment():
         general FISSA options, etc
         """
         if isinstance(images, str):
-            self.images = sorted(glob.glob(images+'/*.tif*'))
+            self.images = sorted(glob.glob(images + '/*.tif*'))
         elif isinstance(images, list):
             self.images = images
         else:
@@ -161,9 +162,9 @@ class Experiment():
 
         if isinstance(rois, str):
             if rois[-3:] == 'zip':
-                self.rois = [rois]*len(self.images)
+                self.rois = [rois] * len(self.images)
             else:
-                self.rois = sorted(glob.glob(rois+'/*.zip'))
+                self.rois = sorted(glob.glob(rois + '/*.zip'))
         elif isinstance(rois, list):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
@@ -188,7 +189,7 @@ class Experiment():
         if not os.path.exists(folder):
             os.makedirs(folder)
         if os.path.isfile(folder + '/preparation.npy'):
-            if os.path.isfile(folder+'/separated.npy'):
+            if os.path.isfile(folder + '/separated.npy'):
                 self.separate()
             else:
                 self.separation_prep()
@@ -220,20 +221,20 @@ class Experiment():
 
         """
         # define filename where data will be present
-        fname = self.folder+'/preparation.npy'
+        fname = self.folder + '/preparation.npy'
 
         # try to load data from filename
         if not redo:
             try:
                 nCell, raw, roi_polys = np.load(fname)
                 print 'Reloading previously prepared data...'
-            except:
+            except BaseException:
                 redo = True
 
         if redo:
             print 'Doing region growing and data extraction....'
             # define inputs
-            inputs = [0]*self.nTrials
+            inputs = [0] * self.nTrials
             for trial in range(self.nTrials):
                 inputs[trial] = [self.images[trial], self.rois[trial],
                                  self.nRegions, self.expansion]
@@ -247,7 +248,7 @@ class Experiment():
                 results = pool.map(extract_func, inputs)
                 pool.close()
             else:
-                results = [0]*self.nTrials
+                results = [0] * self.nTrials
                 for trial in range(self.nTrials):
                     results[trial] = extract_func(inputs[trial])
 
@@ -314,7 +315,7 @@ class Experiment():
             try:
                 info, mixmat, sep, result = np.load(fname)
                 print 'Reloading previously separated data...'
-            except:
+            except BaseException:
                 redo_sep = True
 
         # separate data, if necessary
@@ -328,7 +329,7 @@ class Experiment():
             info = np.copy(sep)
 
             # loop over cells to define function inputs
-            inputs = [0]*self.nCell
+            inputs = [0] * self.nCell
             for cell in range(self.nCell):
                 # initiate concatenated data
                 X = np.concatenate(self.raw[cell], axis=1)
@@ -350,7 +351,7 @@ class Experiment():
                 results = pool.map(separate_func, inputs)
                 pool.close()
             else:
-                results = [0]*self.nCell
+                results = [0] * self.nCell
                 for cell in range(self.nCell):
                     results[cell] = separate_func(inputs[cell])
 
@@ -410,14 +411,14 @@ class Experiment():
 
                 # calculate deltaf/f0
                 raw_f0 = deltaf.findBaselineF0(raw_conc, freq)
-                raw_conc = (raw_conc-raw_f0)/raw_f0
+                raw_conc = (raw_conc - raw_f0) / raw_f0
                 result_f0 = deltaf.findBaselineF0(
-                                                    result_conc, freq, 1
-                                                 ).T[:, None]
+                    result_conc, freq, 1
+                ).T[:, None]
                 if use_raw_f0:
-                    result_conc = (result_conc-result_f0)/raw_f0
+                    result_conc = (result_conc - result_f0) / raw_f0
                 else:
-                    result_conc = (result_conc-result_f0)/result_f0
+                    result_conc = (result_conc - result_f0) / result_f0
 
                 # store deltaf/f0s
                 curTrial = 0
@@ -438,14 +439,14 @@ class Experiment():
                     # calculate deltaf/fo
                     raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
                     result_f0 = deltaf.findBaselineF0(
-                                                        result_sig, freq, 1
-                                                     ).T[:, None]
-                    result_f0[result_f0<0]=0
-                    raw_sig = (raw_sig-raw_f0)/raw_f0
+                        result_sig, freq, 1
+                    ).T[:, None]
+                    result_f0[result_f0 < 0] = 0
+                    raw_sig = (raw_sig - raw_f0) / raw_f0
                     if use_raw_f0:
-                        result_sig = (result_sig-result_f0)/raw_f0
+                        result_sig = (result_sig - result_f0) / raw_f0
                     else:
-                        result_sig = (result_sig-result_f0)/result_f0
+                        result_sig = (result_sig - result_f0) / result_f0
 
                     # store deltaf/f0s
                     deltaf_raw[cell][trial] = raw_sig
@@ -485,14 +486,14 @@ class Experiment():
         # loop over cells and trial
         for cell in range(self.nCell):
             # get current cell label
-            c_lab = 'cell'+str(cell)
+            c_lab = 'cell' + str(cell)
             # update dictionary
             M['ROIs'][c_lab] = collections.OrderedDict()
             M['raw'][c_lab] = collections.OrderedDict()
             M['result'][c_lab] = collections.OrderedDict()
             for trial in range(self.nTrials):
                 # get current trial label
-                t_lab = 'trial'+str(trial)
+                t_lab = 'trial' + str(trial)
                 # update dictionary
                 M['ROIs'][c_lab][t_lab] = self.roi_polys[cell][trial]
                 M['raw'][c_lab][t_lab] = self.raw[cell][trial]
