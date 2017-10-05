@@ -48,15 +48,15 @@ before_install:
   # ---------------------------------------------------------------------------
   # Check which versions of numpy and scipy we are using, then remove these
   # lines from requirements.txt
-  # - if [ -f requirements.txt ]; then
-  #     NUMPY_REQUIREMENT="$(grep '^numpy\([<>=!]\|$\)' requirements.txt)";
-  #     echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
-  #     SCIPY_REQUIREMENT="$(grep '^scipy\([<>=!]\|$\)' requirements.txt)";
-  #     echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
-  #     sed '/^\(num\|sci\)py\([<>=!]\|$\)/d' requirements.txt >
-  #       requirements.txt.tmp &&
-  #       mv requirements.txt.tmp requirements.txt;
-  #   fi;
+  - if [ -f requirements.txt ]; then
+      NUMPY_REQUIREMENT="$(grep '^numpy\([<>=!]\|$\)' requirements.txt)";
+      echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
+      SCIPY_REQUIREMENT="$(grep '^scipy\([<>=!]\|$\)' requirements.txt)";
+      echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
+      sed '/^\(num\|sci\)py\([<>=!]\|$\)/d' requirements.txt >
+        requirements.txt.tmp &&
+        mv requirements.txt.tmp requirements.txt;
+    fi;
   # ---------------------------------------------------------------------------
   # Update the package list
   - travis_retry sudo apt-get update
@@ -155,18 +155,18 @@ install:
   # Install required packages listed in requirements.txt. We install this
   # with the upgrade ('-U') flag to ensure we have the most recent version of
   # the dependency which is compatible with the specification.
-  # - cat requirements.txt;
-  #   pip install --no-deps --upgrade -r requirements.txt;
-  #   pip install -r requirements.txt;
+  - cat requirements.txt;
+    pip install --no-deps --upgrade -r requirements.txt;
+    pip install -r requirements.txt;
   # Also install any developmental requirements
-  # - cat requirements-dev.txt;
-  #   pip install --no-deps --upgrade -r requirements-dev.txt;
-  #   pip install -r requirements-dev.txt;
+  - cat requirements-dev.txt;
+    pip install --no-deps --upgrade -r requirements-dev.txt;
+    pip install -r requirements-dev.txt;
   # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
-  # - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-  #     pip install -r requirements_plots.txt;
-  #   fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      pip install -r requirements_plots.txt;
+    fi
   # ---------------------------------------------------------------------------
   # Install our package
   - python setup.py develop
