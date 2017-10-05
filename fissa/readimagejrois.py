@@ -216,6 +216,6 @@ def read_roi(roi_obj):
             coords = _getcoords(z)
             coords = coords.astype('float')
             return {'polygons': coords}
-        except:
+        except BaseException:
             raise ValueError(
                 'read_imagej_roi: ROI type {} not supported'.format(roi_type))

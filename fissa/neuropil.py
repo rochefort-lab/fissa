@@ -9,6 +9,7 @@ import scipy.signal as signal
 import numpy.random as rand
 from sklearn.decomposition import FastICA, NMF, PCA
 
+
 def separate(
         S, sep_method='nmf', n=None, maxiter=10000, tol=1e-4,
         random_state=892, maxtries=10, W0=None, H0=None, alpha=0.1):
@@ -102,12 +103,12 @@ def separate(
             if ica.n_iter_ < maxiter:
                 print((
                     'ICA converged after {} iterations.'
-                    ).format(ica.n_iter_))
+                ).format(ica.n_iter_))
                 break
             print((
                 'Attempt {} failed to converge at {} iterations.'
-                ).format(ith_try+1, ica.n_iter_))
-            if ith_try+1 < maxtries:
+            ).format(ith_try + 1, ica.n_iter_))
+            if ith_try + 1 < maxtries:
                 print('Trying a new random state.')
                 # Change to a new random_state
                 random_state = rand.randint(8000)
@@ -116,7 +117,7 @@ def separate(
             print((
                 'Warning: maximum number of allowed tries reached at {} '
                 'iterations for {} tries of different random seed states.'
-                ).format(ica.n_iter_, ith_try+1))
+            ).format(ica.n_iter_, ith_try + 1))
 
         A_sep = ica.mixing_
 
@@ -149,24 +150,24 @@ def separate(
                 S_sep = nmf.fit_transform(S.T, W=W0, H=H0)
 
             # check if max number of iterations was reached
-            if nmf.n_iter_ < maxiter-1:
+            if nmf.n_iter_ < maxiter - 1:
                 print((
                     'NMF converged after {} iterations.'
-                    ).format(nmf.n_iter_+1))
+                ).format(nmf.n_iter_ + 1))
                 break
             print((
                 'Attempt {} failed to converge at {} iterations.'
-                ).format(ith_try, nmf.n_iter_+1))
-            if ith_try+1 < maxtries:
+            ).format(ith_try, nmf.n_iter_ + 1))
+            if ith_try + 1 < maxtries:
                 print('Trying a new random state.')
                 # Change to a new random_state
                 random_state = rand.randint(8000)
 
-        if nmf.n_iter_ == maxiter-1:
+        if nmf.n_iter_ == maxiter - 1:
             print((
                 'Warning: maximum number of allowed tries reached at {} '
                 'iterations for {} tries of different random seed states.'
-                ).format(nmf.n_iter_+1, ith_try+1))
+            ).format(nmf.n_iter_ + 1, ith_try + 1))
 
         A_sep = nmf.components_.T
 
@@ -193,7 +194,7 @@ def separate(
 
     # order the signals according to their scores
     for j in range(n):
-        s_ = A_sep[0, order[j]]*S_sep[:, order[j]]
+        s_ = A_sep[0, order[j]] * S_sep[:, order[j]]
         S_matched[:, j] = s_
 
     # save the algorithm convergence info
@@ -240,7 +241,7 @@ def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
 
     # Make a set of weights to use with our taps.
     # We use an FIR filter with a Hamming window.
-    b = signal.firwin(nfilt, cutoff=fw_base/nyq_rate, window='hamming')
+    b = signal.firwin(nfilt, cutoff=fw_base / nyq_rate, window='hamming')
 
     # Use lfilter to filter with the FIR filter.
     # We filter along the second dimension because that represents time

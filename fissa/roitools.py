@@ -206,11 +206,12 @@ def get_npil_mask(mask, totalexpansion=4):
     area_orig = grown_mask.sum()  # original area
     area_current = 0  # current size
     shpe = np.shape(mask)
-    area_total = shpe[0]*shpe[1]
+    area_total = shpe[0] * shpe[1]
     count = 0
 
     # for count in range(iterations):
-    while area_current < totalexpansion*area_orig and area_current < area_total-area_orig:
+    while area_current < totalexpansion * \
+            area_orig and area_current < area_total - area_orig:
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
@@ -280,7 +281,7 @@ def getmasks_npil(cellMask, nNpil=4, expansion=1):
     cellMask = np.asarray(cellMask)
 
     # get the total neuropil for this cell
-    mask = get_npil_mask(cellMask, totalexpansion=expansion*nNpil)
+    mask = get_npil_mask(cellMask, totalexpansion=expansion * nNpil)
 
     # get the center of mass for the cell
     centre = get_mask_com(cellMask)

@@ -59,7 +59,7 @@ def rois2masks(rois, shape):
             return roitools.getmasks(rois, shape)
         # if it's a list of bigger arrays, assume masks
         elif np.shape(rois[0]) == shape:
-                return rois
+            return rois
 
     else:
         raise ValueError('Wrong rois input format')
