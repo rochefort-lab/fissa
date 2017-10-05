@@ -1,6 +1,4 @@
-"""
-Unit tests for delaf.py
-"""
+"""Unit tests for delaf.py."""
 
 from __future__ import division
 
@@ -12,10 +10,11 @@ from .. import deltaf
 
 
 class TestFindBaseline(BaseTestCase):
+    """Test baseline functions."""
 
     @unittest.expectedFailure
     def test_trivial(self):
-        # Test trivial input
+        """Test trivial input."""
         fs = 10
         array = np.zeros((1))
         desired = array
@@ -23,7 +22,7 @@ class TestFindBaseline(BaseTestCase):
         self.assert_allclose(actual, desired)
 
     def test_sanity(self):
-        # Simple sanity-check test
+        """Simple sanity-check test."""
         fs = 10
         array = np.zeros((100))
         desired = np.array([0])
@@ -31,7 +30,7 @@ class TestFindBaseline(BaseTestCase):
         self.assert_allclose(actual, desired)
 
     def test_simple(self):
-        # Test simple input
+        """Test simple input."""
         fs = 10
         array = np.ones((1000))
         # Make a few of the values be notably larger
@@ -42,7 +41,7 @@ class TestFindBaseline(BaseTestCase):
         self.assert_allclose(actual, desired)
 
     def test_multidimensional(self):
-        # Test multi-dimensional input
+        """Test multi-dimensional input."""
         fs = 10
         array = np.zeros((1000, 3))
         array[:, 0] = 2
@@ -63,7 +62,7 @@ class TestFindBaseline(BaseTestCase):
         self.assert_allclose(actual, desired)
 
     def test_random(self):
-        # Random input test
+        """Random input test."""
         # prep random number generator
         fs = 40
         num_samples = 10000

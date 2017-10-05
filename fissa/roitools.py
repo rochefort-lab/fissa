@@ -1,5 +1,4 @@
-'''
-Functions used for ROI manipulation.
+'''Functions used for ROI manipulation.
 
 Authors:
     Sander W Keemink <swkeemink@scimail.eu>

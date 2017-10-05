@@ -1,9 +1,8 @@
-'''
-Tests for the functions in neuropil.py
+"""Tests for the functions in neuropil.py.
 
 Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-11-06
-'''
+"""
 import numpy as np
 
 from .base_test import BaseTestCase
@@ -11,18 +10,17 @@ from .. import neuropil as npil
 
 
 class TestNeuropilFuns(BaseTestCase):
+    """Neuropil functions testing class."""
 
     def setup_class(self):
+        """Set up the basic variables."""
         # length of arrays in tests
         self.l = 100
         # setup basic x values for fake data
         self.x = np.linspace(0, np.pi * 2, self.l)
 
     def test_separate(self):
-        '''
-        Tests if the separate function returns data in the right format
-        for all methods.
-        '''
+        """Tests the separate function data format."""
         # TODO: Successfullness of methods are hard to test with unittests.
         #       Need to make a test case where answer is known, and test
         #       against that.
@@ -47,15 +45,14 @@ class TestNeuropilFuns(BaseTestCase):
 
         # function for testing a method
         def run_method(method):
-            '''
-            Tests for a single method
+            """Test a single method.
 
             Parameters
             ----------
             Method : string
                 What method to test: 'nmf', 'ica', or 'nmf_sklearn')
 
-            '''
+            """
             # unmix data with ica
             S_sep, S_matched, A_sep, convergence = npil.separate(
                 S, sep_method=method, n=2, maxiter=1, maxtries=1)
