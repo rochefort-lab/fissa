@@ -35,7 +35,7 @@ Installation
 ------------
 ### Installation on Windows
 #### Basic prerequisites
-Download and install:
+Download and install, in the following order:
 * Microsoft Visual C++ Compiler for Python 2.7: <https://www.microsoft.com/en-us/download/details.aspx?id=44266>
 
 * Python 2.7 Anaconda as the Python environment, available from
