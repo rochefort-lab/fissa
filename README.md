@@ -100,18 +100,6 @@ With the libraries required to run the notebooks with plots:
 pip install fissa['plotting']
 ```
 
-And with testing tools
-
-```
-pip install fissa['dev']
-```
-
-And all of the above as
-
-```
-pip install fissa['all']
-```
-
 Folder Structure
 ----------------
 
