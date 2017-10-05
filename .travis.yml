@@ -35,10 +35,10 @@ env:
   matrix:
       - TEST_NOTEBOOKS="false"
         USE_OLDEST_DEPENDENCIES="false"
-      - TEST_NOTEBOOKS="true"
-        USE_OLDEST_DEPENDENCIES="false"
-      - TEST_NOTEBOOKS="true"
-        USE_OLDEST_DEPENDENCIES="true"
+    #   - TEST_NOTEBOOKS="true"
+    #     USE_OLDEST_DEPENDENCIES="false"
+    #   - TEST_NOTEBOOKS="true"
+    #     USE_OLDEST_DEPENDENCIES="true"
 
 ###############################################################################
 # Setup the environment before installing
@@ -206,7 +206,7 @@ script:
     fi;
   # ---------------------------------------------------------------------------
   # Test the main code base
-  - py.test --flake8 --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+  - py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Test the notebooks
   - function check_notebooks {
       RETURNVALUE=0;
@@ -234,7 +234,7 @@ script:
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
     fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd doc; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd examples; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
 

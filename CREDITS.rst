@@ -15,7 +15,7 @@ Testing
 
 External Code
 ------------------
-* sima_borrowed from Kaifosh P
+* ROI.py adapted from from the sima package http://www.losonczylab.org/sima.
 * NIH ImageJ ROI parsing from Luis Pedro Coelho
 
 Funding

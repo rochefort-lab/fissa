@@ -1,5 +1,4 @@
-"""
-The functions below were taken from the sima package
+"""The functions below were taken from the sima package
 http://www.losonczylab.org/sima version 1.3.0.
 
 @swkeemink: Commented out lines 52-55 to remove a warning message for FISSA.
@@ -27,7 +26,7 @@ from builtins import filter
 from scipy.sparse import lil_matrix
 import numpy as np
 from itertools import product
-from warnings import warn
+# from warnings import warn
 
 from shapely.geometry import MultiPolygon, Polygon, Point
 
@@ -95,7 +94,7 @@ def poly2mask(polygons, im_size):
 
 
 def _reformat_polygons(polygons):
-    """Convert polygons to a MulitPolygon
+    """Convert polygons to a MulitPolygon.
 
     Accepts one more more sequence of 2- or 3-element sequences or a sequence
     of shapely Polygon objects.
@@ -112,7 +111,6 @@ def _reformat_polygons(polygons):
     MultiPolygon
 
     """
-
     if len(polygons) == 0:
         # Just return an empty MultiPolygon
         return MultiPolygon([])
@@ -141,8 +139,8 @@ def _reformat_polygons(polygons):
         if poly.has_z:
             z_polygons.append(poly)
         else:
-#            warn('Polygon initialized without z-coordinate. ' +
-#                 'Assigning to zeroth plane (z = 0)')
+            # warn('Polygon initialized without z-coordinate. ' +
+            #    'Assigning to zeroth plane (z = 0)')
             z_polygons.append(
                 Polygon([point + (0,) for point in poly.exterior.coords]))
     return MultiPolygon(z_polygons)

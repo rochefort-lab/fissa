@@ -1,19 +1,18 @@
-'''
-FISSA functions to handle image and roi objects and return the right
-format.
+"""FISSA functions to handle image and roi objects and return the right format.
 
 Authors:
     Sander W Keemink <swkeemink@scimail.eu>
     Scott C Lowe <scott.code.lowe@gmail.com>
 
-'''
+"""
 
 import numpy as np
 import tifffile
 import roitools
 
+
 def image2array(image):
-    ''' Takes the object 'image' and returns an array.
+    """Take the object 'image' and returns an array.
 
     Parameters
     ---------
@@ -25,40 +24,41 @@ def image2array(image):
     -------
     np.array
         A 3D array containing the data as (frames, y coordinate, x coordinate)
-    '''
-    if type(image) == str:
+
+    """
+    if isinstance(image, str):
         return tifffile.imread(image)
 
-    if type(image) == np.array:
+    if isinstance(image, np.ndarray):
         return image
 
 
 def rois2masks(rois, shape):
-    ''' Takes the object 'rois' and returns it as a list of binary masks.
+    """Take the object 'rois' and returns it as a list of binary masks.
 
     Parameters
     ----------
     rois : unkown
         Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or binary arrays representing masks.
+        polygons, or binary arrays representing masks
     shape : tuple
         Shape of the original data in x and y coordinates (x,y)
+
     Returns
     -------
     list
         List of binary arrays (i.e. masks)
 
-    '''
+    """
     # if it's a list of strings
-    if type(rois) == str:
+    if isinstance(rois, str):
         rois = roitools.readrois(rois)
-    if type(rois) == list:
-        # if it's a something by 2 array, assume polygons
-        if rois[0].shape[1] == 2:
+    if isinstance(rois, list):
+        # if it's a something by 2 array (or vice versa), assume polygons
+        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
             return roitools.getmasks(rois, shape)
-
-        # if it's a list bigger arrays, assume masks
-        elif rois[0].shape == shape:
+        # if it's a list of bigger arrays, assume masks
+        elif np.shape(rois[0]) == shape:
             return rois
 
     else:
@@ -66,15 +66,16 @@ def rois2masks(rois, shape):
 
 
 def extracttraces(data, masks):
-    ''' Get the traces for each mask in masks from data
+    """Get the traces for each mask in masks from data
 
     Inputs
     --------------------
     data : array
-        Data array as made by image2array. Should be of shape [frames,y,x].
+        Data array as made by image2array. Should be of shape [frames,y,x]
     masks : list
         list of binary arrays (masks)
-    '''
+
+    """
     # get the number rois and frames
     nrois = len(masks)
     nframes = data.shape[0]

@@ -1,5 +1,4 @@
-'''
-Functions used for ROI manipulation.
+'''Functions used for ROI manipulation.
 
 Authors:
     Sander W Keemink <swkeemink@scimail.eu>
@@ -56,7 +55,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         If True, the `num_slices` input is treated as the number of
         slices to use if the ROI is surrounded by valid pixels, and
         automatically reduces the number of slices if it is on the
-        boundary of the sampled region.
+        boundary of the sampled region. NOT IMPLEMENTED.
 
     Returns
     -------
@@ -164,7 +163,7 @@ def shift_2d_array(a, shift=1, axis=None):
     return out
 
 
-def get_npil_mask(mask, expansion=16):
+def get_npil_mask(mask, totalexpansion=4):
     '''
     Given the masks for a ROI, find the surrounding neuropil.
 
@@ -173,9 +172,8 @@ def get_npil_mask(mask, expansion=16):
     mask : array_like
         The reference ROI mask to expand the neuropil from. The array
         should contain only boolean values.
-    expansion : int, optional (default)
-        How much larger to make neuropil area than ROI area.
-        Full neuropil area will be expansion*R
+    expansion : float, optional
+        How much larger to make the neuropil total area than mask area.
 
     Returns
     -------
@@ -207,11 +205,12 @@ def get_npil_mask(mask, expansion=16):
     area_orig = grown_mask.sum()  # original area
     area_current = 0  # current size
     shpe = np.shape(mask)
-    area_total = shpe[0]*shpe[1]
+    area_total = shpe[0] * shpe[1]
     count = 0
 
-#    for count in range(iterations):
-    while area_current < expansion*area_orig and area_current < area_total-area_orig:
+    # for count in range(iterations):
+    while area_current < totalexpansion * \
+            area_orig and area_current < area_total - area_orig:
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
@@ -261,18 +260,17 @@ def get_npil_mask(mask, expansion=16):
     return grown_mask
 
 
-def getmasks_npil(cellMask, nNpil=4, expansion=16):
-    '''
-    Generates neuropil masks using the get_npil_mask function.
+def getmasks_npil(cellMask, nNpil=4, expansion=1):
+    '''Generate neuropil masks using the get_npil_mask function.
 
     Parameters
     ----------
     cellMask : array_like
         the cell mask (boolean 2d arrays)
     nNpil : int
-        number of neuropils
-    expansion : int
-        How much larger to make neuropil region area
+        number of neuropil subregions
+    expansion : float
+        How much larger to make neuropil subregion area than cellMask's
 
     Returns
     -------
@@ -282,7 +280,7 @@ def getmasks_npil(cellMask, nNpil=4, expansion=16):
     cellMask = np.asarray(cellMask)
 
     # get the total neuropil for this cell
-    mask = get_npil_mask(cellMask, expansion=expansion)
+    mask = get_npil_mask(cellMask, totalexpansion=expansion * nNpil)
 
     # get the center of mass for the cell
     centre = get_mask_com(cellMask)
@@ -330,7 +328,7 @@ def readrois(roiset):
 
 
 def getmasks(rois, shpe):
-    ''' get the masks for the specified rois
+    '''Get the masks for the specified rois.
 
     Parameters
     ----------
@@ -340,6 +338,8 @@ def getmasks(rois, shpe):
         roi = [[0,0], [0,1], [1,1], [1,0]]
         or
         roi = np.array([[0,0], [0,1], [1,1], [1,0]])
+        I.e. a n by 2 array, where n is the number of coordinates.
+        If a 2 by n array is given, this will be transposed.
     shpe : array/list
         shape of underlying image [width,height]
 
@@ -354,6 +354,10 @@ def getmasks(rois, shpe):
     masks = [''] * nrois
 
     for i in range(nrois):
+        # transpose if array of 2 by n
+        if np.asarray(rois[i]).shape[0] == 2:
+            rois[i] = np.asarray(rois[i]).T
+
         # transform current roi to mask
         mask = poly2mask(rois[i], shpe)
         # store in list
