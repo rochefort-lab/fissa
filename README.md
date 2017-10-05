@@ -64,10 +64,10 @@ and then
 ```
 import fissa
 ```
-If no errors show up, FISSA installed correctly.
+If no errors show up, FISSA installed correctly. Leave Python by typing exit().
 
-If you want use the interactive plotting from the notebooks also install
-the HoloViews plotting toolbox
+If you want to use the interactive plotting from the notebooks also install
+the HoloViews plotting toolbox as follows
 
 ```
 conda install -c holoviews
