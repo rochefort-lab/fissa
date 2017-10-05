@@ -48,9 +48,10 @@ start menu or search, and type or copy-paste (by right clicking) the following:
 
 ```
 conda install -c conda-forge shapely 
+conda install tifffile -c conda-forge.
 ```
 
-Install FISSA as follows (from the folder above fissa).
+Then, install FISSA as follows (from the folder above fissa).
 
 ```
 pip install fissa
