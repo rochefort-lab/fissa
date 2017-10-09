@@ -19,7 +19,8 @@ install_requires = [	'numpy>=1.13.1',
 extras_require = {}
 
 # Notebook dependencies for plotting
-extras_require['plotting'] = (['holoviews>=1.8.2'])
+extras_require['plotting'] = (['holoviews>=1.8.2',
+			       'jupyter>=1.00'])
 
 # Dev dependencies
 extras_require['dev'] = (['pytest>=3.2.2',
