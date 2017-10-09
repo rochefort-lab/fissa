@@ -11790,7 +11790,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># FISSA toolbox imports</span>
@@ -11814,7 +11814,7 @@ Plotting in this notebook is done with Holoviews, for details see <a href="http:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Plotting toolbox</span>
@@ -12525,12 +12525,12 @@ rois = ['rois1.zip', 'rois2.zip',...] # for a roiset for each image</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># roi and data locations</span>
-<span class="n">rois_location</span> <span class="o">=</span> <span class="s1">&#39;../exampleData/20150429.zip&#39;</span>
-<span class="n">images_location</span> <span class="o">=</span> <span class="s1">&#39;../exampleData/20150529&#39;</span>
+<span class="n">rois_location</span> <span class="o">=</span> <span class="s1">&#39;exampleData/20150429.zip&#39;</span>
+<span class="n">images_location</span> <span class="o">=</span> <span class="s1">&#39;exampleData/20150529&#39;</span>
 
 <span class="c1"># Folder where data will be stored. Make sure to use a different folder for each experiment.</span>
 <span class="n">output_folder</span> <span class="o">=</span> <span class="s1">&#39;fissa_example&#39;</span> 
@@ -12581,7 +12581,7 @@ Reloading previously separated data...
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">separation_prep</span><span class="p">(</span><span class="n">redo</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -12612,7 +12612,7 @@ Reloading previously separated data...
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">separate</span><span class="p">(</span><span class="n">redo_prep</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">redo_sep</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -12634,10 +12634,10 @@ Reloading previously separated data...
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Doing region growing and data extraction....
 Doing signal separation....
-NMF converged after 575 iterations.
-Finished ROI number 1
 NMF converged after 636 iterations.
 Finished ROI number 2
+NMF converged after 575 iterations.
+Finished ROI number 1
 NMF converged after 610 iterations.
 Finished ROI number 3
 NMF converged after 618 iterations.
@@ -12681,7 +12681,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
@@ -12701,7 +12701,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[6]:</div>
+<div class="prompt output_prompt">Out[7]:</div>
 
 
 
@@ -12731,7 +12731,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
@@ -12749,7 +12749,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[7]:</div>
+<div class="prompt output_prompt">Out[8]:</div>
 
 
 
@@ -12774,7 +12774,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">calc_deltaf</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">across_trials</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -12787,7 +12787,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>
@@ -12805,7 +12805,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[9]:</div>
+<div class="prompt output_prompt">Out[10]:</div>
 
 
 
@@ -12839,7 +12839,7 @@ experiment.roi_polys[c][t][n][0] # n = 1, 2, 3.... the neuropil regions</code></
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">save_to_matlab</span><span class="p">()</span>
@@ -12887,7 +12887,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil subregion</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">trial</span> <span class="o">=</span> <span class="mi">1</span>
@@ -12904,13 +12904,13 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil subregion</code></pre>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[11]:</div>
+<div class="prompt output_prompt">Out[12]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;../exampleData/20150529/AVG_A02.tif&#39;</pre>
+<pre>&#39;exampleData/20150529/AVG_A02.tif&#39;</pre>
 </div>
 
 </div>
@@ -12938,7 +12938,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil subregion</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">t</span><span class="o">=</span><span class="mi">0</span>
@@ -12955,7 +12955,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil subregion</code></pre>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[12]:</div>
+<div class="prompt output_prompt">Out[13]:</div>
 
 
 
@@ -12980,7 +12980,7 @@ raw.cell0.trial0(2,:) % raw signal from first neuropil subregion</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># By default FISSA uses all the available processing threads. </span>
@@ -13041,7 +13041,7 @@ Reloading previously separated data...
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">experiment</span><span class="o">.</span><span class="n">ncores_preparation</span> <span class="o">=</span> <span class="mi">4</span>
