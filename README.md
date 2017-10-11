@@ -48,8 +48,7 @@ Open `Anaconda Prompt.exe`, which can be found through the Windows
 start menu or search, and type or copy-paste (by right clicking) the following:
 
 ```
-conda install -c conda-forge shapely 
-conda install tifffile -c conda-forge
+conda install -c conda-forge shapely tifffile
 ```
 
 Then, install FISSA as follows
@@ -57,14 +56,16 @@ Then, install FISSA as follows
 ```
 pip install fissa
 ```
+
 To test if FISSA installed correctly type
 ```
 python
 ```
-and then
+to go into the Python environment. Then type
 ```
 import fissa
 ```
+
 If no errors show up, FISSA installed correctly. Leave Python by typing exit().
 
 If you want to use the interactive plotting from the notebooks also install
