@@ -145,8 +145,7 @@ Citing FISSA
 If you use FISSA for your research, please cite the following paper
 in any resulting publications:
 
-_Paper in preparation_
-
+S.W.Keemink, S.C. Lowe, J.M.P. Pakan, E. Dylda, M.C.W. van Rossum & N.L. Rochefort - FISSA: A neuropil decontamination toolbox for calcium imaging signals (in prep)
 
 License
 -------
