@@ -8,8 +8,8 @@ See Basic usage.ipynb and Basic usage.html for a move verbose version.
 import fissa
 
 # data location
-rois = '../exampleData/20150429.zip'
-images = '../exampleData/20150529'
+rois = 'exampleData/20150429.zip'
+images = 'exampleData/20150529'
 
 # extraction location
 folder = 'fissa_example'
