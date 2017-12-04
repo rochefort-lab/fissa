@@ -66,7 +66,7 @@ def rois2masks(rois, shape):
 
 
 def extracttraces(data, masks):
-    """Get the traces for each mask in masks from data
+    """Get the traces for each mask in masks from data.
 
     Inputs
     --------------------
