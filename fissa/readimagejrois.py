@@ -179,7 +179,6 @@ def read_roi(roi_obj):
     if subtype == 3 and roi_type == 7:
         # ellipse aspect ratio
         aspect_ratio = _getfloat()
-
     else:
         _get8()  # arrow style
         _get8()  # arrow head size
