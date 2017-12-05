@@ -217,10 +217,10 @@ def read_roi(roi_obj):
         if subtype == 3:
             # ellipse
             mask = np.zeros((1, right+10, bottom+10), dtype=bool)
-            r_radius = np.sqrt((x2-x1)**2+(y2-y1)**2)/2
+            r_radius = np.sqrt((x2-x1)**2+(y2-y1)**2)/2.0
             c_radius = r_radius*aspect_ratio
-            r = (x1+x2)/2
-            c = (y1+y2)/2
+            r = (x1+x2)/2-0.5
+            c = (y1+y2)/2-0.5
             shpe = mask.shape
             orientation = np.arctan2(y2-y1, x2-x1)
             X, Y = ellipse(r, c, r_radius, c_radius, shpe[1:], orientation)
