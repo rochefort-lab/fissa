@@ -132,19 +132,19 @@ class Experiment():
         nRegions : int, optional (default: 4)
             Number of neuropil regions to draw. Use higher number for densely
             labelled tissue.
-        expansion : float
+        expansion : float, optional (default: 1)
             How much larger to make each neuropil subregion than ROI area.
             Full neuropil area will be nRegions*expansion*ROI area
-        alpha : float
+        alpha : float, optional (default: 0.2)
             Sparsity constraint for NMF
-        ncores_preparation : int
+        ncores_preparation : int, optional (default: None)
             Sets the number of processes to be used for data preparation
             (ROI and subregions definitions, data extraction from tifs,
             etc.)
             By default FISSA uses all the available processing threads.
             This can, especially for the data preparation step,
             quickly fill up your memory.
-        ncores_separation : int
+        ncores_separation : int, optional (default: None)
             Same as ncores_preparation, but for the separation step.
             As a rule, this can be set higher than ncores_preparation, as
             the separation step takes much less memory.
