@@ -1,5 +1,9 @@
 """FISSA functions to handle image and roi objects and return the right format.
 
+If a custom version of this file is used (which can be defined at the
+declaration of the core FISSA Experiment class), it should have the same
+functions as here, with the same inputs and outputs.
+
 Authors:
     Sander W Keemink <swkeemink@scimail.eu>
     Scott C Lowe <scott.code.lowe@gmail.com>
