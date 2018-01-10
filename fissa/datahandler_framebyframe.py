@@ -11,12 +11,12 @@ Authors:
 """
 
 import numpy as np
-import tifffile
-from fissa import roitools
+import roitools
+from PIL import Image, ImageSequence
 
 
 def image2array(image):
-    """Take the object 'image' and returns an array.
+    """Take the object 'image' and returns a pillow image object.
 
     Parameters
     ---------
@@ -31,10 +31,10 @@ def image2array(image):
 
     """
     if isinstance(image, str):
-        return tifffile.imread(image)
+        return Image.open(image)
 
-    if isinstance(image, np.ndarray):
-        return image
+    else:
+        raise ValueError('Only tiff locations are accepted as inputs')
 
 
 def getmean(data):
@@ -43,7 +43,7 @@ def getmean(data):
     Parameters
     ----------
     data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+        Data array as made by image2array. Should be a pillow image object.
 
     Returns
     -------
@@ -51,7 +51,23 @@ def getmean(data):
         y by x array for the mean values
 
     """
-    return data.mean(axis=0)
+    # We don't load the entire image into memory at once, because
+    # it is likely to be rather large.
+    # Initialise holding array with zeros
+    avg = np.zeros(data.size[::-1])
+
+    # Make sure we seek to the first frame before iterating. This is
+    # because the Iterator outputs the value for the current frame for
+    # `img` first, due to a bug in Pillow<=3.1.
+    data.seek(0)
+
+    # Loop over all frames and sum the pixel intensities together
+    for frame in ImageSequence.Iterator(data):
+        avg += np.asarray(frame)
+
+    # Divide by number of frames to find the average
+    avg /= data.n_frames
+    return avg
 
 
 def rois2masks(rois, data):
@@ -63,7 +79,7 @@ def rois2masks(rois, data):
         Either a string with imagej roi zip location, list of arrays encoding
         polygons, or binary arrays representing masks
     data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+        Data array as made by image2array. Should be a pillow image object.
 
     Returns
     -------
@@ -71,8 +87,7 @@ def rois2masks(rois, data):
         List of binary arrays (i.e. masks)
 
     """
-    # get the image shape
-    shape = data.shape[1:]
+    shape = data.size[::-1]
 
     # if it's a list of strings
     if isinstance(rois, str):
@@ -89,28 +104,38 @@ def rois2masks(rois, data):
         raise ValueError('Wrong rois input format')
 
 
-
 def extracttraces(data, masks):
     """Get the traces for each mask in masks from data.
 
     Inputs
     --------------------
     data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+        Data array as made by image2array. Should be a pillow image object.
     masks : list
         list of binary arrays (masks)
 
     """
-    # get the number rois and frames
+    # get the number rois
     nrois = len(masks)
-    nframes = data.shape[0]
 
-    # predefine output data
+    # get number of frames, and start at zeros
+    data.seek(0)
+    nframes = data.n_frames
+
+    # predefine array with the data
     out = np.zeros((nrois, nframes))
 
-    # loop over masks
-    for i in range(nrois):  # for masks
-        # get mean data from mask
-        out[i, :] = data[:, masks[i]].mean(axis=1)
+    # for each frame, get the data
+    for f in range(nframes):
+        # set frame
+        data.seek(f)
+
+        # make numpy array
+        curframe = np.asarray(data)
+
+        # loop over masks
+        for i in range(nrois):
+            # get mean data from mask
+            out[i, f] = np.mean(curframe[masks[i]])
 
     return out

@@ -37,7 +37,24 @@ def image2array(image):
         return image
 
 
-def rois2masks(rois, shape):
+def getmean(data):
+    """Get the mean image for data.
+
+    Parameters
+    ----------
+    data : array
+        Data array as made by image2array. Should be of shape [frames,y,x]
+
+    Returns
+    -------
+    array
+        y by x array for the mean values
+
+    """
+    return data.mean(axis=0)
+
+
+def rois2masks(rois, data):
     """Take the object 'rois' and returns it as a list of binary masks.
 
     Parameters
@@ -45,8 +62,8 @@ def rois2masks(rois, shape):
     rois : unkown
         Either a string with imagej roi zip location, list of arrays encoding
         polygons, or binary arrays representing masks
-    shape : tuple
-        Shape of the original data in x and y coordinates (x,y)
+    data : array
+        Data array as made by image2array. Should be of shape [frames,y,x]
 
     Returns
     -------
@@ -54,6 +71,9 @@ def rois2masks(rois, shape):
         List of binary arrays (i.e. masks)
 
     """
+    # get the image shape
+    shape = data.shape[1:]
+
     # if it's a list of strings
     if isinstance(rois, str):
         rois = roitools.readrois(rois)

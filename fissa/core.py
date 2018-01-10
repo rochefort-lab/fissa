@@ -48,10 +48,10 @@ def extract_func(inputs):
 
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
-    base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
+    base_masks = datahandler.rois2masks(rois, curdata)
 
     # get the mean image
-    mean = curdata.mean(axis=0)
+    mean = datahandler.getmean(curdata)
 
     # predefine dictionaries
     data = collections.OrderedDict()
@@ -109,7 +109,7 @@ class Experiment():
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.2, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
-                 datahandler_custom=None,
+                 lowmemory_mode=False, datahandler_custom=None,
                  **kwargs):
         """Initialisation. Set the parameters for your Fissa instance.
 
@@ -154,10 +154,13 @@ class Experiment():
         method : string, optional
             Either 'nmf' for non-negative matrix factorization, or 'ica' for
             independent component analysis. 'nmf' option recommended.
+        lowmemory_mode : bool, optional
+            If True, FISSA will load tiff file frame by frame instead of
+            whole files at once. This will reduce the memory load.
         datahandler_custom : object, optional
             A custom datahandler for handling ROIs and calcium data can
             optionally be given. See datahandler.py for an example.
-            
+
         """
         if isinstance(images, str):
             self.images = sorted(glob.glob(images + '/*.tif*'))
@@ -177,6 +180,9 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
+        global datahandler
+        if lowmemory_mode:
+            import datahandler_framebyframe as datahandler
         if datahandler_custom is not None:
             datahandler = datahandler_custom
 
