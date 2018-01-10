@@ -62,8 +62,8 @@ def rois2masks(rois, data):
     rois : unkown
         Either a string with imagej roi zip location, list of arrays encoding
         polygons, or binary arrays representing masks
-    shape : tuple
-        Shape of the original data in x and y coordinates (x,y)
+    data : array
+        Data array as made by image2array. Should be of shape [frames,y,x]
 
     Returns
     -------
@@ -71,6 +71,9 @@ def rois2masks(rois, data):
         List of binary arrays (i.e. masks)
 
     """
+    # get the image shape
+    shape = data.shape[1:]
+
     # if it's a list of strings
     if isinstance(rois, str):
         rois = roitools.readrois(rois)
