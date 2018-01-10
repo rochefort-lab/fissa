@@ -89,6 +89,7 @@ def rois2masks(rois, data):
         raise ValueError('Wrong rois input format')
 
 
+
 def extracttraces(data, masks):
     """Get the traces for each mask in masks from data.
 
