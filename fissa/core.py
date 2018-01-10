@@ -94,10 +94,11 @@ def separate_func(inputs):
     """
     X = inputs[0]
     alpha = inputs[1]
+    method = inputs[2]
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-        X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
+        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
     )
-    ROInum = inputs[2]
+    ROInum = inputs[3]
     print 'Finished ROI number ' + str(ROInum)
     return Xsep, Xmatch, Xmixmat, convergence
 
@@ -107,7 +108,7 @@ class Experiment():
 
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.2, ncores_preparation=None,
-                 ncores_separation=None, **kwargs):
+                 ncores_separation=None, method='nmf', **kwargs):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -148,6 +149,9 @@ class Experiment():
             Same as ncores_preparation, but for the separation step.
             As a rule, this can be set higher than ncores_preparation, as
             the separation step takes much less memory.
+        method : string, optional
+            Either 'nmf' for non-negative matrix factorization, or 'ica' for
+            independent component analysis. 'nmf' option recommended.
 
         TOOD:
         * inputs such as imaging frequency, number of neuropil regions,
@@ -184,6 +188,7 @@ class Experiment():
         self.means = []
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
+        self.method = method
 
         # check if any data already exists
         if not os.path.exists(folder):
@@ -341,7 +346,7 @@ class Experiment():
                     X -= X.min()
 
                 # update inputs
-                inputs[cell] = [X, self.alpha, cell]
+                inputs[cell] = [X, self.alpha, self.method, cell]
 
             if has_multiprocessing:
                 # define pool
