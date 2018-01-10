@@ -37,7 +37,24 @@ def image2array(image):
         return image
 
 
-def rois2masks(rois, shape):
+def getmean(data):
+    """Get the mean image for data.
+
+    Parameters
+    ----------
+    data : array
+        Data array as made by image2array. Should be of shape [frames,y,x]
+
+    Returns
+    -------
+    array
+        y by x array for the mean values
+
+    """
+    return data.mean(axis=0)
+
+
+def rois2masks(rois, data):
     """Take the object 'rois' and returns it as a list of binary masks.
 
     Parameters
