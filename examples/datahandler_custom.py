@@ -12,7 +12,7 @@ Authors:
 
 import numpy as np
 import tifffile
-import roitools
+from fissa import roitools
 
 
 def image2array(image):
@@ -87,6 +87,7 @@ def rois2masks(rois, data):
 
     else:
         raise ValueError('Wrong rois input format')
+
 
 
 def extracttraces(data, masks):

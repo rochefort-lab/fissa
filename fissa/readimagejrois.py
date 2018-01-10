@@ -17,8 +17,10 @@ from builtins import str
 from builtins import range
 
 import numpy as np
+from skimage.draw import ellipse
 from itertools import product
 import zipfile
+
 
 
 def read_imagej_roi_zip(filename):
@@ -161,22 +163,26 @@ def read_roi(roi_obj):
     right = _get16signed()
     n_coordinates = _get16()
 
-    _getfloat()  # x1
-    _getfloat()  # y1
-    _getfloat()  # x2
-    _getfloat()  # y2
+    x1 = _getfloat()  # x1
+    y1 = _getfloat()  # y1
+    x2 = _getfloat()  # x2
+    y2 = _getfloat()  # y2
     _get16()  # stroke width
     _get32()  # shape roi size
     _get32()  # stroke color
     _get32()  # fill color
     subtype = _get16()
-    if subtype != 0:
+    if subtype != 0 and subtype != 3:
         raise ValueError('read_imagej_roi: \
                           ROI subtype {} not supported (!= 0)'.format(subtype))
     options = _get16()
-    _get8()  # arrow style
-    _get8()  # arrow head size
-    _get16()  # rectangle arc size
+    if subtype == 3 and roi_type == 7:
+        # ellipse aspect ratio
+        aspect_ratio = _getfloat()
+    else:
+        _get8()  # arrow style
+        _get8()  # arrow head size
+        _get16()  # rectangle arc size
     z = _get32()  # position
     if z > 0:
         z -= 1  # Multi-plane images start indexing at 1 instead of 0
@@ -201,16 +207,30 @@ def read_roi(roi_obj):
         # 0.5 moves the mid point to the center of the pixel
         x_mid = (right + left) / 2.0 - 0.5
         y_mid = (top + bottom) / 2.0 - 0.5
-        mask = np.zeros((z + 1, bottom, right), dtype=bool)
+        mask = np.zeros((z + 1, right, bottom), dtype=bool)
         for y, x in product(np.arange(top, bottom), np.arange(left, right)):
-            mask[z, y, x] = ((x - x_mid) ** 2 / (width / 2.0) ** 2 +
+            mask[z, x, y] = ((x - x_mid) ** 2 / (width / 2.0) ** 2 +
                              (y - y_mid) ** 2 / (height / 2.0) ** 2 <= 1)
         return {'mask': mask}
     elif roi_type == 7:
-        # Freehand
-        coords = _getcoords(z)
-        coords = coords.astype('float')
-        return {'polygons': coords}
+        if subtype == 3:
+            # ellipse
+            mask = np.zeros((1, right+10, bottom+10), dtype=bool)
+            r_radius = np.sqrt((x2-x1)**2+(y2-y1)**2)/2.0
+            c_radius = r_radius*aspect_ratio
+            r = (x1+x2)/2-0.5
+            c = (y1+y2)/2-0.5
+            shpe = mask.shape
+            orientation = np.arctan2(y2-y1, x2-x1)
+            X, Y = ellipse(r, c, r_radius, c_radius, shpe[1:], orientation)
+            mask[0, X, Y] = True
+            return {'mask': mask}
+        else:
+            # Freehand
+            coords = _getcoords(z)
+            coords = coords.astype('float')
+            return {'polygons': coords}
+
     else:
         try:
             coords = _getcoords(z)

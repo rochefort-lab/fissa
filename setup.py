@@ -15,12 +15,13 @@ install_requires = [	'numpy>=1.13.1',
                      'scikit-image>=0.13.0',
                      'shapely>=1.5.17.post1',
                      'tifffile>=0.12.1',
-                     'multiprocessing>=2.6.2.1']
+                     'multiprocessing>=2.6.2.1',
+                     'pillow>=5.0.0']
 extras_require = {}
 
 # Notebook dependencies for plotting
 extras_require['plotting'] = (['holoviews>=1.8.2',
-			       'jupyter>=1.00'])
+                               'jupyter>=1.00'])
 
 # Dev dependencies
 extras_require['dev'] = (['pytest>=3.2.2',
@@ -52,12 +53,12 @@ setup(
     name=NAME,
     install_requires=install_requires,
     extras_require=extras_require,
-    version="0.5.0",
+    version="0.5.1",
     author="Sander Keemink & Scott Lowe & Nathalie Rochefort",
     author_email="swkeemink@scimail.eu",
     description="A Python Library estimating somatic signals in 2-photon data",
     url="https://github.com/rochefort-lab/fissa",
-    download_url="https://github.com/rochefort-lab/fissa/archive/0.5.0.tar.gz",
+    download_url="https://github.com/rochefort-lab/fissa/archive/0.5.1.tar.gz",
     package_dir={NAME: "./fissa"},
     packages=[NAME],
     license="GNU",

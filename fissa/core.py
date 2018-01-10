@@ -48,10 +48,10 @@ def extract_func(inputs):
 
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
-    base_masks = datahandler.rois2masks(rois, curdata.shape[1:])
+    base_masks = datahandler.rois2masks(rois, curdata)
 
     # get the mean image
-    mean = curdata.mean(axis=0)
+    mean = datahandler.getmean(curdata)
 
     # predefine dictionaries
     data = collections.OrderedDict()
@@ -94,10 +94,11 @@ def separate_func(inputs):
     """
     X = inputs[0]
     alpha = inputs[1]
+    method = inputs[2]
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-        X, 'nmf', maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
+        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
     )
-    ROInum = inputs[2]
+    ROInum = inputs[3]
     print 'Finished ROI number ' + str(ROInum)
     return Xsep, Xmatch, Xmixmat, convergence
 
@@ -107,7 +108,9 @@ class Experiment():
 
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.2, ncores_preparation=None,
-                 ncores_separation=None, **kwargs):
+                 ncores_separation=None, method='nmf',
+                 lowmemory_mode=False, datahandler_custom=None,
+                 **kwargs):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -132,26 +135,32 @@ class Experiment():
         nRegions : int, optional (default: 4)
             Number of neuropil regions to draw. Use higher number for densely
             labelled tissue.
-        expansion : float
+        expansion : float, optional (default: 1)
             How much larger to make each neuropil subregion than ROI area.
             Full neuropil area will be nRegions*expansion*ROI area
-        alpha : float
+        alpha : float, optional (default: 0.2)
             Sparsity constraint for NMF
-        ncores_preparation : int
+        ncores_preparation : int, optional (default: None)
             Sets the number of processes to be used for data preparation
             (ROI and subregions definitions, data extraction from tifs,
             etc.)
             By default FISSA uses all the available processing threads.
             This can, especially for the data preparation step,
             quickly fill up your memory.
-        ncores_separation : int
+        ncores_separation : int, optional (default: None)
             Same as ncores_preparation, but for the separation step.
             As a rule, this can be set higher than ncores_preparation, as
             the separation step takes much less memory.
+        method : string, optional
+            Either 'nmf' for non-negative matrix factorization, or 'ica' for
+            independent component analysis. 'nmf' option recommended.
+        lowmemory_mode : bool, optional
+            If True, FISSA will load tiff file frame by frame instead of
+            whole files at once. This will reduce the memory load.
+        datahandler_custom : object, optional
+            A custom datahandler for handling ROIs and calcium data can
+            optionally be given. See datahandler.py for an example.
 
-        TOOD:
-        * inputs such as imaging frequency, number of neuropil regions,
-        general FISSA options, etc
         """
         if isinstance(images, str):
             self.images = sorted(glob.glob(images + '/*.tif*'))
@@ -171,6 +180,11 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
+        global datahandler
+        if lowmemory_mode:
+            import datahandler_framebyframe as datahandler
+        if datahandler_custom is not None:
+            datahandler = datahandler_custom
 
         # define class variables
         self.folder = folder
@@ -184,6 +198,7 @@ class Experiment():
         self.means = []
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
+        self.method = method
 
         # check if any data already exists
         if not os.path.exists(folder):
@@ -341,7 +356,7 @@ class Experiment():
                     X -= X.min()
 
                 # update inputs
-                inputs[cell] = [X, self.alpha, cell]
+                inputs[cell] = [X, self.alpha, self.method, cell]
 
             if has_multiprocessing:
                 # define pool
