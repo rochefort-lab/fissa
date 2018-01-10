@@ -42,24 +42,25 @@ class TestRois2Masks(BaseTestCase):
         self.polys = [np.array([[39., 62.], [60., 45.], [48., 71.]]),
                       np.array([[72., 107.], [78., 130.], [100., 110.]])]
         self.expected = roitools.getmasks(self.polys, (176, 156))
+        self.data = np.zeros((1, 176, 156))
 
     def test_imagej_zip(self):
         # load zip of rois
         ROI_loc = 'fissa/tests/resources/RoiSet.zip'
-        actual = datahandler.rois2masks(ROI_loc, (176, 156))
+        actual = datahandler.rois2masks(ROI_loc, self.data)
 
         # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_arrays(self):
         # load from array
-        actual = datahandler.rois2masks(self.polys, (176, 156))
+        actual = datahandler.rois2masks(self.polys, self.data)
         # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_masks(self):
         # load from masks
-        actual = datahandler.rois2masks(self.expected, (176, 156))
+        actual = datahandler.rois2masks(self.expected, self.data)
 
         # assert equality
         self.assert_equal(actual, self.expected)
