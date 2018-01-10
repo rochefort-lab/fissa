@@ -12,7 +12,7 @@ Authors:
 
 import numpy as np
 import tifffile
-import fissa.roitools
+from fissa import roitools
 
 
 def image2array(image):
