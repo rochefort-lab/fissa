@@ -108,7 +108,9 @@ class Experiment():
 
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.2, ncores_preparation=None,
-                 ncores_separation=None, method='nmf', **kwargs):
+                 ncores_separation=None, method='nmf',
+                 datahandler_custom=None,
+                 **kwargs):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -133,29 +135,29 @@ class Experiment():
         nRegions : int, optional (default: 4)
             Number of neuropil regions to draw. Use higher number for densely
             labelled tissue.
-        expansion : float
+        expansion : float, optional (default: 1)
             How much larger to make each neuropil subregion than ROI area.
             Full neuropil area will be nRegions*expansion*ROI area
-        alpha : float
+        alpha : float, optional (default: 0.2)
             Sparsity constraint for NMF
-        ncores_preparation : int
+        ncores_preparation : int, optional (default: None)
             Sets the number of processes to be used for data preparation
             (ROI and subregions definitions, data extraction from tifs,
             etc.)
             By default FISSA uses all the available processing threads.
             This can, especially for the data preparation step,
             quickly fill up your memory.
-        ncores_separation : int
+        ncores_separation : int, optional (default: None)
             Same as ncores_preparation, but for the separation step.
             As a rule, this can be set higher than ncores_preparation, as
             the separation step takes much less memory.
         method : string, optional
             Either 'nmf' for non-negative matrix factorization, or 'ica' for
             independent component analysis. 'nmf' option recommended.
-
-        TOOD:
-        * inputs such as imaging frequency, number of neuropil regions,
-        general FISSA options, etc
+        datahandler_custom : object, optional
+            A custom datahandler for handling ROIs and calcium data can
+            optionally be given. See datahandler.py for an example.
+            
         """
         if isinstance(images, str):
             self.images = sorted(glob.glob(images + '/*.tif*'))
@@ -175,6 +177,8 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
+        if datahandler_custom is not None:
+            datahandler = datahandler_custom
 
         # define class variables
         self.folder = folder
