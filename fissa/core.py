@@ -180,6 +180,7 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
+        global datahandler
         if lowmemory_mode:
             import datahandler_framebyframe as datahandler
         if datahandler_custom is not None:
