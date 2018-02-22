@@ -9,6 +9,8 @@ somatic signals from 2-photon calcium imaging data.
 It can read images in tiff format and ROIs in zips as exported by ImageJ, or Numpy arrays
 in general after importing from different formats.
 
+For details of the algorithm see the companion paper at https://www.nature.com/articles/s41598-018-21640-2.
+
 Currently, FISSA is only available for Python 2.7, and has been tested on
 Ubuntu 17.04 and on Windows 7 with the
 [Anaconda](https://www.anaconda.com/download/#linux) distribution.
@@ -145,7 +147,7 @@ Citing FISSA
 If you use FISSA for your research, please cite the following paper
 in any resulting publications:
 
-S.W.Keemink, S.C. Lowe, J.M.P. Pakan, E. Dylda, M.C.W. van Rossum & N.L. Rochefort - FISSA: A neuropil decontamination toolbox for calcium imaging signals (in prep)
+S.W. Keemink, S.C. Lowe, J.M.P. Pakan, E. Dylda, M.C.W. van Rossum & N.L. Rochefort - FISSA: A neuropil decontamination toolbox for calcium imaging signals, Scientific Reports, 8, 3493, doi:10.1038/s41598-018-21640-2
 
 License
 -------
