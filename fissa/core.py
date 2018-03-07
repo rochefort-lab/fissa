@@ -107,7 +107,7 @@ class Experiment():
     """Does all the steps for FISSA."""
 
     def __init__(self, images, rois, folder, nRegions=4,
-                 expansion=1, alpha=0.2, ncores_preparation=None,
+                 expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
                  lowmemory_mode=False, datahandler_custom=None,
                  **kwargs):
@@ -138,7 +138,7 @@ class Experiment():
         expansion : float, optional (default: 1)
             How much larger to make each neuropil subregion than ROI area.
             Full neuropil area will be nRegions*expansion*ROI area
-        alpha : float, optional (default: 0.2)
+        alpha : float, optional (default: 0.1)
             Sparsity constraint for NMF
         ncores_preparation : int, optional (default: None)
             Sets the number of processes to be used for data preparation
