@@ -13,15 +13,6 @@ cache:
   directories:
     # Cache files downloaded by pip
     - $HOME/.cache/pip
-    # Cache our miniconda download.
-    # Cautionary note: if a new version of Python is released and added to
-    # conda and you want to test on the new version, your cached copy will be
-    # out of date and you'll need to wipe the cache. Details are here
-    # https://docs.travis-ci.com/user/caching/#Clearing-Caches
-    # but if this sounds like too much hassle, you can just comment out this
-    # line to stop caching.
-    - $HOME/Downloads
-    - $HOME/miniconda
 
 ###############################################################################
 # version numbers
