@@ -99,6 +99,8 @@ Python 2.7 and pip installed. It is highly likely that your Linux distribution s
 
 * [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS.
 
+* [Pillow](https://pypi.org/project/Pillow/)>=3.0.0 effectively requires a JPEG library.
+
 These packages can be installed on *Debian/Ubuntu* with the following shell
 commands.
 
@@ -106,6 +108,7 @@ commands.
 sudo apt-get update
 sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
 sudo apt-get install libgeos-dev
+sudo apt-get install libjpeg-dev
 ```
 
 #### Installing FISSA
