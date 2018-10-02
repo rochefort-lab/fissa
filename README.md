@@ -1,6 +1,7 @@
 [![Join the FISSA chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rochefort-lab/fissa)
 [![Shippable](https://img.shields.io/shippable/56391d7a1895ca4474227917.svg)](https://app.shippable.com/projects/56391d7a1895ca4474227917)
 
+
 FISSA
 =====
 
@@ -20,6 +21,7 @@ If you encounter a specific problem please
 For general discussion and help with installation or setup, please see the
 [Gitter chat](https://gitter.im/rochefort-lab/fissa).
 
+
 Usage
 -----
 A general tutorial on the use of FISSA can be found at:
@@ -34,8 +36,10 @@ An example workflow importing data exported from a MATLAB toolbox (cNMF):
 These notebooks can also be downloaded from this repository and run on your own machine, by downloading the examples folder: <https://github.com/rochefort-lab/fissa/tree/master/examples>
 and then running them in a jupyter notebook (for a tutorial see https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook).
 
+
 Installation
 ------------
+
 ### Installation on Windows
 #### Basic prerequisites
 Download and install, in the following order:
@@ -79,6 +83,7 @@ conda install -c ioam holoviews
 
 See usage above for how to use FISSA.
 
+
 ### Installation on Linux
 
 Before installing FISSA, you will need to make sure you have all of its dependencies
@@ -103,6 +108,7 @@ sudo apt-get install libgeos-dev
 ```
 
 #### Installing FISSA
+
 Install basic FISSA as:
 
 ```
@@ -124,6 +130,7 @@ and then
 import fissa
 ```
 If no errors show up, FISSA installed correctly.
+
 
 Folder Structure
 ----------------
@@ -148,6 +155,7 @@ If you use FISSA for your research, please cite the following paper
 in any resulting publications:
 
 S.W. Keemink, S.C. Lowe, J.M.P. Pakan, E. Dylda, M.C.W. van Rossum & N.L. Rochefort - FISSA: A neuropil decontamination toolbox for calcium imaging signals, Scientific Reports, 8, 3493, doi:10.1038/s41598-018-21640-2
+
 
 License
 -------
