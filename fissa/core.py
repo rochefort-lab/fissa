@@ -3,6 +3,8 @@
 Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 """
 
+from __future__ import print_function
+
 import collections
 import glob
 import os.path
@@ -103,7 +105,7 @@ def separate_func(inputs):
         X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
     )
     ROInum = inputs[3]
-    print 'Finished ROI number ' + str(ROInum)
+    print('Finished ROI number ' + str(ROInum))
     return Xsep, Xmatch, Xmixmat, convergence
 
 
@@ -246,12 +248,12 @@ class Experiment():
         if not redo:
             try:
                 nCell, raw, roi_polys = np.load(fname)
-                print 'Reloading previously prepared data...'
+                print('Reloading previously prepared data...')
             except BaseException:
                 redo = True
 
         if redo:
-            print 'Doing region growing and data extraction....'
+            print('Doing region growing and data extraction....')
             # define inputs
             inputs = [0] * self.nTrials
             for trial in range(self.nTrials):
@@ -333,13 +335,13 @@ class Experiment():
         if not redo_sep:
             try:
                 info, mixmat, sep, result = np.load(fname)
-                print 'Reloading previously separated data...'
+                print('Reloading previously separated data...')
             except BaseException:
                 redo_sep = True
 
         # separate data, if necessary
         if redo_sep:
-            print 'Doing signal separation....'
+            print('Doing signal separation....')
             # predefine data structures
             sep = [[None for t in range(self.nTrials)]
                    for c in range(self.nCell)]
