@@ -33,6 +33,8 @@ env:
   matrix:
       - TEST_NOTEBOOKS="false"
         USE_OLDEST_DEPENDENCIES="false"
+      - TEST_NOTEBOOKS="false"
+        USE_OLDEST_DEPENDENCIES="true"
     #   - TEST_NOTEBOOKS="true"
     #     USE_OLDEST_DEPENDENCIES="false"
     #   - TEST_NOTEBOOKS="true"
