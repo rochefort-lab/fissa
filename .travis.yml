@@ -2,6 +2,10 @@
 # language setting
 language: python
 
+# Current requirements for Python 3.7 on Travis
+sudo: required
+dist: xenial
+
 ###############################################################################
 # Cache data which has to be downloaded on every build.
 # This is just for Travis and doesn't do anything on Shippable.
@@ -30,12 +34,7 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
-# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
+  - "3.7"
 
 ###############################################################################
 # environment variables
