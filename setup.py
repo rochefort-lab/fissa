@@ -55,7 +55,7 @@ setup(
     name=NAME,
     install_requires=install_requires,
     extras_require=extras_require,
-    version="0.5.2",
+    version="0.5.2.dev",
     author="Sander Keemink & Scott Lowe & Nathalie Rochefort",
     author_email="swkeemink@scimail.eu",
     description="A Python Library estimating somatic signals in 2-photon data",
