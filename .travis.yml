@@ -164,6 +164,7 @@ install:
   # Conditionally install the packages which are needed for plotting
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install -r requirements_plots.txt;
+      pip install sima;
     fi
   # ---------------------------------------------------------------------------
   # Install our package
