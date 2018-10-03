@@ -16,9 +16,9 @@ install_requires = ['numpy>=1.13.1',
                     'scikit-image>=0.13.0',
                     'shapely>=1.5.17.post1',
                     'tifffile>=0.12.1',
-                    'multiprocessing>=2.6.2.1',
                     'pillow>=5.0.0',
                     ]
+
 extras_require = {}
 
 # Notebook dependencies for plotting
