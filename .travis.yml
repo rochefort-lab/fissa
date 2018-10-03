@@ -239,11 +239,6 @@ script:
       done;
       return $RETURNVALUE;
     }
-  # Need a more up-to-date version of ipython
-  # Use this line until they release 4.1.0, then we can use that official release
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
-    fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd examples; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
