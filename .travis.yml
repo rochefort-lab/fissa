@@ -30,13 +30,20 @@ python:
 ###############################################################################
 # environment variables
 env:
-  matrix:
-      - TEST_NOTEBOOKS="false"
-        USE_OLDEST_DEPENDENCIES="false"
-      - TEST_NOTEBOOKS="false"
-        USE_OLDEST_DEPENDENCIES="true"
-      - TEST_NOTEBOOKS="true"
-        USE_OLDEST_DEPENDENCIES="false"
+  - TEST_NOTEBOOKS="false"
+    USE_OLDEST_DEPENDENCIES="false"
+  - TEST_NOTEBOOKS="false"
+    USE_OLDEST_DEPENDENCIES="true"
+  - TEST_NOTEBOOKS="true"
+    USE_OLDEST_DEPENDENCIES="false"
+
+matrix:
+  exclude:
+    # Currently, SIMA cannot be installed on Python 3.7
+    - python: "3.7"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+    - python: "3.7"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
 
 ###############################################################################
 # Setup the environment before installing
