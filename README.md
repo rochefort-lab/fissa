@@ -10,9 +10,9 @@ It can read images in tiff format and ROIs in zips as exported by ImageJ; or ope
 
 For details of the algorithm, please see our [companion paper](https://www.doi.org/10.1038/s41598-018-21640-2) published in Scientific Reports.
 
-Currently, FISSA is only available for Python 2.7, and has been tested on
-Ubuntu 17.04 and on Windows 7 with the
-[Anaconda](https://www.anaconda.com/download/) distribution.
+FISSA is compatible with both Python 2.7 and Python 3.5+.
+It has been tested on Ubuntu 17.04 and on Windows 7 with the
+[Anaconda](https://www.anaconda.com/download/#linux) distribution.
 
 If you encounter a specific problem please
 [open a new issue](https://github.com/rochefort-lab/fissa/issues/new).
