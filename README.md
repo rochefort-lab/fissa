@@ -1,27 +1,28 @@
 [![Join the FISSA chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rochefort-lab/fissa)
 [![Shippable](https://img.shields.io/shippable/56391d7a1895ca4474227917.svg)](https://app.shippable.com/projects/56391d7a1895ca4474227917)
 
+
 FISSA
 =====
 
-FISSA (Fast Image Signal Separation Analysis) is a Python library for decontaminating
-somatic signals from 2-photon calcium imaging data.
-It can read images in tiff format and ROIs in zips as exported by ImageJ, or Numpy arrays
-in general after importing from different formats.
+FISSA (Fast Image Signal Separation Analysis) is a Python library for decontaminating somatic signals from two-photon calcium imaging data.
+It can read images in tiff format and ROIs in zips as exported by ImageJ; or operate with numpy arrays directly, which can be produced by importing files stored in other formats.
 
-For details of the algorithm see the companion paper at https://www.nature.com/articles/s41598-018-21640-2.
+For details of the algorithm, please see our [companion paper](https://www.doi.org/10.1038/s41598-018-21640-2) published in Scientific Reports.
 
 Currently, FISSA is only available for Python 2.7, and has been tested on
 Ubuntu 17.04 and on Windows 7 with the
-[Anaconda](https://www.anaconda.com/download/#linux) distribution.
+[Anaconda](https://www.anaconda.com/download/) distribution.
 
 If you encounter a specific problem please
 [open a new issue](https://github.com/rochefort-lab/fissa/issues/new).
 For general discussion and help with installation or setup, please see the
 [Gitter chat](https://gitter.im/rochefort-lab/fissa).
 
+
 Usage
 -----
+
 A general tutorial on the use of FISSA can be found at:
 <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>
 
@@ -31,11 +32,15 @@ An example workflow with another Python toolbox (SIMA):
 An example workflow importing data exported from a MATLAB toolbox (cNMF):
 <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>
 
-These notebooks can also be downloaded from this repository and run on your own machine, by downloading the examples folder: <https://github.com/rochefort-lab/fissa/tree/master/examples>
-and then running them in a jupyter notebook (for a tutorial see https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook).
+These notebooks can also be run on your own machine.
+To do so, you will need to [download a copy of the repository](https://github.com/rochefort-lab/fissa/archive/master.zip), unzip it and browse to the [examples](examples) directory.
+Then, start up a jupyter notebook server to run our notebooks.
+If you're new to jupyter notebooks, an approachable tutorial can be found at <https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook>.
+
 
 Installation
 ------------
+
 ### Installation on Windows
 #### Basic prerequisites
 Download and install, in the following order:
@@ -53,13 +58,13 @@ start menu or search, and type or copy-paste (by right clicking) the following:
 conda install -c conda-forge shapely tifffile
 ```
 
-Then, install FISSA as follows
+Then, install FISSA by running the command
 
 ```
 pip install fissa
 ```
 
-To test if FISSA installed correctly type
+To test if FISSA has been installed, enter the command
 ```
 python
 ```
@@ -67,17 +72,18 @@ to go into the Python environment. Then type
 ```
 import fissa
 ```
+If no errors show up, FISSA is now installed.
+You can leave Python by typing `exit()`.
 
-If no errors show up, FISSA installed correctly. Leave Python by typing exit().
-
-If you want to use the interactive plotting from the notebooks also install
-the HoloViews plotting toolbox as follows
+If you want to use the interactive plotting from the notebooks, you should
+also install the HoloViews plotting toolbox, as follows
 
 ```
 conda install -c ioam holoviews
 ```
 
-See usage above for how to use FISSA.
+See [usage](#usage) above for details on how to use FISSA.
+
 
 ### Installation on Linux
 
@@ -93,6 +99,8 @@ Python 2.7 and pip installed. It is highly likely that your Linux distribution s
 
 * [shapely](https://pypi.python.org/pypi/Shapely) requires GEOS.
 
+* [Pillow](https://pypi.org/project/Pillow/)>=3.0.0 effectively requires a JPEG library.
+
 These packages can be installed on *Debian/Ubuntu* with the following shell
 commands.
 
@@ -100,45 +108,59 @@ commands.
 sudo apt-get update
 sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
 sudo apt-get install libgeos-dev
+sudo apt-get install libjpeg-dev
 ```
 
 #### Installing FISSA
-Install basic FISSA as:
 
+For normal usage of FISSA, you can install the latest release version on PyPI
+using pip:
 ```
 pip install fissa
 ```
 
-With the libraries required to run the notebooks with plots:
-
+To also install fissa along with the dependencies required to run our sample
+notebooks (which include plots rendered with holoviews) you should run the
+following command:
 ```
 pip install fissa['plotting']
 ```
 
-To test if FISSA installed correctly type
+Afterwards, you can test to see if FISSA is install by running the command
 ```
 python
 ```
-and then
+to start an interactive python session. Then run
 ```
 import fissa
 ```
-If no errors show up, FISSA installed correctly.
+at the python command prompt.
+
+If no errors show up, FISSA is now installed.
+You can leave the interactive python session with the `exit()` command, or CTRL+D.
+
 
 Folder Structure
 ----------------
 
-### examples
+### continuous_integration/
+Contains files necessary for deploying tests on continuous integration servers.
+Users should ignore this directory.
+
+### examples/
 Contains example code. You can load the notebooks as .ipynb directly in GitHub,
 or on your system if you know how to use jupyter notebooks.
 
-### exampleData
+### examples/exampleData/
 Contains example data. It a zipfile with region of interests from ImageJ.
 It also contains three tiff stacks, which have been downsampled and cropped
 from full data from the Rochefort lab.
 
-### fissa
+### fissa/
 Contains the toolbox.
+
+### fissa/tests/
+Contains tests for the toolbox, which are run to ensure it will work as expected.
 
 
 Citing FISSA
@@ -147,7 +169,10 @@ Citing FISSA
 If you use FISSA for your research, please cite the following paper
 in any resulting publications:
 
-S.W. Keemink, S.C. Lowe, J.M.P. Pakan, E. Dylda, M.C.W. van Rossum & N.L. Rochefort - FISSA: A neuropil decontamination toolbox for calcium imaging signals, Scientific Reports, 8, 3493, doi:10.1038/s41598-018-21640-2
+S. W. Keemink, S. C. Lowe, J. M. P. Pakan, E. Dylda, M. C. W. van Rossum, and N. L. Rochefort. FISSA: A neuropil decontamination toolbox for calcium imaging signals, *Scientific Reports*, **8**(1):3493, 2018. [DOI:10.1038/s41598-018-21640-2](https://www.doi.org/10.1038/s41598-018-21640-2).
+
+For your convenience, the FISSA package ships with a copy of this citation in bibtex format, available at [citation.bib](citation.bib).
+
 
 License
 -------
