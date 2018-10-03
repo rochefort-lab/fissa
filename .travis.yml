@@ -222,30 +222,9 @@ script:
   # Test the main code base
   - py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Test the notebooks
-  - function check_notebooks {
-      RETURNVALUE=0;
-      for NBFILE in *.ipynb;
-      do
-        echo "==================================================================";
-        echo "Converting $NBFILE to a script";
-        echo "------------------------------------------------------------------";
-        jupyter nbconvert --to=script "$NBFILE";
-        PYFILE="${NBFILE%.*}.py";
-        echo "Commenting out any lines in $PYFILE which are calls to help()";
-        sed -ie 's/^\(help(.*)\)/#\ \1/' "$PYFILE";
-        echo "------------------------------------------------------------------";
-        echo "Trying to run the generated script $PYFILE";
-        echo "------------------------------------------------------------------";
-        ipython "$PYFILE";
-        ((RETURNVALUE+=$?));
-        echo "------------------------------------------------------------------";
-        echo "Current exit code is $RETURNVALUE";
-      done;
-      return $RETURNVALUE;
-    }
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd examples; fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      ./continuous_integration/test_notebooks.sh -i ./examples;
+    fi;
 
 ###############################################################################
 # commands to run after tests are done
