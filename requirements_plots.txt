@@ -1,2 +1,4 @@
+ipython[notebook]
+matplotlib>=2.0.2
 holoviews>=1.8.2
 jupyter>=1.00
