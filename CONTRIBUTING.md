@@ -164,9 +164,9 @@ You can use these flags at the start of your commit messages:
     CI: change continuous integration build
     DEP: deprecate something, or remove a deprecated object
     DEV: development tool or utility
-    DOC: documentation
-    ENH: enhancement
-    MAINT: maintenance commit (refactoring, typos, etc.)
+    DOC: documentation; only change/add/remove docstrings, markdown or comments
+    ENH: enhancement; add a new feature without removing existing features
+    MAINT: maintenance commit (refactoring, typos, etc.); no functional change
     REV: revert an earlier commit
     RF: refactoring
     STY: style fix (whitespace, PEP8)
