@@ -175,9 +175,11 @@ install:
     pip install -r requirements-dev.txt;
   # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
+  # Also, tell matplotlib to use the agg backend and not X server
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install -r requirements_plots.txt;
       pip install sima;
+      export MPLBACKEND="agg";
     fi
   # ---------------------------------------------------------------------------
   # Install our package
