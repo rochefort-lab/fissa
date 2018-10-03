@@ -13,12 +13,14 @@
 
 from __future__ import division
 from __future__ import unicode_literals
+
 from builtins import str
 from builtins import range
 
+from itertools import product
+
 import numpy as np
 from skimage.draw import ellipse
-from itertools import product
 import zipfile
 
 

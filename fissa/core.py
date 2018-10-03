@@ -2,16 +2,20 @@
 
 Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
 """
-import datahandler
+
 import collections
-import roitools
 import glob
-import warnings
 import os.path
+import warnings
+
 import numpy as np
-import neuropil as npil
 from scipy.io import savemat
-import deltaf
+
+from . import datahandler
+from . import deltaf
+from . import neuropil as npil
+from . import roitools
+
 try:
     from multiprocessing import Pool
     has_multiprocessing = True
@@ -182,7 +186,7 @@ class Experiment():
             raise ValueError('rois should either be string or list')
         global datahandler
         if lowmemory_mode:
-            import datahandler_framebyframe as datahandler
+            from . import datahandler_framebyframe as datahandler
         if datahandler_custom is not None:
             datahandler = datahandler_custom
 

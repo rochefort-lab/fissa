@@ -11,8 +11,9 @@ Authors:
 """
 
 import numpy as np
-import roitools
 from PIL import Image, ImageSequence
+
+from . import roitools
 
 
 def image2array(image):
