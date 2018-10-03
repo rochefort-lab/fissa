@@ -36,6 +36,8 @@ env:
     USE_OLDEST_DEPENDENCIES="true"
   - TEST_NOTEBOOKS="true"
     USE_OLDEST_DEPENDENCIES="false"
+  - TEST_NOTEBOOKS="true"
+    USE_OLDEST_DEPENDENCIES="true"
 
 matrix:
   exclude:
