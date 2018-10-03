@@ -44,6 +44,10 @@ matrix:
       env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
     - python: "3.7"
       env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+    # Currently, can't use our conda min numpy/scipy version detector on Travis
+    # with weird Python 3.7
+    - python: "3.7"
+      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPENDENCIES="true"
 
 ###############################################################################
 # Setup the environment before installing
