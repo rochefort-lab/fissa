@@ -16,39 +16,38 @@ from PIL import Image, ImageSequence
 
 
 def image2array(image):
-    """Take the object 'image' and returns a pillow image object.
+    """Open a given image file as a PIL.Image instance.
 
     Parameters
-    ---------
-    image : unknown
-        The data. Should be either a tif location, or a list
-        of already loaded in data.
+    ----------
+    image : str
+        A path to a TIFF image file.
 
     Returns
     -------
-    np.array
-        A 3D array containing the data as (frames, y coordinate, x coordinate)
+    PIL.Image
+        Handle from which frames can be loaded.
 
     """
     if isinstance(image, str):
         return Image.open(image)
 
     else:
-        raise ValueError('Only tiff locations are accepted as inputs')
+        raise ValueError('Only file paths are supported as inputs.')
 
 
 def getmean(data):
-    """Get the mean image for data.
+    """Determine the mean image across all frames.
 
     Parameters
     ----------
-    data : array
-        Data array as made by image2array. Should be a pillow image object.
+    data : PIL.Image
+        An open PIL.Image handle to a multi-frame TIFF image.
 
     Returns
     -------
-    array
-        y by x array for the mean values
+    numpy.ndarray
+        y-by-x array for the mean values.
 
     """
     # We don't load the entire image into memory at once, because
@@ -75,23 +74,24 @@ def rois2masks(rois, data):
 
     Parameters
     ----------
-    rois : unkown
+    rois : str or list of array_like
         Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or binary arrays representing masks
-    data : array
-        Data array as made by image2array. Should be a pillow image object.
+        polygons, or list of binary arrays representing masks
+    data : PIL.Image
+        An open PIL.Image handle to a multi-frame TIFF image.
 
     Returns
     -------
     list
-        List of binary arrays (i.e. masks)
+        List of binary arrays (i.e. masks).
 
     """
     shape = data.size[::-1]
 
-    # if it's a list of strings
+    # If rois is string, we first need to read the contents of the file
     if isinstance(rois, str):
         rois = roitools.readrois(rois)
+
     if isinstance(rois, list):
         # if it's a something by 2 array (or vice versa), assume polygons
         if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
@@ -107,12 +107,17 @@ def rois2masks(rois, data):
 def extracttraces(data, masks):
     """Get the traces for each mask in masks from data.
 
-    Inputs
-    --------------------
-    data : array
-        Data array as made by image2array. Should be a pillow image object.
-    masks : list
-        list of binary arrays (masks)
+    Parameters
+    ----------
+    data : PIL.Image
+        An open PIL.Image handle to a multi-frame TIFF image.
+    masks : list of array_like
+        List of binary arrays.
+
+    Returns
+    -------
+    np.ndarray
+        Trace for each mask. Shaped `(len(masks), n_frames)`.
 
     """
     # get the number rois

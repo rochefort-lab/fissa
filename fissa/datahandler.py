@@ -16,18 +16,18 @@ import roitools
 
 
 def image2array(image):
-    """Take the object 'image' and returns an array.
+    """Loads a TIFF image from disk.
 
     Parameters
-    ---------
-    image : unknown
-        The data. Should be either a tif location, or a list
-        of already loaded in data.
+    ----------
+    image : string or array_like
+        Either a path to a tiff file, or array_like data.
 
     Returns
     -------
-    np.array
-        A 3D array containing the data as (frames, y coordinate, x coordinate)
+    numpy.ndarray
+        A 3D array containing the data, with dimenisons corresponding to
+        `(frames, y_coordinate, x_coordinate)`.
 
     """
     if isinstance(image, str):
@@ -38,16 +38,16 @@ def image2array(image):
 
 
 def getmean(data):
-    """Get the mean image for data.
+    """Determine the mean image across all frames.
 
     Parameters
     ----------
-    data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+    data : array_like
+        Data array as made by image2array. Should be shaped `(frames, y, x)`.
 
     Returns
     -------
-    array
+    numpy.ndarray
         y by x array for the mean values
 
     """
@@ -59,11 +59,11 @@ def rois2masks(rois, data):
 
     Parameters
     ----------
-    rois : unkown
+    rois : string or list of array_like
         Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or binary arrays representing masks
+        polygons, or list of binary arrays representing masks
     data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+        Data array as made by image2array. Must be shaped `(frames, y, x)`.
 
     Returns
     -------
@@ -90,14 +90,20 @@ def rois2masks(rois, data):
 
 
 def extracttraces(data, masks):
-    """Get the traces for each mask in masks from data.
+    """Extracts a temporal trace for each spatial mask.
 
-    Inputs
-    --------------------
-    data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
-    masks : list
-        list of binary arrays (masks)
+    Parameters
+    ----------
+    data : array_like
+        Data array as made by image2array. Should be shaped
+        `(frames, y, x)`.
+    masks : list of array_like
+        List of binary arrays.
+
+    Returns
+    -------
+    np.ndarray
+        Trace for each mask. Shaped `(len(masks), n_frames)`.
 
     """
     # get the number rois and frames

@@ -21,13 +21,14 @@ def separate(
     S : array_like
         2d array with signals. S[i,j], j = each signal, i = signal content.
         j = 0 is considered the primary signal. (i.e. the somatic signal)
-    sep_method : {'ica','nmf','nmf_sklearn'}
+    sep_method : {'ica','nmf'}
         Which source separation method to use, ica or nmf.
-            * ica: independent component analysis
-            * nmf: Non-negative matrix factorization
+        - ica: Independent Component Analysis
+        - nmf: Non-negative Matrix Factorization
     n : int, optional
-        How many components to estimate. If None, use PCA to estimate
-        how many components would explain at least 99% of the variance.
+        How many components to estimate. If `None` (default), use PCA to
+        estimate how many components would explain at least 99%% of the
+        variance and adopt this value for `n`.
     maxiter : int, optional
         Number of maximally allowed iterations. Default is 500.
     tol : float, optional
@@ -37,25 +38,28 @@ def separate(
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is 10.
-    W0, H0 : arrays, optional
-        Optional starting conditions for nmf
-    alpha : float
-        [expand explanation] Roughly the sparsity constraint
+    W0, H0 : array_like, optional
+        Optional starting conditions for NMF algorithm. (Not used for ICA
+        method.)
+    alpha : float, optional
+        Sparsity regularizaton weight for NMF algorithm. Set to zero to
+        remove regularization. Default is 0.1. (Not used for ICA method.)
 
     Returns
     -------
-    S_sep : numpy.ndarray
-        The raw separated traces
-    S_matched :
+    numpy.ndarray
+        The raw separated traces.
+    numpy.ndarray
         The separated traces matched to the primary signal, in order
         of matching quality (see Implementation below).
-    A_sep :
-    convergence : dict
+    numpy.ndarray
+        Mixing matrix.
+    dict
         Metadata for the convergence result, with keys:
-            * random_state: seed for ica initiation
-            * iterations: number of iterations needed for convergence
-            * max_iterations: maximun number of iterations allowed
-            * converged: whether the algorithm converged or not (bool)
+        - random_state: seed for ICA initiation
+        - iterations: number of iterations needed for convergence
+        - max_iterations: maximum number of iterations allowed
+        - converged: whether the algorithm converged or not (bool)
 
     Implementation
     --------------
@@ -223,18 +227,18 @@ def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
     F : array_like
         Fluorescence signal.
     fs : float, optional
-        Sampling frequency of F, in Hz. Default 40.
+        Sampling frequency of F, in Hz. Default is 40.
     nfilt : int, optional
-        Number of taps to use in FIR filter, default 40
+        Number of taps to use in FIR filter. Default is 40.
     fw_base : float, optional
-        Cut-off frequency for lowpass filter, default 1
+        Cut-off frequency for lowpass filter, in Hz. Default is 1.
     axis : int, optional
-        Along which axis to apply low pass filtering, default 0
+        Along which axis to apply low pass filtering. Default is 0.
 
     Returns
     -------
-    array
-        Low pass filtered signal of len(F)
+    numpy.ndarray
+        Low pass filtered signal with the same shape as `F`.
     '''
     # The Nyquist rate of the signal is half the sampling frequency
     nyq_rate = fs / 2.0
