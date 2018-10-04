@@ -70,11 +70,9 @@ The preferred way to contribute to FISSA is to fork the
 
 3. Create a branch to hold and track your changes
 
-        $ git checkout develop
         $ git checkout -b my-feature
 
-   and start making changes. Never work in the `master` or `develop`
-   branches!
+   and start making changes.
 
 4. Work on this copy on your computer using Git to do the version
    control. When you're done editing, do:
@@ -164,9 +162,9 @@ You can use these flags at the start of your commit messages:
     CI: change continuous integration build
     DEP: deprecate something, or remove a deprecated object
     DEV: development tool or utility
-    DOC: documentation
-    ENH: enhancement
-    MAINT: maintenance commit (refactoring, typos, etc.)
+    DOC: documentation; only change/add/remove docstrings, markdown or comments
+    ENH: enhancement; add a new feature without removing existing features
+    MAINT: maintenance commit (refactoring, typos, etc.); no functional change
     REV: revert an earlier commit
     RF: refactoring
     STY: style fix (whitespace, PEP8)
