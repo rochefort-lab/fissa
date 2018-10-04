@@ -33,8 +33,7 @@ def image2array(image):
     if isinstance(image, str):
         return tifffile.imread(image)
 
-    if isinstance(image, np.ndarray):
-        return image
+    return np.array(image)
 
 
 def getmean(data):
