@@ -20,8 +20,9 @@ def image2array(image):
 
     Parameters
     ----------
-    image : str
-        A path to a TIFF image file.
+    image : str or file
+        A filename (string) of a TIFF image file, a pathlib.Path object,
+        or a file object.
 
     Returns
     -------
@@ -29,11 +30,7 @@ def image2array(image):
         Handle from which frames can be loaded.
 
     """
-    if isinstance(image, str):
-        return Image.open(image)
-
-    else:
-        raise ValueError('Only file paths are supported as inputs.')
+    return Image.open(image)
 
 
 def getmean(data):
