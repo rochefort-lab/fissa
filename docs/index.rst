@@ -11,7 +11,7 @@ Welcome to FISSA's documentation!
    :caption: Contents:
 
    source/readme
-   source/modules
+   source/packages/modules
    source/contributing
    source/credits
 

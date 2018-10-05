@@ -16,5 +16,5 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
-	sphinx-apidoc -f -o source ../fissa --ext-autodoc
+	sphinx-apidoc -f -l -e -M -o source ../fissa ../fissa/tests --ext-autodoc
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
