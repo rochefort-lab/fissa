@@ -10,6 +10,10 @@ Welcome to FISSA's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   source/readme
+   source/modules
+   source/contributing
+   source/credits
 
 
 Indices and tables
