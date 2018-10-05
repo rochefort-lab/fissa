@@ -17,7 +17,7 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
-from ..fissa import __meta__
+from ..fissa import __meta__ as meta
 
 
 # -- Project information -----------------------------------------------------
@@ -25,13 +25,13 @@ from ..fissa import __meta__
 import datetime
 now = datetime.datetime.now()
 
-project = 'FISSA'
-author = 'Sander Keemink & Scott Lowe'
+project = meta.__name__.upper()
+author = meta.__author__
 copyright = '{}, {}'.format(now.year, author)
 
 
 # The full version, including alpha/beta/rc tags
-release = __meta__.__version__
+release = meta.__version__
 # The short X.Y version
 version = '.'.join(release.split('.')[0:2])
 
@@ -169,7 +169,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'FISSAdoc'
+htmlhelp_basename = project + 'doc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -196,8 +196,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'FISSA.tex', 'FISSA Documentation',
-     'Sander Keemink \\& Scott Lowe', 'manual'),
+    (master_doc, project + '.tex', project + ' Documentation',
+     meta.__author__, 'manual'),
 ]
 
 
@@ -206,7 +206,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fissa', 'FISSA Documentation',
+    (master_doc, project, project + ' Documentation',
      [author], 1)
 ]
 
@@ -217,8 +217,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'FISSA', 'FISSA Documentation',
-     author, 'FISSA', 'One line description of project.',
+    (master_doc, project, project + ' Documentation',
+     author, project, meta.__description__,
      'Miscellaneous'),
 ]
 
