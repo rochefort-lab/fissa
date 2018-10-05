@@ -6,6 +6,8 @@ import os
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
+from fissa import __meta__
+
 NAME = 'fissa'
 
 
@@ -55,7 +57,7 @@ setup(
     name=NAME,
     install_requires=install_requires,
     extras_require=extras_require,
-    version="0.6.0.alpha",
+    version=__meta__.__version__,
     author="Sander Keemink & Scott Lowe & Nathalie Rochefort",
     author_email="swkeemink@scimail.eu",
     description="A Python Library estimating somatic signals in 2-photon data",

@@ -1,4 +1,3 @@
-
-__version__ = '0.6.0.alpha'
+from .__meta__ import *
 
 from core import Experiment
