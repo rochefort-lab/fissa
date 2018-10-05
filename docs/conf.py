@@ -17,6 +17,8 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
+from ..fissa import __meta__
+
 
 # -- Project information -----------------------------------------------------
 
@@ -24,10 +26,10 @@ project = 'FISSA'
 copyright = '2018, Sander Keemink & Scott Lowe'
 author = 'Sander Keemink & Scott Lowe'
 
-# The short X.Y version
-version = ''
 # The full version, including alpha/beta/rc tags
-release = '2018'
+release = __meta__.__version__
+# The short X.Y version
+version = '.'.join(release.split('.')[0:2])
 
 
 # -- Automatically generate API documentation --------------------------------
