@@ -22,9 +22,13 @@ from ..fissa import __meta__
 
 # -- Project information -----------------------------------------------------
 
+import datetime
+now = datetime.datetime.now()
+
 project = 'FISSA'
-copyright = '2018, Sander Keemink & Scott Lowe'
 author = 'Sander Keemink & Scott Lowe'
+copyright = '{}, {}'.format(now.year, author)
+
 
 # The full version, including alpha/beta/rc tags
 release = __meta__.__version__
