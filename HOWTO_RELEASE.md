@@ -12,6 +12,8 @@ With changes, increment the:
     MINOR version when you add functionality in a backwards-compatible manner, and
     PATCH version when you make backwards-compatible bug fixes.
 
+(from the [Semantic Versioning][semver] guidelines).
+
 The bleeding-edge development version is on the [master branch][our repo] of
 the repository. Its version number is always of the form x.x.x.dev.
 
