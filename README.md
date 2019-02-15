@@ -10,8 +10,9 @@ It can read images in tiff format and ROIs in zips as exported by ImageJ; or ope
 
 For details of the algorithm, please see our [companion paper](https://www.doi.org/10.1038/s41598-018-21640-2) published in Scientific Reports.
 
-FISSA is compatible with both Python 2.7 and Python 3.5+.
-It has been tested on Ubuntu 17.04 and on Windows 7 with the
+FISSA is compatible with both Python 2.7 and Python 3.5+. Using Python 3 is strongly encouraged, as Python 2 will no longer be [maintained starting January 2020](https://python3statement.org/). 
+
+FISSA has been tested on Ubuntu 17.04 and on Windows Windows 10 with the
 [Anaconda](https://www.anaconda.com/download/#linux) distribution.
 
 If you encounter a specific problem please
@@ -44,9 +45,9 @@ Installation
 ### Installation on Windows
 #### Basic prerequisites
 Download and install, in the following order:
-* Microsoft Visual C++ Compiler for Python 2.7: <https://www.microsoft.com/en-us/download/details.aspx?id=44266>
+* (for Python 2.7 only) Microsoft Visual C++ Compiler for Python 2.7: <https://www.microsoft.com/en-us/download/details.aspx?id=44266>
 
-* Python 2.7 Anaconda as the Python environment, available from
+* Python 2.7 or 3.5+ (recommended) Anaconda as the Python environment, available from
 <https://www.anaconda.com/download/>.
 
 
@@ -91,7 +92,7 @@ Before installing FISSA, you will need to make sure you have all of its dependen
 (and the dependencies of its dependencies) installed.
 
 Here we will outline how to do all of these steps, assuming you already have both
-Python 2.7 and pip installed. It is highly likely that your Linux distribution ships with these.
+Python and pip installed. It is highly likely that your Linux distribution ships with these.
 
 #### Dependencies of dependencies
 * [scipy](https://pypi.python.org/pypi/scipy/) requires a
