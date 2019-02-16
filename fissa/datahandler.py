@@ -26,7 +26,7 @@ def image2array(image):
     Returns
     -------
     numpy.ndarray
-        A 3D array containing the data, with dimenisons corresponding to
+        A 3D array containing the data, with dimensions corresponding to
         `(frames, y_coordinate, x_coordinate)`.
 
     """
