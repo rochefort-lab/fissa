@@ -130,7 +130,7 @@ class Experiment():
             - an explicit list of TIFF files (list of strings),
             - a list of array_like data already loaded into memory,
               each shaped `(frames, y-coords, x-coords)`.
-            Note that each tiff/array is considered a single trial.
+            Note that each TIFF/array is considered a single trial.
         rois : string or list
             The roi definitions.
             Should be one of:

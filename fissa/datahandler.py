@@ -21,7 +21,7 @@ def image2array(image):
     Parameters
     ----------
     image : string or array_like
-        Either a path to a tiff file, or array_like data.
+        Either a path to a TIFF file, or array_like data.
 
     Returns
     -------
