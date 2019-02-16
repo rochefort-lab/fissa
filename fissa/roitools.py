@@ -123,23 +123,25 @@ def shift_2d_array(a, shift=1, axis=None):
     Shifts an entire array in the direction of axis by the amount shift,
     without refilling the array.
 
-    Uses numpy.roll the shift, then empties the refilled parts of the array.
-
     Parameters
     ----------
     a : array_like
-        input array
-    shift : int
-        how much to shift array by
-    axis : int
-        From numpy.roll doc:
+        Input array.
+    shift : int, optional
+        How much to shift array by. Default is 1.
+    axis : int, optional
         The axis along which elements are shifted.
         By default, the array is flattened before shifting,
         after which the original shape is restored.
 
     Returns
     -------
-    Array of same shape as a, but shifted as per above
+    numpy.ndarray
+        Array with the same shape as a, but shifted appropriately.
+
+    Notes
+    -----
+    Uses numpy.roll the shift, then empties the refilled parts of the array.
     '''
     # Ensure array_like input is a numpy.ndarray
     a = np.asarray(a)
@@ -177,7 +179,7 @@ def get_npil_mask(mask, totalexpansion=4):
 
     Returns
     -------
-    array
+    numpy.ndarray
         A boolean numpy.ndarray mask, where the region surrounding
         the input is now True and the region of the input mask is
         False.

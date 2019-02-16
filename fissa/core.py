@@ -36,10 +36,10 @@ def extract_func(inputs):
 
     Returns
     -------
-    dictionary
-        dictionary containing data across cells
-    dictionary
-        dictionary containing polygons for each ROI
+    dict
+        Data across cells.
+    dict
+        Polygons for each ROI.
     """
     image = inputs[0]
     rois = inputs[1]
@@ -85,11 +85,19 @@ def separate_func(inputs):
         list of inputs
         [0] : Array with signals to separate
         [1] : Alpha input to npil.separate
-        [2] : current ROI number
+        [2] : method
+        [3] : current ROI number
 
     Returns
     -------
-    some output
+    numpy.ndarray
+        The raw separated traces.
+    numpy.ndarray
+        The separated traces matched to the primary signal.
+    numpy.ndarray
+        Mixing matrix.
+    dict
+        Metadata for the convergence result.
 
     """
     X = inputs[0]
@@ -116,50 +124,62 @@ class Experiment():
         Parameters
         ----------
         images : string or list
-            The raw images data.
-            Should be the path to a folder with tiffs,
-            an explicit list of tiff locations (strings),
-            or a list of already loaded in arrays.
-            Each tiff/array is seen as a single trial.
-            Non tiff data should be formatted as (frames,y-coords,x-coords)
+            The raw recording data.
+            Should be one of:
+            - the path to a directory containing TIFF files (string),
+            - an explicit list of TIFF files (list of strings),
+            - a list of array_like data already loaded into memory,
+              each shaped `(frames, y-coords, x-coords)`.
+            Note that each TIFF/array is considered a single trial.
         rois : string or list
             The roi definitions.
-            Should be the path of a folder with imagej zips, the explicit path
-            of a single imagej zip, an explicit list of imagej zip locations,
-            a list of arrays encoding roi polygons, or a list of lists of
-            binary arrays representing roi masks.
-            Should be either a single roiset for all trials, or a different
+            Should be one of:
+            - the path to a directory containing ImageJ ZIP files (string),
+            - the path of a single ImageJ ZIP file (string),
+            - a list of ImageJ ZIP files (list of strings),
+            - a list of arrays, each encoding a ROI polygons,
+            - a list of lists of binary arrays, each representing a ROI mask.
+            This can either be a single roiset for all trials, or a different
             roiset for each trial.
         folder : string
-            Where to store the extracted data.
-        nRegions : int, optional (default: 4)
-            Number of neuropil regions to draw. Use higher number for densely
-            labelled tissue.
-        expansion : float, optional (default: 1)
-            How much larger to make each neuropil subregion than ROI area.
-            Full neuropil area will be nRegions*expansion*ROI area
-        alpha : float, optional (default: 0.1)
-            Sparsity constraint for NMF
+            Output path to a directory in which the extracted data will
+            be stored.
+        nRegions : int, optional
+            Number of neuropil regions to draw. Use a higher number for
+            densely labelled tissue. Default is 4.
+        expansion : float, optional
+            Expansion factor for the neuropil region, relative to the
+            ROI area. Default is 1. The total neuropil area will be
+            `nRegions * expansion * area(ROI)`.
+        alpha : float, optional
+            Sparsity regularizaton weight for NMF algorithm. Set to zero to
+            remove regularization. Default is 0.1. (Not used for ICA method.)
         ncores_preparation : int, optional (default: None)
-            Sets the number of processes to be used for data preparation
-            (ROI and subregions definitions, data extraction from tifs,
-            etc.)
-            By default FISSA uses all the available processing threads.
-            This can, especially for the data preparation step,
-            quickly fill up your memory.
+            Sets the number of subprocesses to be used during the data
+            preparation steps (ROI and subregions definitions, data
+            extraction from tifs, etc.).
+            If set to `None` (default), there will be as many subprocesses
+            as there are threads or cores on the machine. Note that this
+            behaviour can, especially for the data preparation step,
+            be very memory-intensive.
         ncores_separation : int, optional (default: None)
-            Same as ncores_preparation, but for the separation step.
-            As a rule, this can be set higher than ncores_preparation, as
-            the separation step takes much less memory.
-        method : string, optional
-            Either 'nmf' for non-negative matrix factorization, or 'ica' for
-            independent component analysis. 'nmf' option recommended.
+            Same as `ncores_preparation`, but for the separation step.
+            Note that this step requires less memory per subprocess, and
+            hence can often be set higher than `ncores_preparation`.
+        method : {'nmf', 'ica'}, optional
+            Which blind source-separation method to use. Either `'nmf'`
+            for non-negative matrix factorization, or `'ica'` for
+            independent component analysis. Default (recommended) is
+            `'nmf'`.
         lowmemory_mode : bool, optional
-            If True, FISSA will load tiff file frame by frame instead of
-            whole files at once. This will reduce the memory load.
+            If `True`, FISSA will load TIFF files into memory frame-by-frame
+            instead of holding the entire TIFF in memory at once. This
+            option reduces the memory load, and may be necessary for very
+            large inputs. Default is `False`.
         datahandler_custom : object, optional
             A custom datahandler for handling ROIs and calcium data can
-            optionally be given. See datahandler.py for an example.
+            be given here. See datahandler.py (the default handler) for
+            an example.
 
         """
         if isinstance(images, str):
@@ -212,14 +232,14 @@ class Experiment():
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
 
-        Per trial:
-        * Load in data as arrays
-        * load in ROIs as masks
-        * grow and seaparate ROIs to get neuropil regions
-        * using neuropil and original regions, extract traces from data
+        For each trial, performs the following steps:
+        - Load in data as arrays
+        - Load in ROIs as masks
+        - Grow and seaparate ROIs to define neuropil regions
+        - Using neuropil and original ROI regions, extract traces from data
 
         After running this you can access the raw data (i.e. pre separation)
-        as self.raw and self.rois. self.raw is a list of arrays.
+        as `self.raw` and `self.rois`. self.raw is a list of arrays.
         self.raw[cell][trial] gives you the traces of a specific cell and
         trial, across cell and neuropil regions. self.roi_polys is a list of
         lists of arrays. self.roi_polys[cell][trial][region][0] gives you the
@@ -231,8 +251,10 @@ class Experiment():
 
         Parameters
         ----------
-        redo : bool
-            Redo the preparation even if done before
+        redo : bool, optional
+            If `False`, we load previously prepared data when possible.
+            If `True`, we re-run the preparation, even if it has previously
+            been run. Default is `False`.
 
         """
         # define filename where data will be present
@@ -292,31 +314,32 @@ class Experiment():
     def separate(self, redo_prep=False, redo_sep=False):
         """Separate all the trials with FISSA algorithm.
 
-        After running separate, data can be found as follows:
-
+        After running `separate`, data can be found as follows:
         self.sep
             Raw separation output, without being matched. Signal 'i' for
             a specific cell and trial can be found as
             self.sep[cell][trial][i,:]
         self.result
             Final output, in order of presence in cell ROI.
-            Signal 'i' for a specific cell and trial can be found as
-            self.result[cell][trial][i,:]
-            i = 0 is most strongly present signal
-            i = 1 less so, etc.
+            Signal `i` for a specific cell and trial can be found at
+            `self.result[cell][trial][i, :]`.
+            Note that the ordering is such that `i = 0` is the signal
+            most strongly present in the ROI, and subsequent entries
+            are in diminishing order.
         self.mixmat
-            The mixing matrix (how to go between self.separated and
-            self.raw from the separation_prep function)
+            The mixing matrix (how to go between `self.separated` and
+            `self.raw` from the `separation_prep()` function).
         self.info
-            Info about separation algorithm, iterations needed, etc.
+            Information about separation routine, iterations needed, etc.
 
         Parameters
         ----------
         redo_prep : bool, optional
-            Whether to redo the preparation. This will always set
-            redo_sep = True as well.
+            Whether to redo the preparation. Default is `False.` Note that
+            if this is true, we set `redo_sep = True` as well.
         redo_sep : bool, optional
-            Whether to redo the separation
+            Whether to redo the separation. Default is `False`. Note that
+            this parameter is ignored if `redo_prep` is set to `True`.
 
         """
         # Do data preparation
@@ -403,13 +426,16 @@ class Experiment():
         Parameters
         ----------
         freq : float
-            Imaging frequency in Hz.
-        use_raw_f0 : bool
-            If True (default), use the f0 from the raw ROI trace for both
-            raw and result traces. If False, use the f0 of each trace.
-        across_trials : bool
-            Whether to do calculate the deltaf/f0 across all trials (default),
-            or per trial.
+            Imaging frequency, in Hz.
+        use_raw_f0 : bool, optional
+            If `True` (default), use an f0 estimate from the raw ROI trace
+            for both raw and result traces. If `False`, use individual f0
+            estimates for each of the traces.
+        across_trials : bool, optional
+            If `True`, we estimate a single baseline f0 value across all
+            trials. If `False`, each trial will have their own baseline f0,
+            and df/f0 value will be relative to the trial-specific f0.
+            Default is `True`.
 
         """
         deltaf_raw = [[None for t in range(self.nTrials)]

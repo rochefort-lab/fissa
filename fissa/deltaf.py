@@ -25,7 +25,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
         Dimension which contains the time series. Default is 0.
     keepdims : bool, optional
         Whether to preserve the dimensionality of the input. Default is
-        False.
+        `False`.
 
     Returns
     -------

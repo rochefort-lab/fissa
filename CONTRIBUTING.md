@@ -191,7 +191,7 @@ This document was based on the contribution guidelines for
   [Git documentation]: http://git-scm.com/documentation
   [numpy workflow]: https://docs.scipy.org/doc/numpy-1.10.1/dev/gitwash/development_workflow.html
   [numpy workflow commits]: https://docs.scipy.org/doc/numpy-1.10.1/dev/gitwash/development_workflow.html#writing-the-commit-message
-  [numpy documenting]: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt#sections
+  [numpy documenting]: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
   [numpy documenting example]: https://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_numpy.html
   [sklearn contributing]: https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md
   [sklearn guide]: http://scikit-learn.org/stable/developers/contributing.html#contributing-code
