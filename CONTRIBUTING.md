@@ -181,7 +181,7 @@ This document was based on the contribution guidelines for
 [Pillow][Pillow contributing].
 
 
-  [our repo]: http://github.com/rochefort-tools/fissa/
+  [our repo]: http://github.com/rochefort-lab/fissa/
   [issues]: https://github.com/rochefort-lab/fissa/issues
   [new issue]:https://github.com/rochefort-lab/fissa/issues/new
   [pull request]: https://help.github.com/articles/using-pull-requests
