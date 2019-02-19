@@ -22,8 +22,9 @@ External Code
   was adapted from code contained in the `SIMA <http://www.losonczylab.org/sima/>`_ package
   under the `GNU GPL v2 License <https://www.gnu.org/licenses/gpl-2.0.html>`_.
 * `NIH ImageJ ROI parsing <https://github.com/rochefort-lab/fissa/blob/master/fissa/readimagejrois.py>`_
-  was apapted from code originally written by Luis Pedro Coelho under
-  the `MIT license <https://opensource.org/licenses/MIT>`_.
+  was apapted from code originally
+  `written by Luis Pedro Coelho <https://gist.github.com/luispedro/3437255>`_
+  under the `MIT license <https://opensource.org/licenses/MIT>`_.
 
 Funding
 -------
