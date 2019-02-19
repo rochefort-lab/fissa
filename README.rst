@@ -219,7 +219,8 @@ for calcium imaging signals, *Scientific Reports*, **8**\ (1):3493,
 `DOI:10.1038/s41598-018-21640-2 <https://www.doi.org/10.1038/s41598-018-21640-2>`__.
 
 For your convenience, the FISSA package ships with a copy of this
-citation in bibtex format, available at `citation.bib <citation.bib>`__.
+citation in bibtex format, available at
+`citation.bib <https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib>`__.
 
 License
 -------
