@@ -192,7 +192,7 @@ def get_npil_mask(mask, totalexpansion=4):
     This procedure generates a neuropil whose shape is similar to the
     shape of the input ROI mask.
 
-    Hint
+    Note
     ----
     For fixed number of `iterations`, squarer input masks will have
     larger output neuropil masks.

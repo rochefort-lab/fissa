@@ -33,7 +33,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     baselineF0 : numpy.ndarray
         The baseline fluorescence of each recording, as an array.
 
-    Hint
+    Note
     ----
     In typical usage, the input rawF is expected to be sized
     `(numROI, numTimePoints, numRecs)`
