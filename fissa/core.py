@@ -31,6 +31,7 @@ def extract_func(inputs):
     ----------
     inputs : list
         list of inputs
+
         0. image array
         1. the rois
         2. number of neuropil regions
@@ -85,6 +86,7 @@ def separate_func(inputs):
     ----------
     inputs : list
         list of inputs
+
         0. Array with signals to separate
         1. Alpha input to npil.separate
         2. Method
