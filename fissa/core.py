@@ -552,9 +552,3 @@ class Experiment():
                 M['result'][c_lab][t_lab] = self.result[cell][trial]
 
         savemat(fname, M)
-
-
-def run_fissa(*args, **kwargs):
-    """Shorthand for making Fissa instance and running it on your dataset."""
-    # clive = Fissa(*args, **kwargs)
-    raise NotImplementedError()
