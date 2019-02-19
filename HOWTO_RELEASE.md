@@ -40,7 +40,7 @@ This document was based on the release guidelines for
 [numpy][numpy release] and
 [Semantic Versioning 2.0.0 standard][semver].
 
-  [our repo]: http://github.com/rochefort-tools/fissa/
+  [our repo]: http://github.com/rochefort-lab/fissa/
   [numpy release]: https://github.com/numpy/numpy/blob/master/doc/HOWTO_RELEASE.rst.txt
   [setup py]: https://github.com/rochefort-lab/fissa/blob/master/setup.py
   [semver]: https://semver.org/spec/v2.0.0.html
