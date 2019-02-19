@@ -44,4 +44,3 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed, Security
 ## [0.5.0](https://github.com/rochefort-lab/fissa/tree/0.5.0) (2017-10-05)
 
 Initial release
-
