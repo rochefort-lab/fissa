@@ -49,7 +49,7 @@ class TestNeuropilFuns(BaseTestCase):
 
             Parameters
             ----------
-            Method : string
+            method : str
                 What method to test: 'nmf', 'ica', or 'nmf_sklearn')
 
             """

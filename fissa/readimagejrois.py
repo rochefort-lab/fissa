@@ -1,14 +1,11 @@
 '''
- Adapted from readimagjerois in the Sima package,
- http://www.losonczylab.org/sima
+Based on code originally written by Luis Pedro Coelho <luis@luispedro.org>,
+2012, available at https://gist.github.com/luispedro/3437255, distributed
+under the MIT License.
 
- Copyright: Luis Pedro Coelho <luis@luispedro.org>, 2012
- License: MIT
-
- https://gist.github.com/luispedro/3437255
-
- Modified 2014 by Jeffrey Zaremba.
- Modified 2015 by Scott Lowe (@scottclowe) and Sander Keemink (@swkeemink).
+Modified
+    - 2014 by Jeffrey Zaremba (@jzaremba), https://github.com/losonczylab/sima
+    - 2015 by Scott Lowe (@scottclowe) and Sander Keemink (@swkeemink).
 '''
 
 from __future__ import division
@@ -28,7 +25,7 @@ def read_imagej_roi_zip(filename):
 
     Parameters
     ----------
-    filename : string
+    filename : str
         Path to the ImageJ ROis zip file
 
     Returns
@@ -51,13 +48,8 @@ def read_imagej_roi_zip(filename):
 def read_roi(roi_obj):
     """Parses an individual ImageJ ROI
 
-    _getX lines with no assignment are bytes within the imageJ roi file
-    format that contain additional information that can be extracted if
-    needed. In line comments label what they are.
-
-    This is based on:
+    This is based on the Java implementation:
     http://rsbweb.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
-    http://rsbweb.nih.gov/ij/developer/source/ij/io/RoiEncoder.java.html
 
     Parameters
     ----------
@@ -66,8 +58,9 @@ def read_roi(roi_obj):
 
     Returns
     -------
-    ROI
-        Returns a parsed ROI object (dictionary)
+    dict
+        Returns a parsed ROI object, a dictionary with either a `'polygons'`
+        or a `'mask'` field.
 
     Raises
     ------
@@ -77,6 +70,12 @@ def read_roi(roi_obj):
         If unable to parse ROI
 
     """
+
+    # Note:
+    # _getX() calls with no assignment are present to move our pointer
+    # within the imageJ roi file through bytes that we do not currently use.
+    # In line comments indicate what they are; these could be extracted if
+    # needed in the future.
 
     sub_pixel_resolution = 128
 

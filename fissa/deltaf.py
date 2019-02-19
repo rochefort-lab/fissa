@@ -2,7 +2,8 @@
 Functions for computing correcting fluorescence signals for changes in
 baseline activity.
 
-Author: Scott Lowe
+Authors:
+    - Scott C Lowe
 '''
 
 import numpy as np
@@ -32,10 +33,12 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     baselineF0 : numpy.ndarray
         The baseline fluorescence of each recording, as an array.
 
+    Hint
+    ----
     In typical usage, the input rawF is expected to be sized
-    (numROI, numTimePoints, numRecs)
-    and the output will then be sized (numROI, 1, numRecs)
-    if keepdims is True.
+    `(numROI, numTimePoints, numRecs)`
+    and the output will then be sized `(numROI, 1, numRecs)`
+    if `keepdims` is `True`.
     """
     # Parameters --------------------------------------------------------------
     nfilt = 30  # Number of taps to use in FIR filter
