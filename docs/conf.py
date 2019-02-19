@@ -38,8 +38,6 @@ version = '.'.join(release.split('.')[0:2])
 
 # -- Automatically generate API documentation --------------------------------
 
-import sphinx.apidoc
-
 def run_apidoc(_):
     ignore_paths = [
         os.path.join('..', project.lower(), 'tests'),
