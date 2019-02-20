@@ -6,12 +6,14 @@ import os
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
-from fissa import __meta__ as meta
-
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+# Can't import __meta__.py if the requirements aren't installed
+# due to imports in __init__.py. This is a workaround.
+meta = {}
+exec(read('fissa/__meta__.py'), meta)
 
 install_requires = read('requirements.txt')
 
@@ -41,16 +43,16 @@ class PyTest(TestCommand):
 
 
 setup(
-    name = meta.__name__,
+    name = meta['name'],
     install_requires = install_requires,
     extras_require = extras_require,
-    version = meta.__version__,
-    author = meta.__author__,
-    author_email = meta.__author_email__,
-    description = meta.__description__,
-    url = meta.__url__,
-    package_dir = {meta.__name__: os.path.join(".", meta.__path__)},
-    packages = [meta.__name__],
+    version = meta['version'],
+    author = meta['author'],
+    author_email = meta['author_email'],
+    description = meta['description'],
+    url = meta['url'],
+    package_dir = {meta['name']: os.path.join(".", meta['path'])},
+    packages = [meta['name']],
     license = "GNU",
     long_description = read('README.rst'),
     classifiers = [
