@@ -5,8 +5,8 @@ declaration of the core FISSA Experiment class), it should have the same
 functions as here, with the same inputs and outputs.
 
 Authors:
-    Sander W Keemink <swkeemink@scimail.eu>
-    Scott C Lowe <scott.code.lowe@gmail.com>
+    - Sander W Keemink <swkeemink@scimail.eu>
+    - Scott C Lowe <scott.code.lowe@gmail.com>
 
 """
 
@@ -116,7 +116,7 @@ def extracttraces(data, masks):
 
     Returns
     -------
-    np.ndarray
+    numpy.ndarray
         Trace for each mask. Shaped `(len(masks), n_frames)`.
 
     """

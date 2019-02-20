@@ -1,6 +1,8 @@
 """Main user interface for FISSA.
 
-Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
+Authors:
+    - Sander W Keemink (swkeemink@scimail.eu)
+    - Scott C Lowe
 """
 import datahandler
 import collections
@@ -29,10 +31,11 @@ def extract_func(inputs):
     ----------
     inputs : list
         list of inputs
-        [0] : image array
-        [1] : the rois
-        [2] : number of neuropil regions
-        [3] : how much larger neuropil region should be then central ROI
+
+        0. image array
+        1. the rois
+        2. number of neuropil regions
+        3. how much larger neuropil region should be then central ROI
 
     Returns
     -------
@@ -83,10 +86,11 @@ def separate_func(inputs):
     ----------
     inputs : list
         list of inputs
-        [0] : Array with signals to separate
-        [1] : Alpha input to npil.separate
-        [2] : method
-        [3] : current ROI number
+
+        0. Array with signals to separate
+        1. Alpha input to npil.separate
+        2. Method
+        3. Current ROI number
 
     Returns
     -------
@@ -123,25 +127,31 @@ class Experiment():
 
         Parameters
         ----------
-        images : string or list
+        images : str or list
             The raw recording data.
             Should be one of:
+
             - the path to a directory containing TIFF files (string),
             - an explicit list of TIFF files (list of strings),
-            - a list of array_like data already loaded into memory,
-              each shaped `(frames, y-coords, x-coords)`.
+            - a list of array_like data already loaded into memory, each shaped
+              `(frames, y-coords, x-coords)`.
+
             Note that each TIFF/array is considered a single trial.
-        rois : string or list
+
+        rois : str or list
             The roi definitions.
             Should be one of:
+
             - the path to a directory containing ImageJ ZIP files (string),
             - the path of a single ImageJ ZIP file (string),
             - a list of ImageJ ZIP files (list of strings),
             - a list of arrays, each encoding a ROI polygons,
             - a list of lists of binary arrays, each representing a ROI mask.
+
             This can either be a single roiset for all trials, or a different
             roiset for each trial.
-        folder : string
+
+        folder : str
             Output path to a directory in which the extracted data will
             be stored.
         nRegions : int, optional
@@ -233,21 +243,22 @@ class Experiment():
         """Prepare and extract the data to be separated.
 
         For each trial, performs the following steps:
+
         - Load in data as arrays
         - Load in ROIs as masks
         - Grow and seaparate ROIs to define neuropil regions
         - Using neuropil and original ROI regions, extract traces from data
 
-        After running this you can access the raw data (i.e. pre separation)
+        After running this you can access the raw data (i.e. pre-separation)
         as `self.raw` and `self.rois`. self.raw is a list of arrays.
-        self.raw[cell][trial] gives you the traces of a specific cell and
-        trial, across cell and neuropil regions. self.roi_polys is a list of
-        lists of arrays. self.roi_polys[cell][trial][region][0] gives you the
-        polygon for the region for a specific cell, trial and region. region=0
-        is the cell, and region>0 gives the different neuropil regions.
+        `self.raw[cell][trial]` gives you the traces of a specific cell and
+        trial, across cell and neuropil regions. `self.roi_polys` is a list of
+        lists of arrays. `self.roi_polys[cell][trial][region][0]` gives you the
+        polygon for the region for a specific cell, trial and region. `region=0`
+        is the cell, and `region>0` gives the different neuropil regions.
         For separateable masks, it is possible multiple outlines are found,
-        which can be accessed as self.roi_polys[cell][trial][region][i],
-        where 'i' is the outline index.
+        which can be accessed as `self.roi_polys[cell][trial][region][i]`,
+        where `i` is the outline index.
 
         Parameters
         ----------
@@ -315,10 +326,11 @@ class Experiment():
         """Separate all the trials with FISSA algorithm.
 
         After running `separate`, data can be found as follows:
+
         self.sep
-            Raw separation output, without being matched. Signal 'i' for
+            Raw separation output, without being matched. Signal `i` for
             a specific cell and trial can be found as
-            self.sep[cell][trial][i,:]
+            `self.sep[cell][trial][i,:]`.
         self.result
             Final output, in order of presence in cell ROI.
             Signal `i` for a specific cell and trial can be found at
@@ -499,21 +511,22 @@ class Experiment():
     def save_to_matlab(self):
         """Save the results to a matlab file.
 
-        Can be found in 'folder/matlab.mat'.
+        Can be found in `folder/matlab.mat`.
 
         This will give you a filename.mat file which if loaded in Matlab gives
         the following structs: ROIs, result, raw.
 
-        If df/f0 was calculated, these will also be stored as df_result
-        and df_raw, which will have the same format as result and raw.
+        If df/f0 was calculated, these will also be stored as `df_result`
+        and `df_raw`, which will have the same format as result and raw.
 
         These can be interfaced with as follows, for cell 0, trial 0:
-            ROIs.cell0.trial0{1} % polygon for the ROI
-            ROIs.cell0.trial0{2} % polygon for first neuropil region
-            result.cell0.trial0(1,:) % final extracted cell signal
-            result.cell0.trial0(2,:) % contaminating signal
-            raw.cell0.trial0(1,:) % raw measured celll signal
-            raw.cell0.trial0(2,:) % raw signal from first neuropil region
+
+        - `ROIs.cell0.trial0{1}` polygon for the ROI
+        - `ROIs.cell0.trial0{2}` polygon for first neuropil region
+        - `result.cell0.trial0(1,:)` final extracted cell signal
+        - `result.cell0.trial0(2,:)` contaminating signal
+        - `raw.cell0.trial0(1,:)` raw measured celll signal
+        - `raw.cell0.trial0(2,:)` raw signal from first neuropil region
         """
         # define filename
         fname = self.folder + '/matlab.mat'
@@ -541,9 +554,3 @@ class Experiment():
                 M['result'][c_lab][t_lab] = self.result[cell][trial]
 
         savemat(fname, M)
-
-
-def run_fissa(*args, **kwargs):
-    """Shorthand for making Fissa instance and running it on your dataset."""
-    # clive = Fissa(*args, **kwargs)
-    raise NotImplementedError()

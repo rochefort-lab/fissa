@@ -5,8 +5,8 @@ declaration of the core FISSA Experiment class), it should have the same
 functions as here, with the same inputs and outputs.
 
 Authors:
-    Sander W Keemink <swkeemink@scimail.eu>
-    Scott C Lowe <scott.code.lowe@gmail.com>
+    - Sander W Keemink <swkeemink@scimail.eu>
+    - Scott C Lowe <scott.code.lowe@gmail.com>
 
 """
 
@@ -20,7 +20,7 @@ def image2array(image):
 
     Parameters
     ----------
-    image : string or array_like
+    image : str or array_like
         Either a path to a TIFF file, or array_like data.
 
     Returns
@@ -55,7 +55,7 @@ def getmean(data):
 
 
 def rois2masks(rois, data):
-    """Take the object 'rois' and returns it as a list of binary masks.
+    """Take the object `rois` and returns it as a list of binary masks.
 
     Parameters
     ----------
@@ -102,7 +102,7 @@ def extracttraces(data, masks):
 
     Returns
     -------
-    np.ndarray
+    numpy.ndarray
         Trace for each mask. Shaped `(len(masks), n_frames)`.
 
     """

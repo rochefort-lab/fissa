@@ -63,7 +63,7 @@ setup(
     package_dir = {meta.__name__: os.path.join(".", meta.__path__)},
     packages = [meta.__name__],
     license = "GNU",
-    long_description = read('README.md'),
+    long_description = read('README.rst'),
     classifiers = [
         "Natural Language :: English",
         "Programming Language :: Python",

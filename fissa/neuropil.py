@@ -1,7 +1,11 @@
-"""Functions for removal of neuropil from calcium signals.
+"""
+Functions for removal of neuropil from calcium signals.
 
-Authors: Sander Keemink (swkeemink@scimail.eu) and Scott Lowe
-Created: 2015-05-15
+Authors:
+    - Sander W Keemink (swkeemink@scimail.eu)
+    - Scott C Lowe
+Created:
+    2015-05-15
 """
 
 import numpy as np
@@ -19,31 +23,43 @@ def separate(
     Parameters
     ----------
     S : array_like
-        2d array with signals. S[i,j], j = each signal, i = signal content.
-        j = 0 is considered the primary signal. (i.e. the somatic signal)
+        2-d array containing mixed input signals.
+        Each column of `S` should be a different signal, and each row an
+        observation of the signals. For `S[i,j]`, `j` = each signal,
+        `i` = signal content.
+        The first column, `j = 0`, is considered the primary signal and the
+        one for which we will try to extract a decontaminated equivalent.
+
     sep_method : {'ica','nmf'}
-        Which source separation method to use, ica or nmf.
-        - ica: Independent Component Analysis
-        - nmf: Non-negative Matrix Factorization
+        Which source separation method to use, either ICA or NMF.
+
+        - `'ica'`: Independent Component Analysis
+        - `'nmf'`: Non-negative Matrix Factorization
+
     n : int, optional
         How many components to estimate. If `None` (default), use PCA to
-        estimate how many components would explain at least 99%% of the
+        estimate how many components would explain at least 99% of the
         variance and adopt this value for `n`.
     maxiter : int, optional
         Number of maximally allowed iterations. Default is 500.
     tol : float, optional
         Error tolerance for termination. Default is 1e-5.
     random_state : int, optional
-        Initial random state for seeding. Default is 892.
+        Initial state for the random number generator. Set to None to use
+        the numpy.random default. Default seed is 892.
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is 10.
-    W0, H0 : array_like, optional
-        Optional starting conditions for NMF algorithm. (Not used for ICA
-        method.)
+    W0 : array_like, optional
+        Optional starting condition for `W` in NMF algorithm.
+        (Ignored when using the ICA method.)
+    H0 : array_like, optional
+        Optional starting condition for `H` in NMF algorithm.
+        (Ignored when using the ICA method.)
     alpha : float, optional
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
-        remove regularization. Default is 0.1. (Not used for ICA method.)
+        remove regularization. Default is 0.1.
+        (Ignored when using the ICA method.)
 
     Returns
     -------
@@ -51,20 +67,21 @@ def separate(
         The raw separated traces.
     numpy.ndarray
         The separated traces matched to the primary signal, in order
-        of matching quality (see Implementation below).
+        of matching quality (see Methods below).
     numpy.ndarray
         Mixing matrix.
     dict
         Metadata for the convergence result, with keys:
-        - random_state: seed for ICA initiation
-        - iterations: number of iterations needed for convergence
-        - max_iterations: maximum number of iterations allowed
-        - converged: whether the algorithm converged or not (bool)
 
-    Implementation
-    --------------
+        - `'random_state'`: seed for ICA initiation
+        - `'iterations'`: number of iterations needed for convergence
+        - `'max_iterations'`: maximum number of iterations allowed
+        - `'converged'`: whether the algorithm converged or not (bool)
+
+    Notes
+    -----
     Concept by Scott Lowe and Sander Keemink.
-    Normalize the columns in estimated mixing matrix A so that sum(column)=1
+    Normalize the columns in estimated mixing matrix A so that `sum(column)=1`.
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     """
@@ -231,7 +248,7 @@ def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
     nfilt : int, optional
         Number of taps to use in FIR filter. Default is 40.
     fw_base : float, optional
-        Cut-off frequency for lowpass filter, in Hz. Default is 1.
+        Cut-off frequency for lowpass filter, in Hz. Default is 10.
     axis : int, optional
         Along which axis to apply low pass filtering. Default is 0.
 
