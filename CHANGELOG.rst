@@ -20,6 +20,8 @@ Security.
 Added
 ~~~~~
 
+-  Python 3 compatibility.
+   `#33 <https://github.com/rochefort-lab/fissa/pull/33>`__
 -  Documentation generation, with Sphinx, Sphinx-autodoc, and Napoleon.
    `#38 <https://github.com/rochefort-lab/fissa/pull/38>`__
    (`scottclowe <https://github.com/scottclowe>`__)
