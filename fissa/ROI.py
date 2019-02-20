@@ -1,7 +1,6 @@
-"""The functions below were taken from the sima package
+"""
+The functions below were adapted from the sima package
 http://www.losonczylab.org/sima version 1.3.0.
-
-@swkeemink: Commented out lines 52-55 to remove a warning message for FISSA.
 
 License
 -------
@@ -34,7 +33,7 @@ from shapely.geometry import MultiPolygon, Polygon, Point
 def poly2mask(polygons, im_size):
     """Converts polygons to a sparse binary mask.
 
-    >>> from sima.ROI import poly2mask
+    >>> from fissa.ROI import poly2mask
     >>> poly1 = [[0,0], [0,1], [1,1], [1,0]]
     >>> poly2 = [[0,1], [0,2], [2,2], [2,1]]
     >>> mask = poly2mask([poly1, poly2], (3, 3))
@@ -52,11 +51,12 @@ def poly2mask(polygons, im_size):
     im_size : tuple
         Final size of the resulting mask
 
-    Output
-    ------
-    mask
+    Returns
+    -------
+    masks : list of sparse matrices
         A list of sparse binary masks of the points contained within the
-        polygons, one mask per plane
+        polygons, one mask per plane. Each mask is in linked list sparse matrix
+        format.
 
     """
     if len(im_size) == 2:
@@ -68,6 +68,7 @@ def poly2mask(polygons, im_size):
     for poly in polygons:
         # assuming all points in the polygon share a z-coordinate
         z = int(np.array(poly.exterior.coords)[0][2])
+        # @swkeemink: Commented out to remove a warning message for FISSA.
 #        if z > im_size[0]:
 #            warn('Polygon with zero-coordinate {} '.format(z) +
 #                 'cropped using im_size = {}'.format(im_size))

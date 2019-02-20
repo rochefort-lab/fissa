@@ -1,7 +1,7 @@
 '''Functions used for ROI manipulation.
 
 Authors:
-    Sander W Keemink <swkeemink@scimail.eu>
+    - Sander W Keemink <swkeemink@scimail.eu>
 '''
 
 from __future__ import division
@@ -56,18 +56,17 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         If True, the `num_slices` input is treated as the number of
         slices to use if the ROI is surrounded by valid pixels, and
         automatically reduces the number of slices if it is on the
-        boundary of the sampled region. NOT IMPLEMENTED.
+        boundary of the sampled region.
 
     Returns
     -------
-    dict
-        A dictionary with `num_slices` many masks, each of which is a 2d
+    list
+        A list with `num_slices` many masks, each of which is a 2d
         boolean numpy array.
 
-    Notes
-    -----
-    This should be an iterable.
     '''
+    #TODO: This should yield an iterable instead.
+
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
@@ -124,23 +123,22 @@ def shift_2d_array(a, shift=1, axis=None):
     Shifts an entire array in the direction of axis by the amount shift,
     without refilling the array.
 
-    Uses numpy.roll the shift, then empties the refilled parts of the array.
-
     Parameters
     ----------
     a : array_like
-        input array
-    shift : int
-        how much to shift array by
-    axis : int
-        From numpy.roll doc:
+        Input array.
+    shift : int, optional
+        How much to shift array by. Default is 1.
+    axis : int, optional
         The axis along which elements are shifted.
         By default, the array is flattened before shifting,
         after which the original shape is restored.
 
     Returns
     -------
-    Array of same shape as a, but shifted as per above
+    numpy.ndarray
+        Array with the same shape as a, but shifted appropriately.
+
     '''
     # Ensure array_like input is a numpy.ndarray
     a = np.asarray(a)
@@ -178,24 +176,26 @@ def get_npil_mask(mask, totalexpansion=4):
 
     Returns
     -------
-    array
+    numpy.ndarray
         A boolean numpy.ndarray mask, where the region surrounding
         the input is now True and the region of the input mask is
         False.
 
-    Implementation
-    --------------
+    Notes
+    -----
     Our implementation is as follows:
-        - On even iterations (where indexing begins at zero), expand
-          the mask in each of the 4 cardinal directions.
-        - On odd numbered iterations, expand the mask in each of the 4
-          diagonal directions.
+
+    - On even iterations (where indexing begins at zero), expand
+      the mask in each of the 4 cardinal directions.
+    - On odd numbered iterations, expand the mask in each of the 4
+      diagonal directions.
+
     This procedure generates a neuropil whose shape is similar to the
     shape of the input ROI mask.
 
-    Notes
-    -----
-    For fixed number of `iterations`, more square input masks will have
+    Note
+    ----
+    For fixed number of `iterations`, squarer input masks will have
     larger output neuropil masks.
     '''
     # Ensure array_like input is a numpy.ndarray
@@ -271,11 +271,12 @@ def getmasks_npil(cellMask, nNpil=4, expansion=1):
     nNpil : int
         number of neuropil subregions
     expansion : float
-        How much larger to make neuropil subregion area than cellMask's
+        How much larger to make neuropil subregion area than in `cellMask`
 
     Returns
     -------
-    Returns a list with soma + neuropil masks (boolean 2d arrays)
+    list
+        Returns a list with soma + neuropil masks (boolean 2d arrays)
     '''
     # Ensure array_like input is a numpy.ndarray
     cellMask = np.asarray(cellMask)
@@ -298,12 +299,13 @@ def readrois(roiset):
 
     Parameters
     ----------
-    roiset : string
+    roiset : str
         folder to a zip file with rois
 
     Returns
     -------
-    Returns the rois as polygons
+    list
+        Returns the rois as polygons
     '''
     # read rois
     rois = read_imagej_roi_zip(roiset)
@@ -355,7 +357,8 @@ def getmasks(rois, shpe):
 
     Returns
     -------
-    List of masks for each roi in the rois list
+    list of numpy.ndarray
+        List of masks for each roi in the rois list
     '''
     # get number of rois
     nrois = len(rois)
@@ -388,7 +391,8 @@ def find_roi_edge(mask):
 
     Returns
     -------
-    Array with coordinates of pixels in the outline of the mask
+    outline : list of (n,2)-ndarrays
+        Array with coordinates of pixels in the outline of the mask
     '''
 
     # Ensure array_like input is a numpy.ndarray

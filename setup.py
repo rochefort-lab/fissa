@@ -6,7 +6,7 @@ import os
 from distutils.core import setup
 from setuptools.command.test import test as TestCommand
 
-NAME = 'fissa'
+from fissa import __meta__ as meta
 
 
 def read(fname):
@@ -41,23 +41,22 @@ class PyTest(TestCommand):
 
 
 setup(
-    name=NAME,
-    install_requires=install_requires,
-    extras_require=extras_require,
-    version="0.5.2.dev",
-    author="Sander Keemink & Scott Lowe & Nathalie Rochefort",
-    author_email="swkeemink@scimail.eu",
-    description="A Python Library estimating somatic signals in 2-photon data",
-    url="https://github.com/rochefort-lab/fissa",
-    download_url="https://github.com/rochefort-lab/fissa/archive/0.5.2.tar.gz",
-    package_dir={NAME: "./fissa"},
-    packages=[NAME],
-    license="GNU",
-    long_description=read('README.md'),
-    classifiers=[
+    name = meta.__name__,
+    install_requires = install_requires,
+    extras_require = extras_require,
+    version = meta.__version__,
+    author = meta.__author__,
+    author_email = meta.__author_email__,
+    description = meta.__description__,
+    url = meta.__url__,
+    package_dir = {meta.__name__: os.path.join(".", meta.__path__)},
+    packages = [meta.__name__],
+    license = "GNU",
+    long_description = read('README.rst'),
+    classifiers = [
         "Natural Language :: English",
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering"
     ],
-    cmdclass={'test': PyTest},
+    cmdclass = {'test': PyTest},
 )

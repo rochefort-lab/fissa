@@ -5,8 +5,8 @@ declaration of the core FISSA Experiment class), it should have the same
 functions as here, with the same inputs and outputs.
 
 Authors:
-    Sander W Keemink <swkeemink@scimail.eu>
-    Scott C Lowe <scott.code.lowe@gmail.com>
+    - Sander W Keemink <swkeemink@scimail.eu>
+    - Scott C Lowe <scott.code.lowe@gmail.com>
 
 """
 
@@ -17,39 +17,35 @@ from . import roitools
 
 
 def image2array(image):
-    """Take the object 'image' and returns a pillow image object.
-
-    Parameters
-    ---------
-    image : unknown
-        The data. Should be either a tif location, or a list
-        of already loaded in data.
-
-    Returns
-    -------
-    np.array
-        A 3D array containing the data as (frames, y coordinate, x coordinate)
-
-    """
-    if isinstance(image, str):
-        return Image.open(image)
-
-    else:
-        raise ValueError('Only tiff locations are accepted as inputs')
-
-
-def getmean(data):
-    """Get the mean image for data.
+    """Open a given image file as a PIL.Image instance.
 
     Parameters
     ----------
-    data : array
-        Data array as made by image2array. Should be a pillow image object.
+    image : str or file
+        A filename (string) of a TIFF image file, a pathlib.Path object,
+        or a file object.
 
     Returns
     -------
-    array
-        y by x array for the mean values
+    PIL.Image
+        Handle from which frames can be loaded.
+
+    """
+    return Image.open(image)
+
+
+def getmean(data):
+    """Determine the mean image across all frames.
+
+    Parameters
+    ----------
+    data : PIL.Image
+        An open PIL.Image handle to a multi-frame TIFF image.
+
+    Returns
+    -------
+    numpy.ndarray
+        y-by-x array for the mean values.
 
     """
     # We don't load the entire image into memory at once, because
@@ -76,44 +72,52 @@ def rois2masks(rois, data):
 
     Parameters
     ----------
-    rois : unkown
+    rois : str or list of array_like
         Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or binary arrays representing masks
-    data : array
-        Data array as made by image2array. Should be a pillow image object.
+        polygons, or list of binary arrays representing masks
+    data : PIL.Image
+        An open PIL.Image handle to a multi-frame TIFF image.
 
     Returns
     -------
     list
-        List of binary arrays (i.e. masks)
+        List of binary arrays (i.e. masks).
 
     """
+    # get the image shape
     shape = data.size[::-1]
 
-    # if it's a list of strings
+    # If rois is string, we first need to read the contents of the file
     if isinstance(rois, str):
         rois = roitools.readrois(rois)
-    if isinstance(rois, list):
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
 
-    else:
-        raise ValueError('Wrong rois input format')
+    if not isinstance(rois, list):
+        raise ValueError('Wrong ROIs input format: expected a list.')
+
+    # if it's a something by 2 array (or vice versa), assume polygons
+    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+        return roitools.getmasks(rois, shape)
+    # if it's a list of bigger arrays, assume masks
+    elif np.shape(rois[0]) == shape:
+        return rois
+
+    raise ValueError('Wrong ROIs input format: unfamiliar shape.')
 
 
 def extracttraces(data, masks):
     """Get the traces for each mask in masks from data.
 
-    Inputs
-    --------------------
-    data : array
-        Data array as made by image2array. Should be a pillow image object.
-    masks : list
-        list of binary arrays (masks)
+    Parameters
+    ----------
+    data : PIL.Image
+        An open PIL.Image handle to a multi-frame TIFF image.
+    masks : list of array_like
+        List of binary arrays.
+
+    Returns
+    -------
+    numpy.ndarray
+        Trace for each mask. Shaped `(len(masks), n_frames)`.
 
     """
     # get the number rois

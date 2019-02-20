@@ -1,4 +1,3 @@
-
-__version__ = '0.5.2.dev'
+from .__meta__ import *
 
 from .core import Experiment
