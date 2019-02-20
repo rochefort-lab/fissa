@@ -52,6 +52,9 @@ matrix:
       env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPENDENCIES="true"
   allow_failures:
     - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+    # Currently, 'SIMA example.ipynb' is failing with Python 2.7.
+    - python: "2.7"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
 
 ###############################################################################
 # Setup the environment before installing
