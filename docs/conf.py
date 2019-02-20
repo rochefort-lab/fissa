@@ -25,13 +25,13 @@ from ..fissa import __meta__ as meta
 import datetime
 now = datetime.datetime.now()
 
-project = meta.__name__.upper()
-author = meta.__author__
+project = meta.name.upper()
+author = meta.author
 copyright = '{}, {}'.format(now.year, author)
 
 
 # The full version, including alpha/beta/rc tags
-release = meta.__version__
+release = meta.version
 # The short X.Y version
 version = '.'.join(release.split('.')[0:2])
 
@@ -195,7 +195,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, project + '.tex', project + ' Documentation',
-     meta.__author__, 'manual'),
+     meta.author, 'manual'),
 ]
 
 
@@ -216,7 +216,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, project, project + ' Documentation',
-     author, project, meta.__description__,
+     author, project, meta.description,
      'Miscellaneous'),
 ]
 
