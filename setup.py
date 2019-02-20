@@ -20,12 +20,18 @@ extras_require = {}
 # Notebook dependencies for plotting
 extras_require['plotting'] = read('requirements_plots.txt')
 
+# Dependencies for generating documentation
+extras_require['docs'] = read('requirements_docs.txt')
+
 # Dev dependencies
 extras_require['dev'] = read('requirements-dev.txt')
 
-# Everything including cyordereddict (optimization) and nosetests
-extras_require['all'] = (extras_require['plotting']
-                         + extras_require['dev'])
+# Everything
+extras_require['all'] = (
+    extras_require['plotting']
+    + extras_require['docs']
+    + extras_require['dev']
+)
 
 
 class PyTest(TestCommand):
