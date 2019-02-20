@@ -152,7 +152,7 @@ def separate(
             #
 
             # Make an instance of the sklearn NMF class
-            if W0 is None:
+            if W0 is None and H0 is None:
                 nmf = NMF(
                     init='nndsvdar', n_components=n,
                     alpha=alpha, l1_ratio=0.5,

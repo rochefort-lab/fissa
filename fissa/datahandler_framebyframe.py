@@ -20,8 +20,9 @@ def image2array(image):
 
     Parameters
     ----------
-    image : str
-        A path to a TIFF image file.
+    image : str or file
+        A filename (string) of a TIFF image file, a pathlib.Path object,
+        or a file object.
 
     Returns
     -------
@@ -29,11 +30,7 @@ def image2array(image):
         Handle from which frames can be loaded.
 
     """
-    if isinstance(image, str):
-        return Image.open(image)
-
-    else:
-        raise ValueError('Only file paths are supported as inputs.')
+    return Image.open(image)
 
 
 def getmean(data):
@@ -86,22 +83,24 @@ def rois2masks(rois, data):
         List of binary arrays (i.e. masks).
 
     """
+    # get the image shape
     shape = data.size[::-1]
 
     # If rois is string, we first need to read the contents of the file
     if isinstance(rois, str):
         rois = roitools.readrois(rois)
 
-    if isinstance(rois, list):
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
+    if not isinstance(rois, list):
+        raise ValueError('Wrong ROIs input format: expected a list.')
 
-    else:
-        raise ValueError('Wrong rois input format')
+    # if it's a something by 2 array (or vice versa), assume polygons
+    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+        return roitools.getmasks(rois, shape)
+    # if it's a list of bigger arrays, assume masks
+    elif np.shape(rois[0]) == shape:
+        return rois
+
+    raise ValueError('Wrong ROIs input format: unfamiliar shape.')
 
 
 def extracttraces(data, masks):
