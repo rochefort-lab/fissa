@@ -5,8 +5,8 @@ declaration of the core FISSA Experiment class), it should have the same
 functions as here, with the same inputs and outputs.
 
 Authors:
-    Sander W Keemink <swkeemink@scimail.eu>
-    Scott C Lowe <scott.code.lowe@gmail.com>
+    - Sander W Keemink <swkeemink@scimail.eu>
+    - Scott C Lowe <scott.code.lowe@gmail.com>
 
 """
 
@@ -17,38 +17,37 @@ from . import roitools
 
 
 def image2array(image):
-    """Take the object 'image' and returns an array.
+    """Loads a TIFF image from disk.
 
     Parameters
-    ---------
-    image : unknown
-        The data. Should be either a tif location, or a list
-        of already loaded in data.
+    ----------
+    image : str or array_like
+        Either a path to a TIFF file, or array_like data.
 
     Returns
     -------
-    np.array
-        A 3D array containing the data as (frames, y coordinate, x coordinate)
+    numpy.ndarray
+        A 3D array containing the data, with dimensions corresponding to
+        `(frames, y_coordinate, x_coordinate)`.
 
     """
     if isinstance(image, str):
         return tifffile.imread(image)
 
-    if isinstance(image, np.ndarray):
-        return image
+    return np.array(image)
 
 
 def getmean(data):
-    """Get the mean image for data.
+    """Determine the mean image across all frames.
 
     Parameters
     ----------
-    data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+    data : array_like
+        Data array as made by image2array. Should be shaped `(frames, y, x)`.
 
     Returns
     -------
-    array
+    numpy.ndarray
         y by x array for the mean values
 
     """
@@ -56,15 +55,15 @@ def getmean(data):
 
 
 def rois2masks(rois, data):
-    """Take the object 'rois' and returns it as a list of binary masks.
+    """Take the object `rois` and returns it as a list of binary masks.
 
     Parameters
     ----------
-    rois : unkown
+    rois : string or list of array_like
         Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or binary arrays representing masks
+        polygons, or list of binary arrays representing masks
     data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
+        Data array as made by image2array. Must be shaped `(frames, y, x)`.
 
     Returns
     -------
@@ -78,27 +77,35 @@ def rois2masks(rois, data):
     # if it's a list of strings
     if isinstance(rois, str):
         rois = roitools.readrois(rois)
-    if isinstance(rois, list):
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
 
-    else:
-        raise ValueError('Wrong rois input format')
+    if not isinstance(rois, list):
+        raise ValueError('Wrong ROIs input format: expected a list.')
+
+    # if it's a something by 2 array (or vice versa), assume polygons
+    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+        return roitools.getmasks(rois, shape)
+    # if it's a list of bigger arrays, assume masks
+    elif np.shape(rois[0]) == shape:
+        return rois
+
+    raise ValueError('Wrong ROIs input format: unfamiliar shape.')
 
 
 def extracttraces(data, masks):
-    """Get the traces for each mask in masks from data.
+    """Extracts a temporal trace for each spatial mask.
 
-    Inputs
-    --------------------
-    data : array
-        Data array as made by image2array. Should be of shape [frames,y,x]
-    masks : list
-        list of binary arrays (masks)
+    Parameters
+    ----------
+    data : array_like
+        Data array as made by image2array. Should be shaped
+        `(frames, y, x)`.
+    masks : list of array_like
+        List of binary arrays.
+
+    Returns
+    -------
+    numpy.ndarray
+        Trace for each mask. Shaped `(len(masks), n_frames)`.
 
     """
     # get the number rois and frames
