@@ -17,6 +17,12 @@ Security.
 
 `Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.3...HEAD>`__
 
+Added
+~~~~~
+
+-  Documentation generation, with Sphinx, Sphinx-autodoc, and Napoleon.
+   `#38 <https://github.com/rochefort-lab/fissa/pull/38>`__
+   (`scottclowe <https://github.com/scottclowe>`__)
 
 
 `0.5.3 <https://github.com/rochefort-lab/fissa/tree/0.5.3>`__ (2019-02-18)
