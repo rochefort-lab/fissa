@@ -9,26 +9,19 @@ from setuptools.command.test import test as TestCommand
 from fissa import __meta__ as meta
 
 
-install_requires = ['numpy>=1.13.1',
-                    'scipy>=0.19.1',
-                    'future>=0.16.0',
-                    'scikit-learn>=0.18.2',
-                    'scikit-image>=0.13.0',
-                    'shapely>=1.5.17.post1',
-                    'tifffile>=0.12.1',
-                    'pillow>=5.0.0',
-                    ]
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
+install_requires = read('requirements.txt')
 
 extras_require = {}
 
 # Notebook dependencies for plotting
-extras_require['plotting'] = (['holoviews>=1.8.2',
-                               'jupyter>=1.00'])
+extras_require['plotting'] = read('requirements_plots.txt')
 
 # Dev dependencies
-extras_require['dev'] = (['pytest>=3.2.2',
-                          'pytest-cov',
-                          'pytest-flake8'])
+extras_require['dev'] = read('requirements-dev.txt')
 
 # Everything including cyordereddict (optimization) and nosetests
 extras_require['all'] = (extras_require['plotting']
@@ -45,10 +38,6 @@ class PyTest(TestCommand):
     def run_tests(self):
         import pytest
         pytest.main(self.test_args)
-
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
 setup(

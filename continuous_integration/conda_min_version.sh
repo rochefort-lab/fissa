@@ -23,7 +23,7 @@
 
 if (( $# < 1 )) || (( $# > 3 )); then
     echo "Wrong number of inputs. Given $#, expected 1-3.";
-    return 1;
+    exit 1;
 fi;
 
 REQUIREMENT_SPEC=$1;

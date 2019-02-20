@@ -2,6 +2,10 @@
 # language setting
 language: python
 
+# Current requirements for Python 3.7 on Travis
+sudo: required
+dist: xenial
+
 ###############################################################################
 # Cache data which has to be downloaded on every build.
 # This is just for Travis and doesn't do anything on Shippable.
@@ -9,15 +13,6 @@ cache:
   directories:
     # Cache files downloaded by pip
     - $HOME/.cache/pip
-    # Cache our miniconda download.
-    # Cautionary note: if a new version of Python is released and added to
-    # conda and you want to test on the new version, your cached copy will be
-    # out of date and you'll need to wipe the cache. Details are here
-    # https://docs.travis-ci.com/user/caching/#Clearing-Caches
-    # but if this sounds like too much hassle, you can just comment out this
-    # line to stop caching.
-    - $HOME/Downloads
-    - $HOME/miniconda
 
 ###############################################################################
 # version numbers
@@ -30,23 +25,36 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
-# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
+  - "3.7"
 
 ###############################################################################
 # environment variables
 env:
-  matrix:
-      - TEST_NOTEBOOKS="false"
-        USE_OLDEST_DEPENDENCIES="false"
-    #   - TEST_NOTEBOOKS="true"
-    #     USE_OLDEST_DEPENDENCIES="false"
-    #   - TEST_NOTEBOOKS="true"
-    #     USE_OLDEST_DEPENDENCIES="true"
+  - TEST_NOTEBOOKS="false"
+    USE_OLDEST_DEPENDENCIES="false"
+  - TEST_NOTEBOOKS="false"
+    USE_OLDEST_DEPENDENCIES="true"
+  - TEST_NOTEBOOKS="true"
+    USE_OLDEST_DEPENDENCIES="false"
+  - TEST_NOTEBOOKS="true"
+    USE_OLDEST_DEPENDENCIES="true"
+
+matrix:
+  exclude:
+    # Currently, SIMA cannot be installed on Python 3.7
+    - python: "3.7"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+    - python: "3.7"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+    # Currently, can't use our conda min numpy/scipy version detector on Travis
+    # with weird Python 3.7
+    - python: "3.7"
+      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPENDENCIES="true"
+  allow_failures:
+    - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+    # Currently, 'SIMA example.ipynb' is failing with Python 2.7.
+    - python: "2.7"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
 
 ###############################################################################
 # Setup the environment before installing
@@ -172,8 +180,11 @@ install:
     pip install -r requirements-dev.txt;
   # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
+  # Also, tell matplotlib to use the agg backend and not X server
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install -r requirements_plots.txt;
+      pip install sima;
+      export MPLBACKEND="agg";
     fi
   # ---------------------------------------------------------------------------
   # Install our package
@@ -216,35 +227,9 @@ script:
   # Test the main code base
   - py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Test the notebooks
-  - function check_notebooks {
-      RETURNVALUE=0;
-      for NBFILE in *.ipynb;
-      do
-        echo "==================================================================";
-        echo "Converting $NBFILE to a script";
-        echo "------------------------------------------------------------------";
-        jupyter nbconvert --to=script "$NBFILE";
-        PYFILE="${NBFILE%.*}.py";
-        echo "Commenting out any lines in $PYFILE which are calls to help()";
-        sed -ie 's/^\(help(.*)\)/#\ \1/' "$PYFILE";
-        echo "------------------------------------------------------------------";
-        echo "Trying to run the generated script $PYFILE";
-        echo "------------------------------------------------------------------";
-        ipython "$PYFILE";
-        ((RETURNVALUE+=$?));
-        echo "------------------------------------------------------------------";
-        echo "Current exit code is $RETURNVALUE";
-      done;
-      return $RETURNVALUE;
-    }
-  # Need a more up-to-date version of ipython
-  # Use this line until they release 4.1.0, then we can use that official release
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      pip install git+git://github.com/ipython/ipython.git@cf094024c37d184a1794afbb0fb6d45ddf1e61b0;
-    fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd examples; fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then check_notebooks; fi
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then cd ..; fi
+      ./continuous_integration/test_notebooks.sh -i ./examples;
+    fi;
 
 ###############################################################################
 # commands to run after tests are done
