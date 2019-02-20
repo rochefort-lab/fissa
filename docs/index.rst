@@ -13,6 +13,7 @@ Welcome to FISSA's documentation!
    source/readme
    source/packages/modules
    source/contributing
+   source/changelog
    source/credits
 
 
