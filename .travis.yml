@@ -59,6 +59,9 @@ matrix:
 ###############################################################################
 # Setup the environment before installing
 before_install:
+  # Set documentation building option to always be enabled
+  # If you only want to do this some of the time, set it with env above.
+  - BUILD_DOCS="true"
   # Remember the directory where our repository to test is located
   - REPOPATH="$(pwd)" && pwd
   # ---------------------------------------------------------------------------
@@ -179,6 +182,11 @@ install:
     pip install --no-deps --upgrade -r requirements-dev.txt;
     pip install -r requirements-dev.txt;
   # ---------------------------------------------------------------------------
+  # Conditionally install the packages which are needed for building docs
+  - if [[ "$BUILD_DOCS" == "true" ]]; then
+      pip install -r requirements_docs.txt;
+    fi
+  # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
@@ -226,6 +234,10 @@ script:
   # ---------------------------------------------------------------------------
   # Test the main code base
   - py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+  # Build the documentation
+  - if [[ "$BUILD_DOCS" == "true" ]]; then
+      make -C docs html;
+    fi;
   # Test the notebooks
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       ./continuous_integration/test_notebooks.sh -i ./examples;
