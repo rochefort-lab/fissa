@@ -21,6 +21,9 @@ starting January 2020 <https://python3statement.org/>`__.
 FISSA has been tested on Ubuntu 17.04 and on Windows Windows 10 with the
 `Anaconda <https://www.anaconda.com/download/#linux>`__ distribution.
 
+Documentation, including the full API, is available online at
+`<https://fissa.readthedocs.io>`_.
+
 If you encounter a specific problem please `open a new
 issue <https://github.com/rochefort-lab/fissa/issues/new>`__. For
 general discussion and help with installation or setup, please see the
