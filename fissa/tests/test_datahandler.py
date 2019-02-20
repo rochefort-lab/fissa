@@ -1,9 +1,10 @@
 '''
 Tests for datahandler.py
 '''
+import os
+
 import numpy as np
 import tifffile
-import os
 
 from .base_test import BaseTestCase
 from .. import datahandler

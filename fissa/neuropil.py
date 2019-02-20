@@ -9,8 +9,8 @@ Created:
 """
 
 import numpy as np
-import scipy.signal as signal
 import numpy.random as rand
+import scipy.signal as signal
 from sklearn.decomposition import FastICA, NMF, PCA
 
 

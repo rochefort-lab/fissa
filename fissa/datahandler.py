@@ -12,7 +12,8 @@ Authors:
 
 import numpy as np
 import tifffile
-import roitools
+
+from . import roitools
 
 
 def image2array(image):

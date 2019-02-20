@@ -13,9 +13,12 @@ For details of the algorithm, please see our `companion
 paper <https://www.doi.org/10.1038/s41598-018-21640-2>`__ published in
 Scientific Reports.
 
-Currently, FISSA is only available for Python 2.7, and has been tested
-on Ubuntu 17.04 and on Windows 7 with the
-`Anaconda <https://www.anaconda.com/download/>`__ distribution.
+FISSA is compatible with both Python 2.7 and Python 3.5+. Using Python 3
+is strongly encouraged, as Python 2 will no longer be `maintained
+starting January 2020 <https://python3statement.org/>`__.
+
+FISSA has been tested on Ubuntu 17.04 and on Windows Windows 10 with the
+`Anaconda <https://www.anaconda.com/download/#linux>`__ distribution.
 
 If you encounter a specific problem please `open a new
 issue <https://github.com/rochefort-lab/fissa/issues/new>`__. For
@@ -54,11 +57,11 @@ Basic prerequisites
 
 Download and install, in the following order:
 
--  Microsoft Visual C++ Compiler for Python 2.7:
+-  (for Python 2.7 only) Microsoft Visual C++ Compiler for Python 2.7:
    https://www.microsoft.com/en-us/download/details.aspx?id=44266
 
--  Python 2.7 Anaconda as the Python environment, available from
-   https://www.anaconda.com/download/.
+-  Python 2.7 or 3.5+ (recommended) Anaconda as the Python environment,
+   available from https://www.anaconda.com/download/.
 
 Installing FISSA
 ^^^^^^^^^^^^^^^^
@@ -108,8 +111,8 @@ Before installing FISSA, you will need to make sure you have all of its
 dependencies (and the dependencies of its dependencies) installed.
 
 Here we will outline how to do all of these steps, assuming you already
-have both Python 2.7 and pip installed. It is highly likely that your
-Linux distribution ships with these.
+have both Python and pip installed. It is highly likely that your Linux
+distribution ships with these.
 
 Dependencies of dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
