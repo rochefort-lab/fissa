@@ -1,4 +1,5 @@
-|Join the FISSA chat| |Travis Build Status|
+|Gitter| |Travis| |Documentation| |Codecov| |Coveralls|
+
 
 FISSA
 =====
@@ -19,6 +20,9 @@ starting January 2020 <https://python3statement.org/>`__.
 
 FISSA has been tested on Ubuntu 17.04 and on Windows Windows 10 with the
 `Anaconda <https://www.anaconda.com/download/#linux>`__ distribution.
+
+Documentation, including the full API, is available online at
+`<https://fissa.readthedocs.io>`_.
 
 If you encounter a specific problem please `open a new
 issue <https://github.com/rochefort-lab/fissa/issues/new>`__. For
@@ -245,7 +249,18 @@ Public License for more details.
 You should have received a copy of the GNU General Public License along
 with this program. If not, see http://www.gnu.org/licenses/.
 
-.. |Join the FISSA chat| image:: https://badges.gitter.im/Join%20Chat.svg
+.. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/rochefort-lab/fissa
-.. |Travis Build Status| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
+   :alt: Join the FISSA chat
+.. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
    :target: https://travis-ci.org/rochefort-lab/fissa
+   :alt: Travis Build Status
+.. |Documentation| image:: https://readthedocs.org/projects/fissa/badge/?version=latest
+   :target: https://fissa.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+.. |Codecov| image:: https://codecov.io/gh/rochefort-lab/fissa/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/rochefort-lab/fissa
+   :alt: Codecov Coverage
+.. |Coveralls| image:: https://coveralls.io/repos/github/rochefort-lab/fissa/badge.svg?branch=master
+   :target: https://coveralls.io/github/rochefort-lab/fissa?branch=master
+   :alt: Coveralls Coverage
