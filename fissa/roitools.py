@@ -155,9 +155,9 @@ def shift_2d_array(a, shift=1, axis=0):
     # then fill in refilled parts of the array
     if axis == 0:
         if shift > 0:
-            out[:shift, :] = 0
+            out[:shift] = 0
         elif shift < 0:
-            out[shift:, :] = 0
+            out[shift:] = 0
     elif axis == 1:
         if shift > 0:
             out[:, :shift] = 0
