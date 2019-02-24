@@ -34,6 +34,12 @@ def get_mask_com(mask):
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
+    if mask.ndim != 2:
+        raise ValueError(
+            'Mask must be two-dimensional. Received input with {} dimensions'
+            ''.format(mask.ndim)
+        )
+
     # TODO: make this work for non-boolean masks too
     x, y = mask.nonzero()
     return np.mean(x), np.mean(y)
