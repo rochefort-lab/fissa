@@ -111,17 +111,19 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     masks = []
     # get the first mask
     # empty predefinition
-    masks += [np.zeros(np.shape(mask), dtype=bool)]
+    mask = np.zeros(np.shape(mask), dtype=bool)
     # set relevant pixels to True
-    masks[0][x[theta <= bounds[0]], y[theta <= bounds[0]]] = True
+    mask[x[theta <= bounds[0]], y[theta <= bounds[0]]] = True
+    masks.append(mask)
     # get the rest of the masks
     for i in range(1, num_slices):
         # find which pixels are within bounds
         truths = (theta > bounds[i - 1]) * (theta <= bounds[i])
         # empty predefinition
-        masks += [np.zeros(np.shape(mask), dtype=bool)]
+        mask = np.zeros(np.shape(mask), dtype=bool)
         # set relevant pixels to True
-        masks[i][x[truths], y[truths]] = True
+        mask[x[truths], y[truths]] = True
+        masks.append(mask)
 
     return masks
 
