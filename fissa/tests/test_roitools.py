@@ -167,44 +167,47 @@ class TestSplitNpil(BaseTestCase):
     def test_2x2(self):
         mask = np.ones((2, 2))
         npil_masks = roitools.split_npil(mask, (0.5, 0.5), 4)
-        idx = np.nonzero(npil_masks[0].flatten())[0][0]
-        self.assert_equal(npil_masks[idx % 4],
-                          np.array([[False, False], [False, True]]))
-        self.assert_equal(npil_masks[(idx+1) % 4],
-                          np.array([[False, False], [True, False]]))
-        self.assert_equal(npil_masks[(idx+2) % 4],
-                          np.array([[True, False], [False, False]]))
-        self.assert_equal(npil_masks[(idx+3) % 4],
-                          np.array([[False, True], [False, False]]))
+        desired_npil_masks = [
+            np.array([[False,  True], [False, False]]),
+            np.array([[False, False], [False,  True]]),
+            np.array([[False, False], [ True, False]]),
+            np.array([[ True, False], [False, False]]),
+        ]
+        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
+                                                 npil_masks)
 
     def test_bottom(self):
         mask = [[0, 0], [1, 1]]
         npil_masks = roitools.split_npil(mask, (0.5, 0.5), 4)
-        self.assert_equal(npil_masks[0],
-                          np.array([[False, False], [False, True]]))
-        self.assert_equal(npil_masks[1],
-                          np.array([[False, False], [False, False]]))
-        self.assert_equal(npil_masks[2],
-                          np.array([[False, False], [False, False]]))
-        self.assert_equal(npil_masks[3],
-                          np.array([[False, False], [True, False]]))
+        desired_npil_masks = [
+            np.array([[False, False], [False,  True]]),
+            np.array([[False, False], [False, False]]),
+            np.array([[False, False], [False, False]]),
+            np.array([[False, False], [ True, False]]),
+        ]
+        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
+                                                 npil_masks)
 
     def test_bottom2(self):
         mask = [[0, 0], [1, 1]]
         npil_masks = roitools.split_npil(mask, (1, 1), 2)
-        self.assert_equal(npil_masks[0],
-                          np.array([[False, False], [False, True]]))
-        self.assert_equal(npil_masks[1],
-                          np.array([[False, False], [True, False]]))
+        desired_npil_masks = [
+            np.array([[False, False], [False,  True]]),
+            np.array([[False, False], [ True, False]]),
+        ]
+        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
+                                                 npil_masks)
 
     def test_bottom_adaptive(self):
         mask = [[0, 0], [1, 1]]
         npil_masks = roitools.split_npil(mask, (1, 1), 4,
                                                adaptive_num=True)
-        self.assert_equal(npil_masks[0],
-                          np.array([[False, False], [False, True]]))
-        self.assert_equal(npil_masks[1],
-                          np.array([[False, False], [True, False]]))
+        desired_npil_masks = [
+            np.array([[False, False], [False,  True]]),
+            np.array([[False, False], [ True, False]]),
+        ]
+        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
+                                                 npil_masks)
 
 
 class TestGetNpilMask(BaseTestCase):
