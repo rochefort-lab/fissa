@@ -236,7 +236,7 @@ def get_npil_mask(mask, totalexpansion=4):
         # don't use a partially updated version.
         refmask = np.copy(grown_mask)
 
-        if case == 2:
+        if case == 2:  # Not used
             # Move polygon around one pixel in each 8 directions
             # N, NE, E, SE, S, SW, W, NW, (the centre is also redone)
             for dx in [-1, 0, 1]:
