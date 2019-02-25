@@ -89,6 +89,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     # for masks near the image boundary.
     # TODO: give it the bins to use
     n_bins = 20
+    n_bins = min(n_bins, len(mask))
     bins = np.linspace(-np.pi, np.pi, n_bins + 1)
     bin_counts, bins = np.histogram(theta, bins=bins)
     bin_min_index = np.argmin(bin_counts)
