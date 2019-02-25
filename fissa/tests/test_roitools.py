@@ -163,6 +163,14 @@ class TestShift2dArray(BaseTestCase):
         desired = np.array([[5, 1, 3, 0], [-1, 9, 2, 0]])
         self.assert_equal(actual, desired)
 
+    def test_axis3(self):
+        self.assertRaises(
+            ValueError,
+            roitools.shift_2d_array,
+            np.ones((1, 1, 1)),
+            axis=3,
+        )
+
 
 class TestSplitNpil(BaseTestCase):
 
