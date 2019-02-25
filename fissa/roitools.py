@@ -100,6 +100,9 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         num_slices = round(num_slices * sum(bin_counts > 0) / n_bins)
         num_slices = max(1, num_slices)
 
+    # Ensure num_slices is an integer number
+    num_slices = int(num_slices)
+
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
     theta_offset = bins[bin_min_index] + np.pi / n_bins
