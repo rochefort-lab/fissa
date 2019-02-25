@@ -97,6 +97,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         # Change the number of slices we will used based on the
         # proportion of these bins which are empty
         num_slices = round(num_slices * sum(bin_counts > 0) / n_bins)
+        num_slices = max(1, num_slices)
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
