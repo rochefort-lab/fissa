@@ -225,8 +225,8 @@ def get_npil_mask(mask, totalexpansion=4):
     count = 0
 
     # for count in range(iterations):
-    while area_current < totalexpansion * \
-            area_orig and area_current < area_total - area_orig:
+    while area_current < totalexpansion * area_orig \
+            and area_current < area_total - area_orig:
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
