@@ -113,9 +113,17 @@ If your new release will become the highest version released (it is for a new ma
 
 ### 3.4 Push your changes to the vM.N.x branch on GitHub
 
+Push your changes with
+```
+git push -u origin vM.N.x
+```
+(where `vM.N.x` is replaced with your release candidate branch) to establish tracking with the remote branch.
 
 ### 3.5 Ensure CHANGELOG is formatted correctly
 
+Check the rendering of the CHANGELOG on GitHub at
+<https://github.com/rochefort-lab/fissa/blob/vM.N.x/CHANGELOG.rst>,
+where `vM.N.x` is replaced with your release candidate branch.
 
 ## 4. Confirm tests pass
 
