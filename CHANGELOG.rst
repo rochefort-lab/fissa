@@ -12,10 +12,16 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-`Unreleased <https://github.com/rochefort-lab/fissa/tree/HEAD>`__
------------------------------------------------------------------
+`Unreleased <https://github.com/rochefort-lab/fissa>`__
+-------------------------------------------------------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.3...HEAD>`__
+`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.6.0...master>`__
+
+
+`0.6.0 <https://github.com/rochefort-lab/fissa/tree/0.6.0>`__ (2019-02-26)
+--------------------------------------------------------------------------
+
+`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__
 
 Added
 ~~~~~
@@ -24,7 +30,6 @@ Added
    `#33 <https://github.com/rochefort-lab/fissa/pull/33>`__
 -  Documentation generation, with Sphinx, Sphinx-autodoc, and Napoleon.
    `#38 <https://github.com/rochefort-lab/fissa/pull/38>`__
-   (`scottclowe <https://github.com/scottclowe>`__)
 
 
 `0.5.3 <https://github.com/rochefort-lab/fissa/tree/0.5.3>`__ (2019-02-18)
