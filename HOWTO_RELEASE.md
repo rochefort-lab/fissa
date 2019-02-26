@@ -140,11 +140,11 @@ We need to run the tests on a clean copy of the branch.
 ### 4.2 Run test suite
 
 Run the unit test suite, with either
-```
+```sh
 py.test
 ```
 or
-```
+```sh
 python setup.py test
 ```
 and make sure all the unit tests pass locally.
@@ -153,7 +153,7 @@ and make sure all the unit tests pass locally.
 ## 5. Build distribution
 
 Follow the instructions in the [PyPI tutorial](https://packaging.python.org/tutorials/packaging-projects/) to build your distribution.
-```
+```sh
 rm -rf dist
 python -m pip install --upgrade setuptools wheel
 python -m pip install --upgrade twine
@@ -174,7 +174,7 @@ You will be prompted for your test.pypi username and password.
 
 `cd` away from your local git repository, and create a new virtual environment
 
-```
+```sh
 REPODIR="$(pwd)"
 cd ~
 rm -rf pypi_test_env
@@ -186,14 +186,14 @@ python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-ur
 ### 6.3 Test the installation
 
 Check whether you can import the new package.
-```
+```sh
 python -c "import fissa; print(fissa.__version__)"
 ```
 
 ### 6.4 Remove the test venv and return to repository
 
 Return to your repository
-```
+```sh
 deactivate
 rm -rf pypi_test_env
 cd "$REPODIR"
@@ -221,7 +221,7 @@ For the body of the release, we will use your entry in the CHANGELOG, including 
 
 However, you will need to convert the formatting from RST to Markdown.
 The full changelog can be converted using this command:
-```
+```sh
 pandoc --from rst --to markdown CHANGELOG.rst >> .CHANGELOG.md
 ```
 From the converted document, you can select the relevant section to include in the github release body.
@@ -235,7 +235,7 @@ You will need to be a maintainer of this project in order to push a new version.
 
 **Note that this step is irreversible.**
 If you push the wrong thing here, you can't overwrite it.
-```
+```sh
 python -m twine upload dist/*
 ```
 You will be prompted for your username and password, which must be associated with a maintainer for the project.
@@ -243,7 +243,7 @@ You will be prompted for your username and password, which must be associated wi
 ### Try out the PyPI release
 
 Again, we create a fresh virtual environment and install the new release into it.
-```
+```sh
 REPODIR="$(pwd)"
 cd ~
 rm -rf pypi_test_env
@@ -256,7 +256,7 @@ python -c "import fissa; print(fissa.__version__)"
 You should confirm that the version number outputted matches the version of your new release.
 
 We now remove the temporary environment and return to the repository.
-```
+```sh
 deactivate
 rm -rf pypi_test_env
 cd "$REPODIR"
@@ -267,7 +267,7 @@ cd "$REPODIR"
 ### 9.1 Create a branch for your pull request
 
 Create a new branch, titled `rel_M.N.P`, based on origin's current master branch.
-```
+```sh
 git checkout master
 git pull
 git checkout -b rel_M.N.P
@@ -280,16 +280,16 @@ git checkout -b rel_M.N.P
 You will need to merge your CHANGELOG update, and possibly your new version number into the master branch.
 
 If the only commits on `vM.N.x` which are not on the master branch are your metadata updates, you can directly merge the branch.
-```
+```sh
 git merge vM.N.x
 ```
 
 If not, cherry-pick the last commit from your `vM.N.x` branch
-```
+```sh
 git cherry-pick vM.N.x
 ```
 or the last two commits from your `vM.N.x` branch
-```
+```sh
 git cherry-pick vM.N.x^^..vM.N.x
 ```
 as appropriate.
@@ -311,7 +311,7 @@ Once you've edited the `__meta__.py` file, commit this change.
 ### 9.4 Push branch and create pull request
 
 Push the branch with a command formatted like
-```
+```sh
 git push -u origin rel_M.N.P
 ```
 and go to the [repository page][our repo] to create a pull request.
