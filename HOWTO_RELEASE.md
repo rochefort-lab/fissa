@@ -4,8 +4,7 @@ Releasing a new version
 In this document, we describe how to release a new version of the codebase.
 
 
-1. Version numbering
---------------------
+## 1. Version numbering
 
 First, you must determine the version number for your new release.
 
@@ -31,8 +30,7 @@ This release may be any of the following:
 - A patch for a pre-existing minor release
 
 
-2. Collect changes for release
-------------------------------
+## 2. Collect changes for release
 
 Next, we must create a stable copy of the code base as it will be released.
 
@@ -62,8 +60,7 @@ Instead, you should merge the relevant bug-fix branches directly into `vM.N.x`.
 If the bug-fix branches you need have been deleted, you may have to [cherry-pick](https://git-scm.com/docs/git-cherry-pick) commits from master.
 
 
-3. Update metadata for your release
------------------------------------
+## 3. Update metadata for your release
 
 On your release-candidate branch, `vM.N.x`, update the metadata to reflect your new release.
 
@@ -120,8 +117,7 @@ If your new release will become the highest version released (it is for a new ma
 ### 3.5 Ensure CHANGELOG is formatted correctly
 
 
-4. Confirm tests pass
----------------------
+## 4. Confirm tests pass
 
 The test suite should also have been run on the continuous integration server during development.
 This step is included to double-check what you are about to submit is a viable copy of the code.
@@ -146,8 +142,7 @@ python setup.py test
 and make sure all the unit tests pass locally.
 
 
-5. Build distribution
----------------------
+## 5. Build distribution
 
 Follow the instructions in the [PyPI tutorial](https://packaging.python.org/tutorials/packaging-projects/) to build your distribution.
 ```
@@ -157,8 +152,7 @@ python -m pip install --upgrade twine
 python setup.py sdist bdist_wheel
 ```
 
-6. Test the submission
-----------------------
+## 6. Test the submission
 
 ### 6.1 Upload to the PyPI test server
 
@@ -198,8 +192,7 @@ cd "$REPODIR"
 ```
 
 
-7. Make a new release-tag
--------------------------
+## 7. Make a new release-tag
 
 On GitHub, [make a new release-tag](https://github.com/rochefort-lab/fissa/releases/new).
 
@@ -228,8 +221,7 @@ From the converted document, you can select the relevant section to include in t
 If you make a formatting mistake and realise after publishing the release on GitHub, don't worry as the release metadata can be editted.
 
 
-8. Push to PyPI
----------------
+## 8. Push to PyPI
 
 You will need to be a maintainer of this project in order to push a new version.
 
@@ -262,8 +254,7 @@ rm -rf pypi_test_env
 cd "$REPODIR"
 ```
 
-9. Update metadata on the master branch
----------------------------------------
+## 9. Update metadata on the master branch
 
 ### 9.1 Create a branch for your pull request
 
@@ -322,8 +313,7 @@ If they are, once the continuous integration tests have passed, you can merge th
 If there are more changes beyond this, your PR may need further review.
 
 
-10. Enable branch protection on your release-candidate branch
--------------------------------------------------------------
+## 10. Enable branch protection on your release-candidate branch
 
 You can add branch protection so your (now released) release-candidate branch cannot receive force pushes or be deleted.
 This is important to ensure the branch is preserved for posterity.
@@ -338,8 +328,7 @@ When creating the rule, you may additionally select the checkbox for "Require st
 When this is enabled, the `vM.N.x` branch can no longer be updated directly - only through pull requests.
 
 
-11. Activate the release on ReadTheDocs
----------------------------------------
+## 11. Activate the release on ReadTheDocs
 
 In the [settings on ReadTheDocs](https://readthedocs.org/dashboard/fissa/versions/), locate the release tag (`M.N.P`) in the versions list and activate it.
 
