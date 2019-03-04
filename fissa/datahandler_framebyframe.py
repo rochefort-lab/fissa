@@ -10,6 +10,8 @@ Authors:
 
 """
 
+from past.builtins import basestring
+
 import numpy as np
 from PIL import Image, ImageSequence
 
@@ -88,7 +90,7 @@ def rois2masks(rois, data):
     shape = data.size[::-1]
 
     # If rois is string, we first need to read the contents of the file
-    if isinstance(rois, str):
+    if isinstance(rois, basestring):
         rois = roitools.readrois(rois)
 
     if not isinstance(rois, list):
