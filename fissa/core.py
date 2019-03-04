@@ -25,7 +25,7 @@ from . import roitools
 try:
     from multiprocessing import Pool
     has_multiprocessing = True
-except BaseException:
+except ImportError:
     warnings.warn('Multiprocessing library is not installed, using single ' +
                   'core instead. To use multiprocessing install it by: ' +
                   'pip install multiprocessing')
