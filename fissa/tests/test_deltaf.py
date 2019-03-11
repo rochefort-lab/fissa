@@ -29,6 +29,14 @@ class TestFindBaseline(BaseTestCase):
         actual = deltaf.findBaselineF0(array, fs)
         self.assert_allclose(actual, desired)
 
+    def test_lowfs(self):
+        """Test with unusually low sampling rate."""
+        fs = 0.01
+        array = np.zeros((100))
+        desired = np.array([0])
+        actual = deltaf.findBaselineF0(array, fs)
+        self.assert_allclose(actual, desired)
+
     def test_simple(self):
         """Test simple input."""
         fs = 10
