@@ -83,10 +83,12 @@ Usually, previous pull requests which added noteworthy changes have also made ch
 
 Your CHANGELOG entry should begin like so:
 ```
-`M.N.P <https://github.com/rochefort-lab/fissa/tree/A.B.C>`__ (YYYY-MM-DD)
--------------------------------------------------------------------------
+Version `M.N.P <https://github.com/rochefort-lab/fissa/tree/M.N.P>`__
+---------------------------------------------------------------------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/A.B.C...M.N.P>`__
+Release date: YYYY-MM-DD.
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/A.B.C...M.N.P>`__.
 ```
 Where `M.N.P` is the new release, `A.B.C < M.N.P` is the previous ancestor to the new release, and `YYYY-MM-DD` is today's date.
 The Full Changelog link will use the release tags on github to automatically generate a comparison.
@@ -96,22 +98,9 @@ See the description at the top of the CHANGELOG for more details.
 
 For each change, the pull request which implemented that change in the master branch should also be linked to.
 
-### 3.3 Update the Unreleased entry in CHANGELOG
+Note that the CHANGELOG should not contain an "Unreleased" section on the release-candidate branch.
 
-There should always be a section at the top of the CHANGELOG which compares the last stable release with the current unstable version.
-
-This entry should read as follows:
-```
-`Unreleased <https://github.com/rochefort-lab/fissa>`__
------------------------------------------------------------------
-
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/A.B.C...master>`__
-```
-where `A.B.C >= M.N.P` is the latest release, including your forthcoming `M.N.P` release.
-
-If your new release will become the highest version released (it is for a new major or minor version, or a patch for the latest minor version), you will need to update the URL for the Unreleased Full Changelog comparison.
-
-### 3.4 Push your changes to the vM.N.x branch on GitHub
+### 3.3 Push your changes to the vM.N.x branch on GitHub
 
 Push your changes with
 ```
@@ -119,7 +108,7 @@ git push -u origin vM.N.x
 ```
 (where `vM.N.x` is replaced with your release candidate branch) to establish tracking with the remote branch.
 
-### 3.5 Ensure CHANGELOG is formatted correctly
+### 3.4 Ensure CHANGELOG is formatted correctly
 
 Check the rendering of the CHANGELOG on GitHub at
 <https://github.com/rochefort-lab/fissa/blob/vM.N.x/CHANGELOG.rst>,
@@ -296,7 +285,24 @@ as appropriate.
 
 Afterwards, you can double-check which commits were included with `git log`, or an interactive rebase `git rebase -i master`.
 
-### 9.3 Update version number
+### 9.3 Add Unreleased section to CHANGELOG again
+
+Our unstable version on the master branch should always contain a CHANGELOG entry which compares the last stable release with the current unstable version.
+
+Edit the CHANGELOG to include an entry at the top of the list of entries, which reads as follows:
+```
+Unreleased
+----------
+
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/A.B.C...master>`__.
+
+```
+where `A.B.C >= M.N.P` is the latest release, including your forthcoming `M.N.P` release.
+
+Commit this change.
+
+### 9.4 Update version number
 
 Check the [current version number on the master branch](https://github.com/rochefort-lab/fissa/blob/master/fissa/__meta__.py).
 
@@ -308,7 +314,7 @@ If you have released a patch, or the master branch otherwise already has the cor
 
 Once you've edited the `__meta__.py` file, commit this change.
 
-### 9.4 Push branch and create pull request
+### 9.5 Push branch and create pull request
 
 Push the branch with a command formatted like
 ```sh
