@@ -72,6 +72,8 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
 
     # Get the (x,y) co-ordinates of the pixels in the mask
     x, y = mask.nonzero()
+    if x.size == 0 or y.size == 0:
+        raise ValueError('ROI mask must be not be empty')
 
     # Find the angle of the vector from the mask centre to each pixel
     theta = np.arctan2(x - centre[0], y - centre[1])
