@@ -12,16 +12,19 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-`Unreleased <https://github.com/rochefort-lab/fissa>`__
--------------------------------------------------------
+Unreleased
+----------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.6.0...master>`__
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/0.6.0...master>`__.
 
 
-`0.6.0 <https://github.com/rochefort-lab/fissa/tree/0.6.0>`__ (2019-02-26)
---------------------------------------------------------------------------
+Version `0.6.0 <https://github.com/rochefort-lab/fissa/tree/0.6.0>`__
+---------------------------------------------------------------------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__
+Release date: 2019-02-26
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__.
 
 Added
 ~~~~~
@@ -32,10 +35,12 @@ Added
    `#38 <https://github.com/rochefort-lab/fissa/pull/38>`__
 
 
-`0.5.3 <https://github.com/rochefort-lab/fissa/tree/0.5.3>`__ (2019-02-18)
---------------------------------------------------------------------------
+Version `0.5.3 <https://github.com/rochefort-lab/fissa/tree/0.5.3>`__
+---------------------------------------------------------------------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.2...0.5.3>`__
+Release date: 2019-02-18.
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/0.5.2...0.5.3>`__.
 
 Fixed
 ~~~~~
@@ -45,10 +50,12 @@ Fixed
    (`scottclowe <https://github.com/scottclowe>`__)
 
 
-`0.5.2 <https://github.com/rochefort-lab/fissa/tree/0.5.2>`__ (2018-03-07)
---------------------------------------------------------------------------
+Version `0.5.2 <https://github.com/rochefort-lab/fissa/tree/0.5.2>`__
+---------------------------------------------------------------------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.1...0.5.2>`__
+Release date: 2018-03-07.
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/0.5.1...0.5.2>`__.
 
 Changed
 ~~~~~~~
@@ -58,10 +65,12 @@ Changed
    (`swkeemink <https://github.com/swkeemink>`__)
 
 
-`0.5.1 <https://github.com/rochefort-lab/fissa/tree/0.5.1>`__ (2018-01-10)
---------------------------------------------------------------------------
+Version `0.5.1 <https://github.com/rochefort-lab/fissa/tree/0.5.1>`__
+---------------------------------------------------------------------
 
-`Full Changelog <https://github.com/rochefort-lab/fissa/compare/0.5.0...0.5.1>`__
+Release date: 2018-01-10.
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/0.5.0...0.5.1>`__.
 
 Added
 ~~~~~
@@ -87,7 +96,9 @@ Fixed
    (`swkeemink <https://github.com/swkeemink>`__)
 
 
-`0.5.0 <https://github.com/rochefort-lab/fissa/tree/0.5.0>`__ (2017-10-05)
---------------------------------------------------------------------------
+Version `0.5.0 <https://github.com/rochefort-lab/fissa/tree/0.5.0>`__
+---------------------------------------------------------------------
+
+Release date: 2017-10-05
 
 Initial release
