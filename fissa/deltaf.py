@@ -83,4 +83,8 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     baselineF0 = np.percentile(filtered_f, base_pctle, axis=axis,
                                keepdims=keepdims)
 
+    # Ensure filtering doesn't take us below the minimum value which actually
+    # occurs in the data. This can occur when the amount of data is very low.
+    baselineF0 = np.maximum(baselineF0, rawF.min(axis=axis, keepdims=keepdims))
+
     return baselineF0
