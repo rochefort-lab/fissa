@@ -295,7 +295,7 @@ class Experiment():
             # Do the extraction
             if has_multiprocessing:
                 # define pool
-                pool = Pool(self.ncores_separation)
+                pool = Pool(self.ncores_preparation)
 
                 # run extraction
                 results = pool.map(extract_func, inputs)
@@ -401,7 +401,7 @@ class Experiment():
 
             if has_multiprocessing:
                 # define pool
-                pool = Pool()
+                pool = Pool(self.ncores_separation)
 
                 # run separation
                 results = pool.map(separate_func, inputs)
