@@ -252,6 +252,39 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual[0]), 1)
         #TODO: Check contents of exp.deltaf_result
 
+    def test_calcdeltaf_notrawf0(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separate()
+        exp.calc_deltaf(4, use_raw_f0=False)
+        actual = exp.deltaf_result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        #TODO: Check contents of exp.deltaf_result
+
+    def test_calcdeltaf_notacrosstrials(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separate()
+        exp.calc_deltaf(4, across_trials=False)
+        actual = exp.deltaf_result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        #TODO: Check contents of exp.deltaf_result
+
+    def test_calcdeltaf_notrawf0_notacrosstrials(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separate()
+        exp.calc_deltaf(4, use_raw_f0=False, across_trials=False)
+        actual = exp.deltaf_result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        #TODO: Check contents of exp.deltaf_result
+
     def test_matlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
