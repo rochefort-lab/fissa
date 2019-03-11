@@ -12,17 +12,33 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-Unreleased
-----------
+Version `0.6.1 <https://github.com/rochefort-lab/fissa/tree/0.6.1>`__
+---------------------------------------------------------------------
 
+Release date: 2019-03-11.
 Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.6.0...master>`__.
+`on github <https://github.com/rochefort-lab/fissa/compare/0.6.0...0.6.1>`__.
+
+Fixed
+~~~~~
+
+-   Allow ``deltaf.findBaselineF0`` to run with fewer than 90 samples, by reducing the pad-length if necessary.
+    (`#62 <https://github.com/rochefort-lab/fissa/pull/62>`__)
+-   Basic usage notebook wasn't supplying the correct ``datahandler_custom`` argument for the custom datahandler (it was using ``datahandler`` instead, which is incorrect; this was silently ignored previously but will now trigger an error).
+    (`#62 <https://github.com/rochefort-lab/fissa/pull/62>`__)
+-   Use ``ncores_preparation`` for perparation step, not ``ncores_separation``.
+    (`#59 <https://github.com/rochefort-lab/fissa/pull/59>`__)
+-   Only use ``ncores_separation`` for separation step, not all cores.
+    (`#59 <https://github.com/rochefort-lab/fissa/pull/59>`__)
+-   Allow both byte strings and unicode strings to be arguments of functions which require strings.
+    Previously, byte strings were required on Python 2.7 and unicode strings on Python 3.
+    (`#60 <https://github.com/rochefort-lab/fissa/pull/60>`__)
 
 
 Version `0.6.0 <https://github.com/rochefort-lab/fissa/tree/0.6.0>`__
 ---------------------------------------------------------------------
 
-Release date: 2019-02-26
+Release date: 2019-02-26.
 Full commit changelog
 `on github <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__.
 
