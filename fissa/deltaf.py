@@ -72,9 +72,14 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
         # We use an FIR filter with a Hamming window.
         b = scipy.signal.firwin(nfilt, cutoff=cutoff, window='hamming')
 
-        # Use lfilter to filter with the FIR filter.
-        # We filter along the second dimension because that represents time
-        filtered_f = scipy.signal.filtfilt(b, [1.0], rawF, axis=axis)
+        # The default padlen for filtfilt is 3 * nfilt, but in case our
+        # dataset is small, we need to make sure padlen is not too big
+        padlen = min(3 * nfilt, rawF.shape[axis] - 1)
+
+        # Use filtfilt to filter with the FIR filter, both forwards and
+        # backwards.
+        filtered_f = scipy.signal.filtfilt(b, [1.0], rawF, axis=axis,
+                                           padlen=padlen)
 
     # Take a percentile of the filtered signal
     baselineF0 = np.percentile(filtered_f, base_pctle, axis=axis,
