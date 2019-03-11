@@ -127,8 +127,7 @@ class Experiment():
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
-                 lowmemory_mode=False, datahandler_custom=None,
-                 **kwargs):
+                 lowmemory_mode=False, datahandler_custom=None):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
