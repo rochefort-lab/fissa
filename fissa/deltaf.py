@@ -52,6 +52,9 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     # Remove the first datapoint, because it can be an erroneous sample
     rawF = np.split(rawF, [1], axis)[1]
 
+    # For short measurements, we reduce the number of taps
+    nfilt = min(nfilt, max(3, int(rawF.shape[axis] / 3)))
+
     if fs <= fw_base:
         # If our sampling frequency is less than our goal with the smoothing
         # (sampling at less than 1Hz) we don't need to apply the filter.
