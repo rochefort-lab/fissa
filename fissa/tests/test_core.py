@@ -11,6 +11,7 @@ import numpy as np
 
 from .base_test import BaseTestCase
 from .. import core
+from .. import datahandler
 
 
 class TestExperimentA(BaseTestCase):
@@ -88,6 +89,20 @@ class TestExperimentA(BaseTestCase):
         ]
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         exp = core.Experiment(image_paths, roi_path, self.output_dir)
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_imagelistloaded_roizip(self):
+        image_paths = [
+            os.path.join(self.resources_dir, self.images_dir, img)
+            for img in self.image_names
+        ]
+        images = [datahandler.image2array(pth) for pth in image_paths]
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(images, roi_path, self.output_dir)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -184,7 +199,6 @@ class TestExperimentA(BaseTestCase):
     def test_manualhandler(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        from .. import datahandler
         exp = core.Experiment(image_path, roi_path, self.output_dir,
                               datahandler_custom=datahandler)
         exp.separate()
