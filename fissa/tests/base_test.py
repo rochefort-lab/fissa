@@ -3,6 +3,7 @@ Provides a general testing class which inherits from unittest.TestCase
 and also provides the numpy testing functions.
 '''
 
+import contextlib
 import unittest
 import os.path
 from inspect import getsourcefile
@@ -34,6 +35,14 @@ class BaseTestCase(unittest.TestCase):
         # super(self).__init__(*args, **kw)  # Only works on Python3
         super(BaseTestCase, self).__init__(*args, **kw)  # Works on Python2
         self.addTypeEqualityFunc(np.ndarray, self.assert_allclose)
+
+    @contextlib.contextmanager
+    def subTest(self, *args, **kwargs):
+        # For backwards compatability with Python < 3.4
+        if hasattr(super(BaseTestCase, self), 'subTest'):
+            yield super(BaseTestCase, self).subTest(*args, **kwargs)
+        else:
+            yield None
 
     def assert_almost_equal(self, *args, **kwargs):
         return assert_almost_equal(*args, **kwargs)
