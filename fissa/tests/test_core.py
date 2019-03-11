@@ -3,8 +3,9 @@
 from __future__ import division
 
 from datetime import datetime
-import shutil
+import random
 import os, os.path
+import shutil
 import unittest
 
 import numpy as np
@@ -23,7 +24,8 @@ class TestExperimentA(BaseTestCase):
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
         self.output_dir = os.path.join(
             self.resources_dir,
-            'out-' + datetime.now().strftime('%H%M%S%f')
+            'out-{}-{:06d}'.format(datetime.now().strftime('%H%M%S%f'),
+                               random.randrange(999999))
         )
         self.images_dir = 'images'
         self.image_names = ['AVG_A01_R1_small.tif']
