@@ -300,6 +300,7 @@ class Experiment():
                 # run extraction
                 results = pool.map(extract_func, inputs)
                 pool.close()
+                pool.join()
             else:
                 results = [0] * self.nTrials
                 for trial in range(self.nTrials):
@@ -405,6 +406,7 @@ class Experiment():
                 # run separation
                 results = pool.map(separate_func, inputs)
                 pool.close()
+                pool.join()
             else:
                 results = [0] * self.nCell
                 for cell in range(self.nCell):
