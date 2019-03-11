@@ -252,6 +252,18 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
 
+    def test_previousprep(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir)
+        exp1.separation_prep()
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
     def test_calcdeltaf(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
