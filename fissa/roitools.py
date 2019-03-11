@@ -102,6 +102,8 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
 
     # Ensure num_slices is an integer number
     num_slices = int(num_slices)
+    if num_slices < 1:
+        raise ValueError('Number of slices must be positive')
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
