@@ -10,6 +10,8 @@ Authors:
 
 """
 
+from past.builtins import basestring
+
 import numpy as np
 import tifffile
 
@@ -31,7 +33,7 @@ def image2array(image):
         `(frames, y_coordinate, x_coordinate)`.
 
     """
-    if isinstance(image, str):
+    if isinstance(image, basestring):
         return tifffile.imread(image)
 
     return np.array(image)
@@ -75,7 +77,7 @@ def rois2masks(rois, data):
     shape = data.shape[1:]
 
     # if it's a list of strings
-    if isinstance(rois, str):
+    if isinstance(rois, basestring):
         rois = roitools.readrois(rois)
 
     if not isinstance(rois, list):

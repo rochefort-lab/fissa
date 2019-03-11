@@ -6,6 +6,7 @@ Authors:
 """
 
 from __future__ import print_function
+from past.builtins import basestring
 
 import collections
 import glob
@@ -197,14 +198,14 @@ class Experiment():
             an example.
 
         """
-        if isinstance(images, str):
+        if isinstance(images, basestring):
             self.images = sorted(glob.glob(images + '/*.tif*'))
         elif isinstance(images, list):
             self.images = images
         else:
             raise ValueError('images should either be string or list')
 
-        if isinstance(rois, str):
+        if isinstance(rois, basestring):
             if rois[-3:] == 'zip':
                 self.rois = [rois] * len(self.images)
             else:
