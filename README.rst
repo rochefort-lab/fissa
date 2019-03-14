@@ -1,4 +1,4 @@
-|Gitter| |Travis| |Documentation| |Codecov| |Coveralls|
+|Gitter| |PyPI badge| |Travis| |Documentation| |Codecov| |Coveralls|
 
 
 FISSA
@@ -252,6 +252,9 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/rochefort-lab/fissa
    :alt: Join the FISSA chat
+.. |PyPI badge| image:: https://badge.fury.io/py/fissa.svg
+   :target: https://badge.fury.io/py/fissa
+   :alt: Latest PyPI release
 .. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
    :target: https://travis-ci.org/rochefort-lab/fissa
    :alt: Travis Build Status
