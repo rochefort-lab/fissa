@@ -66,5 +66,9 @@ setup(
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering"
     ],
+    project_urls={
+        "Documentation": "https://fissa.readthedocs.io",
+        "Source Code": "https://github.com/rochefort-lab/fissa",
+    },
     cmdclass = {'test': PyTest},
 )
