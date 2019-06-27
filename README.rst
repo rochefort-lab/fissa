@@ -12,7 +12,9 @@ importing files stored in other formats.
 
 For details of the algorithm, please see our `companion
 paper <https://www.doi.org/10.1038/s41598-018-21640-2>`__ published in
-Scientific Reports.
+Scientific Reports. For the code used to generate the simulated data
+in the companion paper, see the
+`SimCalc repository <https://github.com/rochefort-lab/SimCalc/>`__.
 
 FISSA is compatible with both Python 2.7 and Python 3.5+. Using Python 3
 is strongly encouraged, as Python 2 will no longer be `maintained
