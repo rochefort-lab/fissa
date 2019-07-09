@@ -64,12 +64,15 @@ def run_apidoc(_):
         argv.insert(0, apidoc.__file__)
         apidoc.main(argv)
 
+
 def retitle_modules(_):
     pth = 'source/packages/modules.rst'
     lines = open(pth).read().splitlines()
-    lines[0] = 'API'
-    lines[1] = '==='
+    # Overwrite the junk in the first two lines with a better title
+    lines[0] = 'API Reference'
+    lines[1] = '============='
     open(pth, 'w').write('\n'.join(lines))
+
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
