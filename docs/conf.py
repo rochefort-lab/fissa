@@ -12,6 +12,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
@@ -22,7 +23,6 @@ from fissa import __meta__ as meta
 
 # -- Project information -----------------------------------------------------
 
-import datetime
 now = datetime.datetime.now()
 
 project = meta.name.upper()
