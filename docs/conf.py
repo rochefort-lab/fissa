@@ -26,6 +26,7 @@ from fissa import __meta__ as meta
 now = datetime.datetime.now()
 
 project = meta.name.upper()
+project_path = meta.path
 author = meta.author
 copyright = '{}, {}'.format(now.year, author)
 
@@ -40,7 +41,7 @@ version = '.'.join(release.split('.')[0:2])
 
 def run_apidoc(_):
     ignore_paths = [
-        os.path.join('..', project.lower(), 'tests'),
+        os.path.join('..', project_path, 'tests'),
     ]
 
     argv = [
@@ -49,7 +50,7 @@ def run_apidoc(_):
         "--separate",  # Put each module file in its own page
         "--module-first",  # Put module documentation before submodule
         "-o", "source/packages",  # Output path
-        os.path.join("..", project.lower()),
+        os.path.join("..", project_path),
     ] + ignore_paths
 
     try:
