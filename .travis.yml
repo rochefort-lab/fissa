@@ -33,30 +33,30 @@ python:
 # environment variables
 env:
   - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPENDENCIES="false"
+    USE_OLDEST_DEPS="false"
   - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPENDENCIES="true"
+    USE_OLDEST_DEPS="true"
   - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPENDENCIES="false"
+    USE_OLDEST_DEPS="false"
   - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPENDENCIES="true"
+    USE_OLDEST_DEPS="true"
 
 matrix:
   exclude:
     # Currently, SIMA cannot be installed on Python 3.7
     - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
     - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
     # Currently, can't use our conda min numpy/scipy version detector on Travis
     # with weird Python 3.7
     - python: "3.7"
-      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPENDENCIES="true"
+      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPS="true"
   allow_failures:
-    - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+    - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
     # Currently, 'SIMA example.ipynb' is failing with Python 2.7.
     - python: "2.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
 
 ###############################################################################
 # Setup the environment before installing
@@ -90,7 +90,7 @@ before_install:
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
-  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
       for FILE in *requirements*.txt; do
           sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
       done;
@@ -127,7 +127,7 @@ before_install:
   # possible requirement when scipy is being installed. The version of numpy
   # we end up must still satisfy the original requirement.txt setting, and
   # be from around the time of the oldest supported scipy release.
-  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
       if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
           SCIPY_VERSION="$(bash
               ./.ci/conda_min_version.sh
@@ -158,7 +158,7 @@ before_install:
   #
   # This is because you have constrained the numpy version in requirements.txt
   # to a more recent set of values (e.g. numpy>=1.9.0) than the scipy
-  # constraint (e.g. scipy>=0.12.0). The USE_OLDEST_DEPENDENCIES code has
+  # constraint (e.g. scipy>=0.12.0). The USE_OLDEST_DEPS code has
   # looked up the oldest compatible version available on conda (scipy==0.12.0)
   # but there is no numpy version for this which matches your constraint.
   #
