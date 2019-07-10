@@ -560,5 +560,9 @@ class Experiment():
         M['ROIs'] = reformat_dict_for_matlab(self.roi_polys)
         M['raw'] = reformat_dict_for_matlab(self.raw)
         M['result'] = reformat_dict_for_matlab(self.result)
+        if getattr(self, 'deltaf_raw', None) is not None:
+            M['df_raw'] = reformat_dict_for_matlab(self.deltaf_raw)
+        if getattr(self, 'deltaf_result', None) is not None:
+            M['df_result'] = reformat_dict_for_matlab(self.deltaf_result)
 
         savemat(fname, M)
