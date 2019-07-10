@@ -225,8 +225,12 @@ class Experiment():
         # define class variables
         self.folder = folder
         self.raw = None
+        self.info = None
+        self.mixmat = None
         self.sep = None
         self.result = None
+        self.deltaf_raw = None
+        self.deltaf_result = None
         self.nRegions = nRegions
         self.expansion = expansion
         self.alpha = alpha
@@ -328,6 +332,14 @@ class Experiment():
         self.nCell = nCell  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
+        # Wipe outputs of separate(), as they no longer match self.raw
+        self.info = None
+        self.mixmat = None
+        self.sep = None
+        self.result = None
+        # Wipe outputs of calc_deltaf(), as they no longer match self.raw
+        self.deltaf_raw = None
+        self.deltaf_result = None
 
     def separate(self, redo_prep=False, redo_sep=False):
         """Separate all the trials with FISSA algorithm.
@@ -435,6 +447,8 @@ class Experiment():
         self.mixmat = mixmat
         self.sep = sep
         self.result = result
+        # Wipe deltaf_result, as it no longer matches self.raw
+        self.deltaf_result = None
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
         """Calculate deltaf/f0 for raw and result traces.
