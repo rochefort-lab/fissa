@@ -122,18 +122,16 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
-  - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
+  - "%CMD_IN_ENV% pip install --upgrade -r requirements.txt"
+  - "%CMD_IN_ENV% pip install --upgrade -r requirements-dev.txt"
 
 build_script:
   # Build the compiled extension
   - "%CMD_IN_ENV% python setup.py build"
 
 test_script:
-  # Run the project tests and store results in .xml log
-  - ps: |
-      # this produces nosetests.xml which is uploaded on_finish
-      &$env:PYTHON\python setup.py nosetests --with-xunit
-      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+  # Run the project tests and store results in testresults.xml log
+  - "%CMD_IN_ENV% py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml"
 
 after_test:
   # If tests are successful, create binary packages for the project.
@@ -153,6 +151,6 @@ artifacts:
 on_finish:
   # Upload test results to AppVeyor
   - ps: |
-      # this uploads nosetests.xml produced in test_script step
+      # this uploads testresults.xml produced in test_script step
       $wc = New-Object 'System.Net.WebClient'
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\nosetests.xml))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testresults.xml))
