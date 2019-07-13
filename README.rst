@@ -253,7 +253,7 @@ with this program. If not, see http://www.gnu.org/licenses/.
    :target: https://gitter.im/rochefort-lab/fissa
    :alt: Join the FISSA chat
 .. |PyPI badge| image:: https://badge.fury.io/py/fissa.svg
-   :target: https://badge.fury.io/py/fissa
+   :target: https://pypi.org/project/fissa
    :alt: Latest PyPI release
 .. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
    :target: https://travis-ci.org/rochefort-lab/fissa
