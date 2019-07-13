@@ -7,3 +7,4 @@ shapely>=1.5.17
 tifffile>=0.10.0; python_version>='3.6'
 tifffile>=0.10.0,<=2019.7.26; python_version<'3.6'
 Pillow>=3.0.0
+read-roi>=1.5.0; python_version>='3.0'
