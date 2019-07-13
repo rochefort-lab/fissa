@@ -21,6 +21,8 @@ environment:
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "32"
+      GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
+      GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x"
@@ -29,6 +31,8 @@ environment:
     - PYTHON: "C:\\Python36"
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "32"
+      GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
+      GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6.x"
@@ -39,6 +43,8 @@ environment:
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "32"
+      GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
+      GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.0"
@@ -86,6 +92,25 @@ install:
 
   # Upgrade to the latest version of pip, setuptools, wheel
   - "%CMD_IN_ENV% python -m pip install --upgrade pip setuptools wheel"
+
+  # Install GEOS
+  - ps: mkdir C:\build | out-null
+  - ps: mkdir C:\gdal | out-null
+
+  - IF NOT "%GIS_INTERNALS%"=="" (
+      curl http://download.gisinternals.com/sdk/downloads/%GIS_INTERNALS% --output gdalbin.zip &&
+      7z x gdalbin.zip -oC:\gdal
+    )
+  - IF NOT "%GIS_INTERNALS_LIBS%"=="" (
+      curl http://download.gisinternals.com/sdk/downloads/%GIS_INTERNALS_LIBS% --output gdallibs.zip &&
+      7z x gdallibs.zip -oC:\gdal
+    )
+  - "SET PATH=C:\\gdal;C:\\gdal\\bin;C:\\gdal\\data;C:\\gdal\\bin\\gdal\\apps;%PATH%"
+  - "SET GDAL_DATA=C:\\gdal\\bin\\gdal-data"
+  - "SET PACKAGE_DATA=1"
+
+  - ECHO "Filesystem C:/GDAL:"
+  - ps: "ls \"C:/GDAL\""
 
   # Need to manually download and install Shapely
   - SET "SHAPELY_URL=https://www.dropbox.com/s/dgpsd63e2vh4vrp/"
