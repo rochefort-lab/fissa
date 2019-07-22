@@ -70,6 +70,7 @@ setup(
         "Documentation": "https://fissa.readthedocs.io",
         "Source Code": "https://github.com/rochefort-lab/fissa",
         "Bug Tracker": "https://github.com/rochefort-lab/fissa/issues",
+        "Citation": "https://www.doi.org/10.1038/s41598-018-21640-2",
     },
     cmdclass = {'test': PyTest},
 )
