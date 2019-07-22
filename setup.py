@@ -61,10 +61,25 @@ setup(
     packages = [meta['name']],
     license = "GNU",
     long_description = read('README.rst'),
+    # https://pypi.org/pypi?%3Aaction=list_classifiers
     classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Natural Language :: English",
+        "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Topic :: Scientific/Engineering"
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Scientific/Engineering :: Information Analysis",
     ],
     project_urls={
         "Documentation": "https://fissa.readthedocs.io",
