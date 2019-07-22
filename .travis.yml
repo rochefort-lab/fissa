@@ -55,6 +55,9 @@ matrix:
     # Currently, 'SIMA example.ipynb' is failing with Python 2.7.
     - python: "2.7"
       env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+  # Mark as failure as soon as a required job fails. Otherwise, mark as success
+  # as soon the only remaining jobs are allowed to fail.
+  fast_finish: true
 
 ###############################################################################
 # Setup the environment before installing
