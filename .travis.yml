@@ -13,6 +13,8 @@ cache:
   directories:
     # Cache files downloaded by pip
     - $HOME/.cache/pip
+    # Cache our miniconda download.
+    - $HOME/Downloads
 
 ###############################################################################
 # version numbers
@@ -31,30 +33,30 @@ python:
 # environment variables
 env:
   - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPENDENCIES="false"
+    USE_OLDEST_DEPS="false"
   - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPENDENCIES="true"
+    USE_OLDEST_DEPS="true"
   - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPENDENCIES="false"
+    USE_OLDEST_DEPS="false"
   - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPENDENCIES="true"
+    USE_OLDEST_DEPS="true"
 
 matrix:
   exclude:
     # Currently, SIMA cannot be installed on Python 3.7
     - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
     - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
     # Currently, can't use our conda min numpy/scipy version detector on Travis
     # with weird Python 3.7
     - python: "3.7"
-      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPENDENCIES="true"
+      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPS="true"
   allow_failures:
-    - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="true"
+    - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
     # Currently, 'SIMA example.ipynb' is failing with Python 2.7.
     - python: "2.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPENDENCIES="false"
+      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
   # Mark as failure as soon as a required job fails. Otherwise, mark as success
   # as soon the only remaining jobs are allowed to fail.
   fast_finish: true
@@ -71,11 +73,11 @@ before_install:
   # Check which versions of numpy and scipy we are using, then remove these
   # lines from requirements.txt
   - if [ -f requirements.txt ]; then
-      NUMPY_REQUIREMENT="$(grep '^numpy\([<>=!]\|$\)' requirements.txt)";
+      NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
       echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
-      SCIPY_REQUIREMENT="$(grep '^scipy\([<>=!]\|$\)' requirements.txt)";
+      SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
       echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
-      sed '/^\(num\|sci\)py\([<>=!]\|$\)/d' requirements.txt >
+      sed '/^\(num\|sci\)py\([!<>=~ ]\|$\)/d' requirements.txt >
         requirements.txt.tmp &&
         mv requirements.txt.tmp requirements.txt;
     fi;
@@ -91,7 +93,7 @@ before_install:
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
-  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
       for FILE in *requirements*.txt; do
           sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
       done;
@@ -100,11 +102,9 @@ before_install:
   # The following is based on Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
   # ---------------------------------------------------------------------------
-  # Download miniconda. Only do this if the cached file isn't present.
+  # Download miniconda. No need to redownload if we already have the latest version cached.
   - mkdir -p $HOME/Downloads;
-    if [ ! -f $HOME/Downloads/miniconda.sh ]; then
-      travis_retry wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O "$HOME/Downloads/miniconda.sh";
-    fi;
+    travis_retry wget -c https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O "$HOME/Downloads/miniconda.sh";
   # Install miniconda to the home directory, if it isn't there already.
   - if [ ! -d "$HOME/miniconda/bin" ]; then
       if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
@@ -130,15 +130,21 @@ before_install:
   # possible requirement when scipy is being installed. The version of numpy
   # we end up must still satisfy the original requirement.txt setting, and
   # be from around the time of the oldest supported scipy release.
-  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
       if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
-          SCIPY_REQUIREMENT="scipy==$(bash
-              ./continuous_integration/conda_min_version.sh
+          SCIPY_VERSION="$(bash
+              ./.ci/conda_min_version.sh
               "$SCIPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+          if [[ "$SCIPY_VERSION" != "" ]]; then
+            SCIPY_REQUIREMENT="scipy==$SCIPY_VERSION";
+          fi;
       elif [[ "$NUMPY_REQUIREMENT" != "" ]]; then
-          NUMPY_REQUIREMENT="numpy==$(bash
-              ./continuous_integration/conda_min_version.sh
+          NUMPY_VERSION="$(bash
+              ./.ci/conda_min_version.sh
               "$NUMPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+          if [[ "$NUMPY_VERSION" != "" ]]; then
+            NUMPY_REQUIREMENT="numpy==$NUMPY_VERSION";
+          fi;
       fi;
     fi;
   # Create the conda environment with pip, numpy and scipy installed (if they
@@ -155,7 +161,7 @@ before_install:
   #
   # This is because you have constrained the numpy version in requirements.txt
   # to a more recent set of values (e.g. numpy>=1.9.0) than the scipy
-  # constraint (e.g. scipy>=0.12.0). The USE_OLDEST_DEPENDENCIES code has
+  # constraint (e.g. scipy>=0.12.0). The USE_OLDEST_DEPS code has
   # looked up the oldest compatible version available on conda (scipy==0.12.0)
   # but there is no numpy version for this which matches your constraint.
   #
@@ -243,7 +249,7 @@ script:
     fi;
   # Test the notebooks
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      ./continuous_integration/test_notebooks.sh -i ./examples;
+      ./.ci/test_notebooks.sh -i ./examples;
     fi;
 
 ###############################################################################
