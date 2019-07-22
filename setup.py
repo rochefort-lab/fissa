@@ -69,6 +69,7 @@ setup(
     project_urls={
         "Documentation": "https://fissa.readthedocs.io",
         "Source Code": "https://github.com/rochefort-lab/fissa",
+        "Bug Tracker": "https://github.com/rochefort-lab/fissa/issues",
     },
     cmdclass = {'test': PyTest},
 )
