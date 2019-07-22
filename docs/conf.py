@@ -12,20 +12,22 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
-from fissa import __meta__ as meta
+
+from fissa import __meta__ as meta  # noqa: E402
 
 
 # -- Project information -----------------------------------------------------
 
-import datetime
 now = datetime.datetime.now()
 
 project = meta.name.upper()
+project_path = meta.path
 author = meta.author
 copyright = '{}, {}'.format(now.year, author)
 
@@ -40,7 +42,7 @@ version = '.'.join(release.split('.')[0:2])
 
 def run_apidoc(_):
     ignore_paths = [
-        os.path.join('..', project.lower(), 'tests'),
+        os.path.join('..', project_path, 'tests'),
     ]
 
     argv = [
@@ -49,7 +51,7 @@ def run_apidoc(_):
         "--separate",  # Put each module file in its own page
         "--module-first",  # Put module documentation before submodule
         "-o", "source/packages",  # Output path
-        os.path.join("..", project.lower()),
+        os.path.join("..", project_path),
     ] + ignore_paths
 
     try:
@@ -62,12 +64,15 @@ def run_apidoc(_):
         argv.insert(0, apidoc.__file__)
         apidoc.main(argv)
 
+
 def retitle_modules(_):
     pth = 'source/packages/modules.rst'
     lines = open(pth).read().splitlines()
-    lines[0] = 'API'
-    lines[1] = '==='
+    # Overwrite the junk in the first two lines with a better title
+    lines[0] = 'API Reference'
+    lines[1] = '============='
     open(pth, 'w').write('\n'.join(lines))
+
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
