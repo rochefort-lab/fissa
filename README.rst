@@ -34,7 +34,7 @@ Usage
 -----
 A general tutorial on the use of FISSA can be found `here <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>`__.
 
-We also provide example workflows with other Python toolboxes (`SIMA <https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html>`__ and `Suite2p <https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html>`__), as well as for MATLAB (`cNMF <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html)>`__).
+We also provide example workflows with other Python toolboxes (`SIMA <https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html>`__ and `Suite2p <https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html>`__), as well as for MATLAB (`cNMF <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>`__).
 
 These notebooks can also be run on your own machine. To do so, you will
 need to `download a copy of the
