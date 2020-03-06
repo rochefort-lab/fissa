@@ -553,6 +553,10 @@ class Experiment():
         - `raw.cell0.trial0(1,:)` raw measured celll signal
         - `raw.cell0.trial0(2,:)` raw signal from first neuropil region
         """
+        # check if folder exists
+        if not os.path.exists(self.folder):
+            os.makedirs(self.folder)
+
         # define filename
         fname = self.folder + '/matlab.mat'
 
