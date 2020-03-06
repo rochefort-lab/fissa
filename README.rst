@@ -37,8 +37,9 @@ Usage
 A general tutorial on the use of FISSA can be found at:
 https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html
 
-An example workflow with another Python toolbox (SIMA):
-https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html
+An example workflow with other Python toolboxes:
+SIMA: https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html
+Suite2P: https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html
 
 An example workflow importing data exported from a MATLAB toolbox
 (cNMF):
