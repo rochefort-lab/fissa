@@ -128,7 +128,8 @@ class Experiment():
     def __init__(self, images, rois, folder, nRegions=4,
                  expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
-                 lowmemory_mode=False, datahandler_custom=None):
+                 lowmemory_mode=False, datahandler_custom=None,
+                 data_format='npy'):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -196,6 +197,9 @@ class Experiment():
             A custom datahandler for handling ROIs and calcium data can
             be given here. See datahandler.py (the default handler) for
             an example.
+        data_format : string or None, optional
+            How FISSA generated data will be saved.
+            Can be 'npy' (default) or None. In the future will also support 'hdf5'.
 
         """
         if isinstance(images, basestring):
@@ -221,6 +225,8 @@ class Experiment():
             from . import datahandler_framebyframe as datahandler
         if datahandler_custom is not None:
             datahandler = datahandler_custom
+        if not data_format in ['npy', None]:
+            raise ValueError("Only 'npy' or None are supported.")
 
         # define class variables
         self.folder = folder
@@ -235,15 +241,17 @@ class Experiment():
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
         self.method = method
-
+        self.data_format = data_format
+        
         # check if any data already exists
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-        if os.path.isfile(folder + '/preparation.npy'):
-            if os.path.isfile(folder + '/separated.npy'):
-                self.separate()
-            else:
-                self.separation_prep()
+        if data_format is not None:
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+            if os.path.isfile(folder + '/preparation.'+data_format):
+                if os.path.isfile(folder + '/separated.'+data_format):
+                    self.separate()
+                else:
+                    self.separation_prep()
 
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
@@ -274,16 +282,20 @@ class Experiment():
             been run. Default is `False`.
 
         """
-        # define filename where data will be present
-        fname = self.folder + '/preparation.npy'
+        # if data_format is defined, store or load the data
+        if self.data_format is None:
+            redo = True
+        else:
+            # define filename where data will be present
+            fname = self.folder + '/preparation.'+self.data_format
 
-        # try to load data from filename
-        if not redo:
-            try:
-                nCell, raw, roi_polys = np.load(fname)
-                print('Reloading previously prepared data...')
-            except BaseException:
-                redo = True
+            # try to load data from filename
+            if not redo:
+                try:
+                    nCell, raw, roi_polys = np.load(fname)
+                    print('Reloading previously prepared data...')
+                except BaseException:
+                    redo = True
 
         if redo:
             print('Doing region growing and data extraction....')
@@ -322,7 +334,8 @@ class Experiment():
                     roi_polys[cell][trial] = results[trial][1][cell]
 
             # save
-            np.save(fname, (nCell, raw, roi_polys))
+            if self.data_format is not None:
+                np.save(fname, (nCell, raw, roi_polys))
 
         # store relevant info
         self.nCell = nCell  # number of cells
@@ -365,15 +378,18 @@ class Experiment():
         self.separation_prep(redo_prep)
         if redo_prep:
             redo_sep = True
-
-        # Define filename to store data in
-        fname = self.folder + '/separated.npy'
-        if not redo_sep:
-            try:
-                info, mixmat, sep, result = np.load(fname)
-                print('Reloading previously separated data...')
-            except BaseException:
-                redo_sep = True
+        
+        if self.data_format is None:
+            redo_sep = True
+        else:
+            # Define filename to store data in
+            fname = self.folder + '/separated.'+self.data_format
+            if not redo_sep:
+                try:
+                    info, mixmat, sep, result = np.load(fname)
+                    print('Reloading previously separated data...')
+                except BaseException:
+                    redo_sep = True
 
         # separate data, if necessary
         if redo_sep:
@@ -428,7 +444,8 @@ class Experiment():
                     info[cell][trial] = convergence
 
             # save
-            np.save(fname, (info, mixmat, sep, result))
+            if self.data_format is not None:
+                np.save(fname, (info, mixmat, sep, result))
 
         # store
         self.info = info
