@@ -93,9 +93,12 @@ before_install:
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
+  # Undo swapping any requirements which say version>=, since they are for
+  # our environment markers.
   - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
       for FILE in *requirements*.txt; do
           sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+          sed -e 's/version\s*~=/version>=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
       done;
     fi;
   # ---------------------------------------------------------------------------
