@@ -1,4 +1,4 @@
-|Gitter| |PyPI badge| |Travis| |Documentation| |Codecov| |Coveralls|
+|Gitter| |PyPI badge| |Travis| |Documentation| |Codecov| |Coveralls| |Downloads|
 
 
 FISSA
@@ -269,3 +269,6 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Coveralls| image:: https://coveralls.io/repos/github/rochefort-lab/fissa/badge.svg?branch=master
    :target: https://coveralls.io/github/rochefort-lab/fissa?branch=master
    :alt: Coveralls Coverage
+.. |Downloads| image:: https://pepy.tech/badge/fissa
+   :target: https://pepy.tech/project/fissa
+   :alt: Download Counter
