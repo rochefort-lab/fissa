@@ -1,4 +1,4 @@
 pytest
 pytest-cov
 pytest-flake8
-imageio
+imageio>=2.5.0
