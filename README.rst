@@ -183,12 +183,6 @@ interactive python session with the ``exit()`` command, or CTRL+D.
 Folder Structure
 ----------------
 
-continuous_integration/
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Contains files necessary for deploying tests on continuous integration
-servers. Users should ignore this directory.
-
 examples/
 ~~~~~~~~~
 
@@ -214,6 +208,12 @@ fissa/tests/
 
 Contains tests for the toolbox, which are run to ensure it will work as
 expected.
+
+.ci/
+~~~~
+
+Contains files necessary for deploying tests on continuous integration
+servers. Users should ignore this directory.
 
 Citing FISSA
 ------------
