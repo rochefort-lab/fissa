@@ -183,6 +183,19 @@ interactive python session with the ``exit()`` command, or CTRL+D.
 Folder Structure
 ----------------
 
+A clone of this repository will contain directories detailed below.
+
+docs/
+~~~~~
+
+Contains the source for the documentation, which is available online at
+`<https://fissa.readthedocs.io>`_.
+You can build a local copy of the documentation by running the command
+
+::
+
+    make -C docs html
+
 examples/
 ~~~~~~~~~
 
