@@ -146,7 +146,7 @@ Follow the instructions in the [PyPI tutorial](https://packaging.python.org/tuto
 rm -rf dist
 python -m pip install --upgrade setuptools wheel
 python -m pip install --upgrade twine
-python setup.py sdist bdist_wheel
+python setup.py sdist bdist_wheel --universal
 ```
 
 ## 6. Test the submission

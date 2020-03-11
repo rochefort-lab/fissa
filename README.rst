@@ -1,4 +1,4 @@
-|Gitter| |Travis| |Documentation| |Codecov| |Coveralls|
+|Gitter| |PyPI badge| |Travis| |Documentation| |Codecov| |Coveralls|
 
 
 FISSA
@@ -12,7 +12,9 @@ importing files stored in other formats.
 
 For details of the algorithm, please see our `companion
 paper <https://www.doi.org/10.1038/s41598-018-21640-2>`__ published in
-Scientific Reports.
+Scientific Reports. For the code used to generate the simulated data
+in the companion paper, see the
+`SimCalc repository <https://github.com/rochefort-lab/SimCalc/>`__.
 
 FISSA is compatible with both Python 2.7 and Python 3.5+. Using Python 3
 is strongly encouraged, as Python 2 will no longer be `maintained
@@ -181,11 +183,18 @@ interactive python session with the ``exit()`` command, or CTRL+D.
 Folder Structure
 ----------------
 
-continuous_integration/
-~~~~~~~~~~~~~~~~~~~~~~~
+A clone of this repository will contain directories detailed below.
 
-Contains files necessary for deploying tests on continuous integration
-servers. Users should ignore this directory.
+docs/
+~~~~~
+
+Contains the source for the documentation, which is available online at
+`<https://fissa.readthedocs.io>`_.
+You can build a local copy of the documentation by running the command
+
+::
+
+    make -C docs html
 
 examples/
 ~~~~~~~~~
@@ -213,6 +222,12 @@ fissa/tests/
 Contains tests for the toolbox, which are run to ensure it will work as
 expected.
 
+.ci/
+~~~~
+
+Contains files necessary for deploying tests on continuous integration
+servers. Users should ignore this directory.
+
 Citing FISSA
 ------------
 
@@ -223,7 +238,7 @@ S. W. Keemink, S. C. Lowe, J. M. P. Pakan, E. Dylda, M. C. W. van
 Rossum, and N. L. Rochefort. FISSA: A neuropil decontamination toolbox
 for calcium imaging signals, *Scientific Reports*, **8**\ (1):3493,
 2018.
-`DOI:10.1038/s41598-018-21640-2 <https://www.doi.org/10.1038/s41598-018-21640-2>`__.
+`doi: 10.1038/s41598-018-21640-2 <https://www.doi.org/10.1038/s41598-018-21640-2>`__.
 
 For your convenience, the FISSA package ships with a copy of this
 citation in bibtex format, available at
@@ -238,7 +253,7 @@ reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of the License, or (at your
+Free Software Foundation; either version 3 of the License, or (at your
 option) any later version.
 
 This program is distributed in the hope that it will be useful, but
@@ -252,6 +267,9 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/rochefort-lab/fissa
    :alt: Join the FISSA chat
+.. |PyPI badge| image:: https://badge.fury.io/py/fissa.svg
+   :target: https://badge.fury.io/py/fissa
+   :alt: Latest PyPI release
 .. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
    :target: https://travis-ci.org/rochefort-lab/fissa
    :alt: Travis Build Status

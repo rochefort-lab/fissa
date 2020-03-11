@@ -4,7 +4,7 @@ Tests for datahandler_framebyframe.py
 import os
 
 import numpy as np
-from scipy.misc import imsave
+import imageio
 from PIL import Image
 
 from .base_test import BaseTestCase
@@ -18,7 +18,7 @@ class TestImage2Array(BaseTestCase):
         self.expected = np.array([[1, 2, 3], [5, 6, 7], [8, 9, 10]],
                                  dtype=np.uint8)
         # make tif
-        imsave('test.tif', self.expected)
+        imageio.imwrite('test.tif', self.expected)
 
     def test_actual_tiff(self):
         # load from tif
