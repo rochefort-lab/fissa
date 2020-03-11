@@ -183,11 +183,18 @@ interactive python session with the ``exit()`` command, or CTRL+D.
 Folder Structure
 ----------------
 
-continuous_integration/
-~~~~~~~~~~~~~~~~~~~~~~~
+A clone of this repository will contain directories detailed below.
 
-Contains files necessary for deploying tests on continuous integration
-servers. Users should ignore this directory.
+docs/
+~~~~~
+
+Contains the source for the documentation, which is available online at
+`<https://fissa.readthedocs.io>`_.
+You can build a local copy of the documentation by running the command
+
+::
+
+    make -C docs html
 
 examples/
 ~~~~~~~~~
@@ -214,6 +221,12 @@ fissa/tests/
 
 Contains tests for the toolbox, which are run to ensure it will work as
 expected.
+
+.ci/
+~~~~
+
+Contains files necessary for deploying tests on continuous integration
+servers. Users should ignore this directory.
 
 Citing FISSA
 ------------
