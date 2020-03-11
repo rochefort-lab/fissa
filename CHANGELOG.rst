@@ -12,11 +12,29 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-Unreleased
-----------
+Version `0.6.2 <https://github.com/rochefort-lab/fissa/tree/0.6.2>`__
+---------------------------------------------------------------------
 
+Release date: 2020-03-11.
 Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.6.1...master>`__.
+`on github <https://github.com/rochefort-lab/fissa/compare/0.6.1...0.6.2>`__.
+
+Fixed
+~~~~~
+
+-   Specify a maximum version for tifffile dependency on Python <3.6, which
+    allows us to continue supporting Python 2.7 and 3.5, which otherwise
+    fail to import dependencies correctly.
+    (`#87 <https://github.com/rochefort-lab/fissa/pull/87>`__)
+-   Documentation fixes and updates.
+    (`#64 <https://github.com/rochefort-lab/fissa/pull/64>`__,
+    `#65 <https://github.com/rochefort-lab/fissa/pull/65>`__,
+    `#67 <https://github.com/rochefort-lab/fissa/pull/67>`__,
+    `#76 <https://github.com/rochefort-lab/fissa/pull/76>`__,
+    `#77 <https://github.com/rochefort-lab/fissa/pull/77>`__,
+    `#78 <https://github.com/rochefort-lab/fissa/pull/78>`__,
+    `#79 <https://github.com/rochefort-lab/fissa/pull/79>`__,
+    `#92 <https://github.com/rochefort-lab/fissa/pull/92>`__)
 
 
 Version `0.6.1 <https://github.com/rochefort-lab/fissa/tree/0.6.1>`__
