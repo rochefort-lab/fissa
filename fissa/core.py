@@ -225,7 +225,7 @@ class Experiment():
             from . import datahandler_framebyframe as datahandler
         if datahandler_custom is not None:
             datahandler = datahandler_custom
-        if not data_format in ['npy', None]:
+        if data_format not in {'npy', None}:
             raise ValueError("Only 'npy' or None are supported.")
 
         # define class variables
