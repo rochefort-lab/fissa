@@ -380,18 +380,18 @@ class Experiment():
         self.separation_prep(redo_prep)
         if redo_prep:
             redo_sep = True
-        
+
         if self.data_format is None:
             redo_sep = True
         else:
             # Define filename to store data in
-            fname = self.folder + '/separated.'+self.data_format
-            if not redo_sep:
-                try:
-                    info, mixmat, sep, result = np.load(fname)
-                    print('Reloading previously separated data...')
-                except BaseException:
-                    redo_sep = True
+            fname = os.path.join(self.folder, 'separated.' + self.data_format)
+        if not redo_sep:
+            try:
+                info, mixmat, sep, result = np.load(fname)
+                print('Reloading previously separated data...')
+            except BaseException:
+                redo_sep = True
 
         # separate data, if necessary
         if redo_sep:
