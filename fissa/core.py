@@ -289,7 +289,7 @@ class Experiment():
             redo = True
         else:
             # define filename where data will be present
-            fname = self.folder + '/preparation.'+self.data_format
+            fname = os.path.join(self.folder, 'preparation.' + self.data_format)
 
             # try to load data from filename
             if not redo:
