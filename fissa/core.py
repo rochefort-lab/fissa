@@ -244,14 +244,16 @@ class Experiment():
         self.data_format = data_format
         
         # check if any data already exists
-        if data_format is not None:
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            if os.path.isfile(folder + '/preparation.'+data_format):
-                if os.path.isfile(folder + '/separated.'+data_format):
-                    self.separate()
-                else:
-                    self.separation_prep()
+        if data_format is None:
+            pass
+        elif not os.path.exists(folder):
+            os.makedirs(folder)
+        elif not os.path.isfile(os.path.join(folder, 'preparation.' + data_format)):
+            pass
+        elif os.path.isfile(os.path.join(folder,  'separated.' + data_format)):
+            self.separate()
+        else:
+            self.separation_prep()
 
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
