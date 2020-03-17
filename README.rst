@@ -86,20 +86,13 @@ Then, install FISSA by running the command
 
     pip install fissa
 
-To test if FISSA has been installed, enter the command
+You can check to see if FISSA is installed by running the command
 
 ::
 
-    python
+    python -c "import fissa; print(fissa.__version__)"
 
-to go into the Python environment. Then type
-
-::
-
-    import fissa
-
-If no errors show up, FISSA is now installed. You can leave Python by
-typing ``exit()``.
+You will see your FISSA version number printed in the terminal.
 
 If you want to use the interactive plotting from the notebooks, you
 should also install the HoloViews plotting toolbox, as follows
@@ -162,23 +155,14 @@ should run the following command:
 
     pip install fissa['plotting']
 
-Afterwards, you can test to see if FISSA is install by running the
-command
+You can check to see if FISSA is installed by running the command
 
 ::
 
-    python
+    python -c "import fissa; print(fissa.__version__)"
 
-to start an interactive python session. Then run
+You will see your FISSA version number printed in the terminal.
 
-::
-
-    import fissa
-
-at the python command prompt.
-
-If no errors show up, FISSA is now installed. You can leave the
-interactive python session with the ``exit()`` command, or CTRL+D.
 
 Folder Structure
 ----------------
