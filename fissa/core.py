@@ -555,24 +555,28 @@ class Experiment():
 
         # initialize dictionary to save
         M = collections.OrderedDict()
-        M['ROIs'] = collections.OrderedDict()
-        M['raw'] = collections.OrderedDict()
-        M['result'] = collections.OrderedDict()
 
-        # loop over cells and trial
-        for cell in range(self.nCell):
-            # get current cell label
-            c_lab = 'cell' + str(cell)
-            # update dictionary
-            M['ROIs'][c_lab] = collections.OrderedDict()
-            M['raw'][c_lab] = collections.OrderedDict()
-            M['result'][c_lab] = collections.OrderedDict()
-            for trial in range(self.nTrials):
-                # get current trial label
-                t_lab = 'trial' + str(trial)
+        def reformat_dict_for_matlab(orig_dict):
+            new_dict = collections.OrderedDict()
+            # loop over cells and trial
+            for cell in range(self.nCell):
+                # get current cell label
+                c_lab = 'cell' + str(cell)
                 # update dictionary
-                M['ROIs'][c_lab][t_lab] = self.roi_polys[cell][trial]
-                M['raw'][c_lab][t_lab] = self.raw[cell][trial]
-                M['result'][c_lab][t_lab] = self.result[cell][trial]
+                new_dict[c_lab] = collections.OrderedDict()
+                for trial in range(self.nTrials):
+                    # get current trial label
+                    t_lab = 'trial' + str(trial)
+                    # update dictionary
+                    new_dict[c_lab][t_lab] = orig_dict[cell][trial]
+            return new_dict
+
+        M['ROIs'] = reformat_dict_for_matlab(self.roi_polys)
+        M['raw'] = reformat_dict_for_matlab(self.raw)
+        M['result'] = reformat_dict_for_matlab(self.result)
+        if getattr(self, 'deltaf_raw', None) is not None:
+            M['df_raw'] = reformat_dict_for_matlab(self.deltaf_raw)
+        if getattr(self, 'deltaf_result', None) is not None:
+            M['df_result'] = reformat_dict_for_matlab(self.deltaf_result)
 
         savemat(fname, M)
