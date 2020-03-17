@@ -83,7 +83,7 @@ def rois2masks(rois, data):
         rois = roitools.readrois(rois)
 
     if not isinstance(rois, collections.Sequence):
-        raise ValueError(
+        raise TypeError(
             'Wrong ROIs input format: expected a list or sequence, but got'
             ' a {}'.format(rois.__class__)
         )
