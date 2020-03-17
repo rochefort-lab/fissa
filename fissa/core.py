@@ -59,7 +59,7 @@ def extract_func(inputs):
 
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
-    base_masks = datahandler.rois2masks(rois, curdata)
+    base_masks = roitools.rois2masks(rois, curdata)
 
     # get the mean image
     mean = datahandler.getmean(curdata)

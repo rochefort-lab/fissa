@@ -71,46 +71,6 @@ def getmean(data):
     return avg
 
 
-def rois2masks(rois, data):
-    """Take the object 'rois' and returns it as a list of binary masks.
-
-    Parameters
-    ----------
-    rois : str or list of array_like
-        Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or list of binary arrays representing masks
-    data : PIL.Image
-        An open PIL.Image handle to a multi-frame TIFF image.
-
-    Returns
-    -------
-    list
-        List of binary arrays (i.e. masks).
-
-    """
-    # get the image shape
-    shape = data.size[::-1]
-
-    # If rois is string, we first need to read the contents of the file
-    if isinstance(rois, basestring):
-        rois = roitools.readrois(rois)
-
-    if not isinstance(rois, collections.Sequence):
-        raise TypeError(
-            'Wrong ROIs input format: expected a list or sequence, but got'
-            ' a {}'.format(rois.__class__)
-        )
-
-    # if it's a something by 2 array (or vice versa), assume polygons
-    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-        return roitools.getmasks(rois, shape)
-    # if it's a list of bigger arrays, assume masks
-    elif np.shape(rois[0]) == shape:
-        return rois
-
-    raise ValueError('Wrong ROIs input format: unfamiliar shape.')
-
-
 def extracttraces(data, masks):
     """Get the traces for each mask in masks from data.
 
@@ -151,3 +111,7 @@ def extracttraces(data, masks):
             out[i, f] = np.mean(curframe[masks[i]])
 
     return out
+
+
+# backward compatability
+rois2masks = roitools.rois2masks

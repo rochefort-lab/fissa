@@ -5,6 +5,7 @@ Authors:
 '''
 
 from __future__ import division
+from past.builtins import basestring
 
 from builtins import range
 
@@ -434,3 +435,43 @@ def find_roi_edge(mask):
         outline[i] -= 0.5
 
     return outline
+
+
+def rois2masks(rois, data):
+    """Take the object `rois` and returns it as a list of binary masks.
+
+    Parameters
+    ----------
+    rois : string or list of array_like
+        Either a string with imagej roi zip location, list of arrays encoding
+        polygons, or list of binary arrays representing masks
+    data : array
+        Data array as made by image2array. Must be shaped `(frames, y, x)`.
+
+    Returns
+    -------
+    list
+        List of binary arrays (i.e. masks)
+
+    """
+    # get the image shape
+    shape = data.shape[1:]
+
+    # if it's a list of strings
+    if isinstance(rois, basestring):
+        rois = roitools.readrois(rois)
+
+    if not isinstance(rois, collections.Sequence):
+        raise TypeError(
+            'Wrong ROIs input format: expected a list or sequence, but got'
+            ' a {}'.format(rois.__class__)
+        )
+
+    # if it's a something by 2 array (or vice versa), assume polygons
+    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+        return getmasks(rois, shape)
+    # if it's a list of bigger arrays, assume masks
+    elif np.shape(rois[0]) == shape:
+        return rois
+
+    raise ValueError('Wrong ROIs input format: unfamiliar shape.')
