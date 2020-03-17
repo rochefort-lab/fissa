@@ -33,8 +33,7 @@ class TestImage2Array(BaseTestCase):
 
 
 class TestRois2Masks(BaseTestCase):
-    ''' Tests for rois2array
-    '''
+    '''Tests for rois2masks.'''
     def setup_class(self):
         self.polys = [np.array([[39., 62.], [60., 45.], [48., 71.]]),
                       np.array([[72., 107.], [78., 130.], [100., 110.]])]
