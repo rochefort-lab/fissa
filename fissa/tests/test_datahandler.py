@@ -58,6 +58,12 @@ class TestRois2Masks(BaseTestCase):
         # assert equality
         self.assert_equal(actual, self.expected)
 
+    def test_transposed_polys(self):
+        # load from array
+        actual = datahandler.rois2masks([x.T for x in self.polys], self.data)
+        # assert equality
+        self.assert_equal(actual, self.expected)
+
     def test_masks(self):
         # load from masks
         actual = datahandler.rois2masks(self.expected, self.data)
