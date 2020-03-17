@@ -199,7 +199,7 @@ class Experiment():
 
         """
         if isinstance(images, basestring):
-            self.images = sorted(glob.glob(images + '/*.tif*'))
+            self.images = sorted(glob.glob(os.path.join(images, '*.tif*')))
         elif isinstance(images, list):
             self.images = images
         else:
@@ -209,7 +209,7 @@ class Experiment():
             if rois[-3:] == 'zip':
                 self.rois = [rois] * len(self.images)
             else:
-                self.rois = sorted(glob.glob(rois + '/*.zip'))
+                self.rois = sorted(glob.glob(os.path.join(rois, '*.zip')))
         elif isinstance(rois, list):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
@@ -239,8 +239,8 @@ class Experiment():
         # check if any data already exists
         if not os.path.exists(folder):
             os.makedirs(folder)
-        if os.path.isfile(folder + '/preparation.npy'):
-            if os.path.isfile(folder + '/separated.npy'):
+        if os.path.isfile(os.path.join(folder, 'preparation.npy')):
+            if os.path.isfile(os.path.join(folder, 'separated.npy')):
                 self.separate()
             else:
                 self.separation_prep()
@@ -275,7 +275,7 @@ class Experiment():
 
         """
         # define filename where data will be present
-        fname = self.folder + '/preparation.npy'
+        fname = os.path.join(self.folder, 'preparation.npy')
 
         # try to load data from filename
         if not redo:
@@ -367,7 +367,7 @@ class Experiment():
             redo_sep = True
 
         # Define filename to store data in
-        fname = self.folder + '/separated.npy'
+        fname = os.path.join(self.folder, 'separated.npy')
         if not redo_sep:
             try:
                 info, mixmat, sep, result = np.load(fname)
@@ -537,7 +537,7 @@ class Experiment():
         - `raw.cell0.trial0(2,:)` raw signal from first neuropil region
         """
         # define filename
-        fname = self.folder + '/matlab.mat'
+        fname = os.path.join(self.folder, 'matlab.mat')
 
         # initialize dictionary to save
         M = collections.OrderedDict()
