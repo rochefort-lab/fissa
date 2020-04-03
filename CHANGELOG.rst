@@ -12,11 +12,33 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-Unreleased
-----------
+Version `0.6.3 <https://github.com/rochefort-lab/fissa/tree/0.6.3>`__
+---------------------------------------------------------------------
 
+Release date: 2020-04-03.
 Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.6.2...master>`__.
+`on github <https://github.com/rochefort-lab/fissa/compare/0.6.2...0.6.3>`__.
+
+Fixed
+~~~~~
+
+-   Specify a maximum version for the panel dependency of holoviews on
+    Python <3.6, which allows us to continue supporting Python 3.5, otherwise
+    dependencies fail to install.
+    (`#101 <https://github.com/rochefort-lab/fissa/pull/101>`__)
+-   Save deltaf to MATLAB compatible output.
+    (`#70 <https://github.com/rochefort-lab/fissa/pull/70>`__)
+-   Wipe downstream data stored in the experiment object if upstream data
+    changes, so data that is present is always consistent with each other.
+    (`#93 <https://github.com/rochefort-lab/fissa/pull/93>`__)
+-   Prevent slashes in paths from doubling up if the input path has a trailing
+    slash.
+    (`#71 <https://github.com/rochefort-lab/fissa/pull/71>`__)
+-   Documentation updates.
+    (`#91 <https://github.com/rochefort-lab/fissa/pull/91>`__,
+    `#88 <https://github.com/rochefort-lab/fissa/pull/88>`__,
+    `#97 <https://github.com/rochefort-lab/fissa/pull/97>`__,
+    `#89 <https://github.com/rochefort-lab/fissa/pull/89>`__)
 
 
 Version `0.6.2 <https://github.com/rochefort-lab/fissa/tree/0.6.2>`__
