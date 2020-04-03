@@ -125,7 +125,7 @@ do
         echo "[TESTNB] Converting notebook '$NBFILE' into a script";
         echo "------------------------------------------------------------------";
     fi;
-    CONVERT_OUTPUT=$(jupyter nbconvert --to=script "$NBFILE");
+    CONVERT_OUTPUT=$(python -m jupyter nbconvert --to=script "$NBFILE");
     CONVERT_STATUS=$?;
     if [ $CONVERT_STATUS -ne 0 ]; then
         RETURNVALUE=$((RETURNVALUE + 1));
@@ -146,7 +146,7 @@ do
         echo "[TESTNB] Trying to run the generated script '$PYFILE'";
         echo "------------------------------------------------------------------";
     fi
-    NB_OUTPUT=$(ipython "$PYFILE")
+    NB_OUTPUT=$(python -m IPython "$PYFILE")
     NB_STATUS=$?;
     if [ $NB_STATUS -ne 0 ]; then
         RETURNVALUE=$((RETURNVALUE + 1));
