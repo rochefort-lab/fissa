@@ -199,7 +199,7 @@ class Experiment():
 
         """
         if isinstance(images, basestring):
-            self.images = sorted(glob.glob(images + '/*.tif*'))
+            self.images = sorted(glob.glob(os.path.join(images, '*.tif*')))
         elif isinstance(images, list):
             self.images = images
         else:
@@ -209,7 +209,7 @@ class Experiment():
             if rois[-3:] == 'zip':
                 self.rois = [rois] * len(self.images)
             else:
-                self.rois = sorted(glob.glob(rois + '/*.zip'))
+                self.rois = sorted(glob.glob(os.path.join(rois, '*.zip')))
         elif isinstance(rois, list):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
@@ -225,8 +225,12 @@ class Experiment():
         # define class variables
         self.folder = folder
         self.raw = None
+        self.info = None
+        self.mixmat = None
         self.sep = None
         self.result = None
+        self.deltaf_raw = None
+        self.deltaf_result = None
         self.nRegions = nRegions
         self.expansion = expansion
         self.alpha = alpha
@@ -239,8 +243,8 @@ class Experiment():
         # check if any data already exists
         if not os.path.exists(folder):
             os.makedirs(folder)
-        if os.path.isfile(folder + '/preparation.npy'):
-            if os.path.isfile(folder + '/separated.npy'):
+        if os.path.isfile(os.path.join(folder, 'preparation.npy')):
+            if os.path.isfile(os.path.join(folder, 'separated.npy')):
                 self.separate()
             else:
                 self.separation_prep()
@@ -275,7 +279,7 @@ class Experiment():
 
         """
         # define filename where data will be present
-        fname = self.folder + '/preparation.npy'
+        fname = os.path.join(self.folder, 'preparation.npy')
 
         # try to load data from filename
         if not redo:
@@ -328,6 +332,14 @@ class Experiment():
         self.nCell = nCell  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
+        # Wipe outputs of separate(), as they no longer match self.raw
+        self.info = None
+        self.mixmat = None
+        self.sep = None
+        self.result = None
+        # Wipe outputs of calc_deltaf(), as they no longer match self.raw
+        self.deltaf_raw = None
+        self.deltaf_result = None
 
     def separate(self, redo_prep=False, redo_sep=False):
         """Separate all the trials with FISSA algorithm.
@@ -367,7 +379,7 @@ class Experiment():
             redo_sep = True
 
         # Define filename to store data in
-        fname = self.folder + '/separated.npy'
+        fname = os.path.join(self.folder, 'separated.npy')
         if not redo_sep:
             try:
                 info, mixmat, sep, result = np.load(fname)
@@ -435,6 +447,8 @@ class Experiment():
         self.mixmat = mixmat
         self.sep = sep
         self.result = result
+        # Wipe deltaf_result, as it no longer matches self.raw
+        self.deltaf_result = None
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
         """Calculate deltaf/f0 for raw and result traces.
@@ -537,28 +551,32 @@ class Experiment():
         - `raw.cell0.trial0(2,:)` raw signal from first neuropil region
         """
         # define filename
-        fname = self.folder + '/matlab.mat'
+        fname = os.path.join(self.folder, 'matlab.mat')
 
         # initialize dictionary to save
         M = collections.OrderedDict()
-        M['ROIs'] = collections.OrderedDict()
-        M['raw'] = collections.OrderedDict()
-        M['result'] = collections.OrderedDict()
 
-        # loop over cells and trial
-        for cell in range(self.nCell):
-            # get current cell label
-            c_lab = 'cell' + str(cell)
-            # update dictionary
-            M['ROIs'][c_lab] = collections.OrderedDict()
-            M['raw'][c_lab] = collections.OrderedDict()
-            M['result'][c_lab] = collections.OrderedDict()
-            for trial in range(self.nTrials):
-                # get current trial label
-                t_lab = 'trial' + str(trial)
+        def reformat_dict_for_matlab(orig_dict):
+            new_dict = collections.OrderedDict()
+            # loop over cells and trial
+            for cell in range(self.nCell):
+                # get current cell label
+                c_lab = 'cell' + str(cell)
                 # update dictionary
-                M['ROIs'][c_lab][t_lab] = self.roi_polys[cell][trial]
-                M['raw'][c_lab][t_lab] = self.raw[cell][trial]
-                M['result'][c_lab][t_lab] = self.result[cell][trial]
+                new_dict[c_lab] = collections.OrderedDict()
+                for trial in range(self.nTrials):
+                    # get current trial label
+                    t_lab = 'trial' + str(trial)
+                    # update dictionary
+                    new_dict[c_lab][t_lab] = orig_dict[cell][trial]
+            return new_dict
+
+        M['ROIs'] = reformat_dict_for_matlab(self.roi_polys)
+        M['raw'] = reformat_dict_for_matlab(self.raw)
+        M['result'] = reformat_dict_for_matlab(self.result)
+        if getattr(self, 'deltaf_raw', None) is not None:
+            M['df_raw'] = reformat_dict_for_matlab(self.deltaf_raw)
+        if getattr(self, 'deltaf_result', None) is not None:
+            M['df_result'] = reformat_dict_for_matlab(self.deltaf_result)
 
         savemat(fname, M)

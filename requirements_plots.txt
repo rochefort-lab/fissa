@@ -1,4 +1,5 @@
 ipython>=4.1.0
+jupyter>=1.00
 matplotlib>=2.0.2
 holoviews>=1.8.2
-jupyter>=1.00
+panel<0.9.0; python_version<'3.6'
