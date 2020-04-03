@@ -179,6 +179,8 @@ before_install:
   #
   # Activate the test environment
   - source activate test-environment
+  # Reset the cache of paths to executables, for executables inside the env
+  - hash -r
 
 ###############################################################################
 # install requirements
