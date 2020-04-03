@@ -218,6 +218,7 @@ before_script:
   - conda info -a
   - which python
   - python --version
+  - which ipython || echo "No ipython found"
   - conda env export > environment.yml && cat environment.yml
   - pip freeze
   # ---------------------------------------------------------------------------
