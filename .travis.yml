@@ -179,6 +179,8 @@ before_install:
   #
   # Activate the test environment
   - source activate test-environment
+  # Reset the cache of paths to executables, for executables inside the env
+  - hash -r
 
 ###############################################################################
 # install requirements
@@ -202,9 +204,9 @@ install:
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+      export MPLBACKEND="agg";
       pip install -r requirements_plots.txt;
       pip install sima;
-      export MPLBACKEND="agg";
     fi
   # ---------------------------------------------------------------------------
   # Install our package
@@ -218,6 +220,7 @@ before_script:
   - conda info -a
   - which python
   - python --version
+  - which ipython || echo "No ipython found"
   - conda env export > environment.yml && cat environment.yml
   - pip freeze
   # ---------------------------------------------------------------------------
