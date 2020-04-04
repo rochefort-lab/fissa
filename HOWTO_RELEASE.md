@@ -29,48 +29,91 @@ This release may be any of the following:
 - A patch for the latest minor release
 - A patch for a pre-existing minor release
 
+The rest of this guide includes code blocks which you can use to automate some of the steps in the release.
+To help this process, you can adapt the following code block to declare the version number of your release with the variable `vMNP`.
+
+First declare the variable `vMNP`, such as
+```sh
+vMNP="v0.1.0"
+```
+
+Then run the following code block to assign some other variables based on `vMNP`.
+```sh
+MNP="${vMNP#v}"
+vMNP="v$MNP"
+MNx="${MNP%.*}.x"
+vMNx="v$MNx"
+
+echo "\
+vMNP = '$vMNP'
+MNP  = '$MNP'
+vMNx = '$vMNx'
+MNx  = '$MNx'"
+```
+
 
 ## 2. Collect changes for release
 
-Next, we must create a stable copy of the code base as it will be released.
-
-This should be put on a branch corresponding to the minor version of the release.
+Next, we must create a release candidate branch.
 
 ### 2.1 Determination of branch name
 
-The branch should be named `vM.N.x`, where `M` is your major version, `N` is your minor version, `v` is the literal character `v`, and `x` is the literal character `x`.
+The release candidate branch should be named `rel_M.N.P`, where `M` is your major version, `N` is your minor version, `P` is the patch version, and `v` is the literal character `v`.
 In this document, we will refer to this as your release candidate branch.
 
-For instance, if you are releasing version `0.5.0`, the branch should be named `v0.5.x`.
+For instance, if you are releasing version `0.5.1`, the branch should be named `rel_0.5.1`.
 
-As a sidenote, the `vM.N.x` branch should always contain the latest patch to minor version `M.N`.
+Meanwhile, the stable `vM.N.x` branch (where `x` is literal character `x`) should always contain the latest patch to minor version `M.N`.
 For instance, branch `v0.5.x` contains the latest patched version of the `0.5` series of releases, which may be `0.5.2`, say.
 
 ### 2.2 Create release candidate branch
 
-If it does not already exist, create your release candidate branch whose name bears the format `vM.N.x`.
+Create your release candidate branch whose name bears the format `rel_M.N.P`.
 
-### 2.3 Merge your changes
+Merge all changes which should be included in your new release into the release candidate branch, `rel_M.N.P`.
 
-Merge all changes which should be included in your new release into the release candidate branch, `vM.N.x`.
-If you are releasing a new minor or major version, you may wish to merge the master branch into your release-candidate branch.
+#### 2.2a Create release candidate branch from bleeding-edge
 
-However, if you are releasing a patch for a previous version (the current release is `M.(N+1).0`, or later), you should not merge master into `vM.N.x` as it will contain features or API changes not suitable for your patch release.
-Instead, you should merge the relevant bug-fix branches directly into `vM.N.x`.
+Typically, your new release will contain everything currently in the bleeding-edge codebase from the master branch of the repository.
+```sh
+git checkout master
+git pull
+git checkout -b "rel_$MNP"
+```
+
+#### 2.2b Create release candidate branch to patch previous minor release
+
+However, if you are releasing a patch for a previous version (the current release is `M.(N+1).0`, or later), you should not merge master into `rel_M.N.P` as it will contain features or API changes not suitable for your patch release.
+Instead, you should merge the relevant bug-fix branches directly into `rel_M.N.P`.
 If the bug-fix branches you need have been deleted, you may have to [cherry-pick](https://git-scm.com/docs/git-cherry-pick) commits from master.
+```sh
+git checkout "$vMNx"
+git pull
+git checkout -b "rel_$MNP"
+```
 
 
 ## 3. Update metadata for your release
 
-On your release-candidate branch, `vM.N.x`, update the metadata to reflect your new release.
+On your release-candidate branch, `rel_M.N.P`, update the metadata to reflect your new release.
 
 ### 3.1 Update the version number
 
 In `__meta__.py`, update the version number as required (see above and the [Semantic Versioning standard][semver] for details).
 
+```sh
+gedit fissa/__meta__.py
+# edit file and save changes
+git add fissa/__meta__.py
+git commit -m "REL: Version $MNP"
+```
+
 ### 3.2 Update the CHANGELOG
 
 On your release-candidate branch, update the CHANGELOG.
+```sh
+gedit CHANGELOG.rst
+```
 
 Follow the style of the existing CHANGELOG entries to add a new entry for your release.
 Use as many of the categories (Added, Changed, Deprecated, Removed, Fixed, Security) as necessary.
@@ -87,8 +130,7 @@ Version `M.N.P <https://github.com/rochefort-lab/fissa/tree/M.N.P>`__
 ---------------------------------------------------------------------
 
 Release date: YYYY-MM-DD.
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/A.B.C...M.N.P>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/A.B.C...M.N.P>`__.
 ```
 Where `M.N.P` is the new release, `A.B.C < M.N.P` is the previous ancestor to the new release, and `YYYY-MM-DD` is today's date.
 The Full Changelog link will use the release tags on github to automatically generate a comparison.
@@ -96,37 +138,92 @@ The Full Changelog link will use the release tags on github to automatically gen
 The changes you list should be grouped into categories: Added, Changed, Deprecated, Removed, Fixed, Security.
 See the description at the top of the CHANGELOG for more details.
 
+For each category which appears in the Changelog of the new release, make sure to include an rST anchor declaration, such as the example below.
+This tells sphinx what anchor to use for the subheading (in this case Fixed), which appears many times within the changelog document.
+```
+.. _vM.N.P Fixed:
+
+Fixed
+~~~~~
+-   Details of bug which was fixed.
+    (`#1 <https://github.com/rochefort-lab/fissa/pull/1>`__)
+```
+
 For each change, the pull request which implemented that change in the master branch should also be linked to.
 
 Note that the CHANGELOG should not contain an "Unreleased" section on the release-candidate branch.
 
-### 3.3 Push your changes to the vM.N.x branch on GitHub
+Once you are done, add and commit your addition to the CHANGELOG.
+```sh
+git add CHANGELOG.rst
+git commit -m "DOC: Add $vMNP to CHANGELOG"
+```
+
+### 3.3 Push your changes to the rel_M.N.P branch on GitHub
 
 Push your changes with
+```sh
+git push -u origin "rel_$MNP"
 ```
-git push -u origin vM.N.x
-```
-(where `vM.N.x` is replaced with your release candidate branch) to establish tracking with the remote branch.
+(where `rel_M.N.P` is replaced with your release candidate branch) to establish tracking with the remote branch.
 
 ### 3.4 Ensure CHANGELOG is formatted correctly
 
 Check the rendering of the CHANGELOG on GitHub at
-<https://github.com/rochefort-lab/fissa/blob/vM.N.x/CHANGELOG.rst>,
-where `vM.N.x` is replaced with your release candidate branch.
+<https://github.com/rochefort-lab/fissa/blob/rel_M.N.P/CHANGELOG.rst>,
+where `rel_M.N.P` is replaced with your release candidate branch.
 
-## 4. Confirm tests pass
+```sh
+sensible-browser https://github.com/rochefort-lab/fissa/blob/rel_$MNP/CHANGELOG.rst
+```
 
+## 4. Make a Pull Request
+
+You'll need to make a PR to merge the new release into a target stable branch.
+
+## 4.1 Ensure target stable branch exists
+
+If you are releasing a new major or minor version, you may first have to instantiate a new stable branch, which will be the target of the PR.
+
+Browse the the list of [branches](https://github.com/rochefort-lab/fissa/branches) for the repository, and ensure that a branch bearing the name corresponding to `vM.N.x` exists.
+If not, create a new branch for it based on the last stable release and push it to github.
+
+## 4.2 Make the Pull Request
+
+If you are creating a new patch release, initiate a pull request to merge `rel_M.N.P` into the stable branch for this minor release, named `vM.N.x`,
+<https://github.com/rochefort-lab/fissa/compare/vM.N.x...rel_M.N.P?expand=1>.
+```sh
+sensible-browser "https://github.com/rochefort-lab/fissa/compare/v${MNx}...rel_${MNP}?expand=1&title=REL:%20Release%20version%20${MNP}"
+```
+You can use the contents of the CHANGELOG update as the basis of the body of your PR, but you will need to convert it from RST to markdown format first.
+```sh
+pandoc --from rst --to markdown+hard_line_breaks CHANGELOG.rst | sed '/^:::/d' > .CHANGELOG.md
+```
+
+Unless the release was pre-approved, you'll need to wait for another maintainer to review the release candidate before you can merge it into the stable release branch.
+Don't delete the release-candidate branch when the PR is closed, as we'll make use of it again in a later step.
+
+
+## 5. Confirm tests pass
+
+After the release-candidate branch has been merged into the release branch, you must release the new branch.
+First, double-check the test suite runs successfully.
 The test suite should also have been run on the continuous integration server during development.
 This step is included to double-check what you are about to submit is a viable copy of the code.
 
-### 4.1 Checkout release-candidate branch
+### 5.1 Checkout the release branch
 
-Checkout the release-candidate branch, `vM.N.x`.
+Checkout and update your local copy of the release branch, `vM.N.x`.
+```sh
+git fetch
+git checkout "v$MNx"
+git pull
+```
 
 Then use `git status` to make sure you don't have any unstaged changes.
 We need to run the tests on a clean copy of the branch.
 
-### 4.2 Run test suite
+### 5.2 Run test suite
 
 Run the unit test suite, with either
 ```sh
@@ -139,19 +236,19 @@ python setup.py test
 and make sure all the unit tests pass locally.
 
 
-## 5. Build distribution
+## 6. Build distribution
 
-Follow the instructions in the [PyPI tutorial](https://packaging.python.org/tutorials/packaging-projects/) to build your distribution.
+Follow the instructions as per the [PyPI tutorial](https://packaging.python.org/tutorials/packaging-projects/) to build your distribution.
 ```sh
+rm -f .CHANGELOG.md
 rm -rf dist
-python -m pip install --upgrade setuptools wheel
-python -m pip install --upgrade twine
+python -m pip install --upgrade setuptools wheel twine
 python setup.py sdist bdist_wheel --universal
 ```
 
-## 6. Test the submission
+## 7. Test the submission
 
-### 6.1 Upload to the PyPI test server
+### 7.1 Upload to the PyPI test server
 
 Use twine to upload your new distribution to the PyPI test server
 ```
@@ -159,7 +256,7 @@ python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 ```
 You will be prompted for your test.pypi username and password.
 
-### 6.2 Create a venv, and install from the PyPI test server
+### 7.2 Create a venv, and install from the PyPI test server
 
 `cd` away from your local git repository, and create a new virtual environment
 
@@ -167,19 +264,19 @@ You will be prompted for your test.pypi username and password.
 REPODIR="$(pwd)"
 cd ~
 rm -rf pypi_test_env
-virtualenv -p /usr/bin/python3 pypi_test_env
+virtualenv -p python3 pypi_test_env
 source pypi_test_env/bin/activate
 python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple fissa
 ```
 
-### 6.3 Test the installation
+### 7.3 Test the installation
 
-Check whether you can import the new package.
+Check whether you can import the new package, and that the version installed is `M.N.P`.
 ```sh
 python -c "import fissa; print(fissa.__version__)"
 ```
 
-### 6.4 Remove the test venv and return to repository
+### 7.4 Remove the test venv and return to repository
 
 Return to your repository
 ```sh
@@ -189,47 +286,57 @@ cd "$REPODIR"
 ```
 
 
-## 7. Make a new release-tag
+## 8. Make a new release-tag
 
 On GitHub, [make a new release-tag](https://github.com/rochefort-lab/fissa/releases/new).
 
-### 7.1 Release tag
+### 8.1 Release tag
 
 Your release-tag should be named `M.N.P`.
-Note that, unlike the release candidate branch, there is no `v` character at the beginning of the tag name.
+Note that, unlike the release candidate branch, there is no `rel_` or `v` at the beginning of the tag name.
+```sh
+sensible-browser "https://github.com/rochefort-lab/fissa/releases/new?target=${vMNx}&tag=${MNP}&title=Version%20${MNP}"
+```
 
-**Note:** Be sure to set the target of the tag to your release candidate branch `vM.N.x`.
+**Note:** Be sure to set the target of the tag to your stable release branch `M.N.x`.
 
-### 7.2 Release title
+### 8.2 Release title
 
 The title of your release should be `Version M.N.P`.
 
-### 7.3 Release body
+### 8.3 Release body
 
 For the body of the release, we will use your entry in the CHANGELOG, including subheadings such as `Added`, `Fixed`, etc.
 
 However, you will need to convert the formatting from RST to Markdown.
 The full changelog can be converted using this command:
 ```sh
-pandoc --from rst --to markdown CHANGELOG.rst >> .CHANGELOG.md
+pandoc --from rst --to markdown+hard_line_breaks CHANGELOG.rst | sed '/^:::/d' > .CHANGELOG.md
 ```
 From the converted document, you can select the relevant section to include in the github release body.
 
 If you make a formatting mistake and realise after publishing the release on GitHub, don't worry as the release metadata can be editted.
 
+When you are done, delete the temporary file generated by pandoc.
+```sh
+rm .CHANGELOG.md
+```
 
-## 8. Push to PyPI
+## 9. Push to PyPI
 
 You will need to be a maintainer of this project in order to push a new version.
 
 **Note that this step is irreversible.**
 If you push the wrong thing here, you can't overwrite it.
 ```sh
+python -m pip install --upgrade setuptools wheel twine
 python -m twine upload dist/*
 ```
 You will be prompted for your username and password, which must be associated with a maintainer for the project.
 
 ### Try out the PyPI release
+
+You'll first need to wait a couple of minutes for the new PyPI version to become available.
 
 Again, we create a fresh virtual environment and install the new release into it.
 ```sh
@@ -251,100 +358,100 @@ rm -rf pypi_test_env
 cd "$REPODIR"
 ```
 
-## 9. Update metadata on the master branch
+## 10. Update metadata on the master branch
 
-### 9.1 Create a branch for your pull request
+You need to merge the updated CHANGELOG into the master branch.
+There are two procedures for doing this, depending on whether your new release has the highest version number, or if it was a patch release for an older version.
 
-Create a new branch, titled `rel_M.N.P`, based on origin's current master branch.
+### 10.1a If your release has the highest version number
+
+If your new release has the highest version number, you should do this on your `rel_M.N.P` branch.
+
+First, update the `rel_M.N.P` to contain the release itself, contained in branch `vM.N.x`.
 ```sh
+git fetch
+git checkout "rel_$MNP"
+git merge "origin/v$MNx"
+```
+
+If you've followed the steps in this guide in the order they are given, when you perform the `git fetch` step you should receive a new tag called `M.N.P` from the origin remote.
+The merge into `rel_M.N.P` will be done with the fast forward method, adding one merge commit from the PR to its history.
+
+Now proceed to step 10.2.
+
+### 10.1b If your release is a patch for a stale version
+
+If your release does not have the highest version number (because it is a patch for an older release), you should do the following:
+```sh
+git fetch
 git checkout master
-git pull
-git checkout -b rel_M.N.P
+git checkout -b "doc_changelog-$MNP"
+git cherry-pick "origin/rel_$MNP"
 ```
 
-(If you've followed the steps in this guide in the order they are given, when you perform the `git pull` step you should receive a new tag called `M.N.P` from the origin remote.)
-
-### 9.2 Merge your metadata updates
-
-You will need to merge your CHANGELOG update, and possibly your new version number into the master branch.
-
-If the only commits on `vM.N.x` which are not on the master branch are your metadata updates, you can directly merge the branch.
-```sh
-git merge vM.N.x
-```
-
-If not, cherry-pick the last commit from your `vM.N.x` branch
-```sh
-git cherry-pick vM.N.x
-```
-or the last two commits from your `vM.N.x` branch
-```sh
-git cherry-pick vM.N.x^^..vM.N.x
-```
-as appropriate.
+This will take the last commit from your release-candidate branch, and add it to the commit history.
+If you have followed this guide, the last commit will be the CHANGELOG update.
+You will have to handle a merge conflict resulting from the cherry-pick.
 
 Afterwards, you can double-check which commits were included with `git log`, or an interactive rebase `git rebase -i master`.
 
-### 9.3 Add Unreleased section to CHANGELOG again
+### 10.2 Add Unreleased section back to CHANGELOG
 
 Our unstable version on the master branch should always contain a CHANGELOG entry which compares the last stable release with the current unstable version.
 
-Edit the CHANGELOG to include an entry at the top of the list of entries, which reads as follows:
+Edit the CHANGELOG
+```sh
+gedit CHANGELOG.rst
+```
+to include an entry at the top of the list of entries, which reads as follows:
 ```
 Unreleased
 ----------
 
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/A.B.C...master>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/A.B.C...master>`__.
 
 ```
 where `A.B.C >= M.N.P` is the latest release, including your forthcoming `M.N.P` release.
 
 Commit this change.
+```sh
+git add CHANGELOG.rst
+git commit -m "DOC: Add Unreleased section to CHANGELOG"
+```
 
-### 9.4 Update version number
+### 10.4 Update version number
 
 Check the [current version number on the master branch](https://github.com/rochefort-lab/fissa/blob/master/fissa/__meta__.py).
 
 If you have released a new major/minor version with a version number higher than this, you need to update the version on the master branch to be `M.N.dev0`.
 
-If you know development on the bleeding-edge master branch is progressing to a new major/minor version, you should update the version number in `__meta__.py` on the master branch to `M.(N+1).dev0` or `(M+1).0.dev0` as appropriate.
-
 If you have released a patch, or the master branch otherwise already has the correct version number, just make sure your version number in `__meta__.py` matches that of master (check with `less fissa/__meta__.py`).
 
-Once you've edited the `__meta__.py` file, commit this change.
-
-### 9.5 Push branch and create pull request
-
-Push the branch with a command formatted like
+Edit the `__meta__.py` file
 ```sh
-git push -u origin rel_M.N.P
+gedit fissa/__meta__.py
 ```
-and go to the [repository page][our repo] to create a pull request.
+to be `A.B.dev0`, where `A.B` is the latest minor version.
 
-Once you've created the PR, double-check that the only changed files are `CHANGELOG` and `__meta__.py`.
+Once you've edited the `__meta__.py` file, commit this change (replacing the placeholder text `A.B.dev0` with the actual current minor version in this example code).
+```sh
+git add fissa/__meta__.py
+git commit -m "REL: Change bleeding-edge version number to A.B.dev0"
+```
+
+### 10.5 Push branch and create pull request
+
+Push the branch to the repository and go to the [repository page][our repo] to create a pull request into the master branch.
+```sh
+git push -u origin $(git symbolic-ref --short HEAD)
+sensible-browser "https://github.com/rochefort-lab/fissa/compare/$(git symbolic-ref --short HEAD)?expand=1&labels=doc&title=DOC:%20Add%20${vMNP}%20to%20CHANGELOG&body=Adds%20new%20release%20${vMNP}%20to%20the%20CHANGELOG."
+```
+
+The title of the PR should be `DOC: Add vM.N.P to CHANGELOG`.
+
+Once you've created the PR, double-check that the only changed files are `CHANGELOG` and (possibly) `__meta__.py`.
 If they are, once the continuous integration tests have passed, you can merge the PR into master.
-If there are more changes beyond this, your PR may need further review.
-
-
-## 10. Enable branch protection on your release-candidate branch
-
-You can add branch protection so your (now released) release-candidate branch cannot receive force pushes or be deleted.
-This is important to ensure the branch is preserved for posterity.
-
-This can be enabled in the [settings for the repository](https://github.com/rochefort-lab/fissa/settings/branches), under the Branches subsection.
-Select the Add rule option.
-
-The pattern for your rule should be `*M.N.x`.
-If the `vM.N.x` branch already existed before you made this release, there should already be a rule for it listed.
-
-When creating the rule, you may additionally select the checkbox for "Require status checks to pass before merging", along with the unit test CI (Travis) as the requirement.
-When this is enabled, the `vM.N.x` branch can no longer be updated directly - only through pull requests.
-
-
-## 11. Activate the release on ReadTheDocs
-
-In the [settings on ReadTheDocs](https://readthedocs.org/dashboard/fissa/versions/), locate the release tag (`M.N.P`) in the versions list and activate it.
+If there are more changes beyond this, your PR needs further review.
 
 
   [our repo]: http://github.com/rochefort-lab/fissa/
