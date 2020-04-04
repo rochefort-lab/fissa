@@ -185,6 +185,11 @@ before_install:
 ###############################################################################
 # install requirements
 install:
+  # Do numpy and scipy requirements first, because some packages need them
+  # in order for the pip install to complete.
+  - sed -n '/^\(num\|sci\)py\([!<>=~ ]\|$\)/p' requirements.txt > .requirements_first.txt;
+    cat .requirements_first.txt;
+    pip install -r .requirements_first.txt;
   # Install required packages listed in requirements.txt. We install this
   # with the upgrade ('-U') flag to ensure we have the most recent version of
   # the dependency which is compatible with the specification.
