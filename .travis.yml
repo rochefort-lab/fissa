@@ -255,7 +255,8 @@ script:
     fi;
   # Test the notebooks
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      ./.ci/test_notebooks.sh -i ./examples;
+      py.test --nbsmoke-run ./examples/;
+      py.test --nbsmoke-lint ./examples/;
     fi;
 
 ###############################################################################
