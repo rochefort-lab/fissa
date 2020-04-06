@@ -1,10 +1,18 @@
 ###############################################################################
-# language setting
 language: python
+os: linux
 
-# Current requirements for Python 3.7 on Travis
-sudo: required
-dist: xenial
+addons:
+  apt:
+    packages:
+      # Install ATLAS and LAPACK for numpy/scipy
+      - libatlas-dev
+      - libatlas-base-dev
+      - liblapack-dev
+      # Install GEOS for Shapely
+      - libgeos-dev
+      # Install JPEG library for Pillow>=3.0.0
+      - libjpeg-dev
 
 ###############################################################################
 # Cache data which has to be downloaded on every build.
@@ -13,83 +21,82 @@ cache:
   directories:
     # Cache files downloaded by pip
     - $HOME/.cache/pip
+    - $HOME/Library/Caches/pip
     # Cache our miniconda download.
     - $HOME/Downloads
 
 ###############################################################################
-# version numbers
-python:
-  # This is a flag for the built-in version of Python provided by the CI-server
-  # provider, which we don't use in favour of conda. But we use this to pick
-  # out which python version we install with conda, since it means the provider
-  # gets appropriate metadata to keep things organised.
-  # - "2.6" # Not well supported by unittest - no skip decorators available.
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-
-###############################################################################
-# environment variables
 env:
-  - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPS="false"
-  - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPS="true"
-  - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPS="false"
-  - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPS="true"
+  global:
+    # Set documentation building option to always be enabled
+    # If you only want to do this some of the time, set it with env above.
+    - BUILD_DOCS="true"
+    # Set flag for whether to use a conda environment
+    - USE_CONDA="false"
 
-matrix:
-  exclude:
-    # Currently, SIMA cannot be installed on Python 3.7
-    - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
-    - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
-    # Currently, can't use our conda min numpy/scipy version detector on Travis
-    # with weird Python 3.7
-    - python: "3.7"
-      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPS="true"
-  allow_failures:
-    - env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
-    # Currently, 'SIMA example.ipynb' is failing with Python 2.7.
-    - python: "2.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
-  # Mark as failure as soon as a required job fails. Otherwise, mark as success
-  # as soon the only remaining jobs are allowed to fail.
+jobs:
   fast_finish: true
+  allow_failures:
+    - os: osx
+  include:
+    - python: "2.7"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "2.7"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="true"
+
+    - python: "3.5"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "3.5"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="true"
+
+    - python: "3.6"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "3.7"
+      env:
+        - TEST_NOTEBOOKS="false"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "3.8"
+      env:
+        - TEST_NOTEBOOKS="false"
+        - USE_OLDEST_DEPS="false"
+
+    # OSX --------------------------------
+    - name: "Python 3.6.5 on macOS 10.13"
+      os: osx
+      osx_image: xcode9.4
+      language: shell
+      env:
+        - TRAVIS_PYTHON_VERSION="3.6"
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
 
 ###############################################################################
 # Setup the environment before installing
 before_install:
-  # Set documentation building option to always be enabled
-  # If you only want to do this some of the time, set it with env above.
-  - BUILD_DOCS="true"
   # Remember the directory where our repository to test is located
   - REPOPATH="$(pwd)" && pwd
   # ---------------------------------------------------------------------------
-  # Check which versions of numpy and scipy we are using, then remove these
-  # lines from requirements.txt
+  # Check which versions of numpy and scipy we are using
   - if [ -f requirements.txt ]; then
       NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
       echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
       SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
       echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
-      sed '/^\(num\|sci\)py\([!<>=~ ]\|$\)/d' requirements.txt >
-        requirements.txt.tmp &&
-        mv requirements.txt.tmp requirements.txt;
     fi;
-  # ---------------------------------------------------------------------------
-  # Update the package list
-  - travis_retry sudo apt-get update
-  # Install numpy/scipy dependencies with apt-get. We want ATLAS and LAPACK.
-  - travis_retry sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
-  # Install GEOS for Shapely
-  - travis_retry sudo apt-get install -y libgeos-dev
-  # Install JPEG library for Pillow>=3.0.0
-  - travis_retry sudo apt-get install -y libjpeg-dev
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
@@ -102,29 +109,39 @@ before_install:
       done;
     fi;
   # ---------------------------------------------------------------------------
+  # Install conda and set up conda environment
   # The following is based on Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
-  # ---------------------------------------------------------------------------
-  # Download miniconda. No need to redownload if we already have the latest version cached.
-  - mkdir -p $HOME/Downloads;
-    travis_retry wget -c https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O "$HOME/Downloads/miniconda.sh";
-  # Install miniconda to the home directory, if it isn't there already.
-  - if [ ! -d "$HOME/miniconda/bin" ]; then
-      if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
-      bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
+  # - Download miniconda. No need to redownload if we already have the latest version cached.
+  # - Install miniconda to the home directory, if it isn't there already.
+  # - Add conda to the path and automatically say yes to any check from conda
+  # - Remove test environment from conda, if it's still there from last time
+  # - Update conda
+  - if [[ "$USE_CONDA" == "true" ]]; then
+      mkdir -p $HOME/Downloads;
+      if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh;
+      else
+        MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh;
+      fi;
+      travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/miniconda.sh";
+
+      if [ ! -d "$HOME/miniconda/bin" ]; then
+        if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
+        bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
+      fi;
+      export PATH="$HOME/miniconda/bin:$PATH";
+      hash -r;
+      conda config --set always_yes yes --set changeps1 no;
+      conda config --add channels conda-forge anaconda;
+
+      conda remove -n test-environment --all || echo "No test-environment to remove";
+
+      travis_retry conda update -q conda;
     fi;
-  - ls -alh "$HOME/miniconda";
-  # Add conda to the path and automatically say yes to any check from conda
-  - export PATH="$HOME/miniconda/bin:$PATH";
-    hash -r;
-    conda config --set always_yes yes --set changeps1 no
-  # Remove test environment from conda, if it's still there from last time
-  - conda remove -n test-environment --all || echo "No test-environment to remove";
-  # Update conda
-  - travis_retry conda update -q conda
   # Useful for debugging any issues with conda
-  - conda info -a
-  - conda list
+  - conda info -a  || echo "No conda"
+  - conda list || echo "No conda"
   #
   # If necessary, check which is the earliest version of numpy and scipy
   # available on conda for this version of python.
@@ -133,7 +150,7 @@ before_install:
   # possible requirement when scipy is being installed. The version of numpy
   # we end up must still satisfy the original requirement.txt setting, and
   # be from around the time of the oldest supported scipy release.
-  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
+  - if [[ "$USE_CONDA" == "true" ]] && [[ "$USE_OLDEST_DEPS" == "true" ]]; then
       if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
           SCIPY_VERSION="$(bash
               ./.ci/conda_min_version.sh
@@ -152,8 +169,10 @@ before_install:
     fi;
   # Create the conda environment with pip, numpy and scipy installed (if they
   # are in requirements.txt)
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-      pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT
+  - if [[ "$USE_CONDA" == "true" ]]; then
+      conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
+        pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+    fi;
   # If you get an error from this command which looks like this:
   #   Error: Unsatisfiable package specifications.
   #   Generating hint:
@@ -178,38 +197,49 @@ before_install:
   # 'scipy>=0.12.0'.
   #
   # Activate the test environment
-  - source activate test-environment
-  # Reset the cache of paths to executables, for executables inside the env
-  - hash -r
+  - if [[ "$USE_CONDA" == "true" ]]; then source activate test-environment; fi;
 
 ###############################################################################
 # install requirements
 install:
-  # Install required packages listed in requirements.txt. We install this
-  # with the upgrade ('-U') flag to ensure we have the most recent version of
-  # the dependency which is compatible with the specification.
-  - cat requirements.txt;
-    pip install --no-deps --upgrade -r requirements.txt;
-    pip install -r requirements.txt;
-  # Also install any developmental requirements
-  - cat requirements-dev.txt;
-    pip install --no-deps --upgrade -r requirements-dev.txt;
-    pip install -r requirements-dev.txt;
-  # ---------------------------------------------------------------------------
+  # Make a list of all requirements
+  - cat requirements.txt requirements-dev.txt > requirements_all.txt
   # Conditionally install the packages which are needed for building docs
   - if [[ "$BUILD_DOCS" == "true" ]]; then
-      pip install -r requirements_docs.txt;
+      cat requirements_docs.txt >> requirements_all.txt;
     fi
-  # ---------------------------------------------------------------------------
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       export MPLBACKEND="agg";
-      pip install -r requirements_plots.txt;
-      pip install sima;
+      cat requirements_plots.txt >> requirements_all.txt;
+      echo "sima" >> requirements_all.txt;
     fi
+  # Show the resulting list of packages
+  - cat requirements_all.txt;
   # ---------------------------------------------------------------------------
-  # Install our package
+  # If we are using a conda environment, install as much as we can in conda
+  # Anything we can't install into conda will be installed with pip later
+  - if [[ "$USE_CONDA" == "true" ]]; then
+      while read REQUIREMENT;
+        do conda install $REQUIREMENT || echo "$REQUIREMENT not on conda";
+      done < requirements_all.txt;
+    fi;
+  # ---------------------------------------------------------------------------
+  # Installation with pip will handle all packages if we aren't using conda,
+  # or all packages which couldn't be installed with conda if we were using it.
+  # Do numpy and scipy requirements first, because some packages need them
+  # in order for the pip install to complete.
+  - sed -n '/^\(num\|sci\)py\([!<>=~ ]\|$\)/p' requirements_all.txt > .requirements_first.txt;
+    cat .requirements_first.txt;
+    pip install -r .requirements_first.txt;
+  # Install required packages listed in requirements.txt. We install this
+  # with the upgrade ('-U') flag to ensure we have the most recent version of
+  # the dependency which is compatible with the specification.
+  - pip install --no-deps --upgrade -r requirements_all.txt;
+    pip install -r requirements_all.txt;
+  # ---------------------------------------------------------------------------
+  # Install our own package
   - python setup.py develop
 
 ###############################################################################
@@ -217,11 +247,11 @@ before_script:
   # Double-check we are still in the right directory
   - pwd
   # Check what python packages we have installed
-  - conda info -a
+  - conda info -a || echo "No conda"
   - which python
   - python --version
   - which ipython || echo "No ipython found"
-  - conda env export > environment.yml && cat environment.yml
+  - conda env export > environment.yml && cat environment.yml || echo "No conda"
   - pip freeze
   # ---------------------------------------------------------------------------
   # Remove any cached results files from previous build, if present
