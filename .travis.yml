@@ -61,6 +61,16 @@ jobs:
         - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="false"
 
+    - python: "3.7"
+      env:
+        - TEST_NOTEBOOKS="false"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "3.8"
+      env:
+        - TEST_NOTEBOOKS="false"
+        - USE_OLDEST_DEPS="false"
+
 ###############################################################################
 # Setup the environment before installing
 before_install:
