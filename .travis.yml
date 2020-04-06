@@ -21,6 +21,7 @@ cache:
   directories:
     # Cache files downloaded by pip
     - $HOME/.cache/pip
+    - $HOME/Library/Caches/pip
     # Cache our miniconda download.
     - $HOME/Downloads
 
@@ -68,6 +69,25 @@ jobs:
 
     - python: "3.8"
       env:
+        - TEST_NOTEBOOKS="false"
+        - USE_OLDEST_DEPS="false"
+
+    # OSX --------------------------------
+    - name: "Python 3.6.5 on macOS 10.13"
+      os: osx
+      osx_image: xcode9.4
+      language: shell
+      env:
+        - TRAVIS_PYTHON_VERSION="3.6"
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - name: "Python 3.7.3 on macOS 10.14"
+      os: osx
+      osx_image: xcode10.2
+      language: shell
+      env:
+        - TRAVIS_PYTHON_VERSION="3.7"
         - TEST_NOTEBOOKS="false"
         - USE_OLDEST_DEPS="false"
 
