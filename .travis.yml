@@ -2,9 +2,17 @@
 # language setting
 language: python
 
-# Current requirements for Python 3.7 on Travis
-sudo: required
-dist: xenial
+addons:
+  apt:
+    packages:
+      # Install ATLAS and LAPACK for numpy/scipy
+      - libatlas-dev
+      - libatlas-base-dev
+      - liblapack-dev
+      # Install GEOS for Shapely
+      - libgeos-dev
+      # Install JPEG library for Pillow>=3.0.0
+      - libjpeg-dev
 
 ###############################################################################
 # Cache data which has to be downloaded on every build.
@@ -74,15 +82,6 @@ before_install:
       SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
       echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
     fi;
-  # ---------------------------------------------------------------------------
-  # Update the package list
-  - travis_retry sudo apt-get update
-  # Install numpy/scipy dependencies with apt-get. We want ATLAS and LAPACK.
-  - travis_retry sudo apt-get install -y libatlas-dev libatlas-base-dev liblapack-dev
-  # Install GEOS for Shapely
-  - travis_retry sudo apt-get install -y libgeos-dev
-  # Install JPEG library for Pillow>=3.0.0
-  - travis_retry sudo apt-get install -y libjpeg-dev
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
