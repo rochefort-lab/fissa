@@ -1,6 +1,6 @@
 ###############################################################################
-# language setting
 language: python
+os: linux
 
 addons:
   apt:
@@ -25,53 +25,45 @@ cache:
     - $HOME/Downloads
 
 ###############################################################################
-# version numbers
-python:
-  # This is a flag for the built-in version of Python provided by the CI-server
-  # provider, which we don't use in favour of conda. But we use this to pick
-  # out which python version we install with conda, since it means the provider
-  # gets appropriate metadata to keep things organised.
-  # - "2.6" # Not well supported by unittest - no skip decorators available.
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-
-###############################################################################
-# environment variables
 env:
-  - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPS="false"
-  - TEST_NOTEBOOKS="false"
-    USE_OLDEST_DEPS="true"
-  - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPS="false"
-  - TEST_NOTEBOOKS="true"
-    USE_OLDEST_DEPS="true"
+  global:
+    # Set documentation building option to always be enabled
+    # If you only want to do this some of the time, set it with env above.
+    - BUILD_DOCS="true"
+    # Set flag for whether to use a conda environment
+    - USE_CONDA="false"
 
-matrix:
-  exclude:
-    # Currently, SIMA cannot be installed on Python 3.7
-    - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="false"
-    - python: "3.7"
-      env: TEST_NOTEBOOKS="true" USE_OLDEST_DEPS="true"
-    # Currently, can't use our conda min numpy/scipy version detector on Travis
-    # with weird Python 3.7
-    - python: "3.7"
-      env: TEST_NOTEBOOKS="false" USE_OLDEST_DEPS="true"
-  # Mark as failure as soon as a required job fails. Otherwise, mark as success
-  # as soon the only remaining jobs are allowed to fail.
+jobs:
   fast_finish: true
+  include:
+    - python: "2.7"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "2.7"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="true"
+
+    - python: "3.5"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - python: "3.5"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="true"
+
+    - python: "3.6"
+      env:
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
 
 ###############################################################################
 # Setup the environment before installing
 before_install:
-  # Set documentation building option to always be enabled
-  # If you only want to do this some of the time, set it with env above.
-  - BUILD_DOCS="true"
-  # Set flag for whether to use a conda environment
-  - USE_CONDA="false"
   # Remember the directory where our repository to test is located
   - REPOPATH="$(pwd)" && pwd
   # ---------------------------------------------------------------------------
