@@ -11,6 +11,7 @@ from past.builtins import basestring
 import collections
 import glob
 import os.path
+import sys
 import warnings
 
 import numpy as np
@@ -298,7 +299,7 @@ class Experiment():
                                  self.nRegions, self.expansion]
 
             # Do the extraction
-            if has_multiprocessing:
+            if has_multiprocessing and sys.version_info < (3, 0):
                 # define pool
                 pool = Pool(self.ncores_preparation)
 
@@ -306,6 +307,12 @@ class Experiment():
                 results = pool.map(extract_func, inputs)
                 pool.close()
                 pool.join()
+
+            elif has_multiprocessing:
+                with Pool(self.ncores_preparation) as pool:
+                    # run extraction
+                    results = pool.map(extract_func, inputs)
+
             else:
                 results = [0] * self.nTrials
                 for trial in range(self.nTrials):
@@ -412,7 +419,8 @@ class Experiment():
                 # update inputs
                 inputs[cell] = [X, self.alpha, self.method, cell]
 
-            if has_multiprocessing:
+            # Do the extraction
+            if has_multiprocessing and sys.version_info < (3, 0):
                 # define pool
                 pool = Pool(self.ncores_separation)
 
@@ -420,6 +428,11 @@ class Experiment():
                 results = pool.map(separate_func, inputs)
                 pool.close()
                 pool.join()
+
+            elif has_multiprocessing:
+                with Pool(self.ncores_separation) as pool:
+                    # run separation
+                    results = pool.map(separate_func, inputs)
             else:
                 results = [0] * self.nCell
                 for cell in range(self.nCell):
