@@ -84,15 +84,6 @@ jobs:
         - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="false"
 
-    - name: "Python 3.7.3 on macOS 10.14"
-      os: osx
-      osx_image: xcode10.2
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="3.7"
-        - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
-
 ###############################################################################
 # Setup the environment before installing
 before_install:
