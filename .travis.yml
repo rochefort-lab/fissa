@@ -36,6 +36,8 @@ env:
 
 jobs:
   fast_finish: true
+  allow_failures:
+    - os: osx
   include:
     - python: "2.7"
       env:
