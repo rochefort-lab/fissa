@@ -36,8 +36,12 @@ env:
 
 jobs:
   fast_finish: true
+
   allow_failures:
-    - os: osx
+    # Don't wait for OSX job to finish whole job, except on release branches
+    - if: (NOT type = cron) AND ( NOT branch =~ /^v?\d+(\.\d+)+$/ )
+      os: osx
+
   include:
     - python: "2.7"
       env:
@@ -84,7 +88,9 @@ jobs:
         - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="false"
 
-    - name: "Python 3.7.3 on macOS 10.14"
+    # Only run on release branches
+    - if: branch =~ /^v?\d+(\.\d+)+$/
+      name: "Python 3.7.3 on macOS 10.14"
       os: osx
       osx_image: xcode10.2
       language: shell
