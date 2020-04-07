@@ -12,6 +12,20 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
+---------------------------------------------------------------------
+
+Release date: 2020-04-07.
+Full commit changelog
+`on github <https://github.com/rochefort-lab/fissa/compare/0.6.3...0.6.4>`__.
+
+Fixed
+~~~~~
+
+-   Fix multiprocessing pool closure on Python 3.8.
+    (`#105 <https://github.com/rochefort-lab/fissa/pull/105>`__)
+
+
 Version `0.6.3 <https://github.com/rochefort-lab/fissa/tree/0.6.3>`__
 ---------------------------------------------------------------------
 
