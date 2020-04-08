@@ -9,6 +9,9 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\.ci\\appveyor\\run_with_env.cmd"
+    GIS_URL_ROOT: "http://download.gisinternals.com/sdk/downloads/"
+    GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
+    GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
   matrix:
 
@@ -21,8 +24,6 @@ environment:
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "32"
-      GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
-      GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x"
@@ -31,20 +32,15 @@ environment:
     - PYTHON: "C:\\Python36"
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "32"
-      GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
-      GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
 
     # Python versions not pre-installed
-
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "32"
-      GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
-      GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
 
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.0"
@@ -97,12 +93,12 @@ install:
   - ps: mkdir C:\build | out-null
   - ps: mkdir C:\gdal | out-null
 
-  - IF NOT "%GIS_INTERNALS%"=="" (
-      curl http://download.gisinternals.com/sdk/downloads/%GIS_INTERNALS% --output gdalbin.zip &&
+  - IF "%PYTHON_ARCH%"=="32" (
+      curl %GIS_URL_ROOT%%GIS_INTERNALS% --output gdalbin.zip &&
       7z x gdalbin.zip -oC:\gdal
     )
-  - IF NOT "%GIS_INTERNALS_LIBS%"=="" (
-      curl http://download.gisinternals.com/sdk/downloads/%GIS_INTERNALS_LIBS% --output gdallibs.zip &&
+  - IF "%PYTHON_ARCH%"=="32" (
+      curl %GIS_URL_ROOT%%GIS_INTERNALS_LIBS% --output gdallibs.zip &&
       7z x gdallibs.zip -oC:\gdal
     )
   - "SET PATH=C:\\gdal;C:\\gdal\\bin;C:\\gdal\\data;C:\\gdal\\bin\\gdal\\apps;%PATH%"
