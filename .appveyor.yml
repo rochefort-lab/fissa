@@ -26,45 +26,55 @@ environment:
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
       SHAPELY_VER: "1.6.4.post2"
+      SKIPPABLE: "false"
 
     - PYTHON: C:\Python35-x64
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "64"
       SHAPELY_VER: "1.6.4.post2"
+      SKIPPABLE: "true"
 
     - PYTHON: C:\Python36
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "32"
       SHAPELY_VER: "1.7.0"
+      SKIPPABLE: "true"
 
     - PYTHON: C:\Python36-x64
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
       SHAPELY_VER: "1.7.0"
+      SKIPPABLE: "true"
 
     - PYTHON: C:\\Python37
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "32"
       SHAPELY_VER: "1.7.0"
+      SKIPPABLE: "true"
 
     - PYTHON: C:\\Python37-x64
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
       SHAPELY_VER: "1.7.0"
+      SKIPPABLE: "true"
 
     - PYTHON: C:\Python38
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "32"
       SHAPELY_VER: "1.7.0"
+      SKIPPABLE: "true"
 
     - PYTHON: C:\Python38-x64
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "64"
       SHAPELY_VER: "1.7.0"
+      SKIPPABLE: "false"
 
 platform:
   - x86
   - x64
+
+configuration: Fast
 
 matrix:
   fast_finish: true
@@ -73,6 +83,19 @@ matrix:
       PYTHON_ARCH: "64"
     - platform: x64
       PYTHON_ARCH: "32"
+    - configuration: Fast
+      SKIPPABLE: "true"
+
+# Here we override common configuration
+for:
+# Override settings for release branches
+-
+  branches:
+    only:
+      - /^v?\d+(\.[x\d]+)+$/
+
+  configuration: Release
+
 
 init:
   # If there is a newer build queued for the same PR, cancel this one.
