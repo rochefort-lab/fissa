@@ -15,25 +15,23 @@ def read(fname):
 meta = {}
 exec(read('fissa/__meta__.py'), meta)
 
-install_requires = read('requirements.txt')
+install_requires = read('requirements.txt').splitlines()
 
 extras_require = {}
 
 # Notebook dependencies for plotting
-extras_require['plotting'] = read('requirements_plots.txt')
+extras_require['plotting'] = read('requirements_plots.txt').splitlines()
 
 # Dependencies for generating documentation
-extras_require['docs'] = read('requirements_docs.txt')
+extras_require['docs'] = read('requirements_docs.txt').splitlines()
 
 # Dev dependencies
-extras_require['dev'] = read('requirements-dev.txt')
+extras_require['dev'] = read('requirements-dev.txt').splitlines()
 
-# Everything
-extras_require['all'] = (
-    extras_require['plotting']
-    + extras_require['docs']
-    + extras_require['dev']
-)
+# Everything as a list. Replicated items are removed by use of set with {}.
+extras_require['all'] = sorted(list(
+    {x for v in extras_require.values() for x in v}
+))
 
 
 class PyTest(TestCommand):
