@@ -38,8 +38,9 @@ jobs:
   fast_finish: true
 
   allow_failures:
-    # Don't wait for OSX job to finish whole job, except on release branches
-    - if: (NOT type = cron) AND ( NOT branch =~ /^v?\d+(\.\d+)+$/ )
+    # PR can be deemed okay without waiting for OSX job to finish whole job,
+    # except on release branches
+    - if: type = pull_request AND NOT branch =~ /^v?\d+(\.\d+)+$/
       os: osx
 
   include:
