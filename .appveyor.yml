@@ -21,16 +21,6 @@ environment:
     # Otherwise, the requested version of Python will be downloaded
     # and installed using the script .ci/appveyor/install.ps1
 
-    - PYTHON: C:\Python27
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.6.4.post2"
-
-    - PYTHON: C:\Python27-x64
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.6.4.post2"
-
     - PYTHON: C:\Python35
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
