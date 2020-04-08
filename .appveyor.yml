@@ -12,6 +12,7 @@ environment:
     GIS_URL_ROOT: "http://download.gisinternals.com/sdk/downloads/"
     GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
     GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
+    BUILD_DOCS: "true"
 
   matrix:
 
@@ -151,12 +152,17 @@ install:
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install %SHAPELY_FNAME%"
   - "%CMD_IN_ENV% pip install .[dev]"
+  - IF "%BUILD_DOCS%"=="true" ( %CMD_IN_ENV% pip install .[docs] )
 
 build: false
 
 test_script:
   # Run the project tests and store results in testresults.xml log
   - "%CMD_IN_ENV% py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml"
+  # Check documentation can be built
+  - cd docs
+  - IF "%BUILD_DOCS%"=="true" ( make.bat html )
+  - cd ..
 
 after_test:
   # If tests are successful, create binary packages for the project.
