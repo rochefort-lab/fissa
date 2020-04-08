@@ -53,13 +53,18 @@ An example workflow importing data exported from a MATLAB toolbox (cNMF):
 
 You can try out each of the example notebooks interactively on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__.
 
-These notebooks can also be run on your own machine. To do so, you will
-need to `download a copy of the
-repository <https://github.com/rochefort-lab/fissa/archive/master.zip>`__,
-unzip it and browse to the `examples <examples>`__ directory. Then,
-start up a jupyter notebook server to run our notebooks. If you're new
-to jupyter notebooks, an approachable tutorial can be found at
-https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook.
+These notebooks can also be run on your own machine.
+To do so, you will need to:
+
+1.  Install fissa with its plotting dependencies :code:`pip install fissa[plotting]`.
+2.  If you want to run the sima notebook, you will also have to install sima with :code:`pip install sima`.
+    Note that sima only supports python<=3.6.
+3.  Download `a copy of the repository <https://github.com/rochefort-lab/fissa/archive/master.zip>`__,
+    unzip it and browse to the `examples <examples>`__ directory.
+4.  Start up a jupyter notebook server to run our notebooks :code:`jupyter notebook`.
+
+If you're new to jupyter notebooks, an approachable tutorial can be found at
+`<https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook>`_.
 
 Installation
 ------------
