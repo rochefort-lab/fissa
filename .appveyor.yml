@@ -62,8 +62,17 @@ environment:
       PYTHON_ARCH: "64"
       SHAPELY_VER: "1.7.0"
 
+platform:
+  - x86
+  - x64
+
 matrix:
   fast_finish: true
+  exclude:
+    - platform: x86
+      PYTHON_ARCH: "64"
+    - platform: x64
+      PYTHON_ARCH: "32"
 
 init:
   # If there is a newer build queued for the same PR, cancel this one.
