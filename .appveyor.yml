@@ -61,6 +61,9 @@ environment:
       PYTHON_ARCH: "64"
       SHAPELY_VER: "1.7.0"
 
+matrix:
+  fast_finish: true
+
 init:
   # If there is a newer build queued for the same PR, cancel this one.
   # The AppVeyor 'rollout builds' option is supposed to serve the same
