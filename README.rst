@@ -1,4 +1,4 @@
-|Gitter| |PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Coveralls| |Downloads|
+|Binder| |Gitter| |PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Coveralls| |Downloads|
 
 FISSA
 =====
@@ -177,6 +177,7 @@ examples/
 
 Contains example code. You can load the notebooks as .ipynb directly in
 GitHub, or on your system if you know how to use jupyter notebooks.
+The example notebooks can also be run interactively on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__.
 
 examples/exampleData/
 ~~~~~~~~~~~~~~~~~~~~~
@@ -264,3 +265,6 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Downloads| image:: https://pepy.tech/badge/fissa
    :target: https://pepy.tech/project/fissa
    :alt: Download Counter
+.. |Binder| image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
+   :alt: Launch Notebooks in Binder
