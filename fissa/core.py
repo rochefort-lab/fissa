@@ -25,7 +25,7 @@ from . import roitools
 try:
     from multiprocessing import Pool
     has_multiprocessing = True
-except BaseException:
+except ImportError:
     warnings.warn('Multiprocessing library is not installed, using single ' +
                   'core instead. To use multiprocessing install it by: ' +
                   'pip install multiprocessing')
@@ -298,8 +298,13 @@ class Experiment():
                 inputs[trial] = [self.images[trial], self.rois[trial],
                                  self.nRegions, self.expansion]
 
+            # Check whether we should use multiprocessing
+            use_multiprocessing = (
+                has_multiprocessing and
+                (self.ncores_preparation is None or self.ncores_preparation > 1)
+            )
             # Do the extraction
-            if has_multiprocessing and sys.version_info < (3, 0):
+            if use_multiprocessing and sys.version_info < (3, 0):
                 # define pool
                 pool = Pool(self.ncores_preparation)
 
@@ -308,7 +313,7 @@ class Experiment():
                 pool.close()
                 pool.join()
 
-            elif has_multiprocessing:
+            elif use_multiprocessing:
                 with Pool(self.ncores_preparation) as pool:
                     # run extraction
                     results = pool.map(extract_func, inputs)
@@ -419,8 +424,13 @@ class Experiment():
                 # update inputs
                 inputs[cell] = [X, self.alpha, self.method, cell]
 
+            # Check whether we should use multiprocessing
+            use_multiprocessing = (
+                has_multiprocessing and
+                (self.ncores_separation is None or self.ncores_separation > 1)
+            )
             # Do the extraction
-            if has_multiprocessing and sys.version_info < (3, 0):
+            if use_multiprocessing and sys.version_info < (3, 0):
                 # define pool
                 pool = Pool(self.ncores_separation)
 
@@ -429,7 +439,7 @@ class Experiment():
                 pool.close()
                 pool.join()
 
-            elif has_multiprocessing:
+            elif use_multiprocessing:
                 with Pool(self.ncores_separation) as pool:
                     # run separation
                     results = pool.map(separate_func, inputs)
