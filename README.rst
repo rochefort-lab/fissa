@@ -32,9 +32,26 @@ general discussion and help with installation or setup, please see the
 
 Usage
 -----
-A general tutorial on the use of FISSA can be found `here <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>`__.
 
-We also provide example workflows with other Python toolboxes (`SIMA <https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html>`__ and `Suite2p <https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html>`__), as well as for MATLAB (`cNMF <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>`__).
+A general tutorial on the use of FISSA can be found here:
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage.ipynb>`__.
+
+An example workflow with another Python toolbox (SIMA):
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/SIMA%20example.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/SIMA%20example.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/SIMA%20example.ipynb>`__.
+
+An example workflow importing data exported from a MATLAB toolbox (cNMF):
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/cNMF%20example.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/cNMF%20example.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/cNMF%20example.ipynb>`__.
+
+You can try out each of the example notebooks interactively on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__.
 
 These notebooks can also be run on your own machine. To do so, you will
 need to `download a copy of the
