@@ -34,6 +34,12 @@ def get_mask_com(mask):
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
+    if mask.ndim != 2:
+        raise ValueError(
+            'Mask must be two-dimensional. Received input with {} dimensions'
+            ''.format(mask.ndim)
+        )
+
     # TODO: make this work for non-boolean masks too
     x, y = mask.nonzero()
     return np.mean(x), np.mean(y)
@@ -83,6 +89,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     # for masks near the image boundary.
     # TODO: give it the bins to use
     n_bins = 20
+    n_bins = min(n_bins, len(mask))
     bins = np.linspace(-np.pi, np.pi, n_bins + 1)
     bin_counts, bins = np.histogram(theta, bins=bins)
     bin_min_index = np.argmin(bin_counts)
@@ -91,6 +98,12 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         # Change the number of slices we will used based on the
         # proportion of these bins which are empty
         num_slices = round(num_slices * sum(bin_counts > 0) / n_bins)
+        num_slices = max(1, num_slices)
+
+    # Ensure num_slices is an integer number
+    num_slices = int(num_slices)
+    if num_slices < 1:
+        raise ValueError('Number of slices must be positive')
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
@@ -105,22 +118,24 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     masks = []
     # get the first mask
     # empty predefinition
-    masks += [np.zeros(np.shape(mask), dtype=bool)]
+    mask = np.zeros(np.shape(mask), dtype=bool)
     # set relevant pixels to True
-    masks[0][x[theta <= bounds[0]], y[theta <= bounds[0]]] = True
+    mask[x[theta <= bounds[0]], y[theta <= bounds[0]]] = True
+    masks.append(mask)
     # get the rest of the masks
     for i in range(1, num_slices):
         # find which pixels are within bounds
         truths = (theta > bounds[i - 1]) * (theta <= bounds[i])
         # empty predefinition
-        masks += [np.zeros(np.shape(mask), dtype=bool)]
+        mask = np.zeros(np.shape(mask), dtype=bool)
         # set relevant pixels to True
-        masks[i][x[truths], y[truths]] = True
+        mask[x[truths], y[truths]] = True
+        masks.append(mask)
 
     return masks
 
 
-def shift_2d_array(a, shift=1, axis=None):
+def shift_2d_array(a, shift=1, axis=0):
     '''
     Shifts an entire array in the direction of axis by the amount shift,
     without refilling the array.
@@ -132,9 +147,7 @@ def shift_2d_array(a, shift=1, axis=None):
     shift : int, optional
         How much to shift array by. Default is 1.
     axis : int, optional
-        The axis along which elements are shifted.
-        By default, the array is flattened before shifting,
-        after which the original shape is restored.
+        The axis along which elements are shifted. Default is 0.
 
     Returns
     -------
@@ -151,14 +164,19 @@ def shift_2d_array(a, shift=1, axis=None):
     # then fill in refilled parts of the array
     if axis == 0:
         if shift > 0:
-            out[:shift, :] = 0
+            out[:shift] = 0
         elif shift < 0:
-            out[shift:, :] = 0
+            out[shift:] = 0
     elif axis == 1:
         if shift > 0:
             out[:, :shift] = 0
         elif shift < 0:
             out[:, shift:] = 0
+    else:
+        raise ValueError(
+            'Axis must be 0 or 1, but {} was given.'
+            ''.format(axis)
+        )
 
     # return shifted array
     return out
@@ -212,8 +230,8 @@ def get_npil_mask(mask, totalexpansion=4):
     count = 0
 
     # for count in range(iterations):
-    while area_current < totalexpansion * \
-            area_orig and area_current < area_total - area_orig:
+    while area_current < totalexpansion * area_orig \
+            and area_current < area_total - area_orig:
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
@@ -223,7 +241,7 @@ def get_npil_mask(mask, totalexpansion=4):
         # don't use a partially updated version.
         refmask = np.copy(grown_mask)
 
-        if case == 2:
+        if False:  # case == 2:  # Not currently used
             # Move polygon around one pixel in each 8 directions
             # N, NE, E, SE, S, SW, W, NW, (the centre is also redone)
             for dx in [-1, 0, 1]:
