@@ -24,6 +24,9 @@ cache:
     - $HOME/Library/Caches/pip
     # Cache our miniconda download.
     - $HOME/Downloads
+    # Cache OSX brew packages
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/Library/Caches/PyenvVirtualenv
 
 ###############################################################################
 env:
@@ -35,6 +38,8 @@ env:
     - BUILD_DOCS="true"
     # Set flag for whether to use a conda environment
     - USE_CONDA="false"
+    # Set cache location for pyenv virtualenv on OSX
+    - PYENV_VIRTUALENV_CACHE_PATH="$HOME/Library/Caches/PyenvVirtualenv"
 
 jobs:
   fast_finish: true
@@ -141,6 +146,23 @@ before_install:
         done;
     fi;
   # ---------------------------------------------------------------------------
+  # Install python with brew on OSX
+  # https://github.com/yyuu/pyenv/wiki#suggested-build-environment
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$USE_CONDA" != "true" ]]; then
+        echo "Installing python with brew and pyenv-virtualenv on Mac OSX";
+        export HOMEBREW_NO_INSTALL_CLEANUP=1;
+        export HOMEBREW_NO_AUTO_UPDATE=1;
+        brew update;
+        brew install openssl readline sqlite3 xz zlib pyenv pyenv-virtualenv;
+        brew upgrade pyenv;
+        pyenv install "$TRAVIS_PYTHON_VERSION";
+        export PYENV_ROOT="$HOME/.pyenv";
+        export PATH="$PYENV_ROOT/bin:$PATH";
+        pyenv virtualenv "$TRAVIS_PYTHON_VERSION" test-environment;
+        pyenv activate test-environment;
+        export PATH="$PYENV_ROOT/versions/test-environment/bin:$PATH";
+    fi;
   # Install conda and set up conda environment
   # The following is based on Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
