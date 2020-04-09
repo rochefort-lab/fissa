@@ -26,49 +26,41 @@ environment:
     - PYTHON: C:\Python35
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "false"
 
     - PYTHON: C:\Python35-x64
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python36
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python36-x64
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\\Python37
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\\Python37-x64
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python38
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: ""
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python38-x64
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: ""
       SKIPPABLE: "false"
 
 platform:
@@ -159,25 +151,6 @@ install:
   - ECHO "Filesystem C:/GDAL:"
   - ps: ls "C:/GDAL"
 
-  # Need to manually download and install Shapely
-  - SET "SHAPELY_URL=https://www.dropbox.com/s/dgpsd63e2vh4vrp/"
-  - FOR /f "tokens=1,2 delims=." %%a IN ("%PYTHON_VERSION%") DO (
-      SET "PYVER_SHORT=%%a%%b"
-    )
-  - IF "%PYTHON_ARCH%"=="64" (
-      SET "SHAPELY_ARCH=_amd64"
-    ) ELSE (
-      SET "SHAPELY_ARCH=%PYTHON_ARCH%"
-    )
-  - SET "SHAPELY_FNAME=Shapely-%SHAPELY_VER%-cp%PYVER_SHORT%-cp%PYVER_SHORT%m-win%SHAPELY_ARCH%.whl"
-  - ps: |
-      If ($env:SHAPELY_VER -neq "") {
-        $source = ($env:SHAPELY_URL) + ($env:SHAPELY_FNAME) + "?dl=1"
-        $target = ((Resolve-Path .).Path + "\" + ($env:SHAPELY_FNAME))
-        echo "Downloading from $source"
-        echo ("Destination: " + $target)
-        (new-object net.webclient).DownloadFile("$source", "$target")
-      }
   # Show current directory contents
   - ps: ls
 
@@ -185,7 +158,6 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
-  - IF /I not "%SHAPELY_VER%"=="" ( "%CMD_IN_ENV% pip install %SHAPELY_FNAME%" )
   - "%CMD_IN_ENV% pip install .[dev]"
   - IF "%BUILD_DOCS%"=="true" ( %CMD_IN_ENV% pip install .[docs] )
   # Conditionally install the packages which are needed for plotting
