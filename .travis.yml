@@ -108,6 +108,10 @@ before_install:
   # Remember the directory where our repository to test is located
   - REPOPATH="$(pwd)" && pwd
   # ---------------------------------------------------------------------------
+  # Check which python versions are pre-installed
+  - ls -l /usr/local/bin/python*
+  - $PYTHONCMD --version || echo "No $PYTHONCMD installed"
+  # ---------------------------------------------------------------------------
   # Check which versions of numpy and scipy we are using
   - if [ -f requirements.txt ]; then
       NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
