@@ -171,11 +171,13 @@ install:
     )
   - SET "SHAPELY_FNAME=Shapely-%SHAPELY_VER%-cp%PYVER_SHORT%-cp%PYVER_SHORT%m-win%SHAPELY_ARCH%.whl"
   - ps: |
-      $source = ($env:SHAPELY_URL) + ($env:SHAPELY_FNAME) + "?dl=1"
-      $target = ((Resolve-Path .).Path + "\" + ($env:SHAPELY_FNAME))
-      echo "Downloading from $source"
-      echo ("Destination: " + $target)
-      (new-object net.webclient).DownloadFile("$source", "$target")
+      If ($env:SHAPELY_VER -neq "") {
+        $source = ($env:SHAPELY_URL) + ($env:SHAPELY_FNAME) + "?dl=1"
+        $target = ((Resolve-Path .).Path + "\" + ($env:SHAPELY_FNAME))
+        echo "Downloading from $source"
+        echo ("Destination: " + $target)
+        (new-object net.webclient).DownloadFile("$source", "$target")
+      }
   # Show current directory contents
   - ps: ls
 
@@ -183,7 +185,7 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
-  - "%CMD_IN_ENV% pip install %SHAPELY_FNAME%"
+  - IF /I not "%SHAPELY_VER%"=="" ( "%CMD_IN_ENV% pip install %SHAPELY_FNAME%" )
   - "%CMD_IN_ENV% pip install .[dev]"
   - IF "%BUILD_DOCS%"=="true" ( %CMD_IN_ENV% pip install .[docs] )
   # Conditionally install the packages which are needed for plotting
