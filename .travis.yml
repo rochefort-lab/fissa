@@ -218,6 +218,8 @@ before_install:
 ###############################################################################
 # install requirements
 install:
+  # Update pip
+  - pip install --upgrade pip
   # Make a list of all requirements
   - cat requirements.txt requirements-dev.txt > requirements_all.txt
   # Conditionally install the packages which are needed for building docs
