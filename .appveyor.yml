@@ -38,37 +38,37 @@ environment:
     - PYTHON: C:\Python36
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.7.0"
+      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python36-x64
       PYTHON_VERSION: "3.6.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.7.0"
+      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\\Python37
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.7.0"
+      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\\Python37-x64
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.7.0"
+      SHAPELY_VER: "1.6.4.post2"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python38
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "32"
-      SHAPELY_VER: "1.7.0"
+      SHAPELY_VER: ""
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python38-x64
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "64"
-      SHAPELY_VER: "1.7.0"
+      SHAPELY_VER: ""
       SKIPPABLE: "false"
 
 platform:
