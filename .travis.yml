@@ -40,7 +40,7 @@ jobs:
   allow_failures:
     # PR can be deemed okay without waiting for OSX job to finish whole job,
     # except on release branches
-    - if: type = pull_request AND NOT branch =~ /^v?\d+(\.\d+)+$/
+    - if: type = pull_request AND NOT branch =~ /^v?\d+(\.[x\d]+)+$/
       os: osx
 
   include:
@@ -90,7 +90,7 @@ jobs:
         - USE_OLDEST_DEPS="false"
 
     # Only run on release branches
-    - if: branch =~ /^v?\d+(\.\d+)+$/
+    - if: branch =~ /^v?\d+(\.[x\d]+)+$/
       name: "Python 3.7.3 on macOS 10.14"
       os: osx
       osx_image: xcode10.2
