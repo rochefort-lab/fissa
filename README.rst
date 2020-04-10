@@ -1,4 +1,4 @@
-|Gitter| |PyPI badge| |Travis| |Documentation| |Codecov| |Coveralls| |Downloads|
+|Gitter| |PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Coveralls| |Downloads|
 
 
 FISSA
@@ -257,6 +257,9 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
    :target: https://travis-ci.org/rochefort-lab/fissa
    :alt: Travis Build Status
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/n694frm31qcv29j0/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/scottclowe/rochefort-lab-fissa/branch/master
+   :alt: AppVeyor Build Status
 .. |Documentation| image:: https://readthedocs.org/projects/fissa/badge/?version=latest
    :target: https://fissa.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
