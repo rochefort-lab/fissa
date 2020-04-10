@@ -465,10 +465,10 @@ after_success:
   # reliable and we don't want the CI to report a failure just because the
   # coverage report wasn't published.
   - if [ "$TRAVIS" = "true" ] && [ "$SHIPPABLE" != "true" ]; then
-        $PYTHONCMD -m pip install coveralls;
-        travis_retry coveralls || echo "Coveralls push failed";
         $PYTHONCMD -m pip install codecov;
         travis_retry codecov || echo "Codecov push failed";
+        $PYTHONCMD -m pip install coveralls;
+        travis_retry coveralls || echo "Coveralls push failed";
     fi;
 
 ###############################################################################
