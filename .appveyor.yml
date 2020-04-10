@@ -163,7 +163,12 @@ install:
   - ps: ls "C:/GDAL"
 
   # Show current directory contents
+  - ECHO "Current directory:"
   - ps: ls
+
+  # Show PATH variable
+  - ECHO "PATH:"
+  - ECHO "%PATH%"
 
   # Install the build dependencies of the project. If some dependencies contain
   # compiled extensions and are not provided as pre-built wheel packages,
