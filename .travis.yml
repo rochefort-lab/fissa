@@ -33,10 +33,21 @@ env:
   global:
     # Set this to be python, python2, or python3 etc as appropriate.
     - PYTHONCMD="python"
-    # Set documentation building option to always be enabled
-    # If you only want to do this some of the time, set it with env above.
+    # Whether to test with oldest supported dependencies.
+    # Values are "true", "false".
+    - USE_OLDEST_DEPS="false"
+    # Whether to build documentation.
+    # Values are "true", "false".
     - BUILD_DOCS="true"
+    # Whether to test to see if the notebooks run.
+    # Values are "true", "false".
+    - TEST_NOTEBOOKS="true"
     # Set flag for whether to use a conda environment
+    # values can be:
+    # "", "false":  conda not used
+    # "env": conda used to make environment, then pip used to install deps
+    # "numpy": conda used for numpy and scipy, pip used for everything else
+    # "full": conda used to install every dependency available, pip otherwise
     - USE_CONDA="false"
     # Set cache location for pyenv virtualenv on OSX
     - PYENV_VIRTUALENV_CACHE_PATH="$HOME/Library/Caches/PyenvVirtualenv"
@@ -52,39 +63,26 @@ jobs:
 
   include:
     - python: "2.7"
-      env:
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
     - python: "2.7"
       env:
-        - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="true"
 
     - python: "3.5"
-      env:
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
     - python: "3.5"
       env:
-        - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="true"
 
     - python: "3.6"
-      env:
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
     - python: "3.7"
       env:
         - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
 
     - python: "3.8"
       env:
         - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
 
     # OSX --------------------------------
     - name: "Python 2.7.17 on macOS 10.14"
@@ -94,8 +92,6 @@ jobs:
       env:
         - PYTHONCMD="python2"
         - TRAVIS_PYTHON_VERSION="2.7.17"
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
     - name: "Python 2.7.17 [oldest] on macOS 10.14"
       os: osx
@@ -104,7 +100,6 @@ jobs:
       env:
         - PYTHONCMD="python2"
         - TRAVIS_PYTHON_VERSION="2.7.17"
-        - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="true"
 
     - name: "Python 3.7.5 on macOS 10.14"
@@ -115,7 +110,6 @@ jobs:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.7.5"
         - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
 
     - name: "Python 3.5.9 on macOS 10.14"
       os: osx
@@ -124,8 +118,6 @@ jobs:
       env:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.5.9"
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
     - name: "Python 3.5.9 [oldest] on macOS 10.14"
       os: osx
@@ -134,7 +126,6 @@ jobs:
       env:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.5.9"
-        - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="true"
 
     - name: "Python 3.6.10 on macOS 10.14"
@@ -144,8 +135,6 @@ jobs:
       env:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.6.10"
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
     - name: "Python 3.8.2 on macOS 10.14"
       os: osx
@@ -155,7 +144,6 @@ jobs:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.8.2"
         - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
 
 ###############################################################################
 # Setup the environment before installing
