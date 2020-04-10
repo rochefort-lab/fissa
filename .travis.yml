@@ -378,10 +378,13 @@ install:
     cat .requirements_first.txt;
     $PYTHONCMD -m pip install -r .requirements_first.txt;
   # Install required packages listed in requirements.txt. We install this
-  # with the upgrade ('-U') flag to ensure we have the most recent version of
+  # with the upgrade flag to ensure we have the most recent version of
   # the dependency which is compatible with the specification.
-  - $PYTHONCMD -m pip install --no-deps --upgrade -r requirements_all.txt;
-    $PYTHONCMD -m pip install -r requirements_all.txt;
+  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
+        $PYTHONCMD -m pip install -r requirements_all.txt;
+    else
+        $PYTHONCMD -m pip install --upgrade -r requirements_all.txt;
+    fi;
   # ---------------------------------------------------------------------------
   # Install our own package
   - $PYTHONCMD setup.py develop
