@@ -388,6 +388,8 @@ script:
   # Test the notebooks
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
         $PYTHONCMD -m pytest --nbsmoke-run ./examples/;
+    fi;
+  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
         $PYTHONCMD -m pytest --nbsmoke-lint ./examples/;
     fi;
 
