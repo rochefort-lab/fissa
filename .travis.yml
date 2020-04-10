@@ -264,7 +264,8 @@ install:
   # or all packages which couldn't be installed with conda if we were using it.
   # Do numpy and scipy requirements first, because some packages need them
   # in order for the pip install to complete.
-  - sed -n '/^\(num\|sci\)py\([!<>=~ ]\|$\)/p' requirements_all.txt > .requirements_first.txt;
+  - sed -n -e '/^numpy\([!<>=~ $]\)/p' requirements.txt > .requirements_first.txt;
+    sed -n -e '/^scipy\([!<>=~ $]\)/p' requirements.txt >> .requirements_first.txt;
     cat .requirements_first.txt;
     $PYTHONCMD -m pip install -r .requirements_first.txt;
   # Install required packages listed in requirements.txt. We install this
