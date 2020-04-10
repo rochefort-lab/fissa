@@ -143,23 +143,25 @@ before_install:
     PYVER="$($PYTHONCMD --version 2>&1)";
     PYVER=${PYVER#Python };
     echo "Current Python version... $PYVER";
-    echo "We want Python version... $TRAVIS_PYTHON_VERSION";
-    if [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]]; then
-        echo "Correct python currently in use";
-    elif [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
-        echo "We were planning to use a conda environment anyway";
+    if [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
+        echo "We were planning to use a conda environment anyway.";
+    elif [[ "$USE_BREW" == "true" ]]; then
+        echo "We were planning to use a pyenv virtualenv environment via brew anyway.";
+    elif [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]]; then
+        USE_VENV="true";
+        echo "Correct python currently in use, but we will make a new virtualenv for it.";
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         USE_BREW="true";
-        echo "We are on OSX and will use a pyenv virtualenv environment via brew";
+        echo "We are on OSX and will use a pyenv virtualenv environment via brew.";
     else
         USE_CONDA="env";
-        echo "We will use a conda environment to install the right python version";
+        echo "We will use a conda environment to install the right python version.";
     fi;
   # ---------------------------------------------------------------------------
   # Install python with brew on OSX
   # https://github.com/yyuu/pyenv/wiki#suggested-build-environment
   - |
-    if [[ "$USE_BREW" == "true" ]]; then
+    if [[ "$USE_BREW" == "true" && "$TRAVIS_OS_NAME" == "osx" ]]; then
         echo "Installing python with brew and pyenv-virtualenv on Mac OSX";
         export HOMEBREW_NO_INSTALL_CLEANUP=1;
         export HOMEBREW_NO_AUTO_UPDATE=1;
@@ -174,6 +176,16 @@ before_install:
         export PATH="$PYENV_ROOT/versions/test-environment/bin:$PATH";
         PYTHONCMD=python;
     fi;
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Make a new python environment, to ensure there are no site-packages
+  - |
+    if [[ "$USE_VENV" == "true" ]]; then
+        rm -rf ~/test-environment;
+        $PYTHONCMD -m pip install virtualenv;
+        $PYTHONCMD -m virtualenv -p "$PYTHONCMD" ~/test-environment;
+        source ~/test-environment/bin/activate;
+    fi;
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Install conda and set up conda environment
   # The following is based on Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
