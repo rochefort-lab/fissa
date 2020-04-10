@@ -135,10 +135,10 @@ before_install:
   # Undo swapping any requirements which say version>=, since they are for
   # our environment markers.
   - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
-      for FILE in *requirements*.txt; do
-          sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
-          sed -e 's/version\s*~=/version>=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
-      done;
+        for FILE in *requirements*.txt; do
+            sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+            sed -e 's/version\s*~=/version>=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+        done;
     fi;
   # ---------------------------------------------------------------------------
   # Install conda and set up conda environment
@@ -150,26 +150,26 @@ before_install:
   # - Remove test environment from conda, if it's still there from last time
   # - Update conda
   - if [[ "$USE_CONDA" == "true" ]]; then
-      mkdir -p $HOME/Downloads;
-      if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh;
-      else
-        MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh;
-      fi;
-      travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/miniconda.sh";
+        mkdir -p $HOME/Downloads;
+        if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+            MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh;
+        else
+            MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh;
+        fi;
+        travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/miniconda.sh";
 
-      if [ ! -d "$HOME/miniconda/bin" ]; then
-        if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
-        bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
-      fi;
-      export PATH="$HOME/miniconda/bin:$PATH";
-      hash -r;
-      conda config --set always_yes yes --set changeps1 no;
-      conda config --add channels conda-forge anaconda;
+        if [ ! -d "$HOME/miniconda/bin" ]; then
+            if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
+            bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
+        fi;
+        export PATH="$HOME/miniconda/bin:$PATH";
+        hash -r;
+        conda config --set always_yes yes --set changeps1 no;
+        conda config --add channels conda-forge anaconda;
 
-      conda remove -n test-environment --all || echo "No test-environment to remove";
+        conda remove -n test-environment --all || echo "No test-environment to remove";
 
-      travis_retry conda update -q conda;
+        travis_retry conda update -q conda;
     fi;
   # Useful for debugging any issues with conda
   - conda info -a  || echo "No conda"
@@ -202,8 +202,7 @@ before_install:
   # Create the conda environment with pip, numpy and scipy installed (if they
   # are in requirements.txt)
   - if [[ "$USE_CONDA" == "true" ]]; then
-      conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-        pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+        conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
     fi;
   # If you get an error from this command which looks like this:
   #   Error: Unsatisfiable package specifications.
@@ -240,14 +239,14 @@ install:
   - cat requirements.txt requirements-dev.txt > requirements_all.txt
   # Conditionally install the packages which are needed for building docs
   - if [[ "$BUILD_DOCS" == "true" ]]; then
-      cat requirements_docs.txt >> requirements_all.txt;
+        cat requirements_docs.txt >> requirements_all.txt;
     fi
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      export MPLBACKEND="agg";
-      cat requirements_plots.txt >> requirements_all.txt;
-      echo "sima" >> requirements_all.txt;
+        export MPLBACKEND="agg";
+        cat requirements_plots.txt >> requirements_all.txt;
+        echo "sima" >> requirements_all.txt;
     fi
   # Show the resulting list of packages
   - cat requirements_all.txt;
@@ -255,9 +254,9 @@ install:
   # If we are using a conda environment, install as much as we can in conda
   # Anything we can't install into conda will be installed with pip later
   - if [[ "$USE_CONDA" == "true" ]]; then
-      while read REQUIREMENT;
-        do conda install $REQUIREMENT || echo "$REQUIREMENT not on conda";
-      done < requirements_all.txt;
+        while read REQUIREMENT;
+            do conda install $REQUIREMENT || echo "$REQUIREMENT not on conda";
+        done < requirements_all.txt;
     fi;
   # ---------------------------------------------------------------------------
   # Installation with pip will handle all packages if we aren't using conda,
@@ -294,9 +293,9 @@ before_script:
   # ---------------------------------------------------------------------------
   # Set up folders for test results on Shippable
   - if [ "$SHIPPABLE" = "true" ]; then
-      rm -fr shippable;
-      mkdir -p shippable/testresults;
-      mkdir -p shippable/codecoverage;
+        rm -fr shippable;
+        mkdir -p shippable/testresults;
+        mkdir -p shippable/codecoverage;
     fi;
 
 ###############################################################################
@@ -304,22 +303,22 @@ before_script:
 script:
   - $PYTHONCMD --version;
     if [[ "$NUMPY_REQUIREMENT" != "" ]]; then
-      $PYTHONCMD -c "import numpy; print('numpy %s' % numpy.__version__)";
+        $PYTHONCMD -c "import numpy; print('numpy %s' % numpy.__version__)";
     fi;
     if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
-      $PYTHONCMD -c "import scipy; print('scipy %s' % scipy.__version__)";
+        $PYTHONCMD -c "import scipy; print('scipy %s' % scipy.__version__)";
     fi;
   # ---------------------------------------------------------------------------
   # Test the main code base
   - $PYTHONCMD -m pytest --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Build the documentation
   - if [[ "$BUILD_DOCS" == "true" ]]; then
-      make -C docs html;
+        make -C docs html;
     fi;
   # Test the notebooks
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      $PYTHONCMD -m pytest --nbsmoke-run ./examples/;
-      $PYTHONCMD -m pytest --nbsmoke-lint ./examples/;
+        $PYTHONCMD -m pytest --nbsmoke-run ./examples/;
+        $PYTHONCMD -m pytest --nbsmoke-lint ./examples/;
     fi;
 
 ###############################################################################
@@ -333,10 +332,10 @@ after_script:
   # ---------------------------------------------------------------------------
   # Move results and coverage files into appropriate places
   - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
-      mv testresults.xml shippable/testresults/;
+        mv testresults.xml shippable/testresults/;
     fi;
     if [ "$SHIPPABLE" = "true" ] && [ -f coverage.xml ]; then
-      cp coverage.xml shippable/codecoverage/;
+        cp coverage.xml shippable/codecoverage/;
     fi;
 
 ###############################################################################
@@ -351,10 +350,10 @@ after_success:
   # reliable and we don't want the CI to report a failure just because the
   # coverage report wasn't published.
   - if [ "$TRAVIS" = "true" ] && [ "$SHIPPABLE" != "true" ]; then
-      $PYTHONCMD -m pip install coveralls;
-      travis_retry coveralls || echo "Coveralls push failed";
-      $PYTHONCMD -m pip install codecov;
-      travis_retry codecov || echo "Codecov push failed";
+        $PYTHONCMD -m pip install coveralls;
+        travis_retry coveralls || echo "Coveralls push failed";
+        $PYTHONCMD -m pip install codecov;
+        travis_retry codecov || echo "Codecov push failed";
     fi;
 
 ###############################################################################
@@ -370,7 +369,7 @@ before_archive:
   # artifacts addon (or do something else with it). See here for details
   # https://docs.travis-ci.com/user/uploading-artifacts/
   - if [ "$SHIPPABLE" = "true" ] && [ -f environment.yml ]; then
-      cp environment.yml shippable/;
+        cp environment.yml shippable/;
     fi;
 
 ###############################################################################
