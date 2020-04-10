@@ -174,26 +174,26 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
-  - "%CMD_IN_ENV% pip install .[dev]"
-  - IF "%BUILD_DOCS%"=="true" ( %CMD_IN_ENV% pip install .[docs] )
+  - "%CMD_IN_ENV% python -m pip install .[dev]"
+  - IF "%BUILD_DOCS%"=="true" ( %CMD_IN_ENV% python -m pip install .[docs] )
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
   - IF "%TEST_NOTEBOOKS%"=="true" ( SET "MPLBACKEND=agg" )
-  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% pip install .[plotting] )
-  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% pip install sima )
+  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% python -m pip install .[plotting] )
+  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% python -m pip install sima )
 
 build: false
 
 test_script:
   # Run the project tests and store results in testresults.xml log
-  - "%CMD_IN_ENV% py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml"
+  - "%CMD_IN_ENV% python -m pytest --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml"
   # Check documentation can be built
   - cd docs
   - IF "%BUILD_DOCS%"=="true" ( make.bat html )
   - cd ..
   # Check notebooks can be run
-  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% py.test --nbsmoke-run ./examples/ )
-  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% py.test --nbsmoke-lint ./examples/ )
+  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% python -m pytest --nbsmoke-run ./examples/ )
+  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% python -m pytest --nbsmoke-lint ./examples/ )
 
 on_success:
   # Push coverage reports
