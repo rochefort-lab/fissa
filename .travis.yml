@@ -127,14 +127,6 @@ before_install:
   - ls -l /usr/local/bin/python*
   - $PYTHONCMD --version || echo "No $PYTHONCMD installed"
   # ---------------------------------------------------------------------------
-  # Check which versions of numpy and scipy we are using
-  - if [ -f requirements.txt ]; then
-      NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
-      echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
-      SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
-      echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
-    fi;
-  # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
   # Undo swapping any requirements which say version>=, since they are for
@@ -146,10 +138,28 @@ before_install:
         done;
     fi;
   # ---------------------------------------------------------------------------
+  # Check whether the python version we are using matches the one we want
+  - PYVER="";
+    PYVER="$($PYTHONCMD --version 2>&1)";
+    PYVER=${PYVER#Python };
+    echo "Current Python version... $PYVER";
+    echo "We want Python version... $TRAVIS_PYTHON_VERSION";
+    if [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]]; then
+        echo "Correct python currently in use";
+    elif [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
+        echo "We were planning to use a conda environment anyway";
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        USE_BREW="true";
+        echo "We are on OSX and will use a pyenv virtualenv environment via brew";
+    else
+        USE_CONDA="env";
+        echo "We will use a conda environment to install the right python version";
+    fi;
+  # ---------------------------------------------------------------------------
   # Install python with brew on OSX
   # https://github.com/yyuu/pyenv/wiki#suggested-build-environment
   - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$USE_CONDA" != "true" ]]; then
+    if [[ "$USE_BREW" == "true" ]]; then
         echo "Installing python with brew and pyenv-virtualenv on Mac OSX";
         export HOMEBREW_NO_INSTALL_CLEANUP=1;
         export HOMEBREW_NO_AUTO_UPDATE=1;
@@ -162,6 +172,7 @@ before_install:
         pyenv virtualenv "$TRAVIS_PYTHON_VERSION" test-environment;
         pyenv activate test-environment;
         export PATH="$PYENV_ROOT/versions/test-environment/bin:$PATH";
+        PYTHONCMD=python;
     fi;
   # Install conda and set up conda environment
   # The following is based on Minicoda's how-to Travis page
@@ -171,7 +182,8 @@ before_install:
   # - Add conda to the path and automatically say yes to any check from conda
   # - Remove test environment from conda, if it's still there from last time
   # - Update conda
-  - if [[ "$USE_CONDA" == "true" ]]; then
+  - |
+    if [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
         mkdir -p $HOME/Downloads;
         if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
             MINICONDA_FNAME="Miniconda2-latest-Linux-x86_64.sh";
@@ -205,27 +217,38 @@ before_install:
   # possible requirement when scipy is being installed. The version of numpy
   # we end up must still satisfy the original requirement.txt setting, and
   # be from around the time of the oldest supported scipy release.
-  - if [[ "$USE_CONDA" == "true" ]] && [[ "$USE_OLDEST_DEPS" == "true" ]]; then
-      if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
-          SCIPY_VERSION="$(bash
-              ./.ci/conda_min_version.sh
-              "$SCIPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
-          if [[ "$SCIPY_VERSION" != "" ]]; then
-            SCIPY_REQUIREMENT="scipy==$SCIPY_VERSION";
-          fi;
-      elif [[ "$NUMPY_REQUIREMENT" != "" ]]; then
-          NUMPY_VERSION="$(bash
-              ./.ci/conda_min_version.sh
-              "$NUMPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
-          if [[ "$NUMPY_VERSION" != "" ]]; then
-            NUMPY_REQUIREMENT="numpy==$NUMPY_VERSION";
-          fi;
-      fi;
+  - |
+    if [[ "$USE_CONDA" == "full" ]] || [[ "$USE_CONDA" == "numpy" ]]; then
+        if [ -f requirements.txt ]; then
+            NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
+            echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
+            SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
+            echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
+        fi;
+        if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
+            if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
+                SCIPY_VERSION="$(bash
+                    ./.ci/conda_min_version.sh
+                    "$SCIPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+                if [[ "$SCIPY_VERSION" != "" ]]; then
+                SCIPY_REQUIREMENT="scipy==$SCIPY_VERSION";
+                fi;
+            elif [[ "$NUMPY_REQUIREMENT" != "" ]]; then
+                NUMPY_VERSION="$(bash
+                    ./.ci/conda_min_version.sh
+                    "$NUMPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+                if [[ "$NUMPY_VERSION" != "" ]]; then
+                    NUMPY_REQUIREMENT="numpy==$NUMPY_VERSION";
+                fi;
+            fi;
+        fi;
     fi;
   # Create the conda environment with pip, numpy and scipy installed (if they
   # are in requirements.txt)
-  - if [[ "$USE_CONDA" == "true" ]]; then
+  - if [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
         conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+        source activate test-environment;
+        PYTHONCMD=python;
     fi;
   # If you get an error from this command which looks like this:
   #   Error: Unsatisfiable package specifications.
@@ -250,8 +273,20 @@ before_install:
   # update the requirements.txt file to have 'scipy>=0.14.0' instead of
   # 'scipy>=0.12.0'.
   #
-  # Activate the test environment
-  - if [[ "$USE_CONDA" == "true" ]]; then source activate test-environment; fi;
+  # ---------------------------------------------------------------------------
+  # Check whether the python version we are using matches the one we want
+  # Fail the build if it doesn't match
+  - |
+    PYVER="$($PYTHONCMD --version 2>&1)";
+    PYVER=${PYVER#Python };
+    echo "Current Python version... $PYVER";
+    echo "We want Python version... $TRAVIS_PYTHON_VERSION";
+    if [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]]; then
+        echo "Python version acceptable. Continuing job.";
+    else
+        echo "Python version not acceptable. Exiting job.";
+    fi;
+    [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]];
 
 ###############################################################################
 # install requirements
@@ -276,7 +311,7 @@ install:
   # ---------------------------------------------------------------------------
   # If we are using a conda environment, install as much as we can in conda
   # Anything we can't install into conda will be installed with pip later
-  - if [[ "$USE_CONDA" == "true" ]]; then
+  - if [[ "$USE_CONDA" == "full" ]]; then
         while read REQUIREMENT;
             do conda install $REQUIREMENT || echo "$REQUIREMENT not on conda";
         done < requirements_all.txt;
