@@ -93,7 +93,7 @@ jobs:
       language: shell
       env:
         - PYTHONCMD="python2"
-        - TRAVIS_PYTHON_VERSION="2.7"
+        - TRAVIS_PYTHON_VERSION="2.7.17"
         - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="false"
 
@@ -103,17 +103,57 @@ jobs:
       language: shell
       env:
         - PYTHONCMD="python2"
-        - TRAVIS_PYTHON_VERSION="2.7"
+        - TRAVIS_PYTHON_VERSION="2.7.17"
         - TEST_NOTEBOOKS="true"
         - USE_OLDEST_DEPS="true"
 
-    - name: "Python 3.7.7 on macOS 10.14"
+    - name: "Python 3.7.5 on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
       env:
         - PYTHONCMD="python3"
-        - TRAVIS_PYTHON_VERSION="3.7"
+        - TRAVIS_PYTHON_VERSION="3.7.5"
+        - TEST_NOTEBOOKS="false"
+        - USE_OLDEST_DEPS="false"
+
+    - name: "Python 3.5.9 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - PYTHONCMD="python3"
+        - TRAVIS_PYTHON_VERSION="3.5.9"
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - name: "Python 3.5.9 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - PYTHONCMD="python3"
+        - TRAVIS_PYTHON_VERSION="3.5.9"
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="true"
+
+    - name: "Python 3.6.10 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - PYTHONCMD="python3"
+        - TRAVIS_PYTHON_VERSION="3.6.10"
+        - TEST_NOTEBOOKS="true"
+        - USE_OLDEST_DEPS="false"
+
+    - name: "Python 3.8.2 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - PYTHONCMD="python3"
+        - TRAVIS_PYTHON_VERSION="3.8.2"
         - TEST_NOTEBOOKS="false"
         - USE_OLDEST_DEPS="false"
 
