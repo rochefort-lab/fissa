@@ -32,7 +32,8 @@ cache:
 env:
   global:
     # Set this to be python, python2, or python3 etc as appropriate.
-    - PYTHONCMD="python"
+    # If it is empty, it is automatically determined.
+    - PYTHONCMD=""
     # Whether to test with oldest supported dependencies.
     # Values are "true", "false" or "".
     - USE_OLDEST_DEPS=""
@@ -71,7 +72,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python2"
         - TRAVIS_PYTHON_VERSION="2.7.17"
 
     - name: "Python 2.7.17 [oldest, no sima] on macOS 10.14"
@@ -79,7 +79,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python2"
         - TRAVIS_PYTHON_VERSION="2.7.17"
         - USE_OLDEST_DEPS="true"
         - USE_SIMA="false"
@@ -89,7 +88,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.7.5"
         - USE_SIMA="false"
 
@@ -99,7 +97,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.5.9"
         - USE_OLDEST_DEPS="true"
         - USE_SIMA="false"
@@ -109,7 +106,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.5.9"
 
     - name: "Python 3.6.10 on macOS 10.14"
@@ -117,7 +113,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.6.10"
 
     - name: "Python 3.8.2 [no sima] on macOS 10.14"
@@ -125,7 +120,6 @@ jobs:
       osx_image: xcode11.13
       language: shell
       env:
-        - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.8.2"
         - USE_SIMA="false"
 
@@ -158,6 +152,18 @@ jobs:
 before_install:
   # Remember the directory where our repository to test is located
   - REPOPATH="$(pwd)" && pwd
+  # ---------------------------------------------------------------------------
+  # Automatically determine python executable
+  - |
+    if [[ "$PYTHONCMD" != "" ]]; then
+        :
+    elif "$TRAVIS_OS_NAME" == "linux" ]]; then
+        PYTHONCMD="python";
+    elif [[ "${TRAVIS_PYTHON_VERSION}." == "2."* ]]; then
+        PYTHONCMD="python2";
+    else
+        PYTHONCMD="python3";
+    fi;
   # ---------------------------------------------------------------------------
   # Check which python versions are pre-installed
   - ls -l /usr/local/bin/python*
