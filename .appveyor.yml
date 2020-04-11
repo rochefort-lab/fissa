@@ -2,6 +2,7 @@ image: Visual Studio 2015
 
 cache:
   - '%LOCALAPPDATA%\pip\Cache'
+  - '%LOCALAPPDATA%\gdal'
 
 environment:
   global:
@@ -145,14 +146,21 @@ install:
   # Install GEOS
   - ps: mkdir C:\build | out-null
   - ps: mkdir C:\gdal | out-null
+  - if not exist "%LOCALAPPDATA%\gdal" mkdir %LOCALAPPDATA%\gdal
 
   - IF "%PYTHON_ARCH%"=="32" (
-      curl %GIS_URL_ROOT%%GIS_INTERNALS% --output gdalbin.zip &&
-      7z x gdalbin.zip -oC:\gdal
+        7z x %LOCALAPPDATA%\gdal\gdalbin.zip -oC:\gdal ||
+        (
+            curl %GIS_URL_ROOT%%GIS_INTERNALS% --output %LOCALAPPDATA%\gdal\gdalbin.zip &&
+            7z x %LOCALAPPDATA%\gdal\gdalbin.zip -oC:\gdal
+        )
     )
   - IF "%PYTHON_ARCH%"=="32" (
-      curl %GIS_URL_ROOT%%GIS_INTERNALS_LIBS% --output gdallibs.zip &&
-      7z x gdallibs.zip -oC:\gdal
+        7z x %LOCALAPPDATA%\gdal\gdallibs.zip -oC:\gdal ||
+        (
+            curl %GIS_URL_ROOT%%GIS_INTERNALS_LIBS% --output %LOCALAPPDATA%\gdal\gdallibs.zip &&
+            7z x %LOCALAPPDATA%\gdal\gdallibs.zip -oC:\gdal
+        )
     )
   - SET "PATH=C:\gdal;C:\gdal\bin;C:\gdal\data;C:\gdal\bin\gdal\apps;%PATH%"
   - SET "GDAL_DATA=C:\gdal\bin\gdal-data"
