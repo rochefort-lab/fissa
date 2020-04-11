@@ -42,6 +42,7 @@ env:
     # Whether to test to see if the notebooks run.
     # Values are "true", "false" or "".
     - TEST_NOTEBOOKS="true"
+    - USE_SIMA="true"
     # Set flag for whether to use a conda environment
     # values can be:
     # "" or "false":  conda not used
@@ -89,7 +90,7 @@ jobs:
       env:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.7.5"
-        - TEST_NOTEBOOKS="false"
+        - USE_SIMA="false"
 
     # Python versions which need to be installed
     - name: "Python 3.5.9 [oldest] on macOS 10.14"
@@ -124,13 +125,13 @@ jobs:
       env:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.8.2"
-        - TEST_NOTEBOOKS="false"
+        - USE_SIMA="false"
 
     # Ubuntu -------------------------------------
     # All versions pre-installed
     - python: "3.8"
       env:
-        - TEST_NOTEBOOKS="false"
+        - USE_SIMA="false"
 
     - python: "2.7"
       env:
@@ -148,7 +149,7 @@ jobs:
 
     - python: "3.7"
       env:
-        - TEST_NOTEBOOKS="false"
+        - USE_SIMA="false"
 
 ###############################################################################
 # Setup the environment before installing
@@ -349,11 +350,16 @@ install:
     fi
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+  - |
+    if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
         export MPLBACKEND="agg";
         cat requirements_plots.txt >> requirements_all.txt;
-        echo "sima" >> requirements_all.txt;
-    fi
+        if [[ "$USE_SIMA" == "true" ]]; then
+            echo "sima" >> requirements_all.txt;
+        else
+            rm -f examples/*SIMA* examples/*sima*;
+        fi;
+    fi;
   # Show the resulting list of packages
   - cat requirements_all.txt;
   # ---------------------------------------------------------------------------
@@ -427,10 +433,10 @@ script:
         make -C docs html;
     fi;
   # Test the notebooks
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+  - if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
         $PYTHONCMD -m pytest --nbsmoke-run ./examples/;
     fi;
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
+  - if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
         $PYTHONCMD -m pytest --nbsmoke-lint ./examples/;
     fi;
 
