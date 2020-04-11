@@ -34,21 +34,21 @@ env:
     # Set this to be python, python2, or python3 etc as appropriate.
     - PYTHONCMD="python"
     # Whether to test with oldest supported dependencies.
-    # Values are "true", "false".
-    - USE_OLDEST_DEPS="false"
+    # Values are "true", "false" or "".
+    - USE_OLDEST_DEPS=""
     # Whether to build documentation.
-    # Values are "true", "false".
+    # Values are "true", "false" or "".
     - BUILD_DOCS="true"
     # Whether to test to see if the notebooks run.
-    # Values are "true", "false".
+    # Values are "true", "false" or "".
     - TEST_NOTEBOOKS="true"
     # Set flag for whether to use a conda environment
     # values can be:
-    # "", "false":  conda not used
+    # "" or "false":  conda not used
     # "env": conda used to make environment, then pip used to install deps
     # "numpy": conda used for numpy and scipy, pip used for everything else
     # "full": conda used to install every dependency available, pip otherwise
-    - USE_CONDA="false"
+    - USE_CONDA=""
     # Set cache location for pyenv virtualenv on OSX
     - PYENV_VIRTUALENV_CACHE_PATH="$HOME/Library/Caches/PyenvVirtualenv"
 
