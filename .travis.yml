@@ -74,7 +74,7 @@ jobs:
         - PYTHONCMD="python2"
         - TRAVIS_PYTHON_VERSION="2.7.17"
 
-    - name: "Python 2.7.17 [oldest] on macOS 10.14"
+    - name: "Python 2.7.17 [oldest, no sima] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -82,8 +82,9 @@ jobs:
         - PYTHONCMD="python2"
         - TRAVIS_PYTHON_VERSION="2.7.17"
         - USE_OLDEST_DEPS="true"
+        - USE_SIMA="false"
 
-    - name: "Python 3.7.5 on macOS 10.14"
+    - name: "Python 3.7.5 [no sima] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -93,7 +94,7 @@ jobs:
         - USE_SIMA="false"
 
     # Python versions which need to be installed
-    - name: "Python 3.5.9 [oldest] on macOS 10.14"
+    - name: "Python 3.5.9 [oldest, no sima] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -101,6 +102,7 @@ jobs:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.5.9"
         - USE_OLDEST_DEPS="true"
+        - USE_SIMA="false"
 
     - name: "Python 3.5.9 on macOS 10.14"
       os: osx
@@ -118,7 +120,7 @@ jobs:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.6.10"
 
-    - name: "Python 3.8.2 on macOS 10.14"
+    - name: "Python 3.8.2 [no sima] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
