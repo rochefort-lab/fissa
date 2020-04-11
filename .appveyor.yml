@@ -14,6 +14,7 @@ environment:
     GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
     BUILD_DOCS: "true"
     TEST_NOTEBOOKS: "true"
+    USE_SIMA: "true"
 
   matrix:
 
@@ -41,19 +42,19 @@ environment:
     - PYTHON: C:\Python37-x64
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
-      TEST_NOTEBOOKS: "false"
+      USE_SIMA: "false"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python38
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "32"
-      TEST_NOTEBOOKS: "false"
+      USE_SIMA: "false"
       SKIPPABLE: "true"
 
     - PYTHON: C:\Python38-x64
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "64"
-      TEST_NOTEBOOKS: "false"
+      USE_SIMA: "false"
       SKIPPABLE: "false"
 
 platform:
@@ -178,7 +179,7 @@ install:
   # Also, tell matplotlib to use the agg backend and not X server
   - IF "%TEST_NOTEBOOKS%"=="true" ( SET "MPLBACKEND=agg" )
   - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% python -m pip install .[plotting] )
-  - IF "%TEST_NOTEBOOKS%"=="true" ( %CMD_IN_ENV% python -m pip install sima )
+  - IF "%USE_SIMA%"=="true" ( %CMD_IN_ENV% python -m pip install sima ) ELSE ( DEL examples\*SIMA* examples\*sima* )
 
 build: false
 
