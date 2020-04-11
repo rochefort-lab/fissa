@@ -152,15 +152,16 @@ before_install:
   - if [[ "$USE_CONDA" == "true" ]]; then
         mkdir -p $HOME/Downloads;
         if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-            MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh;
+            MINICONDA_FNAME="Miniconda2-latest-Linux-x86_64.sh";
         else
-            MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh;
+            MINICONDA_FNAME="Miniconda3-latest-Linux-x86_64.sh";
         fi;
-        travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/miniconda.sh";
+        MINICONDA_URL="https://repo.continuum.io/miniconda/$MINICONDA_FNAME";
+        travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/$MINICONDA_FNAME";
 
         if [ ! -d "$HOME/miniconda/bin" ]; then
             if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
-            bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
+            bash "$HOME/Downloads/$MINICONDA_FNAME" -b -p "$HOME/miniconda";
         fi;
         export PATH="$HOME/miniconda/bin:$PATH";
         hash -r;
