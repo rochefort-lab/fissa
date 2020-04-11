@@ -62,29 +62,9 @@ jobs:
       os: osx
 
   include:
-    - python: "2.7"
 
-    - python: "2.7"
-      env:
-        - USE_OLDEST_DEPS="true"
-
-    - python: "3.5"
-
-    - python: "3.5"
-      env:
-        - USE_OLDEST_DEPS="true"
-
-    - python: "3.6"
-
-    - python: "3.7"
-      env:
-        - TEST_NOTEBOOKS="false"
-
-    - python: "3.8"
-      env:
-        - TEST_NOTEBOOKS="false"
-
-    # OSX --------------------------------
+    # OSX ----------------------------------------
+    # Pre-installed python versions
     - name: "Python 2.7.17 on macOS 10.14"
       os: osx
       osx_image: xcode11.13
@@ -111,14 +91,7 @@ jobs:
         - TRAVIS_PYTHON_VERSION="3.7.5"
         - TEST_NOTEBOOKS="false"
 
-    - name: "Python 3.5.9 on macOS 10.14"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - PYTHONCMD="python3"
-        - TRAVIS_PYTHON_VERSION="3.5.9"
-
+    # Python versions which need to be installed
     - name: "Python 3.5.9 [oldest] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
@@ -127,6 +100,14 @@ jobs:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.5.9"
         - USE_OLDEST_DEPS="true"
+
+    - name: "Python 3.5.9 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - PYTHONCMD="python3"
+        - TRAVIS_PYTHON_VERSION="3.5.9"
 
     - name: "Python 3.6.10 on macOS 10.14"
       os: osx
@@ -143,6 +124,30 @@ jobs:
       env:
         - PYTHONCMD="python3"
         - TRAVIS_PYTHON_VERSION="3.8.2"
+        - TEST_NOTEBOOKS="false"
+
+    # Ubuntu -------------------------------------
+    # All versions pre-installed
+    - python: "3.8"
+      env:
+        - TEST_NOTEBOOKS="false"
+
+    - python: "2.7"
+      env:
+        - USE_OLDEST_DEPS="true"
+
+    - python: "2.7"
+
+    - python: "3.5"
+      env:
+        - USE_OLDEST_DEPS="true"
+
+    - python: "3.5"
+
+    - python: "3.6"
+
+    - python: "3.7"
+      env:
         - TEST_NOTEBOOKS="false"
 
 ###############################################################################
