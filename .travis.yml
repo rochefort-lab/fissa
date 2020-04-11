@@ -57,17 +57,12 @@ env:
 jobs:
   fast_finish: true
 
-  allow_failures:
-    # PR can be deemed okay without waiting for OSX job to finish whole job,
-    # except on release branches
-    - if: type = pull_request AND NOT branch =~ /^v?\d+(\.[x\d]+)+$/
-      os: osx
-
   include:
 
     # OSX ----------------------------------------
     # Pre-installed python versions
-    - name: "Python 2.7.17 on macOS 10.14"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 2.7.17 on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -92,7 +87,8 @@ jobs:
         - USE_SIMA="false"
 
     # Python versions which need to be installed
-    - name: "Python 3.5.9 [oldest, no sima] on macOS 10.14"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.5.9 [oldest, no sima] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -101,21 +97,24 @@ jobs:
         - USE_OLDEST_DEPS="true"
         - USE_SIMA="false"
 
-    - name: "Python 3.5.9 on macOS 10.14"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.5.9 on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
       env:
         - TRAVIS_PYTHON_VERSION="3.5.9"
 
-    - name: "Python 3.6.10 on macOS 10.14"
+    - if: type = cron AND branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.6.10 on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
       env:
         - TRAVIS_PYTHON_VERSION="3.6.10"
 
-    - name: "Python 3.8.2 [no sima] on macOS 10.14"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.8.2 [no sima] on macOS 10.14"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -143,7 +142,8 @@ jobs:
 
     - python: "3.6"
 
-    - python: "3.7"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      python: "3.7"
       env:
         - USE_SIMA="false"
 
