@@ -2,7 +2,6 @@ image: Visual Studio 2015
 
 cache:
   - '%LOCALAPPDATA%\pip\Cache'
-  - '%LOCALAPPDATA%\gdal'
 
 environment:
   global:
@@ -10,9 +9,6 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\.ci\\appveyor\\run_with_env.cmd"
-    GIS_URL_ROOT: "http://download.gisinternals.com/sdk/downloads/"
-    GIS_INTERNALS: "release-1911-gdal-mapserver.zip"
-    GIS_INTERNALS_LIBS: "release-1911-gdal-mapserver-libs.zip"
     BUILD_DOCS: "true"
     TEST_NOTEBOOKS: "true"
     USE_SIMA: "true"
@@ -142,32 +138,6 @@ install:
 
   # Upgrade to the latest version of pip, setuptools, wheel
   - "%CMD_IN_ENV% python -m pip install --upgrade pip setuptools wheel"
-
-  # Install GEOS
-  - ps: mkdir C:\build | out-null
-  - ps: mkdir C:\gdal | out-null
-  - if not exist "%LOCALAPPDATA%\gdal" mkdir %LOCALAPPDATA%\gdal
-
-  - IF "%PYTHON_ARCH%"=="32" (
-        7z x %LOCALAPPDATA%\gdal\gdalbin.zip -oC:\gdal ||
-        (
-            curl %GIS_URL_ROOT%%GIS_INTERNALS% --output %LOCALAPPDATA%\gdal\gdalbin.zip &&
-            7z x %LOCALAPPDATA%\gdal\gdalbin.zip -oC:\gdal
-        )
-    )
-  - IF "%PYTHON_ARCH%"=="32" (
-        7z x %LOCALAPPDATA%\gdal\gdallibs.zip -oC:\gdal ||
-        (
-            curl %GIS_URL_ROOT%%GIS_INTERNALS_LIBS% --output %LOCALAPPDATA%\gdal\gdallibs.zip &&
-            7z x %LOCALAPPDATA%\gdal\gdallibs.zip -oC:\gdal
-        )
-    )
-  - SET "PATH=C:\gdal;C:\gdal\bin;C:\gdal\data;C:\gdal\bin\gdal\apps;%PATH%"
-  - SET "GDAL_DATA=C:\gdal\bin\gdal-data"
-  - SET "PACKAGE_DATA=1"
-
-  - ECHO "Filesystem C:/GDAL:"
-  - ps: ls "C:/GDAL"
 
   # Show current directory contents
   - ECHO "Current directory:"
