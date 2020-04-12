@@ -24,81 +24,128 @@ cache:
     - $HOME/Library/Caches/pip
     # Cache our miniconda download.
     - $HOME/Downloads
+    # Cache OSX brew packages
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/Library/Caches/PyenvVirtualenv
 
 ###############################################################################
 env:
   global:
-    # Set documentation building option to always be enabled
-    # If you only want to do this some of the time, set it with env above.
+    # Set this to be python, python2, or python3 etc as appropriate.
+    # If it is empty, it is automatically determined.
+    - PYTHONCMD=""
+    # Whether to test with oldest supported dependencies.
+    # Values are "true", "false" or "".
+    - USE_OLDEST_DEPS=""
+    # Whether to build documentation.
+    # Values are "true", "false" or "".
     - BUILD_DOCS="true"
+    # Whether to test to see if the notebooks run.
+    # Values are "true", "false" or "".
+    - TEST_NOTEBOOKS="true"
+    - USE_SIMA="true"
     # Set flag for whether to use a conda environment
-    - USE_CONDA="false"
+    # values can be:
+    # "" or "false":  conda not used
+    # "env": conda used to make environment, then pip used to install deps
+    # "numpy": conda used for numpy and scipy, pip used for everything else
+    # "full": conda used to install every dependency available, pip otherwise
+    - USE_CONDA=""
+    # Set cache location for pyenv virtualenv on OSX
+    - PYENV_VIRTUALENV_CACHE_PATH="$HOME/Library/Caches/PyenvVirtualenv"
 
 jobs:
   fast_finish: true
 
-  allow_failures:
-    # PR can be deemed okay without waiting for OSX job to finish whole job,
-    # except on release branches
-    - if: type = pull_request AND NOT branch =~ /^v?\d+(\.\d+)+$/
-      os: osx
-
   include:
-    - python: "2.7"
-      env:
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
 
-    - python: "2.7"
+    # OSX ----------------------------------------
+    # Pre-installed python versions
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 2.7.17 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
       env:
-        - TEST_NOTEBOOKS="true"
+        - TRAVIS_PYTHON_VERSION="2.7.17"
+
+    - name: "Python 2.7.17 [oldest, no sima] on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - TRAVIS_PYTHON_VERSION="2.7.17"
         - USE_OLDEST_DEPS="true"
+        - USE_SIMA="false"
 
-    - python: "3.5"
+    - name: "Python 3.7.5 [no sima] on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
       env:
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
+        - TRAVIS_PYTHON_VERSION="3.7.5"
+        - USE_SIMA="false"
 
-    - python: "3.5"
+    # Python versions which need to be installed
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.5.9 [oldest, no sima] on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
       env:
-        - TEST_NOTEBOOKS="true"
+        - TRAVIS_PYTHON_VERSION="3.5.9"
         - USE_OLDEST_DEPS="true"
+        - USE_SIMA="false"
 
-    - python: "3.6"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.5.9 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
       env:
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
+        - TRAVIS_PYTHON_VERSION="3.5.9"
 
-    - python: "3.7"
+    - if: type = cron AND branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.6.10 on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
       env:
-        - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
+        - TRAVIS_PYTHON_VERSION="3.6.10"
 
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      name: "Python 3.8.2 [no sima] on macOS 10.14"
+      os: osx
+      osx_image: xcode11.13
+      language: shell
+      env:
+        - TRAVIS_PYTHON_VERSION="3.8.2"
+        - USE_SIMA="false"
+
+    # Ubuntu -------------------------------------
+    # All versions pre-installed
     - python: "3.8"
       env:
-        - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
+        - USE_SIMA="false"
 
-    # OSX --------------------------------
-    - name: "Python 3.6.5 on macOS 10.13"
-      os: osx
-      osx_image: xcode9.4
-      language: shell
+    - python: "2.7"
       env:
-        - TRAVIS_PYTHON_VERSION="3.6"
-        - TEST_NOTEBOOKS="true"
-        - USE_OLDEST_DEPS="false"
+        - USE_OLDEST_DEPS="true"
 
-    # Only run on release branches
-    - if: branch =~ /^v?\d+(\.\d+)+$/
-      name: "Python 3.7.3 on macOS 10.14"
-      os: osx
-      osx_image: xcode10.2
-      language: shell
+    - python: "2.7"
+
+    - python: "3.5"
       env:
-        - TRAVIS_PYTHON_VERSION="3.7"
-        - TEST_NOTEBOOKS="false"
-        - USE_OLDEST_DEPS="false"
+        - USE_OLDEST_DEPS="true"
+
+    - python: "3.5"
+
+    - python: "3.6"
+
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      python: "3.7"
+      env:
+        - USE_SIMA="false"
 
 ###############################################################################
 # Setup the environment before installing
@@ -106,25 +153,83 @@ before_install:
   # Remember the directory where our repository to test is located
   - REPOPATH="$(pwd)" && pwd
   # ---------------------------------------------------------------------------
-  # Check which versions of numpy and scipy we are using
-  - if [ -f requirements.txt ]; then
-      NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
-      echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
-      SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
-      echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
+  # Automatically determine python executable
+  - |
+    if [[ "$PYTHONCMD" != "" ]]; then
+        :
+    elif "$TRAVIS_OS_NAME" == "linux" ]]; then
+        PYTHONCMD="python";
+    elif [[ "${TRAVIS_PYTHON_VERSION}." == "2."* ]]; then
+        PYTHONCMD="python2";
+    else
+        PYTHONCMD="python3";
     fi;
+  # ---------------------------------------------------------------------------
+  # Check which python versions are pre-installed
+  - ls -l /usr/local/bin/python*
+  - $PYTHONCMD --version || echo "No $PYTHONCMD installed"
   # ---------------------------------------------------------------------------
   # If we want to run the tests using the oldest set of dependencies we
   # support, modify any *requirements*.txt files every '>=' becomes '=='.
   # Undo swapping any requirements which say version>=, since they are for
   # our environment markers.
-  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
-      for FILE in *requirements*.txt; do
-          sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
-          sed -e 's/version\s*~=/version>=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
-      done;
+  - |
+    if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
+        for FILE in *requirements*.txt; do
+            sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+            sed -e 's/version\s*~=/version>=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+        done;
     fi;
   # ---------------------------------------------------------------------------
+  # Check whether the python version we are using matches the one we want
+  - |
+    PYVER="";
+    PYVER="$($PYTHONCMD --version 2>&1)";
+    PYVER=${PYVER#Python };
+    echo "Current Python version... $PYVER";
+    if [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
+        echo "We were planning to use a conda environment anyway.";
+    elif [[ "$USE_BREW" == "true" ]]; then
+        echo "We were planning to use a pyenv virtualenv environment via brew anyway.";
+    elif [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]]; then
+        USE_VENV="true";
+        echo "Correct python currently in use, but we will make a new virtualenv for it.";
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        USE_BREW="true";
+        echo "We are on OSX and will use a pyenv virtualenv environment via brew.";
+    else
+        USE_CONDA="env";
+        echo "We will use a conda environment to install the right python version.";
+    fi;
+  # ---------------------------------------------------------------------------
+  # Install python with brew on OSX
+  # https://github.com/yyuu/pyenv/wiki#suggested-build-environment
+  - |
+    if [[ "$USE_BREW" == "true" && "$TRAVIS_OS_NAME" == "osx" ]]; then
+        echo "Installing python with brew and pyenv-virtualenv on Mac OSX";
+        export HOMEBREW_NO_INSTALL_CLEANUP=1;
+        export HOMEBREW_NO_AUTO_UPDATE=1;
+        brew update;
+        brew install openssl readline sqlite3 xz zlib pyenv pyenv-virtualenv;
+        brew upgrade pyenv;
+        pyenv install "$TRAVIS_PYTHON_VERSION";
+        export PYENV_ROOT="$HOME/.pyenv";
+        export PATH="$PYENV_ROOT/bin:$PATH";
+        pyenv virtualenv "$TRAVIS_PYTHON_VERSION" test-environment;
+        pyenv activate test-environment;
+        export PATH="$PYENV_ROOT/versions/test-environment/bin:$PATH";
+        PYTHONCMD=python;
+    fi;
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Make a new python environment, to ensure there are no site-packages
+  - |
+    if [[ "$USE_VENV" == "true" ]]; then
+        rm -rf ~/test-environment;
+        $PYTHONCMD -m pip install virtualenv;
+        $PYTHONCMD -m virtualenv -p "$PYTHONCMD" ~/test-environment;
+        source ~/test-environment/bin/activate;
+    fi;
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Install conda and set up conda environment
   # The following is based on Minicoda's how-to Travis page
   # http://conda.pydata.org/docs/travis.html
@@ -133,27 +238,29 @@ before_install:
   # - Add conda to the path and automatically say yes to any check from conda
   # - Remove test environment from conda, if it's still there from last time
   # - Update conda
-  - if [[ "$USE_CONDA" == "true" ]]; then
-      mkdir -p $HOME/Downloads;
-      if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh;
-      else
-        MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh;
-      fi;
-      travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/miniconda.sh";
+  - |
+    if [[ "$USE_CONDA" != "false" && "$USE_CONDA" != "" ]]; then
+        mkdir -p $HOME/Downloads;
+        if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+            MINICONDA_FNAME="Miniconda2-latest-Linux-x86_64.sh";
+        else
+            MINICONDA_FNAME="Miniconda3-latest-Linux-x86_64.sh";
+        fi;
+        MINICONDA_URL="https://repo.continuum.io/miniconda/$MINICONDA_FNAME";
+        travis_retry wget -c "$MINICONDA_URL" -O "$HOME/Downloads/$MINICONDA_FNAME";
 
-      if [ ! -d "$HOME/miniconda/bin" ]; then
-        if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
-        bash $HOME/Downloads/miniconda.sh -b -p "$HOME/miniconda";
-      fi;
-      export PATH="$HOME/miniconda/bin:$PATH";
-      hash -r;
-      conda config --set always_yes yes --set changeps1 no;
-      conda config --add channels conda-forge anaconda;
+        if [ ! -d "$HOME/miniconda/bin" ]; then
+            if [ -d "$HOME/miniconda" ]; then rm -r "$HOME/miniconda"; fi;
+            bash "$HOME/Downloads/$MINICONDA_FNAME" -b -p "$HOME/miniconda";
+        fi;
+        export PATH="$HOME/miniconda/bin:$PATH";
+        hash -r;
+        conda config --set always_yes yes --set changeps1 no;
+        conda config --add channels conda-forge anaconda;
 
-      conda remove -n test-environment --all || echo "No test-environment to remove";
+        conda remove -n test-environment --all || echo "No test-environment to remove";
 
-      travis_retry conda update -q conda;
+        travis_retry conda update -q conda;
     fi;
   # Useful for debugging any issues with conda
   - conda info -a  || echo "No conda"
@@ -166,28 +273,39 @@ before_install:
   # possible requirement when scipy is being installed. The version of numpy
   # we end up must still satisfy the original requirement.txt setting, and
   # be from around the time of the oldest supported scipy release.
-  - if [[ "$USE_CONDA" == "true" ]] && [[ "$USE_OLDEST_DEPS" == "true" ]]; then
-      if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
-          SCIPY_VERSION="$(bash
-              ./.ci/conda_min_version.sh
-              "$SCIPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
-          if [[ "$SCIPY_VERSION" != "" ]]; then
-            SCIPY_REQUIREMENT="scipy==$SCIPY_VERSION";
-          fi;
-      elif [[ "$NUMPY_REQUIREMENT" != "" ]]; then
-          NUMPY_VERSION="$(bash
-              ./.ci/conda_min_version.sh
-              "$NUMPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
-          if [[ "$NUMPY_VERSION" != "" ]]; then
-            NUMPY_REQUIREMENT="numpy==$NUMPY_VERSION";
-          fi;
-      fi;
+  - |
+    if [[ "$USE_CONDA" == "full" || "$USE_CONDA" == "numpy" ]]; then
+        if [ -f requirements.txt ]; then
+            NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
+            echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
+            SCIPY_REQUIREMENT="$(grep '^scipy\([!<>=~ ]\|$\)' requirements.txt)";
+            echo "SciPy requirement is '$SCIPY_REQUIREMENT'";
+        fi;
+        if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
+            if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
+                SCIPY_VERSION="$(bash
+                    ./.ci/conda_min_version.sh
+                    "$SCIPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+                if [[ "$SCIPY_VERSION" != "" ]]; then
+                SCIPY_REQUIREMENT="scipy==$SCIPY_VERSION";
+                fi;
+            elif [[ "$NUMPY_REQUIREMENT" != "" ]]; then
+                NUMPY_VERSION="$(bash
+                    ./.ci/conda_min_version.sh
+                    "$NUMPY_REQUIREMENT" "$TRAVIS_PYTHON_VERSION")";
+                if [[ "$NUMPY_VERSION" != "" ]]; then
+                    NUMPY_REQUIREMENT="numpy==$NUMPY_VERSION";
+                fi;
+            fi;
+        fi;
     fi;
   # Create the conda environment with pip, numpy and scipy installed (if they
   # are in requirements.txt)
-  - if [[ "$USE_CONDA" == "true" ]]; then
-      conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-        pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+  - |
+    if [[ "$USE_CONDA" != "false" && "$USE_CONDA" != "" ]]; then
+        conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+        source activate test-environment;
+        PYTHONCMD=python;
     fi;
   # If you get an error from this command which looks like this:
   #   Error: Unsatisfiable package specifications.
@@ -212,51 +330,76 @@ before_install:
   # update the requirements.txt file to have 'scipy>=0.14.0' instead of
   # 'scipy>=0.12.0'.
   #
-  # Activate the test environment
-  - if [[ "$USE_CONDA" == "true" ]]; then source activate test-environment; fi;
+  # ---------------------------------------------------------------------------
+  # Check whether the python version we are using matches the one we want
+  # Fail the build if it doesn't match
+  - |
+    PYVER="$($PYTHONCMD --version 2>&1)";
+    PYVER=${PYVER#Python };
+    echo "Current Python version... $PYVER";
+    echo "We want Python version... $TRAVIS_PYTHON_VERSION";
+    if [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]]; then
+        echo "Python version acceptable. Continuing job.";
+    else
+        echo "Python version not acceptable. Exiting job.";
+    fi;
+    [[ "${PYVER}." == "${TRAVIS_PYTHON_VERSION}."* ]];
 
 ###############################################################################
 # install requirements
 install:
+  # Update pip
+  - $PYTHONCMD -m pip install --upgrade pip
   # Make a list of all requirements
   - cat requirements.txt requirements-dev.txt > requirements_all.txt
   # Conditionally install the packages which are needed for building docs
   - if [[ "$BUILD_DOCS" == "true" ]]; then
-      cat requirements_docs.txt >> requirements_all.txt;
+        cat requirements_docs.txt >> requirements_all.txt;
     fi
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      export MPLBACKEND="agg";
-      cat requirements_plots.txt >> requirements_all.txt;
-      echo "sima" >> requirements_all.txt;
-    fi
+  - |
+    if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
+        export MPLBACKEND="agg";
+        cat requirements_plots.txt >> requirements_all.txt;
+        if [[ "$USE_SIMA" == "true" ]]; then
+            echo "sima" >> requirements_all.txt;
+        else
+            rm -f examples/*SIMA* examples/*sima*;
+        fi;
+    fi;
   # Show the resulting list of packages
   - cat requirements_all.txt;
   # ---------------------------------------------------------------------------
   # If we are using a conda environment, install as much as we can in conda
   # Anything we can't install into conda will be installed with pip later
-  - if [[ "$USE_CONDA" == "true" ]]; then
-      while read REQUIREMENT;
-        do conda install $REQUIREMENT || echo "$REQUIREMENT not on conda";
-      done < requirements_all.txt;
+  - |
+    if [[ "$USE_CONDA" == "full" ]]; then
+        while read REQUIREMENT;
+            do conda install $REQUIREMENT || echo "$REQUIREMENT not on conda";
+        done < requirements_all.txt;
     fi;
   # ---------------------------------------------------------------------------
   # Installation with pip will handle all packages if we aren't using conda,
   # or all packages which couldn't be installed with conda if we were using it.
   # Do numpy and scipy requirements first, because some packages need them
   # in order for the pip install to complete.
-  - sed -n '/^\(num\|sci\)py\([!<>=~ ]\|$\)/p' requirements_all.txt > .requirements_first.txt;
+  - |
+    sed -n -e '/^numpy\([!<>=~ $]\)/p' requirements.txt > .requirements_first.txt;
+    sed -n -e '/^scipy\([!<>=~ $]\)/p' requirements.txt >> .requirements_first.txt;
     cat .requirements_first.txt;
-    pip install -r .requirements_first.txt;
+    $PYTHONCMD -m pip install -r .requirements_first.txt;
   # Install required packages listed in requirements.txt. We install this
-  # with the upgrade ('-U') flag to ensure we have the most recent version of
+  # with the upgrade flag to ensure we have the most recent version of
   # the dependency which is compatible with the specification.
-  - pip install --no-deps --upgrade -r requirements_all.txt;
-    pip install -r requirements_all.txt;
+  - if [[ "$USE_OLDEST_DEPS" == "true" ]]; then
+        $PYTHONCMD -m pip install -r requirements_all.txt;
+    else
+        $PYTHONCMD -m pip install --upgrade -r requirements_all.txt;
+    fi;
   # ---------------------------------------------------------------------------
   # Install our own package
-  - python setup.py develop
+  - $PYTHONCMD setup.py develop
 
 ###############################################################################
 before_script:
@@ -264,45 +407,43 @@ before_script:
   - pwd
   # Check what python packages we have installed
   - conda info -a || echo "No conda"
-  - which python
-  - python --version
-  - which ipython || echo "No ipython found"
+  - $PYTHONCMD --version
   - conda env export > environment.yml && cat environment.yml || echo "No conda"
-  - pip freeze
+  - $PYTHONCMD -m pip freeze
   # ---------------------------------------------------------------------------
   # Remove any cached results files from previous build, if present
-  - rm -f testresults.xml;
-    rm -f coverage.xml;
-    rm -f .coverage;
+  - rm -f testresults.xml coverage.xml .coverage;
   # ---------------------------------------------------------------------------
   # Set up folders for test results on Shippable
   - if [ "$SHIPPABLE" = "true" ]; then
-      rm -fr shippable;
-      mkdir -p shippable/testresults;
-      mkdir -p shippable/codecoverage;
+        rm -fr shippable;
+        mkdir -p shippable/testresults;
+        mkdir -p shippable/codecoverage;
     fi;
 
 ###############################################################################
 # commands to run test scripts
 script:
-  - python --version;
+  - $PYTHONCMD --version;
     if [[ "$NUMPY_REQUIREMENT" != "" ]]; then
-      python -c "import numpy; print('numpy %s' % numpy.__version__)";
+        $PYTHONCMD -c "import numpy; print('numpy %s' % numpy.__version__)";
     fi;
     if [[ "$SCIPY_REQUIREMENT" != "" ]]; then
-      python -c "import scipy; print('scipy %s' % scipy.__version__)";
+        $PYTHONCMD -c "import scipy; print('scipy %s' % scipy.__version__)";
     fi;
   # ---------------------------------------------------------------------------
   # Test the main code base
-  - py.test --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+  - $PYTHONCMD -m pytest --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
   # Build the documentation
   - if [[ "$BUILD_DOCS" == "true" ]]; then
-      make -C docs html;
+        make -C docs html;
     fi;
   # Test the notebooks
-  - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
-      py.test --nbsmoke-run ./examples/;
-      py.test --nbsmoke-lint ./examples/;
+  - if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
+        $PYTHONCMD -m pytest --nbsmoke-run ./examples/;
+    fi;
+  - if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
+        $PYTHONCMD -m pytest --nbsmoke-lint ./examples/;
     fi;
 
 ###############################################################################
@@ -316,10 +457,10 @@ after_script:
   # ---------------------------------------------------------------------------
   # Move results and coverage files into appropriate places
   - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
-      mv testresults.xml shippable/testresults/;
+        mv testresults.xml shippable/testresults/;
     fi;
     if [ "$SHIPPABLE" = "true" ] && [ -f coverage.xml ]; then
-      cp coverage.xml shippable/codecoverage/;
+        cp coverage.xml shippable/codecoverage/;
     fi;
 
 ###############################################################################
@@ -333,11 +474,12 @@ after_success:
   # We ignore coveralls failures because the coveralls server is not 100%
   # reliable and we don't want the CI to report a failure just because the
   # coverage report wasn't published.
-  - if [ "$TRAVIS" = "true" ] && [ "$SHIPPABLE" != "true" ]; then
-      pip install coveralls;
-      travis_retry coveralls || echo "Coveralls push failed";
-      pip install codecov;
-      travis_retry codecov || echo "Codecov push failed";
+  - |
+    if [[ "$TRAVIS" = "true" && "$SHIPPABLE" != "true" ]]; then
+        $PYTHONCMD -m pip install codecov;
+        travis_retry codecov || echo "Codecov push failed";
+        $PYTHONCMD -m pip install coveralls;
+        travis_retry coveralls || echo "Coveralls push failed";
     fi;
 
 ###############################################################################
@@ -353,7 +495,7 @@ before_archive:
   # artifacts addon (or do something else with it). See here for details
   # https://docs.travis-ci.com/user/uploading-artifacts/
   - if [ "$SHIPPABLE" = "true" ] && [ -f environment.yml ]; then
-      cp environment.yml shippable/;
+        cp environment.yml shippable/;
     fi;
 
 ###############################################################################
