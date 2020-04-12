@@ -239,7 +239,7 @@ before_install:
   # - Remove test environment from conda, if it's still there from last time
   # - Update conda
   - |
-    if [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
+    if [[ "$USE_CONDA" != "false" && "$USE_CONDA" != "" ]]; then
         mkdir -p $HOME/Downloads;
         if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
             MINICONDA_FNAME="Miniconda2-latest-Linux-x86_64.sh";
@@ -274,7 +274,7 @@ before_install:
   # we end up must still satisfy the original requirement.txt setting, and
   # be from around the time of the oldest supported scipy release.
   - |
-    if [[ "$USE_CONDA" == "full" ]] || [[ "$USE_CONDA" == "numpy" ]]; then
+    if [[ "$USE_CONDA" == "full" || "$USE_CONDA" == "numpy" ]]; then
         if [ -f requirements.txt ]; then
             NUMPY_REQUIREMENT="$(grep '^numpy\([!<>=~ ]\|$\)' requirements.txt)";
             echo "NumPy requirement is '$NUMPY_REQUIREMENT'";
@@ -302,7 +302,7 @@ before_install:
   # Create the conda environment with pip, numpy and scipy installed (if they
   # are in requirements.txt)
   - |
-    if [[ "$USE_CONDA" != "false" ]] && [[ "$USE_CONDA" != "" ]]; then
+    if [[ "$USE_CONDA" != "false" && "$USE_CONDA" != "" ]]; then
         conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
         source activate test-environment;
         PYTHONCMD=python;
@@ -477,7 +477,7 @@ after_success:
   # reliable and we don't want the CI to report a failure just because the
   # coverage report wasn't published.
   - |
-    if [ "$TRAVIS" = "true" ] && [ "$SHIPPABLE" != "true" ]; then
+    if [[ "$TRAVIS" = "true" && "$SHIPPABLE" != "true" ]]; then
         $PYTHONCMD -m pip install codecov;
         travis_retry codecov || echo "Codecov push failed";
         $PYTHONCMD -m pip install coveralls;
