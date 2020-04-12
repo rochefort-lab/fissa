@@ -12,6 +12,8 @@ Authors:
 
 from past.builtins import basestring
 
+import collections
+
 import numpy as np
 from PIL import Image, ImageSequence
 
@@ -93,8 +95,11 @@ def rois2masks(rois, data):
     if isinstance(rois, basestring):
         rois = roitools.readrois(rois)
 
-    if not isinstance(rois, list):
-        raise ValueError('Wrong ROIs input format: expected a list.')
+    if not isinstance(rois, collections.Sequence):
+        raise TypeError(
+            'Wrong ROIs input format: expected a list or sequence, but got'
+            ' a {}'.format(rois.__class__)
+        )
 
     # if it's a something by 2 array (or vice versa), assume polygons
     if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:

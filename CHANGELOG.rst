@@ -15,16 +15,79 @@ Security.
 Unreleased
 ----------
 
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.6.1...master>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.4...master>`__.
+
+
+Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
+---------------------------------------------------------------------
+
+Release date: 2020-04-07.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.3...0.6.4>`__.
+
+Fixed
+~~~~~
+
+-   Fix multiprocessing pool closure on Python 3.8.
+    (`#105 <https://github.com/rochefort-lab/fissa/pull/105>`__)
+
+
+Version `0.6.3 <https://github.com/rochefort-lab/fissa/tree/0.6.3>`__
+---------------------------------------------------------------------
+
+Release date: 2020-04-03.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.2...0.6.3>`__.
+
+Fixed
+~~~~~
+
+-   Specify a maximum version for the panel dependency of holoviews on
+    Python <3.6, which allows us to continue supporting Python 3.5, otherwise
+    dependencies fail to install.
+    (`#101 <https://github.com/rochefort-lab/fissa/pull/101>`__)
+-   Save deltaf to MATLAB compatible output.
+    (`#70 <https://github.com/rochefort-lab/fissa/pull/70>`__)
+-   Wipe downstream data stored in the experiment object if upstream data
+    changes, so data that is present is always consistent with each other.
+    (`#93 <https://github.com/rochefort-lab/fissa/pull/93>`__)
+-   Prevent slashes in paths from doubling up if the input path has a trailing
+    slash.
+    (`#71 <https://github.com/rochefort-lab/fissa/pull/71>`__)
+-   Documentation updates.
+    (`#91 <https://github.com/rochefort-lab/fissa/pull/91>`__,
+    `#88 <https://github.com/rochefort-lab/fissa/pull/88>`__,
+    `#97 <https://github.com/rochefort-lab/fissa/pull/97>`__,
+    `#89 <https://github.com/rochefort-lab/fissa/pull/89>`__)
+
+
+Version `0.6.2 <https://github.com/rochefort-lab/fissa/tree/0.6.2>`__
+---------------------------------------------------------------------
+
+Release date: 2020-03-11.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.1...0.6.2>`__.
+
+Fixed
+~~~~~
+
+-   Specify a maximum version for tifffile dependency on Python <3.6, which
+    allows us to continue supporting Python 2.7 and 3.5, which otherwise
+    fail to import dependencies correctly.
+    (`#87 <https://github.com/rochefort-lab/fissa/pull/87>`__)
+-   Documentation fixes and updates.
+    (`#64 <https://github.com/rochefort-lab/fissa/pull/64>`__,
+    `#65 <https://github.com/rochefort-lab/fissa/pull/65>`__,
+    `#67 <https://github.com/rochefort-lab/fissa/pull/67>`__,
+    `#76 <https://github.com/rochefort-lab/fissa/pull/76>`__,
+    `#77 <https://github.com/rochefort-lab/fissa/pull/77>`__,
+    `#78 <https://github.com/rochefort-lab/fissa/pull/78>`__,
+    `#79 <https://github.com/rochefort-lab/fissa/pull/79>`__,
+    `#92 <https://github.com/rochefort-lab/fissa/pull/92>`__)
 
 
 Version `0.6.1 <https://github.com/rochefort-lab/fissa/tree/0.6.1>`__
 ---------------------------------------------------------------------
 
 Release date: 2019-03-11.
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.6.0...0.6.1>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.0...0.6.1>`__.
 
 Fixed
 ~~~~~
@@ -46,8 +109,7 @@ Version `0.6.0 <https://github.com/rochefort-lab/fissa/tree/0.6.0>`__
 ---------------------------------------------------------------------
 
 Release date: 2019-02-26.
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__.
 
 Added
 ~~~~~
@@ -62,8 +124,7 @@ Version `0.5.3 <https://github.com/rochefort-lab/fissa/tree/0.5.3>`__
 ---------------------------------------------------------------------
 
 Release date: 2019-02-18.
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.5.2...0.5.3>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.2...0.5.3>`__.
 
 Fixed
 ~~~~~
@@ -76,8 +137,7 @@ Version `0.5.2 <https://github.com/rochefort-lab/fissa/tree/0.5.2>`__
 ---------------------------------------------------------------------
 
 Release date: 2018-03-07.
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.5.1...0.5.2>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.1...0.5.2>`__.
 
 Changed
 ~~~~~~~
@@ -90,8 +150,7 @@ Version `0.5.1 <https://github.com/rochefort-lab/fissa/tree/0.5.1>`__
 ---------------------------------------------------------------------
 
 Release date: 2018-01-10.
-Full commit changelog
-`on github <https://github.com/rochefort-lab/fissa/compare/0.5.0...0.5.1>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.0...0.5.1>`__.
 
 Added
 ~~~~~

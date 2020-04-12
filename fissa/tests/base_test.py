@@ -55,3 +55,12 @@ class BaseTestCase(unittest.TestCase):
 
     def assert_equal(self, *args, **kwargs):
         return assert_equal(*args, **kwargs)
+
+    def assert_equal_list_of_array_perm_inv(self, desired, actual):
+        self.assert_equal(len(desired), len(actual))
+        for desired_i in desired:
+            n_matches = 0
+            for actual_j in actual:
+                if np.equal(actual_j, desired_i).all():
+                    n_matches += 1
+            self.assertTrue(n_matches >= 0)

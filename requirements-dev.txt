@@ -1,4 +1,6 @@
 pytest
 pytest-cov
 pytest-flake8
-imageio
+nbsmoke
+imageio>=2.5.0; python_version>='3'
+imageio>=2.5.0, <2.8.0; python_version<'3'
