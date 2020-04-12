@@ -88,6 +88,7 @@ jobs:
       env:
         - TRAVIS_PYTHON_VERSION="3.7.5"
         - USE_SIMA="false"
+        - USE_SUITE2P="false"
 
     # Python versions which need to be installed
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
@@ -124,12 +125,14 @@ jobs:
       env:
         - TRAVIS_PYTHON_VERSION="3.8.2"
         - USE_SIMA="false"
+        - USE_SUITE2P="false"
 
     # Ubuntu -------------------------------------
     # All versions pre-installed
     - python: "3.8"
       env:
         - USE_SIMA="false"
+        - USE_SUITE2P="false"
 
     - python: "2.7"
       env:
@@ -152,6 +155,7 @@ jobs:
       python: "3.7"
       env:
         - USE_SIMA="false"
+        - USE_SUITE2P="false"
 
 ###############################################################################
 # Setup the environment before installing
