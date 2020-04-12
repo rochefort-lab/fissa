@@ -412,9 +412,7 @@ before_script:
   - $PYTHONCMD -m pip freeze
   # ---------------------------------------------------------------------------
   # Remove any cached results files from previous build, if present
-  - rm -f testresults.xml;
-    rm -f coverage.xml;
-    rm -f .coverage;
+  - rm -f testresults.xml coverage.xml .coverage;
   # ---------------------------------------------------------------------------
   # Set up folders for test results on Shippable
   - if [ "$SHIPPABLE" = "true" ]; then
