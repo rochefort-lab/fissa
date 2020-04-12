@@ -44,6 +44,7 @@ env:
     # Values are "true", "false" or "".
     - TEST_NOTEBOOKS="true"
     - USE_SIMA="true"
+    - USE_SUITE2P="true"
     # Set flag for whether to use a conda environment
     # values can be:
     # "" or "false":  conda not used
@@ -68,6 +69,7 @@ jobs:
       language: shell
       env:
         - TRAVIS_PYTHON_VERSION="2.7.17"
+        - USE_SUITE2P="false"
 
     - name: "Python 2.7.17 [oldest, no sima] on macOS 10.14"
       os: osx
@@ -77,6 +79,7 @@ jobs:
         - TRAVIS_PYTHON_VERSION="2.7.17"
         - USE_OLDEST_DEPS="true"
         - USE_SIMA="false"
+        - USE_SUITE2P="false"
 
     - name: "Python 3.7.5 [no sima] on macOS 10.14"
       os: osx
@@ -131,8 +134,11 @@ jobs:
     - python: "2.7"
       env:
         - USE_OLDEST_DEPS="true"
+        - USE_SUITE2P="false"
 
     - python: "2.7"
+      env:
+        - USE_SUITE2P="false"
 
     - python: "3.5"
       env:
@@ -366,6 +372,11 @@ install:
             echo "sima" >> requirements_all.txt;
         else
             rm -f examples/*SIMA* examples/*sima*;
+        fi;
+        if [[ "$USE_SUITE2P" == "true" ]]; then
+            echo "suite2p" >> requirements_all.txt;
+        else
+            rm -f examples/*Suite2p*;
         fi;
     fi;
   # Show the resulting list of packages
