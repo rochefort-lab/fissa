@@ -201,6 +201,7 @@ install:
   - if [[ "$TEST_NOTEBOOKS" == "true" ]]; then
       pip install -r requirements_plots.txt;
       pip install sima;
+      pip install suite2p;
       export MPLBACKEND="agg";
     fi
   # ---------------------------------------------------------------------------
