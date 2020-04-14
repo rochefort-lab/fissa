@@ -204,6 +204,7 @@ You can use these flags at the start of your commit messages:
     DEV: development tool or utility
     DOC: documentation; only change/add/remove docstrings, markdown or comments
     ENH: enhancement; add a new feature without removing existing features
+    JNB: changing a jupyter notebook
     MAINT: maintenance commit (refactoring, typos, etc.); no functional change
     REL: related to releases
     REV: revert an earlier commit
