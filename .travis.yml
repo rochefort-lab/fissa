@@ -63,7 +63,7 @@ jobs:
     # OSX ----------------------------------------
     # Pre-installed python versions
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 2.7.17 on macOS 10.14"
+      name: "Python 2.7.17 on macOS 10.14 [no suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -71,7 +71,7 @@ jobs:
         - TRAVIS_PYTHON_VERSION="2.7.17"
         - USE_SUITE2P="false"
 
-    - name: "Python 2.7.17 [oldest, no sima] on macOS 10.14"
+    - name: "Python 2.7.17 on macOS 10.14 [oldest, no sima/suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -81,7 +81,7 @@ jobs:
         - USE_SIMA="false"
         - USE_SUITE2P="false"
 
-    - name: "Python 3.7.5 [no sima] on macOS 10.14"
+    - name: "Python 3.7.5 on macOS 10.14 [no sima/suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -92,7 +92,7 @@ jobs:
 
     # Python versions which need to be installed
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.5.9 [oldest, no sima] on macOS 10.14"
+      name: "Python 3.5.9 on macOS 10.14 [oldest, no sima/suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -100,25 +100,28 @@ jobs:
         - TRAVIS_PYTHON_VERSION="3.5.9"
         - USE_OLDEST_DEPS="true"
         - USE_SIMA="false"
+        - USE_SUITE2P="false"
 
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.5.9 on macOS 10.14"
+      name: "Python 3.5.9 on macOS 10.14 [no suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
       env:
         - TRAVIS_PYTHON_VERSION="3.5.9"
+        - USE_SUITE2P="false"
 
     - if: type = cron AND branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.6.10 on macOS 10.14"
+      name: "Python 3.6.10 on macOS 10.14 [no suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
       env:
         - TRAVIS_PYTHON_VERSION="3.6.10"
+        - USE_SUITE2P="false"
 
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.8.2 [no sima] on macOS 10.14"
+      name: "Python 3.8.2 on macOS 10.14 [no sima/suite2p]"
       os: osx
       osx_image: xcode11.13
       language: shell
@@ -128,6 +131,11 @@ jobs:
         - USE_SUITE2P="false"
 
     # Ubuntu -------------------------------------
+    # Jobs to run on Conda
+    - python: "3.6"
+      env:
+        - USE_CONDA="numpy"
+
     # All versions pre-installed
     - python: "3.8"
       env:
@@ -146,10 +154,16 @@ jobs:
     - python: "3.5"
       env:
         - USE_OLDEST_DEPS="true"
+        - USE_SUITE2P="false"
 
     - python: "3.5"
+      env:
+        - USE_SUITE2P="false"
 
-    - python: "3.6"
+    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
+      python: "3.6"
+      env:
+        - USE_SUITE2P="false"
 
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
       python: "3.7"
