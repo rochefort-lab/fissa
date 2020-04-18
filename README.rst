@@ -57,7 +57,7 @@ An example workflow importing data exported from a MATLAB toolbox (cNMF):
 `[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/cNMF%20example.ipynb>`__
 `[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/cNMF%20example.ipynb>`__.
 
-You can try out each of the example notebooks interactively on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__.
+You can try out each of the example notebooks interactively in your browser on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__ (note that it might take 5 minutes for Binder to boot up).
 
 These notebooks can also be run on your own machine.
 To do so, you will need to:
