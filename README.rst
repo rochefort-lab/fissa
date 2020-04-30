@@ -1,4 +1,4 @@
-|PyPI badge| |Py Versions| |Travis| |AppVeyor| |Documentation| |Codecov| |Gitter| |Binder|
+|PyPI badge| |Py Versions| |Travis| |AppVeyor| |Documentation| |Codecov| |DOI badge| |Gitter| |Binder|
 
 FISSA
 =====
@@ -294,3 +294,6 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
    :alt: Launch Notebooks in Binder
+.. |DOI badge| image:: https://img.shields.io/badge/DOI-10.1038/s41598--018--21640--2-blue.svg
+   :target: https://www.doi.org/10.1038/s41598-018-21640-2
+   :alt: DOI
