@@ -285,7 +285,7 @@ class Experiment():
         # try to load data from filename
         if not redo:
             try:
-                nCell, raw, roi_polys = np.load(fname)
+                nCell, raw, roi_polys = np.load(fname, allow_pickle=True)
                 print('Reloading previously prepared data...')
             except BaseException:
                 redo = True
@@ -394,7 +394,7 @@ class Experiment():
         fname = os.path.join(self.folder, 'separated.npy')
         if not redo_sep:
             try:
-                info, mixmat, sep, result = np.load(fname)
+                info, mixmat, sep, result = np.load(fname, allow_pickle=True)
                 print('Reloading previously separated data...')
             except BaseException:
                 redo_sep = True
