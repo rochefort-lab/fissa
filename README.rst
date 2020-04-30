@@ -1,4 +1,4 @@
-|Gitter| |PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Coveralls| |Downloads|
+|Binder| |Gitter| |PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Coveralls| |Downloads|
 
 FISSA
 =====
@@ -32,17 +32,46 @@ general discussion and help with installation or setup, please see the
 
 Usage
 -----
-A general tutorial on the use of FISSA can be found `here <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>`__.
 
-We also provide example workflows with other Python toolboxes (`SIMA <https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html>`__ and `Suite2p <https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html>`__), as well as for MATLAB (`cNMF <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>`__).
+A general tutorial on the use of FISSA can be found here:
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage.ipynb>`__.
 
-These notebooks can also be run on your own machine. To do so, you will
-need to `download a copy of the
-repository <https://github.com/rochefort-lab/fissa/archive/master.zip>`__,
-unzip it and browse to the `examples <examples>`__ directory. Then,
-start up a jupyter notebook server to run our notebooks. If you're new
-to jupyter notebooks, an approachable tutorial can be found at
-https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook.
+An example workflow integrating with Python toolbox `Suite2p <https://mouseland.github.io/suite2p/>`__, which can be used to automatically detect cells:
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Suite2p%20example.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/Suite2p%20example.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Suite2p%20example.ipynb>`__.
+
+An example workflow integrating with Python toolbox `SIMA <http://www.losonczylab.org/sima/>`__, which can be used to automatically detect cells:
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/SIMA%20example.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/SIMA%20example.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/SIMA%20example.ipynb>`__.
+
+An example workflow importing data exported from a MATLAB toolbox (cNMF):
+`[HTML] <https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html>`__
+`[Binder] <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/cNMF%20example.ipynb>`__
+`[Source] <https://github.com/rochefort-lab/fissa/blob/master/examples/cNMF%20example.ipynb>`__
+`[Raw] <https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/cNMF%20example.ipynb>`__.
+
+You can try out each of the example notebooks interactively in your browser on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__ (note that it might take 5 minutes for Binder to boot up).
+
+These notebooks can also be run on your own machine.
+To do so, you will need to:
+
+0.  If you want to run the Suite2p notebook, you'll have to install everything into a conda environment, as per their `installation instructions <https://mouseland.github.io/suite2p/_build/html/installation.html>`__.
+1.  Install fissa with its plotting dependencies :code:`pip install fissa[plotting]`.
+2.  If you want to run the sima notebook, you will also have to install sima with :code:`pip install sima`.
+    Note that sima only supports python<=3.6.
+3.  Download `a copy of the repository <https://github.com/rochefort-lab/fissa/archive/master.zip>`__,
+    unzip it and browse to the `examples <examples>`__ directory.
+4.  Start up a jupyter notebook server to run our notebooks :code:`jupyter notebook`.
+
+If you're new to jupyter notebooks, an approachable tutorial can be found at
+`<https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook>`_.
 
 Installation
 ------------
@@ -177,6 +206,7 @@ examples/
 
 Contains example code. You can load the notebooks as .ipynb directly in
 GitHub, or on your system if you know how to use jupyter notebooks.
+The example notebooks can also be run interactively on `Binder <https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples>`__.
 
 examples/exampleData/
 ~~~~~~~~~~~~~~~~~~~~~
@@ -264,3 +294,6 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Downloads| image:: https://pepy.tech/badge/fissa
    :target: https://pepy.tech/project/fissa
    :alt: Download Counter
+.. |Binder| image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
+   :alt: Launch Notebooks in Binder
