@@ -1,4 +1,4 @@
-|Binder| |Gitter| |PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Coveralls| |Downloads|
+|PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Gitter| |Binder|
 
 FISSA
 =====
@@ -287,13 +287,7 @@ with this program. If not, see http://www.gnu.org/licenses/.
    :alt: Documentation Status
 .. |Codecov| image:: https://codecov.io/gh/rochefort-lab/fissa/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/rochefort-lab/fissa
-   :alt: Codecov Coverage
-.. |Coveralls| image:: https://coveralls.io/repos/github/rochefort-lab/fissa/badge.svg?branch=master
-   :target: https://coveralls.io/github/rochefort-lab/fissa?branch=master
-   :alt: Coveralls Coverage
-.. |Downloads| image:: https://pepy.tech/badge/fissa
-   :target: https://pepy.tech/project/fissa
-   :alt: Download Counter
+   :alt: Coverage
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
    :alt: Launch Notebooks in Binder
