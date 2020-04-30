@@ -1,4 +1,4 @@
-|PyPI badge| |Travis| |AppVeyor| |Documentation| |Codecov| |Gitter| |Binder|
+|PyPI badge| |Py Versions| |Travis| |AppVeyor| |Documentation| |Codecov| |Gitter| |Binder|
 
 FISSA
 =====
@@ -276,6 +276,9 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |PyPI badge| image:: https://img.shields.io/pypi/v/fissa.svg
    :target: https://pypi.org/project/fissa
    :alt: Latest PyPI release
+.. |Py Versions| image:: https://img.shields.io/pypi/pyversions/fissa
+   :target: https://pypi.org/project/fissa
+   :alt: Python Versions Supported
 .. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
    :target: https://travis-ci.org/rochefort-lab/fissa
    :alt: Travis Build Status
