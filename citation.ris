@@ -1,0 +1,20 @@
+TY  - JOUR
+AU  - Keemink, Sander W.
+AU  - Lowe, Scott C.
+AU  - Pakan, Janelle M. P.
+AU  - Dylda, Evelyn
+AU  - van Rossum, Mark C. W.
+AU  - Rochefort, Nathalie L.
+PY  - 2018
+DA  - 2018/02/22
+TI  - FISSA: A neuropil decontamination toolbox for calcium imaging signals
+JO  - Scientific Reports
+SP  - 3493
+VL  - 8
+IS  - 1
+AB  - In vivo calcium imaging has become a method of choice to image neuronal population activity throughout the nervous system. These experiments generate large sequences of images. Their analysis is computationally intensive and typically involves motion correction, image segmentation into regions of interest (ROIs), and extraction of fluorescence traces from each ROI. Out of focus fluorescence from surrounding neuropil and other cells can strongly contaminate the signal assigned to a given ROI. In this study, we introduce the FISSA toolbox (Fast Image Signal Separation Analysis) for neuropil decontamination. Given pre-defined ROIs, the FISSA toolbox automatically extracts the surrounding local neuropil and performs blind-source separation with non-negative matrix factorization. Using both simulated and in vivo data, we show that this toolbox performs similarly or better than existing published methods. FISSA requires only little RAM, and allows for fast processing of large datasets even on a standard laptop. The FISSA toolbox is available in Python, with an option for MATLAB format outputs, and can easily be integrated into existing workflows. It is available from Github and the standard Python repositories.
+SN  - 2045-2322
+UR  - https://doi.org/10.1038/s41598-018-21640-2
+DO  - 10.1038/s41598-018-21640-2
+ID  - fissa
+ER  - 

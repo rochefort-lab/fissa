@@ -267,9 +267,10 @@ doi: |nbsp| `10.1038/s41598-018-21640-2 <doi_>`_.
 .. |nbsp| unicode:: 0xA0
    :trim:
 
-For your convenience, a copy of this citation in bibtex format is available at `citation.bib`_.
+For your convenience, we provide a copy of this citation in `bibtex`_ and `RIS`_ format.
 
-.. _citation.bib: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
+.. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
+.. _RIS: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.ris
 
 
 License
