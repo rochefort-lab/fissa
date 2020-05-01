@@ -163,19 +163,19 @@ Open ``Anaconda Prompt.exe``, which can be found through the Windows
 start menu or search, and type or copy-paste (by right clicking) the
 following:
 
-::
+.. code:: batch
 
     conda install -c conda-forge shapely tifffile
 
 Then, install FISSA by running the command
 
-::
+.. code:: batch
 
     pip install fissa
 
 You can check to see if FISSA is installed by running the command
 
-::
+.. code:: batch
 
     python -c "import fissa; print(fissa.__version__)"
 
@@ -184,7 +184,7 @@ You will see your FISSA version number printed in the terminal.
 If you want to use the interactive plotting from the notebooks, you
 should also install the HoloViews plotting toolbox, as follows
 
-::
+.. code:: batch
 
     conda install -c ioam holoviews
 
@@ -238,7 +238,7 @@ Installing FISSA
 For normal usage of FISSA, you can install the latest release version on
 PyPI using pip:
 
-::
+.. code:: bash
 
     pip install fissa
 
@@ -246,13 +246,13 @@ To also install fissa along with the dependencies required to run our
 sample notebooks (which include plots rendered with holoviews) you
 should run the following command:
 
-::
+.. code:: bash
 
     pip install fissa['plotting']
 
 You can check to see if FISSA is installed by running the command:
 
-::
+.. code:: bash
 
     python -c "import fissa; print(fissa.__version__)"
 
