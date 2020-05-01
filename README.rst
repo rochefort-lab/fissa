@@ -72,7 +72,6 @@ Binder_ (note that it may take 10 minutes for Binder to boot up).
 .. _basichtml: https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html
 .. _basicview: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
 .. _basicdown: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage.ipynb
-    :download:
 .. _basicnixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage.py
 .. _basicwinscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_windows.py
 
@@ -81,21 +80,18 @@ Binder_ (note that it may take 10 minutes for Binder to boot up).
 .. _suitehtml: https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html
 .. _suiteview: https://github.com/rochefort-lab/fissa/blob/master/examples/Suite2p%20example.ipynb
 .. _suitedown: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Suite2p%20example.ipynb
-    :download:
 
 .. _SIMA: http://www.losonczylab.org/sima/
 .. _sima_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/SIMA%20example.ipynb
 .. _sima_html: https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html
 .. _sima_view: https://github.com/rochefort-lab/fissa/blob/master/examples/SIMA%20example.ipynb
 .. _sima_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/SIMA%20example.ipynb
-    :download:
 
 .. _CNMF (MATLAB): https://github.com/flatironinstitute/CaImAn-MATLAB
 .. _cnmf_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/cNMF%20example.ipynb
 .. _cnmf_html: https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html
 .. _cnmf_view: https://github.com/rochefort-lab/fissa/blob/master/examples/cNMF%20example.ipynb
 .. _cnmf_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/cNMF%20example.ipynb
-    :download:
 
 These notebooks can also be run on your own machine.
 To do so, you will need to:
@@ -274,7 +270,6 @@ doi: |nbsp| `10.1038/s41598-018-21640-2 <doi_>`_.
 For your convenience, a copy of this citation in bibtex format is available at `citation.bib`_.
 
 .. _citation.bib: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
-    :download:
 
 
 License
