@@ -10,7 +10,7 @@ FISSA Documentation
    :maxdepth: 2
    :caption: Contents:
 
-   source/readme
+   source/user-guide
    source/packages/modules
    source/contributing
    source/changelog
