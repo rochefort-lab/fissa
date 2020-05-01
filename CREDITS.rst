@@ -36,4 +36,7 @@ Funding
 Citation
 --------
 S. W. Keemink, S. C. Lowe, J. M. P. Pakan, E. Dylda, M. C. W. van Rossum, and N. L. Rochefort. FISSA: A neuropil decontamination toolbox for calcium imaging signals, *Scientific Reports*, **8**\ (1):3493, 2018.
-`doi: 10.1038/s41598-018-21640-2 <https://www.doi.org/10.1038/s41598-018-21640-2>`__.
+doi: |nbsp| `10.1038/s41598-018-21640-2 <https://www.doi.org/10.1038/s41598-018-21640-2>`__.
+
+.. |nbsp| unicode:: 0xA0
+   :trim:
