@@ -139,52 +139,100 @@ more detailed instructions for both Windows and Ubuntu users are below.
 Installation on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Basic prerequisites
-^^^^^^^^^^^^^^^^^^^
+We detail two different ways to install Python on your Windows. One is to
+download the `official Python installer <Official Python distribution_>`_,
+and the other is to use `Anaconda <Anaconda distribution_>`_.
 
-Download and install, in the following order:
+Official Python distribution
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--  (for Python 2.7 only) Microsoft Visual C++ Compiler for Python 2.7:
-   https://www.microsoft.com/en-us/download/details.aspx?id=44266
+1.  Go to the `Python website <download_python_>`_ and download the latest
+    version of Python for Windows.
 
--  Python 2.7 or 3.5+ (recommended) Anaconda as the Python environment,
-   available from https://www.anaconda.com/download/.
+.. _download_python: https://www.python.org/downloads/
 
-.. installing-fissa-on-windows:
+3.  Run the executable file downloaded, which has a name formatted like
+    **python-3.y.z.exe**.
 
-Installing FISSA
-^^^^^^^^^^^^^^^^
+4.  In the installation window, tick the checkbox "Add Python 3.y to PATH".
 
-Open ``Anaconda Prompt.exe``, which can be found through the Windows
-start menu or search, and type or copy-paste (by right clicking) the
-following:
+5.  Click "Install Now", and go though the installation process to
+    install Python.
 
-.. code:: batch
+6.  Open the **Command Prompt** application. We can run Python from the
+    general purpose command prompt because we added its binaries to the
+    global :code:`PATH` variable in Step |nbsp| 4.
 
-    conda install -c conda-forge shapely tifffile
+7.  At the **Command Prompt** command prompt, install fissa and its
+    dependencies by running the command:
 
-Then, install FISSA by running the command
+    .. code:: batch
 
-.. code:: batch
+        pip install fissa
 
-    pip install fissa
+8.  You can check to see if fissa is installed with:
 
-You can check to see if FISSA is installed by running the command
+    .. code:: batch
 
-.. code:: batch
+        python -c "import fissa; print(fissa.__version__)"
 
-    python -c "import fissa; print(fissa.__version__)"
+    You should see your FISSA version number printed in the terminal.
 
-You will see your FISSA version number printed in the terminal.
+9.  You can now use FISSA from the Python command prompt. To open a python
+    command prompt, either execute the command :code:`python` within the
+    **Command Prompt**, or open Python executable which was installed in
+    Step |nbsp| 5. At the python command prompt, you can run FISSA as described
+    in Usage_ above.
 
-If you want to use the interactive plotting from the notebooks, you
-should also install the HoloViews plotting toolbox, as follows
+Anaconda distribution
+^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: batch
+1.  Download and install the latest version of either
+    `Anaconda <download_anaconda_>`_ or Miniconda_. Miniconda is a
+    `lightweight version`_ of Anaconda, the same thing but without any packages
+    pre-installed.
 
-    conda install -c ioam holoviews
+.. _lightweight version: https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html#anaconda-or-miniconda
+.. _download_anaconda: https://www.anaconda.com/products/individual#windows
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 
-See `usage <#usage>`__ above for details on how to use FISSA.
+2.  Open the **Anaconda Prompt**, which was installed by either Anaconda or
+    Miniconda in Step |nbsp| 1.
+
+3.  In the Anaconda Prompt, run the following command to install some of
+    FISSA's dependencies with conda.
+
+    .. code:: batch
+
+        conda install -c conda-forge numpy scipy shapely tifffile
+
+4.  Run the following command to install FISSA, along with the rest of its
+    dependencies.
+
+    .. code:: batch
+
+        pip install fissa
+
+5.  You can check to see if fissa is installed with:
+
+    .. code:: batch
+
+        python -c "import fissa; print(fissa.__version__)"
+
+    You should see your FISSA version number printed in the terminal.
+
+6.  You can now use FISSA from the Python command prompt. To open a python
+    command prompt, either execute the command :code:`python` within the
+    **Anaconda Prompt**. At the python command prompt, you can run FISSA as
+    described in Usage_ above.
+
+7.  Optionally, if you want use suite2p_, it and its dependencies can be
+    installed as follows.
+
+    .. code:: batch
+
+        conda install -c conda-forge mkl mkl_fft numba pyqt
+        pip install suite2p rastermap
 
 Installation on Linux
 ~~~~~~~~~~~~~~~~~~~~~
@@ -264,9 +312,6 @@ paper on FISSA in any resulting publications:
 S. W. Keemink, S. C. Lowe, J. M. P. Pakan, E. Dylda, M. C. W. van Rossum, and N. L. Rochefort. FISSA: A neuropil decontamination toolbox for calcium imaging signals, *Scientific Reports*, **8**\ (1):3493, 2018.
 doi: |nbsp| `10.1038/s41598-018-21640-2 <doi_>`_.
 
-.. |nbsp| unicode:: 0xA0
-   :trim:
-
 For your convenience, we provide a copy of this citation in `bibtex`_ and `RIS`_ format.
 
 .. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
@@ -294,6 +339,8 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see http://www.gnu.org/licenses/.
 
 
+.. |nbsp| unicode:: 0xA0
+   :trim:
 .. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
    :target: `Gitter chat`_
    :alt: Join the FISSA chat
