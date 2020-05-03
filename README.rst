@@ -113,15 +113,15 @@ To do so, you will need to:
 0.  If you want to run the Suite2p notebook, you'll have to install everything
     into a conda environment, as per their `installation instructions <install_suite2p_>`_.
 
-1.  Install fissa with its plotting dependencies :code:`pip install fissa[plotting]`.
+1.  Install fissa with its plotting dependencies ``pip install fissa[plotting]``.
 
 2.  If you want to run the sima notebook, you will also have to install sima
-    with :code:`pip install sima`. Note that sima only supports python<=3.6.
+    with ``pip install sima``. Note that sima only supports python<=3.6.
 
 3.  Download `a copy of the repository <download_repo_>`_, unzip it and browse
     to the examples_ directory.
 
-4.  Start up a jupyter notebook server to run our notebooks :code:`jupyter notebook`.
+4.  Start up a jupyter notebook server to run our notebooks ``jupyter notebook``.
 
 If you're new to Jupyter notebooks, here is `an approachable tutorial`_.
 
@@ -175,7 +175,7 @@ Official Python distribution
 
 6.  Open the **Command Prompt** application. We can run Python from the
     general purpose command prompt because we added its binaries to the
-    global :code:`PATH` variable in Step |nbsp| 4.
+    global ``PATH`` variable in Step |nbsp| 4.
 
 7.  At the **Command Prompt** command prompt, install fissa and its
     dependencies by running the command:
@@ -193,7 +193,7 @@ Official Python distribution
     You should see your FISSA version number printed in the terminal.
 
 9.  You can now use FISSA from the Python command prompt. To open a python
-    command prompt, either execute the command :code:`python` within the
+    command prompt, either execute the command ``python`` within the
     **Command Prompt**, or open Python executable which was installed in
     Step |nbsp| 5. At the python command prompt, you can run FISSA as described
     in Usage_ above.
@@ -236,7 +236,7 @@ Anaconda distribution
     You should see your FISSA version number printed in the terminal.
 
 6.  You can now use FISSA from the Python command prompt. To open a python
-    command prompt, either execute the command :code:`python` within the
+    command prompt, either execute the command ``python`` within the
     **Anaconda Prompt**. At the python command prompt, you can run FISSA as
     described in Usage_ above.
 
