@@ -1,25 +1,28 @@
-"""Basic FISSA usage.
-
-This file explains step-by-step how to use the FISSA toolbox.
-
-See Basic usage.ipynb and Basic usage.html for a move verbose version.
 """
-# FISSA toolbox import
+Basic FISSA usage example.
+
+This file contains a step-by-step example workflow for using the FISSA toolbox.
+
+An example notebook is provided here:
+https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
+"""
+
 import fissa
 
-# data location
+
+# Define the data to extract
 rois = 'exampleData/20150429.zip'
 images = 'exampleData/20150529'
 
-# extraction location
-folder = 'fissa_example'
-# make sure you use a different folder for each experiment!
+# Define the name of the experiment extraction location
+output_dir = 'fissa_example'
+# Make sure you use a different output path for each experiment you run.
 
-# experiment definition
-experiment = fissa.Experiment(images, rois, folder)
+# Instantiate a fissa experiment object
+experiment = fissa.Experiment(images, rois, output_dir)
 
-# do separation
-experiment.separate(redo_prep=True)
+# Run the FISSA separation algorithm
+experiment.separate()
 
-# (optional) export to matlab
+# Export to a .mat file which can be opened with MATLAB (optional)
 experiment.save_to_matlab()

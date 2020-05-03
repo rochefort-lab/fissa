@@ -1,12 +1,13 @@
 Changelog
 =========
 
-All notable changes to this project will be documented here.
+All notable changes to FISSA will be documented here.
 
-The format is based on `Keep a
-Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
-adheres to `Semantic
-Versioning <https://semver.org/spec/v2.0.0.html>`__.
+The format is based on `Keep a Changelog`_, and this project adheres to
+`Semantic Versioning`_.
+
+.. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
+.. _Semantic Versioning: https://semver.org/spec/v2.0.0.html
 
 Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
@@ -24,6 +25,8 @@ Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
 Release date: 2020-04-07.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.3...0.6.4>`__.
 
+.. _v0.6.4 Fixed:
+
 Fixed
 ~~~~~
 
@@ -36,6 +39,8 @@ Version `0.6.3 <https://github.com/rochefort-lab/fissa/tree/0.6.3>`__
 
 Release date: 2020-04-03.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.2...0.6.3>`__.
+
+.. _v0.6.3 Fixed:
 
 Fixed
 ~~~~~
@@ -65,6 +70,8 @@ Version `0.6.2 <https://github.com/rochefort-lab/fissa/tree/0.6.2>`__
 Release date: 2020-03-11.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.1...0.6.2>`__.
 
+.. _v0.6.2 Fixed:
+
 Fixed
 ~~~~~
 
@@ -89,6 +96,8 @@ Version `0.6.1 <https://github.com/rochefort-lab/fissa/tree/0.6.1>`__
 Release date: 2019-03-11.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.0...0.6.1>`__.
 
+.. _v0.6.1 Fixed:
+
 Fixed
 ~~~~~
 
@@ -111,6 +120,8 @@ Version `0.6.0 <https://github.com/rochefort-lab/fissa/tree/0.6.0>`__
 Release date: 2019-02-26.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.3...0.6.0>`__.
 
+.. _v0.6.0 Added:
+
 Added
 ~~~~~
 
@@ -126,6 +137,8 @@ Version `0.5.3 <https://github.com/rochefort-lab/fissa/tree/0.5.3>`__
 Release date: 2019-02-18.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.2...0.5.3>`__.
 
+.. _v0.5.3 Fixed:
+
 Fixed
 ~~~~~
 
@@ -138,6 +151,8 @@ Version `0.5.2 <https://github.com/rochefort-lab/fissa/tree/0.5.2>`__
 
 Release date: 2018-03-07.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.1...0.5.2>`__.
+
+.. _v0.5.2 Changed:
 
 Changed
 ~~~~~~~
@@ -152,6 +167,8 @@ Version `0.5.1 <https://github.com/rochefort-lab/fissa/tree/0.5.1>`__
 Release date: 2018-01-10.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.5.0...0.5.1>`__.
 
+.. _v0.5.1 Added:
+
 Added
 ~~~~~
 
@@ -163,6 +180,8 @@ Added
 -  Added the option for users to define a custom data and ROI loading
    script.
    (`#13 <https://github.com/rochefort-lab/fissa/pull/13>`__)
+
+.. _v0.5.1 Fixed:
 
 Fixed
 ~~~~~
