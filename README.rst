@@ -1,7 +1,21 @@
-|PyPI badge| |Py Versions| |Travis| |AppVeyor| |Documentation| |Codecov| |DOI badge| |Gitter| |Binder|
-
 FISSA
 =====
+
++------------------+----------------------------------------------------------+
+| Latest Release   | |PyPI badge| |Py Versions|                               |
++------------------+----------------------------------------------------------+
+| License          | |License|                                                |
++------------------+----------------------------------------------------------+
+| Documentation    | |readthedocs|                                            |
++------------------+----------------------------------------------------------+
+| Build Status     | |Documentation| |Travis| |AppVeyor| |Codecov|            |
++------------------+----------------------------------------------------------+
+| Interactive Demo | |Binder|                                                 |
++------------------+----------------------------------------------------------+
+| Support          | |Gitter|                                                 |
++------------------+----------------------------------------------------------+
+| Citation         | |DOI badge|                                              |
++------------------+----------------------------------------------------------+
 
 FISSA (Fast Image Signal Separation Analysis) is a Python package for
 decontaminating somatic signals from two-photon calcium imaging data.
@@ -344,8 +358,11 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/n694frm31qcv29j0/branch/master?svg=true
    :target: https://ci.appveyor.com/project/scottclowe/rochefort-lab-fissa/branch/master
    :alt: AppVeyor Build Status
-.. |Documentation| image:: https://readthedocs.org/projects/fissa/badge/?version=latest
-   :target: https://fissa.readthedocs.io/en/latest/
+.. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
+   :target: https://fissa.readthedocs.io/
+   :alt: Documentation
+.. |Documentation| image:: https://readthedocs.org/projects/fissa/badge/
+   :target: https://fissa.readthedocs.io/
    :alt: Documentation Status
 .. |Codecov| image:: https://codecov.io/gh/rochefort-lab/fissa/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/rochefort-lab/fissa
@@ -356,3 +373,6 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |DOI badge| image:: https://img.shields.io/badge/DOI-10.1038/s41598--018--21640--2-blue.svg
    :target: doi_
    :alt: DOI
+.. |License| image:: https://img.shields.io/pypi/l/fissa
+   :target: https://raw.githubusercontent.com/rochefort-lab/fissa/master/LICENSE
+   :alt: GPLv3 License
