@@ -75,34 +75,34 @@ repository <http://github.com/rochefort-lab/fissa/>`__ on GitHub.
 
 2. Clone this copy to your local disk:
 
-   ::
+   .. code:: bash
 
-        $ git clone git@github.com:YourUserName/fissa.git
-        $ cd fissa
+        git clone git@github.com:YourUserName/fissa.git
+        cd fissa
 
 3. Create a branch to hold and track your changes
 
-   ::
+   .. code:: bash
 
-        $ git checkout -b my-feature
+        git checkout -b my-feature
 
    and start making changes.
 
 4. Work on this copy on your computer using Git to do the version
    control. When you're done editing, do:
 
-   ::
+   .. code:: bash
 
-        $ git add modified_files
-        $ git commit
+        git add modified_files
+        git commit
 
    to record your changes in Git, writing a commit message following the
    `specifications below <#commit-messages>`__, then push them to GitHub
    with:
 
-   ::
+   .. code:: bash
 
-        $ git push -u origin my-feature
+        git push -u origin my-feature
 
 5. Finally, go to the web page of your fork of the FISSA repo, and click
    'Pull request' to issue a `pull
@@ -121,18 +121,18 @@ following rules before submitting a pull request.
 
 -  All unit tests pass. Check with (from the top level source folder):
 
-   ::
+   .. code:: bash
 
-        $ pip install pytest
-        $ py.test
+        pip install pytest
+        pytest
 
 -  Code with good unit test coverage (at least 90%, ideally 100%). Check
    with
 
-   ::
+   .. code:: bash
 
-        $ pip install pytest pytest-cov
-        $ py.test --cov=fissa --cov-config .coveragerc
+        pip install pytest pytest-cov
+        pytest --cov=fissa --cov-config .coveragerc
 
    and look at the value in the 'Cover' column for any files you have
    added or amended.
@@ -143,33 +143,33 @@ following rules before submitting a pull request.
    not covered, or were only partially covered. If necessary, you can do
    this as follows:
 
-   ::
+   .. code:: bash
 
-        $ py.test --cov=fissa --cov-config .coveragerc --cov-report html --cov-report term-missing
-        $ sensible-browser ./htmlcov/index.html
+        pytest --cov=fissa --cov-config .coveragerc --cov-report html --cov-report term-missing
+        sensible-browser ./htmlcov/index.html
 
 -  No `pyflakes <https://pypi.python.org/pypi/pyflakes>`__ warnings.
    Check with:
 
-   ::
+   .. code:: bash
 
-        $ pip install pyflakes
-        $ pyflakes path/to/module.py
+        pip install pyflakes
+        pyflakes path/to/module.py
 
 -  No `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ warnings.
    Check with:
 
-   ::
+   .. code:: bash
 
-        $ pip install pep8
-        $ pep8 path/to/module.py
+        pip install pep8
+        pep8 path/to/module.py
 
    AutoPEP8 can help you fix some of the easier PEP8 errors.
 
-   ::
+   .. code:: bash
 
-        $ pip install autopep8
-        $ autopep8 -i -a -a path/to/module.py
+        pip install autopep8
+        autopep8 -i -a -a path/to/module.py
 
    Note that using the ``-i`` flag will modify your existing file
    in-place, so be sure to save any changes made in your editor
@@ -177,10 +177,10 @@ following rules before submitting a pull request.
 
 These tests can be collectively performed in one line with:
 
-::
+.. code:: bash
 
-    $ pip install -r requirements-dev.txt
-    $ py.test --flake8 --cov=fissa --cov-config .coveragerc --cov-report html --cov-report term
+    pip install -r requirements-dev.txt
+    pytest --flake8 --cov=fissa --cov-config .coveragerc --cov-report html --cov-report term
 
 Commit messages
 ~~~~~~~~~~~~~~~
