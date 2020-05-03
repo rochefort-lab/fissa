@@ -250,57 +250,45 @@ Alternatively, you can use an Anaconda_ environment (not detailed here).
 .. _downloading Python: https://www.python.org/downloads/
 .. _Anaconda: https://www.anaconda.com/products/individual
 
-Dependencies of dependencies
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.  Dependencies of dependencies
 
--  scipy_ requires a `Fortran compiler and BLAS/LAPACK/ATLAS`_
+    -  scipy_ requires a `Fortran compiler and BLAS/LAPACK/ATLAS`_
 
--  shapely_ requires GEOS.
+    -  shapely_ requires GEOS.
 
--  Pillow_>=3.0.0 effectively requires a JPEG library.
+    -  Pillow_>=3.0.0 effectively requires a JPEG library.
 
-These packages can be installed on Debian/Ubuntu with the following
-shell commands.
+    These packages can be installed on Debian/Ubuntu with the following
+    shell commands.
 
-.. code:: bash
+    .. code:: bash
 
-    sudo apt-get update
-    sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
-    sudo apt-get install libgeos-dev
-    sudo apt-get install libjpeg-dev
+        sudo apt-get update
+        sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-dev libatlas-base-dev
+        sudo apt-get install libgeos-dev
+        sudo apt-get install libjpeg-dev
 
-.. _scipy: https://pypi.python.org/pypi/scipy/
-.. _Fortran compiler and BLAS/LAPACK/ATLAS: http://www.scipy.org/scipylib/building/linux.html#installation-from-source
-.. _shapely: https://pypi.python.org/pypi/Shapely
-.. _Pillow: https://pypi.org/project/Pillow/
+    .. _scipy: https://pypi.python.org/pypi/scipy/
+    .. _Fortran compiler and BLAS/LAPACK/ATLAS: http://www.scipy.org/scipylib/building/linux.html#installation-from-source
+    .. _shapely: https://pypi.python.org/pypi/Shapely
+    .. _Pillow: https://pypi.org/project/Pillow/
 
-.. installing-fissa-on-linux:
+2.  Install the latest release version of FISSA from PyPI_ using pip_:
 
-Installing FISSA
-^^^^^^^^^^^^^^^^
+    .. code:: bash
 
-For normal usage of FISSA, you can install the latest release version on
-PyPI using pip:
+        pip install fissa
 
-.. code:: bash
+3.  You can check to see if FISSA is installed by running the command:
 
-    pip install fissa
+    .. code:: bash
 
-To also install fissa along with the dependencies required to run our
-sample notebooks (which include plots rendered with holoviews) you
-should run the following command:
+        python -c "import fissa; print(fissa.__version__)"
 
-.. code:: bash
+    You will see your FISSA version number printed in the terminal.
 
-    pip install fissa['plotting']
-
-You can check to see if FISSA is installed by running the command:
-
-.. code:: bash
-
-    python -c "import fissa; print(fissa.__version__)"
-
-You will see your FISSA version number printed in the terminal.
+4.  You can now use FISSA from the Python command prompt, as
+    described in Usage_ above.
 
 
 Citing FISSA
