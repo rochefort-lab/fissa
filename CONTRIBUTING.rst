@@ -194,23 +194,21 @@ guide <https://docs.scipy.org/doc/numpy-1.10.1/dev/gitwash/development_workflow.
 
 You can use these flags at the start of your commit messages:
 
-::
-
-    API: an (incompatible) API change
-    BLD: change related to building the package
-    BUG: bug fix
-    CI: change continuous integration build
-    DEP: deprecate something, or remove a deprecated object
-    DEV: development tool or utility
-    DOC: documentation; only change/add/remove docstrings, markdown or comments
-    ENH: enhancement; add a new feature without removing existing features
-    JNB: changing a jupyter notebook
-    MNT: maintenance commit (refactoring, typos, etc.); no functional change
-    REL: related to releases
-    REV: revert an earlier commit
-    RF: refactoring
-    STY: style fix (whitespace, PEP8)
-    TST: addition or modification of tests
+    | **API**: an (incompatible) API change
+    | **BLD**: change related to building the package
+    | **BUG**: bug fix
+    | **CI**: change continuous integration build
+    | **DEP**: deprecate something, or remove a deprecated object
+    | **DEV**: development tool or utility
+    | **DOC**: documentation; only change/add/remove docstrings, markdown or comments
+    | **ENH**: enhancement; add a new feature without removing existing features
+    | **JNB**: changing a jupyter notebook
+    | **MNT**: maintenance commit (refactoring, typos, etc.); no functional change
+    | **REL**: related to releases
+    | **REV**: revert an earlier commit
+    | **RF**: refactoring
+    | **STY**: style fix (whitespace, PEP8)
+    | **TST**: addition or modification of tests
 
 Notes
 -----
