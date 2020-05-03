@@ -352,10 +352,10 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |Py Versions| image:: https://img.shields.io/pypi/pyversions/fissa
    :target: PyPI_
    :alt: Python Versions Supported
-.. |Travis| image:: https://travis-ci.org/rochefort-lab/fissa.svg?branch=master
+.. |Travis| image:: https://img.shields.io/travis/rochefort-lab/fissa/master?label=Linux%20build
    :target: https://travis-ci.org/rochefort-lab/fissa
    :alt: Travis Build Status
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/n694frm31qcv29j0/branch/master?svg=true
+.. |AppVeyor| image:: https://img.shields.io/appveyor/build/scottclowe/rochefort-lab-fissa/master?label=Windows%20build
    :target: https://ci.appveyor.com/project/scottclowe/rochefort-lab-fissa/branch/master
    :alt: AppVeyor Build Status
 .. |readthedocs| image:: https://img.shields.io/badge/docs-readthedocs-blue
