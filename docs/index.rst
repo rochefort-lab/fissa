@@ -30,7 +30,7 @@ published in Scientific Reports.
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
