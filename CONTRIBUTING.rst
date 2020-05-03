@@ -50,7 +50,7 @@ We are glad to accept any sort of documentation: function docstrings,
 tutorials, Jupyter notebooks demonstrating implementation details, etc.
 
 reStructuredText documents and notebooks live in the source code
-repository under the ``doc/`` directory.
+repository under the ``docs`` directory.
 
 Docstrings
 ~~~~~~~~~~
