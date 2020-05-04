@@ -165,26 +165,26 @@ Official Python distribution
 
 .. _download_python: https://www.python.org/downloads/
 
-3.  Run the executable file downloaded, which has a name formatted like
+2.  Run the executable file downloaded, which has a name formatted like
     **python-3.y.z.exe**.
 
-4.  In the installation window, tick the checkbox "Add Python 3.y to PATH".
+3.  In the installation window, tick the checkbox "Add Python 3.y to PATH".
 
-5.  Click "Install Now", and go though the installation process to
+4.  Click "Install Now", and go though the installation process to
     install Python.
 
-6.  Open the **Command Prompt** application. We can run Python from the
+5.  Open the **Command Prompt** application. We can run Python from the
     general purpose command prompt because we added its binaries to the
-    global ``PATH`` variable in Step |nbsp| 4.
+    global ``PATH`` variable in Step |nbsp| 3.
 
-7.  At the **Command Prompt** command prompt, install fissa and its
+6.  At the **Command Prompt** command prompt, install fissa and its
     dependencies by running the command:
 
     .. code:: batch
 
         pip install fissa
 
-8.  You can check to see if fissa is installed with:
+7.  You can check to see if fissa is installed with:
 
     .. code:: batch
 
@@ -192,10 +192,10 @@ Official Python distribution
 
     You should see your FISSA version number printed in the terminal.
 
-9.  You can now use FISSA from the Python command prompt. To open a python
+8.  You can now use FISSA from the Python command prompt. To open a python
     command prompt, either execute the command ``python`` within the
     **Command Prompt**, or open Python executable which was installed in
-    Step |nbsp| 5. At the python command prompt, you can run FISSA as described
+    Step |nbsp| 4. At the python command prompt, you can run FISSA as described
     in Usage_ above.
 
 Anaconda distribution
