@@ -19,6 +19,8 @@ Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
 Release date: 2020-04-07.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.3...0.6.4>`__.
 
+**Note**: This version fully supports Python 3.8, but unfortunately this information was not noted correctly in the PyPI metadata for the release.
+
 .. _v0.6.4 Fixed:
 
 Fixed
