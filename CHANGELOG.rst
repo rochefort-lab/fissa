@@ -13,6 +13,20 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Version `0.6.5 <https://github.com/rochefort-lab/fissa/tree/0.6.5>`__
+---------------------------------------------------------------------
+
+Release date: 2020-05-04.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.4...0.6.5>`__.
+
+Version 0.6.5 is a quick patch release to fix the Python version metadata on PyPI, indicating that Python 3.8 is supported.
+
+Changed
+~~~~~~~
+
+-   Metadata indicates Python 3.8 is supported.
+
+
 Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
 ---------------------------------------------------------------------
 
