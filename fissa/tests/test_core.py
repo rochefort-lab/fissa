@@ -24,8 +24,10 @@ class TestExperimentA(BaseTestCase):
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
         self.output_dir = os.path.join(
             self.resources_dir,
-            'out-{}-{:06d}'.format(datetime.now().strftime('%H%M%S%f'),
-                               random.randrange(999999))
+            'out-{}-{:06d}'.format(
+                datetime.now().strftime('%H%M%S%f'),
+                random.randrange(999999)
+            )
         )
         self.images_dir = 'images'
         self.image_names = ['AVG_A01_R1_small.tif']
