@@ -318,6 +318,8 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         exp.separate()
         exp.save_to_matlab()
+        expected_file = os.path.join(self.output_dir, 'matlab.mat')
+        self.assertTrue(os.path.isfile(expected_file))
         #TODO: Check contents of the .mat file
 
     def test_matlab_deltaf(self):
