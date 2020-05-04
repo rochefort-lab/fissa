@@ -13,6 +13,12 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
+Unreleased
+----------
+
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.0...master>`__.
+
+
 Version `0.7.0 <https://github.com/rochefort-lab/fissa/tree/0.7.0>`__
 ---------------------------------------------------------------------
 
