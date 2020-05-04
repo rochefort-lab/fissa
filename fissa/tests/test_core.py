@@ -322,6 +322,19 @@ class TestExperimentA(BaseTestCase):
         self.assertTrue(os.path.isfile(expected_file))
         #TODO: Check contents of the .mat file
 
+    def test_matlab_custom_fname(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separate()
+        fname = os.path.join(
+            self.output_dir,
+            'test_{}.mat'.format(random.randrange(999999))
+        )
+        exp.save_to_matlab(fname)
+        self.assertTrue(os.path.isfile(fname))
+        #TODO: Check contents of the .mat file
+
     def test_matlab_deltaf(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
