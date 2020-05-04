@@ -13,10 +13,74 @@ Categories for changes are: Added, Changed, Deprecated, Removed, Fixed,
 Security.
 
 
-Unreleased
-----------
+Version `0.7.0 <https://github.com/rochefort-lab/fissa/tree/0.7.0>`__
+---------------------------------------------------------------------
 
-`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.4...master>`__.
+Release date: 2020-05-04.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.4...0.7.0>`__.
+
+.. _v0.7.0 Security:
+
+Security
+~~~~~~~~
+
+-   **Caution:** This release knowingly exposes a new security vulnerability.
+    In numpy 1.16, the default behaviour of
+    `numpy.load <https://numpy.org/doc/stable/reference/generated/numpy.load.html>`__
+    changed to stop loading files saved with pickle compression by default,
+    due to potential security problems. However, the default behaviour of
+    `numpy.save <https://numpy.org/doc/stable/reference/generated/numpy.save.html>`__
+    is still to save with pickling enabled. In order to preserve our
+    user-experience and backward compatibility with existing fissa cache files,
+    we have changed our behaviour to allow numpy to load from pickled files.
+    (`#111 <https://github.com/rochefort-lab/fissa/pull/111>`__)
+
+.. _v0.7.0 Changed:
+
+Changed
+~~~~~~~
+
+-   Officially drop support for Python 3.3 and 3.4.
+    Add `python_requires` to package metadata, specifying Python 2.7 or >=3.5 is required.
+    (`#114 <https://github.com/rochefort-lab/fissa/pull/114>`__)
+-   Allow tuples and other sequences to be image and roi inputs to FISSA, not just lists.
+    (`#73 <https://github.com/rochefort-lab/fissa/pull/73>`__)
+-   Multiprocessing is no longer used when the number of cores is specified as 1.
+    (`#74 <https://github.com/rochefort-lab/fissa/pull/74>`__)
+-   Changed default ``axis`` argument to internal function ``fissa.roitools.shift_2d_array`` from ``None`` to ``0``.
+    (`#54 <https://github.com/rochefort-lab/fissa/pull/54>`__)
+-   Documentation updates.
+    (`#112 <https://github.com/rochefort-lab/fissa/pull/112>`__,
+    `#115 <https://github.com/rochefort-lab/fissa/pull/115>`__,
+    `#119 <https://github.com/rochefort-lab/fissa/pull/119>`__,
+    `#120 <https://github.com/rochefort-lab/fissa/pull/120>`__,
+    `#121 <https://github.com/rochefort-lab/fissa/pull/121>`__)
+
+.. _v0.7.0 Fixed:
+
+Fixed
+~~~~~
+
+-   Allow loading from pickled numpy saved files.
+    (`#111 <https://github.com/rochefort-lab/fissa/pull/111>`__)
+-   Problems reading ints correctly from ImageJ rois on Windows; fixed for Python 3 but not Python 2.
+    This problem does not affect Unix, which was already working correctly on both Python 2 and 3.
+    (`#90 <https://github.com/rochefort-lab/fissa/pull/90>`__)
+-   Reject unsupported ``axis`` argument to internal function ``fissa.roitools.shift_2d_array``.
+    (`#54 <https://github.com/rochefort-lab/fissa/pull/54>`__)
+-   Don't round number of npil segments down to 0 in ``fissa.roitools.split_npil`` when using ``adaptive_num=True``.
+    (`#54 <https://github.com/rochefort-lab/fissa/pull/54>`__)
+-   Handling float ``num_slices`` in ``fissa.roitools.split_npil``, for when ``adaptive_num=True``, which was causing problems on Python 3.
+    (`#54 <https://github.com/rochefort-lab/fissa/pull/54>`__)
+
+.. _v0.7.0 Added:
+
+Added
+~~~~~
+
+-   Test suite additions.
+    (`#54 <https://github.com/rochefort-lab/fissa/pull/54>`__,
+    `#99 <https://github.com/rochefort-lab/fissa/pull/99>`__)
 
 
 Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
@@ -24,6 +88,8 @@ Version `0.6.4 <https://github.com/rochefort-lab/fissa/tree/0.6.4>`__
 
 Release date: 2020-04-07.
 `Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.6.3...0.6.4>`__.
+
+This version fully supports Python 3.8, but unfortunately this information was not noted correctly in the PyPI metadata for the release.
 
 .. _v0.6.4 Fixed:
 
