@@ -556,13 +556,11 @@ class Experiment():
     def save_to_matlab(self, fname=None):
         """Save the results to a matlab file.
 
-        Can be found in `folder/matlab.mat`.
-
-        This will give you a filename.mat file which if loaded in Matlab gives
-        the following structs: ROIs, result, raw.
+        This will generate a .mat file which can be loaded into Matlab to
+        provide structs: ROIs, result, raw.
 
         If df/f0 was calculated, these will also be stored as `df_result`
-        and `df_raw`, which will have the same format as result and raw.
+        and `df_raw`, which will have the same format as `result` and `raw`.
 
         These can be interfaced with as follows, for cell 0, trial 0:
 
