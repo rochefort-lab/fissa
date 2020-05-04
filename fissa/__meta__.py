@@ -1,6 +1,6 @@
 name = 'fissa'
 path = name
-version = '0.7.dev0'
+version = '0.7.0'
 author = "Sander Keemink & Scott Lowe"
 author_email = "swkeemink@scimail.eu"
 description = "A Python Library estimating somatic signals in 2-photon data"
