@@ -67,5 +67,7 @@ class TestNeuropilFuns(BaseTestCase):
                 self.assert_equal(convergence, con_desired_nmf)
 
         # test all two methods
-        run_method('nmf')
-        run_method('ica')
+        with self.subTest(0):
+            run_method('nmf')
+        with self.subTest(1):
+            run_method('ica')
