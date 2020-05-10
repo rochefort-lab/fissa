@@ -24,8 +24,10 @@ class TestExperimentA(BaseTestCase):
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
         self.output_dir = os.path.join(
             self.resources_dir,
-            'out-{}-{:06d}'.format(datetime.now().strftime('%H%M%S%f'),
-                               random.randrange(999999))
+            'out-{}-{:06d}'.format(
+                datetime.now().strftime('%H%M%S%f'),
+                random.randrange(999999)
+            )
         )
         self.images_dir = 'images'
         self.image_names = ['AVG_A01_R1_small.tif']
@@ -316,6 +318,21 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         exp.separate()
         exp.save_to_matlab()
+        expected_file = os.path.join(self.output_dir, 'matlab.mat')
+        self.assertTrue(os.path.isfile(expected_file))
+        #TODO: Check contents of the .mat file
+
+    def test_matlab_custom_fname(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separate()
+        fname = os.path.join(
+            self.output_dir,
+            'test_{}.mat'.format(random.randrange(999999))
+        )
+        exp.save_to_matlab(fname)
+        self.assertTrue(os.path.isfile(fname))
         #TODO: Check contents of the .mat file
 
     def test_matlab_deltaf(self):

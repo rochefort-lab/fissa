@@ -553,16 +553,14 @@ class Experiment():
         self.deltaf_raw = deltaf_raw
         self.deltaf_result = deltaf_result
 
-    def save_to_matlab(self):
+    def save_to_matlab(self, fname=None):
         """Save the results to a matlab file.
 
-        Can be found in `folder/matlab.mat`.
-
-        This will give you a filename.mat file which if loaded in Matlab gives
-        the following structs: ROIs, result, raw.
+        This will generate a .mat file which can be loaded into Matlab to
+        provide structs: ROIs, result, raw.
 
         If df/f0 was calculated, these will also be stored as `df_result`
-        and `df_raw`, which will have the same format as result and raw.
+        and `df_raw`, which will have the same format as `result` and `raw`.
 
         These can be interfaced with as follows, for cell 0, trial 0:
 
@@ -572,9 +570,17 @@ class Experiment():
         - `result.cell0.trial0(2,:)` contaminating signal
         - `raw.cell0.trial0(1,:)` raw measured celll signal
         - `raw.cell0.trial0(2,:)` raw signal from first neuropil region
+
+        Parameters
+        ----------
+        fname : str, optional
+            Destination for output file. Default is a file named `'matlab.mat'`
+            within the cache save directory for the experiment (the `folder`
+            argument when the `Experiment` instance was created).
         """
         # define filename
-        fname = os.path.join(self.folder, 'matlab.mat')
+        if fname is None:
+            fname = os.path.join(self.folder, 'matlab.mat')
 
         # initialize dictionary to save
         M = collections.OrderedDict()
