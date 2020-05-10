@@ -132,7 +132,8 @@ def separate(
             if ith_try + 1 < maxtries:
                 print('Trying a new random state.')
                 # Change to a new random_state
-                random_state = rand.randint(8000)
+                if random_state is not None:
+                    random_state = (random_state + 1) % 2**32
 
         if ica.n_iter_ == maxiter:
             print((
@@ -182,7 +183,8 @@ def separate(
             if ith_try + 1 < maxtries:
                 print('Trying a new random state.')
                 # Change to a new random_state
-                random_state = rand.randint(8000)
+                if random_state is not None:
+                    random_state = (random_state + 1) % 2**32
 
         if nmf.n_iter_ == maxiter - 1:
             print((
