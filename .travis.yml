@@ -44,7 +44,7 @@ env:
     # Values are "true", "false" or "".
     - TEST_NOTEBOOKS="true"
     - USE_SIMA="true"
-    - USE_SUITE2P="true"
+    - USE_SUITE2P="false"
     # Set flag for whether to use a conda environment
     # values can be:
     # "" or "false":  conda not used
