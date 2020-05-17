@@ -327,7 +327,11 @@ before_install:
   # are in requirements.txt)
   - |
     if [[ "$USE_CONDA" != "false" && "$USE_CONDA" != "" ]]; then
-        conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+        if [[ "$USE_CONDA" == "binder" ]]; then
+            conda env create -q -f .binder/environment.yml -n test-environment;
+        else
+            conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip $NUMPY_REQUIREMENT $SCIPY_REQUIREMENT;
+        fi;
         source activate test-environment;
         PYTHONCMD=python;
     fi;
