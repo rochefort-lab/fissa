@@ -18,25 +18,23 @@ class TestNeuropilFuns(BaseTestCase):
         self.l = 100
         # setup basic x values for fake data
         self.x = np.linspace(0, np.pi * 2, self.l)
+        # Generate simple source data
+        self.data = np.array([np.sin(self.x), np.cos(3 * self.x)]) + 1
+        # Mix to make test data
+        self.W = np.array([[0.2, 0.8], [0.8, 0.2]])
+        self.S = np.dot(self.W, self.data)
 
     def test_separate(self):
         """Tests the separate function data format."""
         # desired shapes
         shape_desired = (2, self.l)
 
-        # setup fake data
-        data = np.array([np.sin(self.x), np.cos(3 * self.x)]) + 1
-
-        # mix fake data
-        W = np.array([[0.2, 0.8], [0.8, 0.2]])
-        S = np.dot(W, data)
-
         # function for testing a method
         def run_method(method, expected_converged=None, **kwargs):
             """Test a single method, with specific parameters."""
             # Run the separation routine
             S_sep, S_matched, A_sep, convergence = npil.separate(
-                S, sep_method=method, **kwargs
+                self.S, sep_method=method, **kwargs
             )
             # Ensure output shapes are as expected
             self.assert_equal(S_sep.shape, shape_desired)
