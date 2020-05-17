@@ -63,3 +63,7 @@ class TestNeuropilFuns(BaseTestCase):
         with self.subTest(i_subtest):
             run_method('nmf', expected_converged=True, alpha=.2)
         i_subtest += 1
+
+    def test_badmethod(self):
+        with self.assertRaises(ValueError):
+            npil.separate(self.S, sep_method='bogus_method')
