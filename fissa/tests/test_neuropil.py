@@ -44,7 +44,7 @@ class TestNeuropilFuns(BaseTestCase):
         S = np.dot(W, data)
 
         # function for testing a method
-        def run_method(method):
+        def run_method(method, expected=None):
             """Test a single method.
 
             Parameters
@@ -61,13 +61,11 @@ class TestNeuropilFuns(BaseTestCase):
             self.assert_equal(S_sep.shape, shape_desired)
             self.assert_equal(S_matched.shape, shape_desired)
             self.assert_equal(S_sep.shape, shape_desired)
-            if method == 'ica':
-                self.assert_equal(convergence, con_desired_ica)
-            elif method == 'nmf':
-                self.assert_equal(convergence, con_desired_nmf)
+            if expected is not None:
+                self.assert_equal(convergence, expected)
 
         # test all two methods
         with self.subTest(0):
-            run_method('nmf')
+            run_method('nmf', con_desired_nmf)
         with self.subTest(1):
-            run_method('ica')
+            run_method('ica', con_desired_ica)
