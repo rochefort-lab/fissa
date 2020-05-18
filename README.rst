@@ -319,6 +319,10 @@ For your convenience, we provide a copy of this citation in `bibtex`_ and `RIS`_
 .. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
 .. _RIS: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.ris
 
+You can browse papers which utilise FISSA `here <gscholarcitations_>`_.
+
+.. _gscholarcitations: https://scholar.google.com/scholar?cites=15500040671728073630
+
 
 License
 -------
