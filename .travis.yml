@@ -493,8 +493,8 @@ after_success:
   # coverage report wasn't published.
   - |
     if [[ "$TRAVIS" = "true" && "$SHIPPABLE" != "true" ]]; then
-        $PYTHONCMD -m pip install codecov;
-        travis_retry codecov || echo "Codecov push failed";
+        curl -s -S -L --connect-timeout 5 --retry 6 https://codecov.io/bash -o codecov-upload.sh || echo "Codecov script failed to download";
+        travis_retry bash codecov-upload.sh || echo "Codecov push failed";
         $PYTHONCMD -m pip install coveralls;
         travis_retry coveralls || echo "Coveralls push failed";
     fi;
