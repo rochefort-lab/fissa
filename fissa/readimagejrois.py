@@ -272,7 +272,7 @@ def _parse_roi_file_py3(roi_source):
     """Parses an individual ImageJ ROI
 
     This implementation utilises the read_roi package, which is more robust
-    but does only supports Python 3+ and not Python 2.7.
+    but only supports Python 3+ and not Python 2.7.
 
     Parameters
     ----------
