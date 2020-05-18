@@ -10,7 +10,6 @@ Created:
 
 import numpy as np
 import numpy.random as rand
-import scipy.signal as signal
 from sklearn.decomposition import FastICA, NMF, PCA
 
 
@@ -236,38 +235,3 @@ def separate(
     S_matched *= median
     S *= median
     return S_sep.T, S_matched.T, A_sep, convergence
-
-
-def lowPassFilter(F, fs=40, nfilt=40, fw_base=10, axis=0):
-    '''Low pass filters a fluorescence imaging trace line.
-
-    Parameters
-    ----------
-    F : array_like
-        Fluorescence signal.
-    fs : float, optional
-        Sampling frequency of F, in Hz. Default is 40.
-    nfilt : int, optional
-        Number of taps to use in FIR filter. Default is 40.
-    fw_base : float, optional
-        Cut-off frequency for lowpass filter, in Hz. Default is 10.
-    axis : int, optional
-        Along which axis to apply low pass filtering. Default is 0.
-
-    Returns
-    -------
-    numpy.ndarray
-        Low pass filtered signal with the same shape as `F`.
-    '''
-    # The Nyquist rate of the signal is half the sampling frequency
-    nyq_rate = fs / 2.0
-
-    # Make a set of weights to use with our taps.
-    # We use an FIR filter with a Hamming window.
-    b = signal.firwin(nfilt, cutoff=fw_base / nyq_rate, window='hamming')
-
-    # Use lfilter to filter with the FIR filter.
-    # We filter along the second dimension because that represents time
-    filtered_f = signal.filtfilt(b, [1.0], F, axis=axis)
-
-    return filtered_f
