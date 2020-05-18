@@ -42,7 +42,7 @@ class TestRois2Masks(BaseTestCase):
 
     def test_imagej_zip(self):
         # load zip of rois
-        ROI_loc = 'fissa/tests/resources/RoiSet.zip'
+        ROI_loc = os.path.join(self.test_directory, 'resources', 'RoiSet.zip')
         actual = datahandler.rois2masks(ROI_loc, self.data)
 
         # assert equality
