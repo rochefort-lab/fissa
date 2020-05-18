@@ -126,7 +126,7 @@ def separate_func(inputs):
 class Experiment():
     """Does all the steps for FISSA."""
 
-    def __init__(self, images, rois, folder, nRegions=4,
+    def __init__(self, images, rois, folder=None, nRegions=4,
                  expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
                  lowmemory_mode=False, datahandler_custom=None):
@@ -158,9 +158,9 @@ class Experiment():
             This can either be a single roiset for all trials, or a different
             roiset for each trial.
 
-        folder : str
+        folder : str or None, optional
             Output path to a directory in which the extracted data will
-            be stored.
+            be stored. If `None` (default), the data will not be cached.
         nRegions : int, optional
             Number of neuropil regions to draw. Use a higher number for
             densely labelled tissue. Default is 4.
@@ -242,9 +242,11 @@ class Experiment():
         self.method = method
 
         # check if any data already exists
-        if not os.path.exists(folder):
+        if folder is None:
+            pass
+        elif not os.path.exists(folder):
             os.makedirs(folder)
-        if os.path.isfile(os.path.join(folder, 'preparation.npy')):
+        elif os.path.isfile(os.path.join(folder, 'preparation.npy')):
             if os.path.isfile(os.path.join(folder, 'separated.npy')):
                 self.separate()
             else:
@@ -280,7 +282,11 @@ class Experiment():
 
         """
         # define filename where data will be present
-        fname = os.path.join(self.folder, 'preparation.npy')
+        if self.folder is None:
+            fname = None
+            redo = True
+        else:
+            fname = os.path.join(self.folder, 'preparation.npy')
 
         # try to load data from filename
         if not redo:
@@ -338,7 +344,8 @@ class Experiment():
                     roi_polys[cell][trial] = results[trial][1][cell]
 
             # save
-            np.save(fname, (nCell, raw, roi_polys))
+            if fname is not None:
+                np.save(fname, (nCell, raw, roi_polys))
 
         # store relevant info
         self.nCell = nCell  # number of cells
@@ -391,7 +398,11 @@ class Experiment():
             redo_sep = True
 
         # Define filename to store data in
-        fname = os.path.join(self.folder, 'separated.npy')
+        if self.folder is None:
+            fname = None
+            redo_sep = True
+        else:
+            fname = os.path.join(self.folder, 'separated.npy')
         if not redo_sep:
             try:
                 info, mixmat, sep, result = np.load(fname, allow_pickle=True)
@@ -463,7 +474,8 @@ class Experiment():
                     info[cell][trial] = convergence
 
             # save
-            np.save(fname, (info, mixmat, sep, result))
+            if fname is not None:
+                np.save(fname, (info, mixmat, sep, result))
 
         # store
         self.info = info
@@ -580,6 +592,10 @@ class Experiment():
         """
         # define filename
         if fname is None:
+            if self.folder is None:
+                raise ValueError(
+                    'fname must be provided if experiment folder is undefined'
+                )
             fname = os.path.join(self.folder, 'matlab.mat')
 
         # initialize dictionary to save

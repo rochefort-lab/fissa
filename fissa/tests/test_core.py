@@ -145,6 +145,16 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
 
+    def test_nocache(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path)
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
     def test_ncores_preparation_1(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
@@ -334,6 +344,13 @@ class TestExperimentA(BaseTestCase):
         exp.save_to_matlab(fname)
         self.assertTrue(os.path.isfile(fname))
         #TODO: Check contents of the .mat file
+
+    def test_matlab_no_cache_no_fname(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        exp = core.Experiment(image_path, roi_path)
+        exp.separate()
+        self.assertRaises(ValueError, exp.save_to_matlab)
 
     def test_matlab_deltaf(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)

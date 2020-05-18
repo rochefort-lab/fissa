@@ -14713,7 +14713,11 @@ Define your inputs. All that's necessary to define are the image data and ROIs. 
 <span class="n">images_location</span> <span class="o">=</span> <span class="s1">&#39;exampleData/20150529&#39;</span>
 <span class="n">rois_location</span> <span class="o">=</span> <span class="s1">&#39;exampleData/20150429.zip&#39;</span>
 
-<span class="c1"># Folder where data will be stored. Make sure to use a different folder for each experiment.</span>
+<span class="c1"># Define the folder where FISSA&#39;s outputs will be stored, so they can be</span>
+<span class="c1"># quickly reloaded in the future without having to recompute them.</span>
+<span class="c1"># Make sure to use a different folder for each experiment.</span>
+<span class="c1"># This argument is optional; if it is not provided, FISSA will not save its</span>
+<span class="c1"># results for later use.</span>
 <span class="n">output_folder</span> <span class="o">=</span> <span class="s1">&#39;fissa_example&#39;</span>
 
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">fissa</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span><span class="n">images_location</span><span class="p">,</span> <span class="n">rois_location</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
