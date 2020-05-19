@@ -299,7 +299,7 @@ def _parse_roi_file_py3(roi_source):
     z = roi.get('z', 0)
 
     if roi['type'] == 'rectangle':
-        # Rectangle
+        # Rectangle is converted into polygon co-ordinates
         coords = [[left, top, z], [right, top, z], [right, bottom, z],
                   [left, bottom, z]]
         coords = np.array(coords).astype('float')
