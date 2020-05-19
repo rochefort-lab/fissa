@@ -4,6 +4,8 @@ Tests for readimagejrois.py.
 
 import json
 import os
+import sys
+import unittest
 
 import numpy as np
 
@@ -52,8 +54,14 @@ class TestReadImageJRois(BaseTestCase):
     def test_freeline(self):
         self.check_polygon("freeline")
 
+    @unittest.skipIf(sys.version_info < (3, 0), "multipoint rois only supported on Python 3")
     def test_multipoint(self):
         self.check_polygon("multipoint")
+
+    @unittest.skipIf(sys.version_info >= (3, 0), "multipoint rois are supported on Python 3")
+    def test_multipoint_py2_raises(self):
+        with self.assertRaises(ValueError):
+            self.check_polygon("multipoint")
 
     def test_polygon(self):
         self.check_polygon("polygon")
@@ -64,8 +72,14 @@ class TestReadImageJRois(BaseTestCase):
     def test_rectangle(self):
         self.check_polygon("rectangle")
 
+    @unittest.skipIf(sys.version_info < (3, 0), "Rotated rectangle rois only supported on Python 3")
     def test_rectangle_rotated(self):
         self.check_polygon("rectangle-rotated")
+
+    @unittest.skipIf(sys.version_info >= (3, 0), "Rotated rectangle rois are supported on Python 3")
+    def test_rectangle_rotated_py2_raises(self):
+        with self.assertRaises(ValueError):
+            self.check_polygon("rectangle-rotated")
 
     def test_rectangle_rounded(self):
         # We ignore the 'arc_size' parameter, and treat it like a regular
