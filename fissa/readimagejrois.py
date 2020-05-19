@@ -37,8 +37,9 @@ def _parse_roi_file_py2(roi_obj):
 
     Parameters
     ----------
-    roi_obj : file object
-        File object containing a single ImageJ ROI
+    roi_obj : file object or str
+        File object containing a single ImageJ ROI, or a path to a single roi
+        file.
 
     Returns
     -------
@@ -54,6 +55,11 @@ def _parse_roi_file_py2(roi_obj):
         If unable to parse ROI
 
     """
+    # If this is a string, try opening the path as a file and running on its
+    # contents
+    if isinstance(roi_obj, basestring):
+        with open(roi_obj) as f:
+            return _parse_roi_file_py2(f)
 
     # Note:
     # _getX() calls with no assignment are present to move our pointer
