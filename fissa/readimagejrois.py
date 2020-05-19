@@ -258,8 +258,10 @@ def _parse_roi_file_py3(roi_source):
         roi = roi[keys[0]]
 
     # Convert the roi dictionary into either polygon or a mask
-    if roi['type'] in ('polygon', 'freehand'):
-        # Polygon
+    if 'x' in roi and 'y' in roi and 'n' in roi:
+        # ROI types "freehand", "freeline", "multipoint", "point", "polygon",
+        # "polyline", and "trace" are loaded and returned as a set of polygon
+        # co-ordinates.
         coords = np.empty((roi['n'], 3), dtype=np.float)
         coords[:, 0] = roi['x']
         coords[:, 1] = roi['y']
