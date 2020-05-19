@@ -67,3 +67,8 @@ class BaseTestCase(unittest.TestCase):
                 if np.equal(actual_j, desired_i).all():
                     n_matches += 1
             self.assertTrue(n_matches >= 0)
+
+    def assert_equal_dict_of_array(self, desired, actual):
+        self.assertEqual(desired.keys(), actual.keys())
+        for k in desired.keys():
+            self.assertEqual(desired[k], actual[k])
