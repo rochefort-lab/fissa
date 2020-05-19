@@ -285,13 +285,21 @@ def _parse_roi_file_py3(roi_source):
 
     elif roi['type'] == 'oval':
         # Oval
-        # 0.5 moves the mid point to the center of the pixel
-        x_mid = (right + left) / 2.0 - 0.5
-        y_mid = (top + bottom) / 2.0 - 0.5
         mask = np.zeros((z + 1, right, bottom), dtype=bool)
-        for y, x in product(np.arange(top, bottom), np.arange(left, right)):
-            mask[z, x, y] = ((x - x_mid) ** 2 / (width / 2.0) ** 2 +
-                             (y - y_mid) ** 2 / (height / 2.0) ** 2 <= 1)
+
+        # We subtract 0.5 because ImageJ's co-ordinate system has indices at
+        # the pixel boundaries, and we are using indices at the pixel centers.
+        x_mid = left + width / 2. - 0.5
+        y_mid = top + height / 2. - 0.5
+
+        # Work out whether each pixel is inside the oval. We only need to check
+        # pixels within the extent of the oval.
+        xx = np.arange(left, right)
+        yy = np.arange(top, bottom)
+        xx = ((xx - x_mid) / (width / 2.)) ** 2
+        yy = ((yy - y_mid) / (height / 2.)) ** 2
+        dd = np.expand_dims(xx, 1) + np.expand_dims(yy, 0)
+        mask[z, left:, top:] = dd <= 1
         return {'mask': mask}
 
     elif roi['type'] == 'ellipse':
