@@ -161,6 +161,11 @@ def _parse_roi_file_py2(roi_obj):
     _get32()  # stroke color
     _get32()  # fill color
     subtype = _get16()
+    if subtype == 5:
+        raise ValueError(
+            'read_imagej_roi: ROI subtype {} (rotated rectangle) not supported'
+            .format(subtype)
+        )
     if subtype != 0 and subtype != 3:
         raise ValueError('read_imagej_roi: \
                           ROI subtype {} not supported (!= 0)'.format(subtype))
