@@ -197,16 +197,37 @@ def _parse_roi_file_py2(roi_obj):
         return {'mask': mask}
     elif roi_type == 7:
         if subtype == 3:
-            # ellipse
-            mask = np.zeros((1, right+10, bottom+10), dtype=bool)
-            r_radius = np.sqrt((x2-x1)**2+(y2-y1)**2)/2.0
-            c_radius = r_radius*aspect_ratio
-            r = (x1+x2)/2-0.5
-            c = (y1+y2)/2-0.5
-            shpe = mask.shape
-            orientation = np.arctan2(y2-y1, x2-x1)
-            X, Y = ellipse(r, c, r_radius, c_radius, shpe[1:], orientation)
-            mask[0, X, Y] = True
+            # Ellipse
+            # Radius of major and minor axes
+            r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.
+            c_radius = r_radius * aspect_ratio
+            # Centre coordinates
+            # We subtract 0.5 because ImageJ's co-ordinate system has indices at
+            # the pixel boundaries, and we are using indices at the pixel centers.
+            x_mid = (x1 + x2) / 2. - 0.5
+            y_mid = (y1 + y2) / 2. - 0.5
+            orientation = np.arctan2(y2 - y1, x2 - x1)
+
+            # We need to make a mask which is a bit bigger than this, because
+            # we don't know how big the ellipse will end up being. In the most
+            # extreme case, it is a circle aligned along a cartesian axis.
+            right = 1 + int(np.ceil(max(x1, x2) + r_radius))
+            bottom = 1 + int(np.ceil(max(y1, y2) + r_radius))
+            mask = np.zeros((z + 1, right, bottom), dtype=bool)
+
+            # Generate the ellipse
+            xx, yy = ellipse(
+                x_mid,
+                y_mid,
+                r_radius,
+                c_radius,
+                mask.shape[1:],
+                rotation=orientation,
+            )
+            # Trim mask down to only the points needed
+            mask = mask[:, :max(xx) + 1, :max(yy) + 1]
+            # Convert sparse ellipse representation to mask
+            mask[z, xx, yy] = True
             return {'mask': mask}
         else:
             # Freehand
