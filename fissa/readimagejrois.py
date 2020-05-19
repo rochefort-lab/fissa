@@ -265,7 +265,7 @@ def _parse_roi_file_py3(roi_source):
         coords = np.empty((roi['n'], 3), dtype=np.float)
         coords[:, 0] = roi['x']
         coords[:, 1] = roi['y']
-        coords[:, 2] = 0
+        coords[:, 2] = roi.get('z', 0)
         return {'polygons': coords}
 
     width = roi['width']
@@ -274,7 +274,7 @@ def _parse_roi_file_py3(roi_source):
     top = roi['top']
     right = left + width
     bottom = top + height
-    z = 0
+    z = roi.get('z', 0)
 
     if roi['type'] == 'rectangle':
         # Rectangle
