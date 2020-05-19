@@ -241,6 +241,9 @@ def _parse_roi_file_py2(roi_obj):
             coords = coords.astype('float')
             return {'polygons': coords}
 
+    elif roi_type == 10:
+        raise ValueError("read_imagej_roi: point/mulipoint types are not supported")
+
     else:
         try:
             coords = _getcoords(z)
