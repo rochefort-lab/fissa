@@ -51,6 +51,9 @@ class BaseTestCase(unittest.TestCase):
         return assert_array_equal(*args, **kwargs)
 
     def assert_allclose(self, *args, **kwargs):
+        # Handle msg argument, which is passed from assertEqual, established
+        # with addTypeEqualityFunc in __init__
+        msg = kwargs.pop('msg', None)
         return assert_allclose(*args, **kwargs)
 
     def assert_equal(self, *args, **kwargs):
