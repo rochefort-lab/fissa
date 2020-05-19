@@ -273,7 +273,7 @@ def _parse_roi_file_py3(roi_source):
     left = roi['left']
     top = roi['top']
     right = left + width
-    bottom = top - height
+    bottom = top + height
     z = 0
 
     if roi['type'] == 'rectangle':
