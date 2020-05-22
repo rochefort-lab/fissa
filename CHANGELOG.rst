@@ -16,7 +16,30 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.0...master>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.1...master>`__.
+
+
+Version `0.7.1 <https://github.com/rochefort-lab/fissa/tree/0.7.1>`__
+---------------------------------------------------------------------
+
+Release date: 2020-05-22.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.0...0.7.1>`__.
+
+.. _v0.7.1 Fixed:
+
+Fixed
+~~~~~
+
+-   Loading oval, ellipse, brush/freehand, freeline, and polyline ImageJ ROIs on Python 3.
+    (`#135 <https://github.com/rochefort-lab/fissa/pull/135>`__)
+
+.. _v0.7.1 Added:
+
+Added
+~~~~~
+
+-   Support for rotated rectangle and multipoint ROIs on Python 3.
+    (`#135 <https://github.com/rochefort-lab/fissa/pull/135>`__)
 
 
 Version `0.7.0 <https://github.com/rochefort-lab/fissa/tree/0.7.0>`__
