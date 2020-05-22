@@ -18,54 +18,52 @@ class TestNeuropilFuns(BaseTestCase):
         self.l = 100
         # setup basic x values for fake data
         self.x = np.linspace(0, np.pi * 2, self.l)
+        # Generate simple source data
+        self.data = np.array([np.sin(self.x), np.cos(3 * self.x)]) + 1
+        # Mix to make test data
+        self.W = np.array([[0.2, 0.8], [0.8, 0.2]])
+        self.S = np.dot(self.W, self.data)
 
     def test_separate(self):
         """Tests the separate function data format."""
-        # TODO: Successfullness of methods are hard to test with unittests.
-        #       Need to make a test case where answer is known, and test
-        #       against that.
-
         # desired shapes
         shape_desired = (2, self.l)
-        con_desired_ica = {'converged': False,
-                           'iterations': 1,
-                           'max_iterations': 1,
-                           'random_state': 892}
-        con_desired_nmf = {'converged': True,
-                           'iterations': 0,
-                           'max_iterations': 1,
-                           'random_state': 892}
-
-        # setup fake data
-        data = np.array([np.sin(self.x), np.cos(3 * self.x)]) + 1
-
-        # mix fake data
-        W = np.array([[0.2, 0.8], [0.8, 0.2]])
-        S = np.dot(W, data)
 
         # function for testing a method
-        def run_method(method):
-            """Test a single method.
-
-            Parameters
-            ----------
-            method : str
-                What method to test: 'nmf', 'ica', or 'nmf_sklearn')
-
-            """
-            # unmix data with ica
+        def run_method(method, expected_converged=None, **kwargs):
+            """Test a single method, with specific parameters."""
+            # Run the separation routine
             S_sep, S_matched, A_sep, convergence = npil.separate(
-                S, sep_method=method, n=2, maxiter=1, maxtries=1)
-
-            # assert if formats are good
+                self.S, sep_method=method, **kwargs
+            )
+            # Ensure output shapes are as expected
             self.assert_equal(S_sep.shape, shape_desired)
             self.assert_equal(S_matched.shape, shape_desired)
             self.assert_equal(S_sep.shape, shape_desired)
-            if method == 'ica':
-                self.assert_equal(convergence, con_desired_ica)
-            elif method == 'nmf':
-                self.assert_equal(convergence, con_desired_nmf)
+            # If specified, assert that the result is as expected
+            if expected_converged is not None:
+                self.assert_equal(convergence['converged'], expected_converged)
 
-        # test all two methods
-        run_method('nmf')
-        run_method('ica')
+        # Run tests
+        i_subtest = 0
+        for method in ['nmf', 'ica']:
+            with self.subTest(i_subtest):
+                run_method(method, expected_converged=True, maxtries=1, n=2)
+            i_subtest += 1
+            with self.subTest(i_subtest):
+                run_method(method, expected_converged=True, maxtries=1)
+            i_subtest += 1
+            with self.subTest(i_subtest):
+                run_method(method, expected_converged=True, maxtries=1, random_state=0)
+            i_subtest += 1
+            with self.subTest(i_subtest):
+                run_method(method, maxiter=1, maxtries=3)
+            i_subtest += 1
+
+        with self.subTest(i_subtest):
+            run_method('nmf', expected_converged=True, alpha=.2)
+        i_subtest += 1
+
+    def test_badmethod(self):
+        with self.assertRaises(ValueError):
+            npil.separate(self.S, sep_method='bogus_method')
