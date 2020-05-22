@@ -51,6 +51,9 @@ class BaseTestCase(unittest.TestCase):
         return assert_array_equal(*args, **kwargs)
 
     def assert_allclose(self, *args, **kwargs):
+        # Handle msg argument, which is passed from assertEqual, established
+        # with addTypeEqualityFunc in __init__
+        msg = kwargs.pop('msg', None)
         return assert_allclose(*args, **kwargs)
 
     def assert_equal(self, *args, **kwargs):
@@ -64,3 +67,8 @@ class BaseTestCase(unittest.TestCase):
                 if np.equal(actual_j, desired_i).all():
                     n_matches += 1
             self.assertTrue(n_matches >= 0)
+
+    def assert_equal_dict_of_array(self, desired, actual):
+        self.assertEqual(desired.keys(), actual.keys())
+        for k in desired.keys():
+            self.assertEqual(desired[k], actual[k])
