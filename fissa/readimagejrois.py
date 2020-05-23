@@ -202,7 +202,7 @@ def _parse_roi_file_py2(roi_obj):
         x_mid = (right + left) / 2.0 - 0.5
         y_mid = (top + bottom) / 2.0 - 0.5
         mask = np.zeros((z + 1, right, bottom), dtype=bool)
-        for y, x in product(np.arange(top, bottom), np.arange(left, right)):
+        for y, x in product(np.arange(max(0, top), bottom), np.arange(max(0, left), right)):
             mask[z, x, y] = ((x - x_mid) ** 2 / (width / 2.0) ** 2 +
                              (y - y_mid) ** 2 / (height / 2.0) ** 2 <= 1)
         return {'mask': mask}
@@ -327,6 +327,10 @@ def _parse_roi_file_py3(roi_source):
         # the pixel boundaries, and we are using indices at the pixel centers.
         x_mid = left + width / 2. - 0.5
         y_mid = top + height / 2. - 0.5
+
+        # Ensure we only make a mask of things which are inside the image
+        left = max(0, left)
+        top = max(0, top)
 
         # Work out whether each pixel is inside the oval. We only need to check
         # pixels within the extent of the oval.
