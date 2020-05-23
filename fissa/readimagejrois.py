@@ -152,6 +152,9 @@ def _parse_roi_file_py2(roi_obj):
     right = _get16signed()
     n_coordinates = _get16()
 
+    if right < 0 or bottom < 0:
+        raise ValueError("ROI is entirely offscreen.")
+
     x1 = _getfloat()  # x1
     y1 = _getfloat()  # y1
     x2 = _getfloat()  # x2
@@ -208,6 +211,8 @@ def _parse_roi_file_py2(roi_obj):
         return {'mask': mask}
     elif roi_type == 7:
         if subtype == 3:
+            if (x1 < 0 and x2 < 0) or (y1 < 0 and y2 < 0):
+                raise ValueError("ROI is entirely offscreen.")
             # Ellipse
             # Radius of major and minor axes
             r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.
@@ -235,6 +240,9 @@ def _parse_roi_file_py2(roi_obj):
                 mask.shape[1:],
                 rotation=orientation,
             )
+            if len(xx) == 0 or len(yy) == 0:
+                raise ValueError("Ellipse ROI is empty.")
+
             # Trim mask down to only the points needed
             mask = mask[:, :max(xx) + 1, :max(yy) + 1]
             # Convert sparse ellipse representation to mask
@@ -301,6 +309,8 @@ def _parse_roi_file_py3(roi_source):
         coords[:, 0] = roi['x']
         coords[:, 1] = roi['y']
         coords[:, 2] = roi.get('z', 0)
+        if np.all(coords[:, 0] < 0) or np.all(coords[:, 1] < 0):
+            raise ValueError("ROI is entirely offscreen.")
         return {'polygons': coords}
 
     if 'width' in roi and 'height' in roi and 'left' in roi and 'top' in roi:
@@ -310,6 +320,9 @@ def _parse_roi_file_py3(roi_source):
         top = roi['top']
         right = left + width
         bottom = top + height
+        if right < 0 or bottom < 0:
+            raise ValueError("ROI is entirely offscreen.")
+
     z = roi.get('z', 0)
 
     if roi['type'] == 'rectangle':
@@ -349,6 +362,8 @@ def _parse_roi_file_py3(roi_source):
         y1 = roi['ey1']
         x2 = roi['ex2']
         y2 = roi['ey2']
+        if (x1 < 0 and x2 < 0) or (y1 < 0 and y2 < 0):
+            raise ValueError("ROI is entirely offscreen.")
 
         # Radius of major and minor axes
         r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.
@@ -376,6 +391,9 @@ def _parse_roi_file_py3(roi_source):
             mask.shape[1:],
             rotation=orientation,
         )
+        if len(xx) == 0 or len(yy) == 0:
+            raise ValueError("Ellipse ROI is empty.")
+
         # Trim mask down to only the points needed
         mask = mask[:, :max(xx) + 1, :max(yy) + 1]
         # Convert sparse ellipse representation to mask
