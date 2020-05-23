@@ -66,6 +66,38 @@ class TestReadImageJRois(BaseTestCase):
     def test_polygon(self):
         self.check_polygon("polygon")
 
+    def test_polygon_left(self):
+        self.check_polygon("polygon-left")
+
+    def test_polygon_top(self):
+        self.check_polygon("polygon-top")
+
+    def test_polygon_right(self):
+        self.check_polygon("polygon-right")
+
+    def test_polygon_bottom(self):
+        self.check_polygon("polygon-bottom")
+
+    def test_polygon_left_offscreen(self):
+        name = "polygon-left-offscreen"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
+
+    def test_polygon_top_offscreen(self):
+        name = "polygon-top-offscreen"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
+
+    def test_polygon_right_offscreen(self):
+        self.check_polygon("polygon-right-offscreen")
+
+    def test_polygon_bottom_offscreen(self):
+        self.check_polygon("polygon-bottom-offscreen")
+
     def test_polyline(self):
         self.check_polygon("polyline")
 
@@ -87,10 +119,74 @@ class TestReadImageJRois(BaseTestCase):
         self.check_polygon("rectangle-rounded")
 
     def test_oval(self):
-        self.check_mask("oval")
+        self.check_mask("oval-center")
 
     def test_oval_full(self):
         self.check_mask("oval-full")
 
+    def test_oval_left(self):
+        self.check_mask("oval-left")
+
+    def test_oval_top(self):
+        self.check_mask("oval-top")
+
+    def test_oval_right(self):
+        self.check_mask("oval-right")
+
+    def test_oval_bottom(self):
+        self.check_mask("oval-bottom")
+
+    def test_oval_left_offscreen(self):
+        name = "oval-left-offscreen"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
+
+    def test_oval_top_offscreen(self):
+        name = "oval-top-offscreen"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
+
+    def test_oval_right_offscreen(self):
+        self.check_mask("oval-right-offscreen")
+
+    def test_oval_bottom_offscreen(self):
+        self.check_mask("oval-bottom-offscreen")
+
     def test_ellipse(self):
-        self.check_mask("ellipse")
+        self.check_mask("ellipse-center")
+
+    def test_ellipse_left(self):
+        self.check_mask("ellipse-left")
+
+    def test_ellipse_top(self):
+        self.check_mask("ellipse-top")
+
+    def test_ellipse_right(self):
+        self.check_mask("ellipse-right")
+
+    def test_ellipse_bottom(self):
+        self.check_mask("ellipse-bottom")
+
+    def test_ellipse_left_offscreen(self):
+        name = "ellipse-left-offscreen"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
+
+    def test_ellipse_top_offscreen(self):
+        name = "ellipse-top-offscreen"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
+
+    def test_ellipse_right_offscreen(self):
+        self.check_mask("ellipse-right-offscreen")
+
+    def test_ellipse_bottom_offscreen(self):
+        self.check_mask("ellipse-bottom-offscreen")
