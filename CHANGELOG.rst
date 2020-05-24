@@ -16,7 +16,30 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.1...master>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.2...master>`__.
+
+
+Version `0.7.2 <https://github.com/rochefort-lab/fissa/tree/0.7.2>`__
+---------------------------------------------------------------------
+
+Release date: 2020-05-24.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.1...0.7.2>`__.
+
+.. _v0.7.2 Fixed:
+
+Fixed
+~~~~~
+
+-   Loading ovals and ellipses which are partially offscreen (to the top or left of the image).
+    (`#140 <https://github.com/rochefort-lab/fissa/pull/140>`__)
+
+.. _v0.7.2 Changed:
+
+Changed
+~~~~~~~
+
+-   Attempting to load any type of ROI which is fully offscreen to the top or left of the image now produces an error.
+    (`#140 <https://github.com/rochefort-lab/fissa/pull/140>`__)
 
 
 Version `0.7.1 <https://github.com/rochefort-lab/fissa/tree/0.7.1>`__
