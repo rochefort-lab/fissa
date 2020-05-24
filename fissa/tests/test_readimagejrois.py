@@ -190,3 +190,11 @@ class TestReadImageJRois(BaseTestCase):
 
     def test_ellipse_bottom_offscreen(self):
         self.check_mask("ellipse-bottom-offscreen")
+
+    def test_ellipse_tiny(self):
+        # ROI which is too small to cover a single pixel
+        name = "ellipse-tiny"
+        with self.assertRaises(ValueError):
+            readimagejrois.parse_roi_file(
+                os.path.join(self.data_dir, name + ".roi")
+            )
