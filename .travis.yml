@@ -89,32 +89,6 @@ jobs:
 
     # Python versions which need to be installed
     - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.5.9 on macOS 10.14 [oldest, no sima/suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="3.5.9"
-        - USE_OLDEST_DEPS="true"
-        - USE_SIMA="false"
-
-    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.5.9 on macOS 10.14 [no suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="3.5.9"
-
-    - if: type = cron AND branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.6.10 on macOS 10.14 [no suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="3.6.10"
-
-    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
       name: "Python 3.8.2 on macOS 10.14 [no sima/suite2p]"
       os: osx
       osx_image: xcode11.13
