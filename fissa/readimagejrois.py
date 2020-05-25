@@ -355,7 +355,9 @@ def _parse_roi_file_py3(roi_source):
         mask[z, left:, top:] = dd <= 1
         return {'mask': mask}
 
-    elif roi['type'] == 'freehand' and 'aspect_ratio' in roi and 'ex1' in roi:
+    elif roi['type'] == 'ellipse' or (
+        roi['type'] == 'freehand' and 'aspect_ratio' in roi and 'ex1' in roi
+    ):
         # Ellipse
         # Co-ordinates of points at either end of major axis
         x1 = roi['ex1']
