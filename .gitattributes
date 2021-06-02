@@ -1,16 +1,17 @@
 ##---------------------------------------------------
 # Common .gitattributes
 ##---------------------------------------------------
+# Common settings that generally should always be used with your language specific settings
 
 # Auto detect text files and perform LF normalization
-* text=auto
+# https://www.davidlaing.com/2012/09/19/customise-your-gitattributes-to-become-a-git-ninja/
+*           text=auto
 
 #
 # The above will handle all files NOT found below
 #
 
 # Documents
-# =========
 *.doc       diff=astextplain
 *.DOC       diff=astextplain
 *.docx      diff=astextplain
@@ -32,7 +33,6 @@
 *.bat       eol=crlf
 
 # Graphics
-# ========
 *.png       binary
 *.jpg       binary
 *.jpeg      binary
