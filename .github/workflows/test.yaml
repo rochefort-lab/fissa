@@ -33,11 +33,15 @@ jobs:
         os: [ubuntu-latest]
         python-version: ["2.7", "3.5", "3.9"]
         include:
+          - os: ubuntu-latest
+            python-version: "3.6"
+            use-sima: "true"
           - os: windows-latest
             python-version: "3.9"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
+      USE_SIMA: ${{ matrix.use-sima }}
 
     steps:
     - uses: actions/checkout@v2
