@@ -91,6 +91,21 @@ jobs:
       run: |
         python -m pytest --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
 
+    - name: "Notebooks: Remove unsupported notebooks"
+      run: |
+        rm examples/*SIMA*;
+        rm examples/*Suite2p*;
+
+    - name: "Notebooks: Install dependencies"
+      run: |
+        python -m pip install .[plotting]
+
+    - name: "Notebooks: Lint check"
+      run: python -m pytest --nbsmoke-lint ./examples/
+
+    - name: "Notebooks: Smoke test"
+      run: python -m pytest --nbsmoke-run ./examples/
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
