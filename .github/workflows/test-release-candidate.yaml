@@ -75,6 +75,13 @@ jobs:
     - name: System information
       run: python .github/workflows/system_info.py
 
+    - name: Dynamically determine extra variables depending on Python version
+      run: |
+        echo "Running on Python $PYTHON"
+        TEST_SIMA=$(python -c "import sys; print(sys.version_info[:2] <= (3, 6))")
+        echo "TEST_SIMA = $TEST_SIMA"
+        echo "test_sima=$TEST_SIMA" >> $GITHUB_ENV
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -96,17 +103,17 @@ jobs:
         python -m pytest --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
 
     - name: "Notebooks: Remove SIMA notebooks"
-      if: ${{ matrix.test-sima != 'true' }}
+      if: ${{ env.test_sima != 'True' }}
       run: rm examples/*SIMA*;
 
     - name: "Notebooks: Remove Suite2p notebooks"
-      if: ${{ matrix.test-suite2p != 'true' }}
+      if: ${{ env.test_suite2p != 'True' }}
       run: rm examples/*Suite2p*;
 
     - name: "Notebooks: Install dependencies"
       run: |
         python -m pip install .[plotting]
-        if [[ "$USE_SIMA" == "true" ]]; then python -m pip install sima; fi;
+        if [[ "${{ env.test_sima }}" == "True" ]]; then python -m pip install sima; fi;
 
     - name: "Notebooks: Lint check"
       run: python -m pytest --nbsmoke-lint ./examples/
