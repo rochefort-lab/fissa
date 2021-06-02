@@ -42,6 +42,10 @@ on:
     # Run on a new release
     types: [created, edited, published]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test-build:
     runs-on: ${{ matrix.os }}
