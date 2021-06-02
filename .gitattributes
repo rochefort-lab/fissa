@@ -12,6 +12,7 @@
 #
 
 # Documents
+*.bibtex    text diff=bibtex
 *.doc       diff=astextplain
 *.DOC       diff=astextplain
 *.docx      diff=astextplain
@@ -22,15 +23,17 @@
 *.PDF       diff=astextplain
 *.rtf       diff=astextplain
 *.RTF       diff=astextplain
-*.md        text
+*.md        text diff=markdown
+*.tex       text diff=tex
 *.adoc      text
 *.textile   text
 *.mustache  text
 *.csv       text
 *.tab       text
 *.tsv       text
+*.txt       text
 *.sql       text
-*.bat       eol=crlf
+*.ps1       text eol=crlf
 
 # Graphics
 *.png       binary
@@ -40,8 +43,36 @@
 *.tif       binary
 *.tiff      binary
 *.ico       binary
+# SVG treated as an asset (text) by default.
 *.svg       text
+# If you want to treat it as binary, use the following line instead.
+# *.svg     binary
 *.eps       binary
+
+# Scripts
+*.bash      text eol=lf
+*.fish      text eol=lf
+*.sh        text eol=lf
+# These are explicitly windows files and should use crlf
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# Serialisation
+*.json      text
+*.toml      text
+*.xml       text
+*.yaml      text
+*.yml       text
+
+# Archives
+*.7z        binary
+*.gz        binary
+*.tar       binary
+*.tgz       binary
+*.zip       binary
+
+# Text files where line endings should be preserved
+*.patch     -text
 
 
 ##---------------------------------------------------
@@ -71,3 +102,7 @@
 # with the python modules ``pickle``, ``dbm.*``,
 # ``shelve``, ``marshal``, ``anydbm``, & ``bsddb``
 # (among others).
+
+# Jupyter Notebooks
+# =================
+*.ipynb     text diff=ipynb
