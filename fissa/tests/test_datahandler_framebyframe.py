@@ -8,9 +8,9 @@ import imageio
 from PIL import Image
 
 from .base_test import BaseTestCase
-from .. import datahandler_framebyframe as datahandler
+from ..datahandler_framebyframe import DataHandler
 from .. import roitools
-
+datahandler = DataHandler()
 
 class TestImage2Array(BaseTestCase):
     ''' Tests for image2array.'''

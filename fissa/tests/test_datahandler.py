@@ -7,9 +7,9 @@ import numpy as np
 import tifffile
 
 from .base_test import BaseTestCase
-from .. import datahandler
+from ..datahandler import DataHandler
 from .. import roitools
-
+datahandler = DataHandler()
 
 class TestImage2Array(BaseTestCase):
     ''' Tests for image2array.'''
