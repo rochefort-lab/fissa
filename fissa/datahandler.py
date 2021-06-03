@@ -19,112 +19,116 @@ import tifffile
 
 from . import roitools
 
+class DataHandler():
+    """Contains all data interaction functions."""
+    def __init__(self):
+        pass
 
-def image2array(image):
-    """Loads a TIFF image from disk.
+    def image2array(self, image):
+        """Loads a TIFF image from disk.
 
-    Parameters
-    ----------
-    image : str or array_like
-        Either a path to a TIFF file, or array_like data.
+        Parameters
+        ----------
+        image : str or array_like
+            Either a path to a TIFF file, or array_like data.
 
-    Returns
-    -------
-    numpy.ndarray
-        A 3D array containing the data, with dimensions corresponding to
-        `(frames, y_coordinate, x_coordinate)`.
+        Returns
+        -------
+        numpy.ndarray
+            A 3D array containing the data, with dimensions corresponding to
+            `(frames, y_coordinate, x_coordinate)`.
 
-    """
-    if isinstance(image, basestring):
-        return tifffile.imread(image)
-
-    return np.array(image)
-
-
-def getmean(data):
-    """Determine the mean image across all frames.
-
-    Parameters
-    ----------
-    data : array_like
-        Data array as made by image2array. Should be shaped `(frames, y, x)`.
-
-    Returns
-    -------
-    numpy.ndarray
-        y by x array for the mean values
-
-    """
-    return data.mean(axis=0)
+        """
+        if isinstance(image, basestring):
+            return tifffile.imread(image)
 
 
-def rois2masks(rois, data):
-    """Take the object `rois` and returns it as a list of binary masks.
+        return np.array(image)
 
-    Parameters
-    ----------
-    rois : string or list of array_like
-        Either a string with imagej roi zip location, list of arrays encoding
-        polygons, or list of binary arrays representing masks
-    data : array
-        Data array as made by image2array. Must be shaped `(frames, y, x)`.
+    def getmean(self, data):
+        """Determine the mean image across all frames.
 
-    Returns
-    -------
-    list
-        List of binary arrays (i.e. masks)
+        Parameters
+        ----------
+        data : array_like
+            Data array as made by image2array. Should be shaped `(frames, y, x)`.
 
-    """
-    # get the image shape
-    shape = data.shape[1:]
+        Returns
+        -------
+        numpy.ndarray
+            y by x array for the mean values
 
-    # if it's a list of strings
-    if isinstance(rois, basestring):
-        rois = roitools.readrois(rois)
-
-    if not isinstance(rois, collections.Sequence):
-        raise TypeError(
-            'Wrong ROIs input format: expected a list or sequence, but got'
-            ' a {}'.format(rois.__class__)
-        )
-
-    # if it's a something by 2 array (or vice versa), assume polygons
-    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-        return roitools.getmasks(rois, shape)
-    # if it's a list of bigger arrays, assume masks
-    elif np.shape(rois[0]) == shape:
-        return rois
-
-    raise ValueError('Wrong ROIs input format: unfamiliar shape.')
+        """
+        return data.mean(axis=0)
 
 
-def extracttraces(data, masks):
-    """Extracts a temporal trace for each spatial mask.
+    def rois2masks(self, rois, data):
+        """Take the object `rois` and returns it as a list of binary masks.
 
-    Parameters
-    ----------
-    data : array_like
-        Data array as made by image2array. Should be shaped
-        `(frames, y, x)`.
-    masks : list of array_like
-        List of binary arrays.
+        Parameters
+        ----------
+        rois : string or list of array_like
+            Either a string with imagej roi zip location, list of arrays encoding
+            polygons, or list of binary arrays representing masks
+        data : array
+            Data array as made by image2array. Must be shaped `(frames, y, x)`.
 
-    Returns
-    -------
-    numpy.ndarray
-        Trace for each mask. Shaped `(len(masks), n_frames)`.
+        Returns
+        -------
+        list
+            List of binary arrays (i.e. masks)
 
-    """
-    # get the number rois and frames
-    nrois = len(masks)
-    nframes = data.shape[0]
+        """
+        # get the image shape
+        shape = data.shape[1:]
 
-    # predefine output data
-    out = np.zeros((nrois, nframes))
+        # if it's a list of strings
+        if isinstance(rois, basestring):
+            rois = roitools.readrois(rois)
 
-    # loop over masks
-    for i in range(nrois):  # for masks
-        # get mean data from mask
-        out[i, :] = data[:, masks[i]].mean(axis=1)
+        if not isinstance(rois, collections.Sequence):
+            raise TypeError(
+                'Wrong ROIs input format: expected a list or sequence, but got'
+                ' a {}'.format(rois.__class__)
+            )
 
-    return out
+        # if it's a something by 2 array (or vice versa), assume polygons
+        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+            return roitools.getmasks(rois, shape)
+        # if it's a list of bigger arrays, assume masks
+        elif np.shape(rois[0]) == shape:
+            return rois
+
+        raise ValueError('Wrong ROIs input format: unfamiliar shape.')
+
+
+    def extracttraces(self, data, masks):
+        """Extracts a temporal trace for each spatial mask.
+
+        Parameters
+        ----------
+        data : array_like
+            Data array as made by image2array. Should be shaped
+            `(frames, y, x)`.
+        masks : list of array_like
+            List of binary arrays.
+
+        Returns
+        -------
+        numpy.ndarray
+            Trace for each mask. Shaped `(len(masks), n_frames)`.
+
+        """
+        # get the number rois and frames
+        nrois = len(masks)
+        nframes = data.shape[0]
+
+        # predefine output data
+        out = np.zeros((nrois, nframes))
+
+        # loop over masks
+        for i in range(nrois):  # for masks
+            # get mean data from mask
+            out[i, :] = data[:, masks[i]].mean(axis=1)
+
+        return out

@@ -18,7 +18,6 @@ import warnings
 import numpy as np
 from scipy.io import savemat
 
-from . import datahandler
 from . import deltaf
 from . import neuropil as npil
 from . import roitools
@@ -48,6 +47,7 @@ def extract_func(inputs):
     rois = inputs[1]
     nNpil = inputs[2]
     expansion = inputs[3]
+    datahandler = inputs[4]
 
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
@@ -107,6 +107,7 @@ def separate_func(inputs):
     X = inputs[0]
     alpha = inputs[1]
     method = inputs[2]
+
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
         X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
     )
@@ -186,9 +187,11 @@ class Experiment():
             option reduces the memory load, and may be necessary for very
             large inputs. Default is ``False``.
         datahandler_custom : object, optional
-            A custom datahandler for handling ROIs and calcium data can
+            A custom datahandler class for handling ROIs and calcium data can
             be given here. See datahandler.py (the default handler) for
-            an example.
+            an example. Easiest way to go about it usually to inheret the standard
+            datahandler class. Note: will overwrite the datahandler used for
+            lowmemory_mode.
 
         """
         if isinstance(images, basestring):
@@ -209,11 +212,15 @@ class Experiment():
                 self.rois *= len(self.images)
         else:
             raise ValueError('rois should either be string or list')
-        global datahandler
-        if lowmemory_mode:
-            from . import datahandler_framebyframe as datahandler
-        if datahandler_custom is not None:
-            datahandler = datahandler_custom
+
+        if datahandler_custom is None:
+            if lowmemory_mode:
+                from .datahandler_framebyframe import DataHandler
+            else:
+                from .datahandler import DataHandler
+            self.datahandler = DataHandler()
+        else:
+            self.datahandler = datahandler_custom
 
         # define class variables
         self.folder = folder
@@ -294,7 +301,7 @@ class Experiment():
             inputs = [0] * self.nTrials
             for trial in range(self.nTrials):
                 inputs[trial] = [self.images[trial], self.rois[trial],
-                                 self.nRegions, self.expansion]
+                                 self.nRegions, self.expansion, self.datahandler]
 
             # Check whether we should use multiprocessing
             use_multiprocessing = (
