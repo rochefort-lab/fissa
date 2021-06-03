@@ -68,17 +68,17 @@ calcium imaging toolboxes which can be used to automatically detect cells.
 You can try out each of the example notebooks interactively in your browser on
 Binder_ (note that it may take 10 minutes for Binder to boot up).
 
-+-----------------------+--------------------------------------------------------------------------------------+---------------------------------------------------------------+
-| Workflow              |                                   Jupyter Notebook                                   |                            Script                             |
-+=======================+===========================+===============================+==========================+================================+==============================+
-| Basic (ImageJ_)       | `View HTML <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
-+-----------------------+---------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With suite2p_         | `View HTML <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
-+-----------------------+---------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With SIMA_            | `View HTML <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
-+-----------------------+---------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With `CNMF (MATLAB)`_ | `View HTML <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
-+-----------------------+---------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
++-----------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
+| Workflow              |                                  Jupyter Notebook                                   |                            Script                             |
++=======================+==========================+===============================+==========================+================================+==============================+
+| Basic (ImageJ_)       | `NBViewer <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
++-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With suite2p_         | `NBViewer <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
++-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With SIMA_            | `NBViewer <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
++-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With `CNMF (MATLAB)`_ | `NBViewer <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
++-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 
 .. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
 
@@ -89,7 +89,7 @@ Binder_ (note that it may take 10 minutes for Binder to boot up).
 .. _basicnixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage.py
 .. _basicwinscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_windows.py
 
-.. _suite2p: https://mouseland.github.io/suite2p/
+.. _suite2p: https://suite2p.readthedocs.io/
 .. _suitebind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Suite2p%20example.ipynb
 .. _suitehtml: https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html
 .. _suiteview: https://github.com/rochefort-lab/fissa/blob/master/examples/Suite2p%20example.ipynb
