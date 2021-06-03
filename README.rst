@@ -89,7 +89,7 @@ Binder_ (note that it may take 10 minutes for Binder to boot up).
 .. _basicnixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage.py
 .. _basicwinscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_windows.py
 
-.. _suite2p: https://mouseland.github.io/suite2p/
+.. _suite2p: https://suite2p.readthedocs.io/
 .. _suitebind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Suite2p%20example.ipynb
 .. _suitehtml: https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html
 .. _suiteview: https://github.com/rochefort-lab/fissa/blob/master/examples/Suite2p%20example.ipynb
