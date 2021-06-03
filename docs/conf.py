@@ -19,21 +19,27 @@ sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
 
-from fissa import __meta__ as meta  # noqa: E402
+# Can't import __meta__.py if the requirements aren't installed
+# due to imports in __init__.py. This is a workaround.
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+meta = {}
+exec(read("../fissa/__meta__.py"), meta)
 
 
 # -- Project information -----------------------------------------------------
 
 now = datetime.datetime.now()
 
-project = meta.name.upper()
-project_path = meta.path
-author = meta.author
+project = meta["name"].upper()
+project_path = meta["path"]
+author = meta["author"]
 copyright = '{}, {}'.format(now.year, author)
 
 
 # The full version, including alpha/beta/rc tags
-release = meta.version
+release = meta["version"]
 # The short X.Y version
 version = '.'.join(release.split('.')[0:2])
 
@@ -200,7 +206,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, project + '.tex', project + ' Documentation',
-     meta.author, 'manual'),
+     meta["author"], 'manual'),
 ]
 
 
@@ -221,7 +227,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, project, project + ' Documentation',
-     author, project, meta.description,
+     author, project, meta["description"],
      'Miscellaneous'),
 ]
 
