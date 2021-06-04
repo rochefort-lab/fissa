@@ -749,3 +749,92 @@ class Experiment():
             M['df_result'] = reformat_dict_for_matlab(self.deltaf_result)
 
         savemat(fname, M)
+
+
+def run_fissa(
+    images,
+    rois,
+    folder=None,
+    freq=None,
+    return_deltaf=False,
+    export_to_matlab=False,
+    **kwargs
+):
+    """
+    Functional interface to run FISSA.
+
+    .. versionadded:: 1.0.0
+
+    Parameters
+    ----------
+    images : str or list
+        The raw recording data.
+        Should be one of:
+
+        - the path to a directory containing TIFF files (string),
+        - an explicit list of TIFF files (list of strings),
+        - a list of array-like data already loaded into memory, each shaped
+          ``(frames, y-coords, x-coords)``.
+
+        Note that each TIFF/array is considered a single trial.
+
+    rois : str or list
+        The roi definitions.
+        Should be one of:
+
+        - the path to a directory containing ImageJ ZIP files (string),
+        - the path of a single ImageJ ZIP file (string),
+        - a list of ImageJ ZIP files (list of strings),
+        - a list of arrays, each encoding a ROI polygons,
+        - a list of lists of binary arrays, each representing a ROI mask.
+
+        This can either be a single roiset for all trials, or a different
+        roiset for each trial.
+
+    folder : str or None, optional
+        Output path to a directory in which the extracted data will
+        be stored. If ``None`` (default), the data will not be cached.
+    freq : float or None, optional
+        Imaging frequency, in Hz. Required if `return_deltaf` is ``True``.
+    return_deltaf : bool, optional
+        Whether to return df/f0. Otherwise, the decontaminated signal is
+        returned scaled against the raw recording. Default is ``False``.
+    export_to_matlab : bool or str or None, optional
+        Whether to export the data to a MATLAB-compatible .mat file.
+        If `export_to_matlab` is a string, it is used as the path to the output
+        file. If `export_to_matlab` is ``True``, the matfile is saved to the
+        default path of ``"matlab.mat"`` within the `folder` directory, and
+        `folder` must be set. If this is ``None``, the matfile is exported to
+        the default path if `folder` is set, and otherwise is not exported.
+        Default is ``False``.
+    **kwargs
+        Additional keyword arguments as per `Experiment`.
+
+    Returns
+    -------
+    result : 2d numpy.ndarray of 2d numpy.ndarrays of np.float64
+        The vector `result[c, t][0, :]` is the trace from cell `c` in
+        trial `t`. If `return_deltaf` is ``True``, this is df/f0.
+        Otherwise, it is the decontaminated signal scaled as per the raw
+        signal.
+    """
+    # Parse arguments
+    if export_to_matlab is None:
+        export_to_matlab = folder is not None
+    if return_deltaf and freq is None:
+        raise ValueError("The argument `freq` must be set to determine df/f0.")
+    # Make a new Experiment object
+    experiment = Experiment(images, rois, folder=folder, **kwargs)
+    # Run separation
+    experiment.separate()
+    # Calculate df/f0
+    if return_deltaf or (export_to_matlab and freq is not None):
+        experiment.calc_deltaf(freq=freq)
+    # Save to matfile
+    if export_to_matlab:
+        matlab_fname = None if isinstance(export_to_matlab, bool) else export_to_matlab
+        experiment.save_to_matlab(matlab_fname)
+    # Return appropriate data
+    if return_deltaf:
+        return experiment.deltaf_result
+    return experiment.result
