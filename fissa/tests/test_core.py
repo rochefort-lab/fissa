@@ -29,9 +29,9 @@ class TestExperimentA(BaseTestCase):
                 random.randrange(999999)
             )
         )
-        self.images_dir = 'images'
+        self.images_dir = os.path.join(self.resources_dir, 'images')
         self.image_names = ['AVG_A01_R1_small.tif']
-        self.roi_zip_path = 'rois.zip'
+        self.roi_zip_path = os.path.join(self.resources_dir, 'rois.zip')
         self.roi_paths = [os.path.join('rois', r) for r in ['01.roi']]
 
         self.expected_00 = np.array([
@@ -68,8 +68,7 @@ class TestExperimentA(BaseTestCase):
         ])
 
     def setUp(self):
-        if os.path.isdir(self.output_dir):
-            self.tearDown()
+        self.tearDown()
         os.makedirs(self.output_dir)
 
     def tearDown(self):
@@ -77,9 +76,7 @@ class TestExperimentA(BaseTestCase):
             shutil.rmtree(self.output_dir)
 
     def test_imagedir_roizip(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -88,11 +85,10 @@ class TestExperimentA(BaseTestCase):
 
     def test_imagelist_roizip(self):
         image_paths = [
-            os.path.join(self.resources_dir, self.images_dir, img)
+            os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_paths, roi_path, self.output_dir)
+        exp = core.Experiment(image_paths, self.roi_zip_path, self.output_dir)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -101,12 +97,11 @@ class TestExperimentA(BaseTestCase):
 
     def test_imagelistloaded_roizip(self):
         image_paths = [
-            os.path.join(self.resources_dir, self.images_dir, img)
+            os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
         images = [datahandler.image2array(pth) for pth in image_paths]
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(images, roi_path, self.output_dir)
+        exp = core.Experiment(images, self.roi_zip_path, self.output_dir)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -115,13 +110,11 @@ class TestExperimentA(BaseTestCase):
 
     @unittest.expectedFailure
     def test_imagedir_roilistpath(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_paths = [
             os.path.join(self.resources_dir, r)
             for r in self.roi_paths
         ]
-        print(roi_paths)
-        exp = core.Experiment(image_path, roi_paths, self.output_dir)
+        exp = core.Experiment(self.images_dir, roi_paths, self.output_dir)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -131,7 +124,7 @@ class TestExperimentA(BaseTestCase):
     @unittest.expectedFailure
     def test_imagelist_roilistpath(self):
         image_paths = [
-            os.path.join(self.resources_dir, self.images_dir, img)
+            os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
         roi_paths = [
@@ -146,9 +139,7 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_nocache(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -156,10 +147,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_ncores_preparation_1(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir,
-                              ncores_preparation=1)
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            ncores_preparation=1,
+        )
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -167,10 +160,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_ncores_preparation_2(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir,
-                              ncores_preparation=2)
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            ncores_preparation=2,
+        )
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -178,10 +173,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_ncores_separate_1(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir,
-                              ncores_separation=1)
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            ncores_separation=1,
+        )
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -189,10 +186,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_ncores_separate_2(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir,
-                              ncores_separation=2)
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            ncores_separation=2,
+        )
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -200,10 +199,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_lowmemorymode(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir,
-                              lowmemory_mode=True)
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            lowmemory_mode=True,
+        )
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -211,10 +212,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_manualhandler(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir,
-                              datahandler_custom=datahandler)
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            datahandler_custom=datahandler,
+        )
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -223,9 +226,7 @@ class TestExperimentA(BaseTestCase):
 
     def test_nofolder(self):
         self.tearDown()
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -233,9 +234,7 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_prepfirst(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separation_prep()
         exp.separate()
         actual = exp.result
@@ -244,9 +243,7 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_redo(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.separate(redo_prep=True, redo_sep=True)
         actual = exp.result
@@ -255,8 +252,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_noredo(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separate()
         exp = core.Experiment(image_path, roi_path, self.output_dir)
@@ -267,8 +264,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_previousprep(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separation_prep()
         exp = core.Experiment(image_path, roi_path, self.output_dir)
@@ -279,9 +276,7 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_calcdeltaf(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4)
         actual = exp.deltaf_result
@@ -290,9 +285,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notrawf0(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False)
         actual = exp.deltaf_result
@@ -301,9 +294,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notacrosstrials(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4, across_trials=False)
         actual = exp.deltaf_result
@@ -312,9 +303,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False, across_trials=False)
         actual = exp.deltaf_result
@@ -323,9 +312,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_matlab(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.save_to_matlab()
         expected_file = os.path.join(self.output_dir, 'matlab.mat')
@@ -333,9 +320,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of the .mat file
 
     def test_matlab_custom_fname(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         fname = os.path.join(
             self.output_dir,
@@ -346,16 +331,12 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of the .mat file
 
     def test_matlab_no_cache_no_fname(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         self.assertRaises(ValueError, exp.save_to_matlab)
 
     def test_matlab_deltaf(self):
-        image_path = os.path.join(self.resources_dir, self.images_dir)
-        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.save_to_matlab()
         exp.calc_deltaf(4)
