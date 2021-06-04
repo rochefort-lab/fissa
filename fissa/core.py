@@ -132,8 +132,8 @@ class Experiment():
 
             - the path to a directory containing TIFF files (string),
             - an explicit list of TIFF files (list of strings),
-            - a list of array_like data already loaded into memory, each shaped
-              `(frames, y-coords, x-coords)`.
+            - a list of array-like data already loaded into memory, each shaped
+              ``(frames, y-coords, x-coords)``.
 
             Note that each TIFF/array is considered a single trial.
 
@@ -152,14 +152,14 @@ class Experiment():
 
         folder : str or None, optional
             Output path to a directory in which the extracted data will
-            be stored. If `None` (default), the data will not be cached.
+            be stored. If ``None`` (default), the data will not be cached.
         nRegions : int, optional
             Number of neuropil regions to draw. Use a higher number for
             densely labelled tissue. Default is 4.
         expansion : float, optional
             Expansion factor for the neuropil region, relative to the
             ROI area. Default is 1. The total neuropil area will be
-            `nRegions * expansion * area(ROI)`.
+            ``nRegions * expansion * area(ROI)``.
         alpha : float, optional
             Sparsity regularizaton weight for NMF algorithm. Set to zero to
             remove regularization. Default is 0.1. (Not used for ICA method.)
@@ -167,7 +167,7 @@ class Experiment():
             Sets the number of subprocesses to be used during the data
             preparation steps (ROI and subregions definitions, data
             extraction from tifs, etc.).
-            If set to `None` (default), there will be as many subprocesses
+            If set to ``None`` (default), there will be as many subprocesses
             as there are threads or cores on the machine. Note that this
             behaviour can, especially for the data preparation step,
             be very memory-intensive.
@@ -176,15 +176,15 @@ class Experiment():
             Note that this step requires less memory per subprocess, and
             hence can often be set higher than `ncores_preparation`.
         method : {'nmf', 'ica'}, optional
-            Which blind source-separation method to use. Either `'nmf'`
-            for non-negative matrix factorization, or `'ica'` for
+            Which blind source-separation method to use. Either ``'nmf'``
+            for non-negative matrix factorization, or ``'ica'`` for
             independent component analysis. Default (recommended) is
-            `'nmf'`.
+            ``'nmf'``.
         lowmemory_mode : bool, optional
-            If `True`, FISSA will load TIFF files into memory frame-by-frame
+            If ``True``, FISSA will load TIFF files into memory frame-by-frame
             instead of holding the entire TIFF in memory at once. This
             option reduces the memory load, and may be necessary for very
-            large inputs. Default is `False`.
+            large inputs. Default is ``False``.
         datahandler_custom : object, optional
             A custom datahandler for handling ROIs and calcium data can
             be given here. See datahandler.py (the default handler) for
@@ -255,22 +255,22 @@ class Experiment():
         - Using neuropil and original ROI regions, extract traces from data
 
         After running this you can access the raw data (i.e. pre-separation)
-        as `self.raw` and `self.rois`. self.raw is a list of arrays.
-        `self.raw[cell][trial]` gives you the traces of a specific cell and
-        trial, across cell and neuropil regions. `self.roi_polys` is a list of
-        lists of arrays. `self.roi_polys[cell][trial][region][0]` gives you the
-        polygon for the region for a specific cell, trial and region. `region=0`
-        is the cell, and `region>0` gives the different neuropil regions.
+        as ``self.raw`` and ``self.rois``. self.raw is a list of arrays.
+        ``self.raw[cell][trial]`` gives you the traces of a specific cell and
+        trial, across cell and neuropil regions. ``self.roi_polys`` is a list of
+        lists of arrays. ``self.roi_polys[cell][trial][region][0]`` gives you the
+        polygon for the region for a specific cell, trial and region. ``region=0``
+        is the cell, and ``region>0`` gives the different neuropil regions.
         For separateable masks, it is possible multiple outlines are found,
-        which can be accessed as `self.roi_polys[cell][trial][region][i]`,
-        where `i` is the outline index.
+        which can be accessed as ``self.roi_polys[cell][trial][region][i]``,
+        where ``i`` is the outline index.
 
         Parameters
         ----------
         redo : bool, optional
-            If `False`, we load previously prepared data when possible.
-            If `True`, we re-run the preparation, even if it has previously
-            been run. Default is `False`.
+            If ``False``, we load previously prepared data when possible.
+            If ``True``, we re-run the preparation, even if it has previously
+            been run. Default is ``False``.
 
         """
         # define filename where data will be present
@@ -354,33 +354,33 @@ class Experiment():
     def separate(self, redo_prep=False, redo_sep=False):
         """Separate all the trials with FISSA algorithm.
 
-        After running `separate`, data can be found as follows:
+        After running ``separate``, data can be found as follows:
 
         self.sep
-            Raw separation output, without being matched. Signal `i` for
+            Raw separation output, without being matched. Signal ``i`` for
             a specific cell and trial can be found as
-            `self.sep[cell][trial][i,:]`.
+            ``self.sep[cell][trial][i,:]``.
         self.result
             Final output, in order of presence in cell ROI.
-            Signal `i` for a specific cell and trial can be found at
-            `self.result[cell][trial][i, :]`.
-            Note that the ordering is such that `i = 0` is the signal
+            Signal ``i`` for a specific cell and trial can be found at
+            ``self.result[cell][trial][i, :]``.
+            Note that the ordering is such that ``i = 0`` is the signal
             most strongly present in the ROI, and subsequent entries
             are in diminishing order.
         self.mixmat
-            The mixing matrix (how to go between `self.separated` and
-            `self.raw` from the `separation_prep()` function).
+            The mixing matrix (how to go between ``self.separated`` and
+            ``self.raw`` from the ``separation_prep()`` function).
         self.info
             Information about separation routine, iterations needed, etc.
 
         Parameters
         ----------
         redo_prep : bool, optional
-            Whether to redo the preparation. Default is `False.` Note that
-            if this is true, we set `redo_sep = True` as well.
+            Whether to redo the preparation. Default is ``False.`` Note that
+            if this is true, we set ``redo_sep = True`` as well.
         redo_sep : bool, optional
-            Whether to redo the separation. Default is `False`. Note that
-            this parameter is ignored if `redo_prep` is set to `True`.
+            Whether to redo the separation. Default is ``False``. Note that
+            this parameter is ignored if `redo_prep` is set to ``True``.
 
         """
         # Do data preparation
@@ -487,14 +487,14 @@ class Experiment():
         freq : float
             Imaging frequency, in Hz.
         use_raw_f0 : bool, optional
-            If `True` (default), use an f0 estimate from the raw ROI trace
-            for both raw and result traces. If `False`, use individual f0
+            If ``True`` (default), use an f0 estimate from the raw ROI trace
+            for both raw and result traces. If ``False``, use individual f0
             estimates for each of the traces.
         across_trials : bool, optional
-            If `True`, we estimate a single baseline f0 value across all
-            trials. If `False`, each trial will have their own baseline f0,
+            If ``True``, we estimate a single baseline f0 value across all
+            trials. If ``False``, each trial will have their own baseline f0,
             and df/f0 value will be relative to the trial-specific f0.
-            Default is `True`.
+            Default is ``True``.
 
         """
         deltaf_raw = [[None for t in range(self.nTrials)]
@@ -561,24 +561,24 @@ class Experiment():
         This will generate a .mat file which can be loaded into Matlab to
         provide structs: ROIs, result, raw.
 
-        If df/f0 was calculated, these will also be stored as `df_result`
-        and `df_raw`, which will have the same format as `result` and `raw`.
+        If df/f0 was calculated, these will also be stored as ``df_result``
+        and ``df_raw``, which will have the same format as ``result`` and ``raw``.
 
         These can be interfaced with as follows, for cell 0, trial 0:
 
-        - `ROIs.cell0.trial0{1}` polygon for the ROI
-        - `ROIs.cell0.trial0{2}` polygon for first neuropil region
-        - `result.cell0.trial0(1,:)` final extracted cell signal
-        - `result.cell0.trial0(2,:)` contaminating signal
-        - `raw.cell0.trial0(1,:)` raw measured celll signal
-        - `raw.cell0.trial0(2,:)` raw signal from first neuropil region
+        - ``ROIs.cell0.trial0{1}`` polygon for the ROI
+        - ``ROIs.cell0.trial0{2}`` polygon for first neuropil region
+        - ``result.cell0.trial0(1,:)`` final extracted cell signal
+        - ``result.cell0.trial0(2,:)`` contaminating signal
+        - ``raw.cell0.trial0(1,:)`` raw measured celll signal
+        - ``raw.cell0.trial0(2,:)`` raw signal from first neuropil region
 
         Parameters
         ----------
         fname : str, optional
-            Destination for output file. Default is a file named `'matlab.mat'`
+            Destination for output file. Default is a file named ``'matlab.mat'``
             within the cache save directory for the experiment (the `folder`
-            argument when the `Experiment` instance was created).
+            argument when the ``Experiment`` instance was created).
         """
         # define filename
         if fname is None:
