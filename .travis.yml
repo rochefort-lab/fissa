@@ -59,44 +59,6 @@ jobs:
   fast_finish: true
 
   include:
-
-    # OSX ----------------------------------------
-    # Pre-installed python versions
-    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 2.7.17 on macOS 10.14 [no suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="2.7.17"
-
-    - name: "Python 2.7.17 on macOS 10.14 [oldest, no sima/suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="2.7.17"
-        - USE_OLDEST_DEPS="true"
-        - USE_SIMA="false"
-
-    - name: "Python 3.7.5 on macOS 10.14 [no sima/suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="3.7.5"
-        - USE_SIMA="false"
-
-    # Python versions which need to be installed
-    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      name: "Python 3.8.2 on macOS 10.14 [no sima/suite2p]"
-      os: osx
-      osx_image: xcode11.13
-      language: shell
-      env:
-        - TRAVIS_PYTHON_VERSION="3.8.2"
-        - USE_SIMA="false"
-
     # Ubuntu -------------------------------------
     # Jobs to run on Conda
     - python: "3.6"
