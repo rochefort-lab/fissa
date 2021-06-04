@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Basic FISSA usage example.
 
