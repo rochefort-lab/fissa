@@ -4,9 +4,6 @@
 # Ignore backup files
 *.bak
 
-# sphinx-apidoc automatically generated documentation
-docs/source/packages
-
 
 ##---------------------------------------------------
 # Continuous Integration .gitignore files
