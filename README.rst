@@ -62,7 +62,7 @@ A concise example of how to use FISSA is as follows.
     # The separated time series data is now available as experiment.result
     experiment.result[roi_index, tiff_index][0, :]
 
-We also have several example notebooks for a basic worflow and more complicated
+We also have several example notebooks for a basic workflow and more complicated
 workflows where FISSA needs to interact with the outputs of other two-photon
 calcium imaging toolboxes which can be used to automatically detect cells.
 
