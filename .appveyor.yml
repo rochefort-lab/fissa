@@ -22,36 +22,20 @@ environment:
     # Otherwise, the requested version of Python will be downloaded
     # and installed using the script .ci/appveyor/install.ps1
 
-    - PYTHON: C:\Python38-x64
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: "64"
-      USE_SIMA: "false"
-      SKIPPABLE: "false"
-
     - PYTHON: C:\Python35
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
       SKIPPABLE: "false"
 
-    - PYTHON: C:\Python35-x64
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: "64"
-      SKIPPABLE: "true"
-
-    - PYTHON: C:\Python36-x64
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "64"
-      SKIPPABLE: "true"
-
-    - PYTHON: C:\Python37-x64
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: "64"
-      USE_SIMA: "false"
-      SKIPPABLE: "true"
-
     - PYTHON: C:\Python38
       PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "32"
+      USE_SIMA: "false"
+      SKIPPABLE: "true"
+
+    - PYTHON: C:\Python38-x64
+      PYTHON_VERSION: "3.8.x"
+      PYTHON_ARCH: "64"
       USE_SIMA: "false"
       SKIPPABLE: "true"
 
