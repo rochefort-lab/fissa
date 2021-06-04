@@ -122,7 +122,7 @@ To do so, you will need to:
 3.  Download `a copy of the repository <download_repo_>`_, unzip it and browse
     to the examples_ directory.
 
-4.  Start up a jupyter notebook server to run our notebooks ``jupyter notebook``.
+4.  Start up a Jupyter notebook server to run our notebooks ``jupyter notebook``.
 
 If you're new to Jupyter notebooks, here is `an approachable tutorial`_.
 
