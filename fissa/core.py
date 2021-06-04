@@ -140,7 +140,7 @@ class Experiment():
 
             - the path to a directory containing TIFF files (string),
             - an explicit list of TIFF files (list of strings),
-            - a list of array_like data already loaded into memory, each shaped
+            - a list of array-like data already loaded into memory, each shaped
               `(frames, y-coords, x-coords)`.
 
             Note that each TIFF/array is considered a single trial.
