@@ -756,3 +756,84 @@ class TestExperimentA(BaseTestCase):
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
         self.compare_matlab(fname, exp, compare_deltaf=True)
+
+    def test_func(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        actual = core.run_fissa(
+            image_path, roi_path, self.output_dir, export_to_matlab=None
+        )
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+        expected_file = os.path.join(self.output_dir, "matlab.mat")
+        self.assertTrue(os.path.isfile(expected_file))
+        # Check contents of the .mat file
+        M = loadmat(expected_file)
+        self.assert_allclose(M["result"][0, 0][0][0, 0][0], actual[0, 0])
+
+    def test_func_explict_matlab(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        actual = core.run_fissa(
+            image_path, roi_path, self.output_dir, export_to_matlab=True
+        )
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+        expected_file = os.path.join(self.output_dir, "matlab.mat")
+        self.assertTrue(os.path.isfile(expected_file))
+        # Check contents of the .mat file
+        M = loadmat(expected_file)
+        self.assert_allclose(M["result"][0, 0][0][0, 0][0], actual[0, 0])
+
+    def test_func_explict_nomatlab(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        actual = core.run_fissa(
+            image_path, roi_path, self.output_dir, export_to_matlab=False
+        )
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+        expected_file = os.path.join(self.output_dir, "matlab.mat")
+        self.assertFalse(os.path.isfile(expected_file))
+
+    def test_func_manual_matlab(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        fname = os.path.join(self.output_dir, "test_output.mat")
+        actual = core.run_fissa(
+            image_path, roi_path, self.output_dir, export_to_matlab=fname
+        )
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        self.assert_allclose(M["result"][0, 0][0][0, 0][0], actual[0, 0])
+
+    def test_func_nocache(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        actual = core.run_fissa(image_path, roi_path)
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_func_deltaf(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        actual = core.run_fissa(
+            image_path, roi_path, self.output_dir, freq=4, return_deltaf=True
+        )
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        # TODO: Check contents of deltaf output
+
+    def test_func_deltaf_nofreq(self):
+        image_path = os.path.join(self.resources_dir, self.images_dir)
+        roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
+        with self.assertRaises(ValueError):
+            core.run_fissa(image_path, roi_path, self.output_dir, return_deltaf=True)
