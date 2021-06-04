@@ -14,9 +14,6 @@ from __future__ import division
 from __future__ import unicode_literals
 from past.builtins import basestring
 
-from builtins import str
-from builtins import range
-
 import sys
 from itertools import product
 

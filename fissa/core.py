@@ -10,6 +10,7 @@ from past.builtins import basestring
 
 import collections
 import glob
+from multiprocessing import Pool
 import os.path
 import sys
 import warnings
@@ -21,15 +22,6 @@ from . import datahandler
 from . import deltaf
 from . import neuropil as npil
 from . import roitools
-
-try:
-    from multiprocessing import Pool
-    has_multiprocessing = True
-except ImportError:
-    warnings.warn('Multiprocessing library is not installed, using single ' +
-                  'core instead. To use multiprocessing install it by: ' +
-                  'pip install multiprocessing')
-    has_multiprocessing = False
 
 
 def extract_func(inputs):
@@ -306,7 +298,6 @@ class Experiment():
 
             # Check whether we should use multiprocessing
             use_multiprocessing = (
-                has_multiprocessing and
                 (self.ncores_preparation is None or self.ncores_preparation > 1)
             )
             # Do the extraction
@@ -437,7 +428,6 @@ class Experiment():
 
             # Check whether we should use multiprocessing
             use_multiprocessing = (
-                has_multiprocessing and
                 (self.ncores_separation is None or self.ncores_separation > 1)
             )
             # Do the extraction
