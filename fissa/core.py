@@ -757,6 +757,7 @@ def run_fissa(
     folder=None,
     freq=None,
     return_deltaf=False,
+    deltaf_across_trials=True,
     export_to_matlab=False,
     **kwargs
 ):
@@ -799,6 +800,11 @@ def run_fissa(
     return_deltaf : bool, optional
         Whether to return df/f0. Otherwise, the decontaminated signal is
         returned scaled against the raw recording. Default is ``False``.
+    deltaf_across_trials : bool, optional
+        If ``True``, we estimate a single baseline f0 value across all
+        trials when computing df/f0. If ``False``, each trial will have their
+        own baseline f0, and df/f0 value will be relative to the trial-specific
+        f0. Default is ``True``.
     export_to_matlab : bool or str or None, optional
         Whether to export the data to a MATLAB-compatible .mat file.
         If `export_to_matlab` is a string, it is used as the path to the output
@@ -829,7 +835,7 @@ def run_fissa(
     experiment.separate()
     # Calculate df/f0
     if return_deltaf or (export_to_matlab and freq is not None):
-        experiment.calc_deltaf(freq=freq)
+        experiment.calc_deltaf(freq=freq, across_trials=deltaf_across_trials)
     # Save to matfile
     if export_to_matlab:
         matlab_fname = None if isinstance(export_to_matlab, bool) else export_to_matlab
