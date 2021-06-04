@@ -67,7 +67,8 @@ jobs:
         - USE_SUITE2P="true"
 
     # All versions pre-installed
-    - python: "3.8"
+    - if: branch =~ /^v?\d+(\.[x\d]+)+$/
+      python: "3.8"
       env:
         - USE_SIMA="false"
 
@@ -76,22 +77,11 @@ jobs:
         - USE_OLDEST_DEPS="true"
         - TEST_NOTEBOOKS="false"
 
-    - python: "2.7"
-
     - python: "3.5"
       env:
         - USE_OLDEST_DEPS="true"
         - TEST_NOTEBOOKS="false"
 
-    - python: "3.5"
-
-    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      python: "3.6"
-
-    - if: type = cron OR branch =~ /^v?\d+(\.[x\d]+)+$/
-      python: "3.7"
-      env:
-        - USE_SIMA="false"
 
 ###############################################################################
 # Setup the environment before installing
