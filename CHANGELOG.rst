@@ -93,7 +93,7 @@ Changed
 ~~~~~~~
 
 -   Officially drop support for Python 3.3 and 3.4.
-    Add `python_requires` to package metadata, specifying Python 2.7 or >=3.5 is required.
+    Add ``python_requires`` to package metadata, specifying Python 2.7 or >=3.5 is required.
     (`#114 <https://github.com/rochefort-lab/fissa/pull/114>`__)
 -   Allow tuples and other sequences to be image and roi inputs to FISSA, not just lists.
     (`#73 <https://github.com/rochefort-lab/fissa/pull/73>`__)
