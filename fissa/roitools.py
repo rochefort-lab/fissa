@@ -364,11 +364,11 @@ def getmasks(rois, shpe):
     ----------
     rois : list
         list of roi coordinates. Each roi coordinate should be a 2d-array
-        or equivalent list. I.e.:
-        roi = [[0,0], [0,1], [1,1], [1,0]]
+        or equivalent list. i.e.:
+        ``roi = [[0,0], [0,1], [1,1], [1,0]]``
         or
-        roi = np.array([[0,0], [0,1], [1,1], [1,0]])
-        I.e. a n by 2 array, where n is the number of coordinates.
+        ``roi = np.array([[0,0], [0,1], [1,1], [1,0]])``
+        i.e. a n by 2 array, where n is the number of coordinates.
         If a 2 by n array is given, this will be transposed.
     shpe : array/list
         shape of underlying image [width,height]
