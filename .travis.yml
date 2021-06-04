@@ -74,12 +74,14 @@ jobs:
     - python: "2.7"
       env:
         - USE_OLDEST_DEPS="true"
+        - TEST_NOTEBOOKS="false"
 
     - python: "2.7"
 
     - python: "3.5"
       env:
         - USE_OLDEST_DEPS="true"
+        - TEST_NOTEBOOKS="false"
 
     - python: "3.5"
 
