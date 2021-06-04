@@ -31,6 +31,7 @@ class TestExperimentA(BaseTestCase):
         )
         self.images_dir = os.path.join(self.resources_dir, 'images')
         self.image_names = ['AVG_A01_R1_small.tif']
+        self.image_shape = (8, 17)
         self.roi_zip_path = os.path.join(self.resources_dir, 'rois.zip')
         self.roi_paths = [os.path.join('rois', r) for r in ['01.roi']]
 
@@ -82,6 +83,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_imagelist_roizip(self):
         image_paths = [
@@ -94,6 +97,9 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(len(exp.means), len(image_paths))
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_imagelistloaded_roizip(self):
         image_paths = [
@@ -108,6 +114,9 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(len(exp.means), len(image_paths))
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     @unittest.expectedFailure
     def test_imagedir_roilistpath(self):
@@ -121,6 +130,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     @unittest.expectedFailure
     def test_imagelist_roilistpath(self):
@@ -138,6 +149,9 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(len(exp.means), len(image_paths))
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_nocache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
@@ -146,6 +160,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_preparation_1(self):
         exp = core.Experiment(
@@ -159,6 +175,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_preparation_2(self):
         exp = core.Experiment(
@@ -172,6 +190,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_separate_1(self):
         exp = core.Experiment(
@@ -185,6 +205,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_separate_2(self):
         exp = core.Experiment(
@@ -198,6 +220,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_lowmemorymode(self):
         exp = core.Experiment(
@@ -211,6 +235,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_manualhandler(self):
         exp = core.Experiment(
@@ -224,6 +250,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_nofolder(self):
         self.tearDown()
@@ -233,6 +261,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_prepfirst(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -242,6 +272,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
@@ -267,6 +299,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_load_cache_piecemeal(self):
         """
@@ -289,6 +323,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_load_cached_prep(self):
         """
@@ -405,6 +441,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_calcdeltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
