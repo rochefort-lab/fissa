@@ -3,7 +3,8 @@
 """
 Basic FISSA usage example.
 
-This file contains a step-by-step example workflow for using the FISSA toolbox.
+This file contains a step-by-step example workflow for using the FISSA toolbox
+with a class-based/object-oriented interface.
 
 An example notebook is provided here:
 https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
