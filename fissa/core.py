@@ -251,8 +251,8 @@ class Experiment():
             pass
         elif not os.path.exists(folder):
             os.makedirs(folder)
-        elif os.path.isfile(os.path.join(folder, 'preparation.npy')):
-            if os.path.isfile(os.path.join(folder, 'separated.npy')):
+        elif os.path.isfile(os.path.join(folder, "preparation.npz")):
+            if os.path.isfile(os.path.join(folder, "separated.npz")):
                 self.separate()
             else:
                 self.separation_prep()
@@ -290,84 +290,120 @@ class Experiment():
             fname = None
             redo = True
         else:
-            fname = os.path.join(self.folder, 'preparation.npy')
+            fname = os.path.join(self.folder, "preparation.npz")
+
+        def _wipe():
+            """
+            Wipe outputs, and attributes downstream of outputs.
+            """
+            # Wipe outputs
+            self.nCell = None
+            self.raw = None
+            self.roi_polys = None
+            # Wipe outputs of separate(), as they no longer match self.raw
+            self.info = None
+            self.mixmat = None
+            self.sep = None
+            self.result = None
+            # Wipe outputs of calc_deltaf(), as they no longer match self.raw
+            # or self.result
+            self.deltaf_raw = None
+            self.deltaf_result = None
 
         # try to load data from filename
         if fname is None or not os.path.isfile(fname):
             redo = True
         if not redo:
             try:
-                nCell, raw, roi_polys = np.load(fname, allow_pickle=True)
+                cache = np.load(fname, allow_pickle=True)
                 print('Reloading previously prepared data...')
+                _wipe()
+                for field in cache.files:
+                    setattr(self, field, cache[field])
+                if self.raw is not None:
+                    return
             except BaseException as err:
                 print("An error occurred while loading {}".format(fname))
                 print(err)
                 print("Extraction will be redone and {} overwritten".format(fname))
-                redo = True
 
-        if redo:
-            print('Doing region growing and data extraction....')
-            # define inputs
-            inputs = [0] * self.nTrials
-            for trial in range(self.nTrials):
-                inputs[trial] = [self.images[trial], self.rois[trial],
-                                 self.nRegions, self.expansion, self.datahandler]
+        print('Doing region growing and data extraction....')
+        # define inputs
+        inputs = [0] * self.nTrials
+        for trial in range(self.nTrials):
+            inputs[trial] = [self.images[trial], self.rois[trial],
+                             self.nRegions, self.expansion, self.datahandler]
 
-            # Check whether we should use multiprocessing
-            use_multiprocessing = (
-                (self.ncores_preparation is None or self.ncores_preparation > 1)
-            )
-            # Do the extraction
-            if use_multiprocessing and sys.version_info < (3, 0):
-                # define pool
-                pool = Pool(self.ncores_preparation)
+        # Check whether we should use multiprocessing
+        use_multiprocessing = (
+            (self.ncores_preparation is None or self.ncores_preparation > 1)
+        )
+        # Do the extraction
+        if use_multiprocessing and sys.version_info < (3, 0):
+            # define pool
+            pool = Pool(self.ncores_preparation)
 
+            # run extraction
+            results = pool.map(extract_func, inputs)
+            pool.close()
+            pool.join()
+
+        elif use_multiprocessing:
+            with Pool(self.ncores_preparation) as pool:
                 # run extraction
                 results = pool.map(extract_func, inputs)
-                pool.close()
-                pool.join()
 
-            elif use_multiprocessing:
-                with Pool(self.ncores_preparation) as pool:
-                    # run extraction
-                    results = pool.map(extract_func, inputs)
-
-            else:
-                results = [0] * self.nTrials
-                for trial in range(self.nTrials):
-                    results[trial] = extract_func(inputs[trial])
-
-            # get number of cells
-            nCell = len(results[0][1])
-
-            # predefine data structures
-            raw = [[None for t in range(self.nTrials)] for c in range(nCell)]
-            raw = np.asarray(raw)
-            roi_polys = np.copy(raw)
-
-            # store results
+        else:
+            results = [0] * self.nTrials
             for trial in range(self.nTrials):
-                self.means += [results[trial][2]]
-                for cell in range(nCell):
-                    raw[cell][trial] = results[trial][0][cell]
-                    roi_polys[cell][trial] = results[trial][1][cell]
+                results[trial] = extract_func(inputs[trial])
 
-            # save
-            if fname is not None:
-                np.save(fname, (nCell, raw, roi_polys))
+        # get number of cells
+        nCell = len(results[0][1])
 
-        # store relevant info
+        # predefine data structures
+        raw = [[None for t in range(self.nTrials)] for c in range(nCell)]
+        raw = np.asarray(raw)
+        roi_polys = np.copy(raw)
+
+        # store results
+        for trial in range(self.nTrials):
+            self.means += [results[trial][2]]
+            for cell in range(nCell):
+                raw[cell][trial] = results[trial][0][cell]
+                roi_polys[cell][trial] = results[trial][1][cell]
+
+        # Set outputs
+        _wipe()
         self.nCell = nCell  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
-        # Wipe outputs of separate(), as they no longer match self.raw
-        self.info = None
-        self.mixmat = None
-        self.sep = None
-        self.result = None
-        # Wipe outputs of calc_deltaf(), as they no longer match self.raw
-        self.deltaf_raw = None
-        self.deltaf_result = None
+        # Maybe save to cache file
+        if self.folder is not None:
+            self.save_prep()
+
+    def save_prep(self, destination=None):
+        """
+        Save prepared raw signals, extracted from images, to an npz file.
+
+        Parameters
+        ----------
+        destination : str or None, optional
+            Path to output file. The default destination is ``"separated.npz"``
+            within the cache directory ``self.folder``.
+        """
+        fields = ["nCell", "raw", "roi_polys"]
+        if destination is None:
+            if self.folder is None:
+                raise ValueError(
+                    "The folder attribute must be declared in order to save"
+                    " preparation outputs the cache."
+                )
+            destination = os.path.join(self.folder, 'preparation.npz')
+        np.savez_compressed(
+            destination,
+            **{field: getattr(self, field) for field in fields}
+        )
 
     def separate(self, redo_prep=False, redo_sep=False):
         """
@@ -407,18 +443,35 @@ class Experiment():
         if redo_prep:
             redo_sep = True
 
+        def _wipe():
+            """
+            Wipe outputs, and attributes downstream of outputs.
+            """
+            # Wipe outputs
+            self.info = None
+            self.mixmat = None
+            self.sep = None
+            self.result = None
+            # Wipe deltaf_result, as it no longer matches self.result
+            self.deltaf_result = None
+
         # Define filename to store data in
         if self.folder is None:
             fname = None
             redo_sep = True
         else:
-            fname = os.path.join(self.folder, 'separated.npy')
+            fname = os.path.join(self.folder, "separated.npz")
         if fname is None or not os.path.isfile(fname):
             redo_sep = True
         if not redo_sep:
             try:
-                info, mixmat, sep, result = np.load(fname, allow_pickle=True)
+                cache = np.load(fname, allow_pickle=True)
                 print('Reloading previously separated data...')
+                _wipe()
+                for field in cache.files:
+                    setattr(self, field, cache[field])
+                if self.result is not None:
+                    return
             except BaseException as err:
                 print("An error occurred while loading {}".format(fname))
                 print(err)
@@ -426,82 +479,102 @@ class Experiment():
                     "Signal separation will be redone and {} overwritten"
                     "".format(fname)
                 )
-                redo_sep = True
 
         # separate data, if necessary
-        if redo_sep:
-            print('Doing signal separation....')
-            # predefine data structures
-            sep = [[None for t in range(self.nTrials)]
-                   for c in range(self.nCell)]
-            sep = np.asarray(sep)
-            result = np.copy(sep)
-            mixmat = np.copy(sep)
-            info = np.copy(sep)
+        print('Doing signal separation....')
+        # predefine data structures
+        sep = [[None for t in range(self.nTrials)]
+               for c in range(self.nCell)]
+        sep = np.asarray(sep)
+        result = np.copy(sep)
+        mixmat = np.copy(sep)
+        info = np.copy(sep)
 
-            # loop over cells to define function inputs
-            inputs = [0] * self.nCell
-            for cell in range(self.nCell):
-                # initiate concatenated data
-                X = np.concatenate(self.raw[cell], axis=1)
+        # loop over cells to define function inputs
+        inputs = [0] * self.nCell
+        for cell in range(self.nCell):
+            # initiate concatenated data
+            X = np.concatenate(self.raw[cell], axis=1)
 
-                # check for below 0 values
-                if X.min() < 0:
-                    warnings.warn('Found values below zero in signal, ' +
-                                  'setting minimum to 0.')
-                    X -= X.min()
+            # check for below 0 values
+            if X.min() < 0:
+                warnings.warn('Found values below zero in signal, ' +
+                              'setting minimum to 0.')
+                X -= X.min()
 
-                # update inputs
-                inputs[cell] = [X, self.alpha, self.method, cell]
+            # update inputs
+            inputs[cell] = [X, self.alpha, self.method, cell]
 
-            # Check whether we should use multiprocessing
-            use_multiprocessing = (
-                (self.ncores_separation is None or self.ncores_separation > 1)
-            )
-            # Do the extraction
-            if use_multiprocessing and sys.version_info < (3, 0):
-                # define pool
-                pool = Pool(self.ncores_separation)
+        # Check whether we should use multiprocessing
+        use_multiprocessing = (
+            (self.ncores_separation is None or self.ncores_separation > 1)
+        )
+        # Do the extraction
+        if use_multiprocessing and sys.version_info < (3, 0):
+            # define pool
+            pool = Pool(self.ncores_separation)
 
+            # run separation
+            results = pool.map(separate_func, inputs)
+            pool.close()
+            pool.join()
+
+        elif use_multiprocessing:
+            with Pool(self.ncores_separation) as pool:
                 # run separation
                 results = pool.map(separate_func, inputs)
-                pool.close()
-                pool.join()
-
-            elif use_multiprocessing:
-                with Pool(self.ncores_separation) as pool:
-                    # run separation
-                    results = pool.map(separate_func, inputs)
-            else:
-                results = [0] * self.nCell
-                for cell in range(self.nCell):
-                    results[cell] = separate_func(inputs[cell])
-
-            # read results
+        else:
+            results = [0] * self.nCell
             for cell in range(self.nCell):
-                curTrial = 0
-                Xsep, Xmatch, Xmixmat, convergence = results[cell]
-                for trial in range(self.nTrials):
-                    nextTrial = curTrial + self.raw[cell][trial].shape[1]
-                    sep[cell][trial] = Xsep[:, curTrial:nextTrial]
-                    result[cell][trial] = Xmatch[:, curTrial:nextTrial]
-                    curTrial = nextTrial
+                results[cell] = separate_func(inputs[cell])
 
-                    # store other info
-                    mixmat[cell][trial] = Xmixmat
-                    info[cell][trial] = convergence
+        # read results
+        for cell in range(self.nCell):
+            curTrial = 0
+            Xsep, Xmatch, Xmixmat, convergence = results[cell]
+            for trial in range(self.nTrials):
+                nextTrial = curTrial + self.raw[cell][trial].shape[1]
+                sep[cell][trial] = Xsep[:, curTrial:nextTrial]
+                result[cell][trial] = Xmatch[:, curTrial:nextTrial]
+                curTrial = nextTrial
 
-            # save
-            if fname is not None:
-                np.save(fname, (info, mixmat, sep, result))
+                # store other info
+                mixmat[cell][trial] = Xmixmat
+                info[cell][trial] = convergence
 
-        # store
+        # Wipe outputs
+        _wipe()
+        # Set outputs
         self.info = info
         self.mixmat = mixmat
         self.sep = sep
         self.result = result
-        # Wipe deltaf_result, as it no longer matches self.raw
-        self.deltaf_result = None
+        # Maybe save to cache file
+        if self.folder is not None:
+            self.save_separated()
+
+    def save_separated(self, destination=None):
+        """
+        Save separated signals to an npz file.
+
+        Parameters
+        ----------
+        destination : str or None, optional
+            Path to output file. The default destination is ``"separated.npz"``
+            within the cache directory ``self.folder``.
+        """
+        fields = ["info", "mixmat", "sep", "result"]
+        if destination is None:
+            if self.folder is None:
+                raise ValueError(
+                    "The folder attribute must be declared in order to save"
+                    " separation outputs to the cache."
+                )
+            destination = os.path.join(self.folder, "separated.npz")
+        np.savez_compressed(
+            destination,
+            **{field: getattr(self, field) for field in fields}
+        )
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
         """
