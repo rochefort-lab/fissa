@@ -38,12 +38,12 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        image : TBT
+        image : type
             Some string/object class/etc.
 
         Returns
         -------
-        TBT
+        type
             Whatever format you want the data to be saved in, and used by the other functions.
         """
         raise NotImplementedError()
@@ -54,7 +54,7 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        data : TBT
+        data : type
             Whatever format is returned by self.image2array().
 
         Returns
@@ -70,14 +70,14 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        rois : TBT
+        rois : type
             However the ROIs are formatted before becoming binary masks.
-        data : TBT
+        data : type
             Whatever format is returned by self.image2array()
 
         Returns
         -------
-        TBT
+        type
             Whatever format is needed in self.extracttraces().
         """
         raise NotImplementedError()
@@ -89,9 +89,9 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        data : TBT
+        data : type
             Whatever format is returned by self.image2array().
-        masks : TBT
+        masks : type
             Whatever format is returned by self.rois2masks().
 
         Returns
