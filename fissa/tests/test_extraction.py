@@ -22,48 +22,54 @@ class TestImage2ArrayTifffile(BaseTestCase):
                 [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
             ]
         )
+        self.resources_dir = os.path.join(self.test_directory, 'resources', 'tiffs')
         self.datahandler = DataHandlerTifffile()
 
     def test_imsave_tiff(self):
-        # make tif
-        tifffile.imsave('test.tif', self.expected)
+        """
+        Tiff generated from self.expected as
 
+        >>> tifffile.imsave('test_imsave.tif', data)
+
+        using tifffile.__version__ = 2021.4.8
+        """
         # load from tif
-        actual = self.datahandler.image2array('test.tif')
-
-        # remove tif
-        os.remove('test.tif')
+        actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_imsave.tif'))
 
         # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_tiffwriter_tiff(self):
-        # make tif with TiffFile
-        with tifffile.TiffWriter('test.tif') as tif:
-            for i in range(self.expected.shape[0]):
-                tif.write(self.expected[i, :, :], contiguous=True)
+        """
+        Tiff generated from self.expected as
 
+        >>> with tifffile.TiffWriter('test_tiffwriter.tif') as tif:
+        >>>     for i in range(data.shape[0]):
+        >>>         tif.write(data[i, :, :], contiguous=True)
+
+        using tifffile.__version__ = 2021.4.8
+        """
         # load from tif
-        actual = self.datahandler.image2array('test.tif')
-
-        # remove tif
-        os.remove('test.tif')
+        actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_tiffwriter.tif'))
 
         # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_suite2p_tiff(self):
-        # make tif as done by suite2p:
-        # (https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59)
-        with tifffile.TiffWriter('test.tif') as tif:
-            for frame in np.floor(self.expected).astype(np.int16):
-                tif.save(frame)
+        """
+        Tiff generated from self.expected as
 
+        >>> with tifffile.TiffWriter('test_suite2p.tif') as tif:
+        >>>     for frame in np.floor(data).astype(np.int16):
+        >>>         tif.save(frame)
+
+        using tifffile.__version__ = 2021.4.8
+
+        As done by Suite2p:
+        (https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59)
+        """
         # load from tif
-        actual = self.datahandler.image2array('test.tif')
-
-        # remove tif
-        os.remove('test.tif')
+        actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_suite2p.tif'))
 
         # assert equality
         self.assert_equal(actual, self.expected)
