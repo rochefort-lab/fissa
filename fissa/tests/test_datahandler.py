@@ -7,7 +7,7 @@ import numpy as np
 import tifffile
 
 from .base_test import BaseTestCase
-from ..datahandler import DataHandler
+from ..extraction import DataHandler
 from .. import roitools
 datahandler = DataHandler()
 

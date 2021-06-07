@@ -12,7 +12,7 @@ import numpy as np
 
 from .base_test import BaseTestCase
 from .. import core
-from ..datahandler import DataHandler
+from ..extraction import DataHandler
 
 
 class TestExperimentA(BaseTestCase):
