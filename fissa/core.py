@@ -187,7 +187,7 @@ class Experiment():
             instead of holding the entire TIFF in memory at once. This
             option reduces the memory load, and may be necessary for very
             large inputs. Default is ``False``.
-        datahandler_custom : object, optional
+        datahandler : extraction.DataHandlerAbstract or None, optional
             A custom datahandler class object for handling ROIs and calcium data can
             be given here. See extraction.py for examples. Easiest way to go about it usually is to inheret the standard
             DataHandlerTifffile class. Note: will overwrite the datahandler used for lowmemory_mode.
