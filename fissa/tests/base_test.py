@@ -13,6 +13,7 @@ from numpy.testing import (assert_almost_equal,
                            assert_array_equal,
                            assert_allclose,
                            assert_equal)
+import pytest
 
 
 # Check where the test directory is located, to be used when fetching
@@ -43,6 +44,10 @@ class BaseTestCase(unittest.TestCase):
             yield super(BaseTestCase, self).subTest(*args, **kwargs)
         else:
             yield None
+
+    @pytest.fixture(autouse=True)
+    def capsys(self, capsys):
+        self.capsys = capsys
 
     def assert_almost_equal(self, *args, **kwargs):
         return assert_almost_equal(*args, **kwargs)
