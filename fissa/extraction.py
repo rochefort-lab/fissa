@@ -122,8 +122,6 @@ class DataHandlerTifffile(DataHandlerAbstract):
         """
         if isinstance(image, basestring):
             return tifffile.imread(image)
-
-
         return np.array(image)
 
     def getmean(self, data):
