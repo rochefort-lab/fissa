@@ -24,7 +24,7 @@ class TestImage2ArrayTifffile(BaseTestCase):
         )
         self.datahandler = DataHandlerTifffile()
 
-    def test_actual_tiff(self):
+    def test_imsave_tiff(self):
         # make tif
         tifffile.imsave('test.tif', self.expected)
 
@@ -120,7 +120,7 @@ class TestImage2ArrayPillow(BaseTestCase):
         imageio.imwrite('test.tif', self.expected)
         self.datahandler = DataHandlerPillow()
 
-    def test_actual_tiff(self):
+    def test_imageio_tiff(self):
         # load from tif
         actual = self.datahandler.image2array('test.tif')
 
