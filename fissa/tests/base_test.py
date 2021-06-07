@@ -72,3 +72,35 @@ class BaseTestCase(unittest.TestCase):
         self.assertEqual(desired.keys(), actual.keys())
         for k in desired.keys():
             self.assertEqual(desired[k], actual[k])
+
+    def assert_starts_with(self, desired, actual):
+        """
+        Check that a string starts with a certain substring.
+
+        Parameters
+        ----------
+        desired : str
+            Desired initial string.
+        actual : str-like
+            Actual string or string-like object.
+        """
+        try:
+            self.assertTrue(len(actual) >= len(desired))
+        except BaseException as err:
+            print("Actual string too short ({} < {} characters)".format(len(actual), len(desired)))
+            print("ACTUAL: {}".format(actual))
+            raise
+        try:
+            return assert_equal(str(actual)[:len(desired)], desired)
+        except BaseException as err:
+            msg = "ACTUAL: {}".format(actual)
+            if isinstance(getattr(err, "args", None), str):
+                err.args += "\n" + msg
+            elif isinstance(getattr(err, "args", None), tuple):
+                if len(err.args) == 1:
+                    err.args = (err.args[0] + "\n" + msg, )
+                else:
+                    err.args += (msg, )
+            else:
+                print(msg)
+            raise
