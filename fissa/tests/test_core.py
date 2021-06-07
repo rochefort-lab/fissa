@@ -217,7 +217,7 @@ class TestExperimentA(BaseTestCase):
             self.images_dir,
             self.roi_zip_path,
             self.output_dir,
-            datahandler_custom=DataHandlerTifffile(),
+            datahandler=DataHandlerTifffile(),
         )
         exp.separate()
         actual = exp.result

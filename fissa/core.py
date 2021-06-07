@@ -123,7 +123,7 @@ class Experiment():
     def __init__(self, images, rois, folder=None, nRegions=4,
                  expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
-                 lowmemory_mode=False, datahandler_custom=None):
+                 lowmemory_mode=False, datahandler=None):
         """Initialisation. Set the parameters for your Fissa instance.
 
         Parameters
@@ -212,15 +212,12 @@ class Experiment():
         else:
             raise ValueError('rois should either be string or list')
 
-        if datahandler_custom is None:
-            if lowmemory_mode:
-                from .extraction import DataHandlerPillow
-                self.datahandler = DataHandlerPillow()
-            else:
-                from .extraction import DataHandlerTifffile
-                self.datahandler = DataHandlerTifffile()
+        if datahandler is not None:
+            self.datahandler = datahandler
+        elif lowmemory_mode:
+            self.datahandler = extraction.DataHandlerPillow()
         else:
-            self.datahandler = datahandler_custom
+            self.datahandler = extraction.DataHandlerTifffile()
 
         # define class variables
         self.folder = folder
