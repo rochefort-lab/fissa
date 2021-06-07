@@ -12,7 +12,7 @@ import numpy as np
 
 from .base_test import BaseTestCase
 from .. import core
-from ..extraction import DataHandler
+from ..extraction import DataHandlerTifffile
 
 
 class TestExperimentA(BaseTestCase):
@@ -67,7 +67,7 @@ class TestExperimentA(BaseTestCase):
              0.        ,  0.        ,  0.        ,  0.        ],
         ])
 
-        self.datahandler = DataHandler()
+        self.datahandler = DataHandlerTifffile()
 
     def setUp(self):
         self.tearDown()
