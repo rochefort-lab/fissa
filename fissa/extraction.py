@@ -23,12 +23,20 @@ from . import roitools
 
 
 class DataHandlerAbstract():
-    """Abstract class for data handling.
+    """Abstract class for a data handler.
 
-    The main thing to keep consistent is that the input into getmean(), roise2mask(), and extracttraces() depend
-    on the output of the image2array and rois2mask.
+    Note
+    ----
+    - The `data` input into :meth:`getmean`, :meth:`rois2masks`, and
+      :meth:`extracttraces` must be the same format as the output to
+      :meth:`image2array`.
+    - The `masks` input into :meth:`extracttraces` must be the same format
+      as the output of :meth:`rois2mask`.
 
-    See the below DataHandler() and DataHandlerPillow() classes for example usages.
+    See Also
+    --------
+    See :class:`DataHandlerTifffile` and :class:`DataHandlerPillow` for example
+    subclasses.
     """
     def __init__(self):
         pass
@@ -50,12 +58,13 @@ class DataHandlerAbstract():
 
     def getmean(self, data):
         """Determine the mean image across all frames.
-        Should return a 2D numpy.ndarray.
+
+        Must return a 2D :class:`numpy.ndarray`.
 
         Parameters
         ----------
         data : type
-            Whatever format is returned by self.image2array().
+            Whatever format is returned by :meth:`image2array`.
 
         Returns
         -------
@@ -73,31 +82,31 @@ class DataHandlerAbstract():
         rois : type
             However the ROIs are formatted before becoming binary masks.
         data : type
-            Whatever format is returned by self.image2array()
+            The same format as is returned by :meth:`image2array`.
 
         Returns
         -------
         type
-            Whatever format is needed in self.extracttraces().
+            Whatever format is needed in :meth:`extracttraces`.
         """
         raise NotImplementedError()
 
     def extracttraces(self, data, masks):
         """Extracts a temporal trace for each spatial mask.
 
-        Should return a 2D numpy.ndarray.
+       Must return a 2D :class:`numpy.ndarray`.
 
         Parameters
         ----------
         data : type
-            Whatever format is returned by self.image2array().
+            Whatever format is returned by :meth:`image2array`.
         masks : type
-            Whatever format is returned by self.rois2masks().
+            Whatever format is returned by :meth:`rois2masks`.
 
         Returns
         -------
         numpy.ndarray
-            Trace for each mask. Shaped `(len(masks), n_frames)`.
+            Trace for each mask, shaped ``(len(masks), n_frames)``.
 
         """
         raise NotImplementedError()
@@ -130,7 +139,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
         Parameters
         ----------
         data : array_like
-            Data array as made by image2array. Should be shaped `(frames, y, x)`.
+            Data array as made by :meth:`image2array`. Should be shaped `(frames, y, x)`.
 
         Returns
         -------
@@ -149,7 +158,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
             Either a string with imagej roi zip location, list of arrays encoding
             polygons, or list of binary arrays representing masks
         data : array
-            Data array as made by image2array. Must be shaped `(frames, y, x)`.
+            Data array as made by :meth:`image2array`. Must be shaped `(frames, y, x)`.
 
         Returns
         -------
@@ -185,7 +194,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
         Parameters
         ----------
         data : array_like
-            Data array as made by image2array. Should be shaped
+            Data array as made by :meth:`image2array`. Should be shaped
             `(frames, y, x)`.
         masks : list of array_like
             List of binary arrays.
