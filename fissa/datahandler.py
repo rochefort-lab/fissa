@@ -141,7 +141,6 @@ class DataHandler(DataHandlerAbstract):
         """
         return data.mean(axis=0)
 
-
     def rois2masks(self, rois, data):
         """Take the object `rois` and returns it as a list of binary masks.
 
@@ -180,7 +179,6 @@ class DataHandler(DataHandlerAbstract):
             return rois
 
         raise ValueError('Wrong ROIs input format: unfamiliar shape.')
-
 
     def extracttraces(self, data, masks):
         """Extracts a temporal trace for each spatial mask.
