@@ -20,10 +20,89 @@ from PIL import Image, ImageSequence
 
 from . import roitools
 
-class DataHandler():
-    """Contains all data interaction functions."""
+
+class DataHandlerAbstract():
+    """Abstract class for data handling.
+
+    The main thing to keep consistent is that the input into getmean(), roise2mask(), and extracttraces() depend
+    on the output of the image2array and rois2mask.
+
+    See the below DataHandler() and DataHandlerPillow() classes for example usages.
+    """
     def __init__(self):
         pass
+
+    def image2array(self, image):
+        """Loads an image as an array.
+
+        Parameters
+        ----------
+        image : TBT
+            Some string/object class/etc.
+
+        Returns
+        -------
+        TBT
+            Whatever format you want the data to be saved in, and used by the other functions.
+        """
+        raise NotImplementedError()
+
+    def getmean(self, data):
+        """Determine the mean image across all frames.
+        Should return a 2D numpy.ndarray.
+
+        Parameters
+        ----------
+        data : TBT
+            Whatever format is returned by self.image2array().
+
+        Returns
+        -------
+        numpy.ndarray
+            y by x array for the mean values
+
+        """
+        raise NotImplementedError()
+
+    def rois2masks(self, rois, data):
+        """Take the object `rois` and returns it as a list of binary masks.
+
+        Parameters
+        ----------
+        rois : TBT
+            However the ROIs are formatted before becoming binary masks.
+        data : TBT
+            Whatever format is returned by self.image2array()
+
+        Returns
+        -------
+        TBT
+            Whatever format is needed in self.extracttraces().
+        """
+        raise NotImplementedError()
+
+    def extracttraces(self, data, masks):
+        """Extracts a temporal trace for each spatial mask.
+
+        Should return a 2D numpy.ndarray.
+
+        Parameters
+        ----------
+        data : TBT
+            Whatever format is returned by self.image2array().
+        masks : TBT
+            Whatever format is returned by self.rois2masks().
+
+        Returns
+        -------
+        numpy.ndarray
+            Trace for each mask. Shaped `(len(masks), n_frames)`.
+
+        """
+        raise NotImplementedError()
+
+class DataHandler(DataHandlerAbstract):
+    """Using tifffile to interact with TIFF images."""
 
     def image2array(self, image):
         """Loads a TIFF image from disk.
