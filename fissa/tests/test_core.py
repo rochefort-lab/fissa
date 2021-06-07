@@ -67,8 +67,6 @@ class TestExperimentA(BaseTestCase):
              0.        ,  0.        ,  0.        ,  0.        ],
         ])
 
-        self.datahandler = DataHandlerTifffile()
-
     def setUp(self):
         self.tearDown()
         os.makedirs(self.output_dir)
@@ -102,7 +100,8 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
-        images = [self.datahandler.image2array(pth) for pth in image_paths]
+        datahandler = DataHandlerTifffile()
+        images = [datahandler.image2array(pth) for pth in image_paths]
         exp = core.Experiment(images, self.roi_zip_path, self.output_dir)
         exp.separate()
         actual = exp.result
@@ -218,7 +217,7 @@ class TestExperimentA(BaseTestCase):
             self.images_dir,
             self.roi_zip_path,
             self.output_dir,
-            datahandler_custom=self.datahandler,
+            datahandler_custom=DataHandlerTifffile(),
         )
         exp.separate()
         actual = exp.result
