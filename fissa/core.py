@@ -19,6 +19,7 @@ import numpy as np
 from scipy.io import savemat
 
 from . import deltaf
+from . import extraction
 from . import neuropil as npil
 from . import roitools
 
