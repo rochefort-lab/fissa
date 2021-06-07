@@ -249,7 +249,7 @@ class Experiment():
         # check if any data already exists
         if folder is None:
             pass
-        elif not os.path.exists(folder):
+        elif folder and not os.path.exists(folder):
             os.makedirs(folder)
         elif os.path.isfile(os.path.join(folder, "preparation.npz")):
             if os.path.isfile(os.path.join(folder, "separated.npz")):
