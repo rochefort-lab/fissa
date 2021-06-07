@@ -15,7 +15,13 @@ from .. import roitools
 class TestImage2ArrayTifffile(BaseTestCase):
     ''' Tests for image2array.'''
     def setup_class(self):
-        self.expected = np.array([[1, 2, 3], [5, 6, 7], [8, 9, 10]])
+        # should be a 3D array of shape (frame_number, x-coords, y-coords)
+        self.expected = np.array(
+            [
+                [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
+                [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
+            ]
+        )
         self.datahandler = DataHandlerTifffile()
 
     def test_actual_tiff(self):
@@ -103,8 +109,13 @@ class TestRois2MasksTifffile(BaseTestCase):
 class TestImage2ArrayPillow(BaseTestCase):
     ''' Tests for image2array.'''
     def setup_class(self):
-        self.expected = np.array([[1, 2, 3], [5, 6, 7], [8, 9, 10]],
-                                 dtype=np.uint8)
+        self.expected = np.array(
+            [
+                [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
+                [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
+            ],
+            dtype=np.uint8,
+        )
         # make tif
         imageio.imwrite('test.tif', self.expected)
         self.datahandler = DataHandlerPillow()
