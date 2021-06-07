@@ -76,7 +76,7 @@ class TestExperimentA(BaseTestCase):
             shutil.rmtree(self.output_dir)
 
     def test_imagedir_roizip(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -90,7 +90,7 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
-        exp = core.Experiment(image_paths, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(image_paths, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -107,7 +107,7 @@ class TestExperimentA(BaseTestCase):
         ]
         datahandler = DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
-        exp = core.Experiment(images, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(images, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -123,7 +123,7 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.resources_dir, r)
             for r in self.roi_paths
         ]
-        exp = core.Experiment(self.images_dir, roi_paths, self.output_dir)
+        exp = core.Experiment(self.images_dir, roi_paths)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -142,7 +142,7 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.resources_dir, r)
             for r in self.roi_paths
         ]
-        exp = core.Experiment(image_paths, roi_paths, self.output_dir)
+        exp = core.Experiment(image_paths, roi_paths)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -166,7 +166,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_preparation=1,
         )
         exp.separate()
@@ -181,7 +180,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_preparation=2,
         )
         exp.separate()
@@ -196,7 +194,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_separation=1,
         )
         exp.separate()
@@ -211,7 +208,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_separation=2,
         )
         exp.separate()
@@ -226,7 +222,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             lowmemory_mode=True,
         )
         exp.separate()
@@ -251,6 +246,10 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
+
+    def test_caching(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp.separate()
 
     def test_prefolder(self):
         os.makedirs(self.output_dir)
@@ -489,6 +488,15 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_calcdeltaf(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        exp.calc_deltaf(4)
+        actual = exp.deltaf_result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        #TODO: Check contents of exp.deltaf_result
+
+    def test_calcdeltaf_cache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4)
@@ -498,7 +506,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notrawf0(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False)
         actual = exp.deltaf_result
@@ -507,7 +515,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notacrosstrials(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, across_trials=False)
         actual = exp.deltaf_result
@@ -516,7 +524,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False, across_trials=False)
         actual = exp.deltaf_result
