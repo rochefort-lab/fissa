@@ -255,12 +255,6 @@ class TestExperimentA(BaseTestCase):
         os.makedirs(self.output_dir)
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_cache_pwd_explict(self):
         """Check we can use pwd as the cache folder"""
