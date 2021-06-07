@@ -325,6 +325,7 @@ class Experiment():
 
             # predefine data structures
             raw = [[None for t in range(self.nTrials)] for c in range(nCell)]
+            raw = np.asarray(raw)
             roi_polys = np.copy(raw)
 
             # store results
@@ -407,6 +408,7 @@ class Experiment():
             # predefine data structures
             sep = [[None for t in range(self.nTrials)]
                    for c in range(self.nCell)]
+            sep = np.asarray(sep)
             result = np.copy(sep)
             mixmat = np.copy(sep)
             info = np.copy(sep)
@@ -499,6 +501,7 @@ class Experiment():
         """
         deltaf_raw = [[None for t in range(self.nTrials)]
                       for c in range(self.nCell)]
+        deltaf_raw = np.asarray(deltaf_raw)
         deltaf_result = np.copy(deltaf_raw)
 
         # loop over cells
