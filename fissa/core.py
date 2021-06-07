@@ -400,6 +400,9 @@ class Experiment():
                     " preparation outputs the cache."
                 )
             destination = os.path.join(self.folder, 'preparation.npz')
+        destdir = os.path.dirname(destination)
+        if destdir and not os.path.isdir(destdir):
+            os.makedirs(destdir)
         np.savez_compressed(
             destination,
             **{field: getattr(self, field) for field in fields}
@@ -571,6 +574,9 @@ class Experiment():
                     " separation outputs to the cache."
                 )
             destination = os.path.join(self.folder, "separated.npz")
+        destdir = os.path.dirname(destination)
+        if destdir and not os.path.isdir(destdir):
+            os.makedirs(destdir)
         np.savez_compressed(
             destination,
             **{field: getattr(self, field) for field in fields}
