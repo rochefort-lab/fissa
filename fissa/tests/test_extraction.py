@@ -37,6 +37,37 @@ class TestImage2ArrayTifffile(BaseTestCase):
         # assert equality
         self.assert_equal(actual, self.expected)
 
+    def test_tiffwriter_tiff(self):
+        # make tif with TiffFile
+        with tifffile.TiffWriter('test.tif') as tif:
+            for i in range(self.expected.shape[0]):
+                tif.write(self.expected[i, :, :], contiguous=True)
+
+        # load from tif
+        actual = self.datahandler.image2array('test.tif')
+
+        # remove tif
+        os.remove('test.tif')
+
+        # assert equality
+        self.assert_equal(actual, self.expected)
+
+    def test_suite2p_tiff(self):
+        # make tif as done by suite2p:
+        # (https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59)
+        with tifffile.TiffWriter('test.tif') as tif:
+            for frame in np.floor(self.expected).astype(np.int16):
+                tif.save(frame)
+
+        # load from tif
+        actual = self.datahandler.image2array('test.tif')
+
+        # remove tif
+        os.remove('test.tif')
+
+        # assert equality
+        self.assert_equal(actual, self.expected)
+
     def test_array(self):
         # load from array
         actual = self.datahandler.image2array(self.expected)
