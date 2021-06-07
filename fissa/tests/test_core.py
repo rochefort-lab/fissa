@@ -263,6 +263,30 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
+    def test_cache_pwd_explict(self):
+        """Check we can use pwd as the cache folder"""
+        prevdir = os.getcwd()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        try:
+            os.chdir(self.output_dir)
+            exp = core.Experiment(self.images_dir, self.roi_zip_path, ".")
+            exp.separate()
+        finally:
+            os.chdir(prevdir)
+
+    def test_cache_pwd_implicit(self):
+        """Check we can use pwd as the cache folder"""
+        prevdir = os.getcwd()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        try:
+            os.chdir(self.output_dir)
+            exp = core.Experiment(self.images_dir, self.roi_zip_path, "")
+            exp.separate()
+        finally:
+            os.chdir(prevdir)
+
     def test_subfolder(self):
         """Check we can write to a subfolder"""
         output_dir = os.path.join(self.output_dir, "subdir")
