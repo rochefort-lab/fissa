@@ -188,10 +188,8 @@ class Experiment():
             large inputs. Default is ``False``.
         datahandler_custom : object, optional
             A custom datahandler class for handling ROIs and calcium data can
-            be given here. See datahandler.py (the default handler) for
-            an example. Easiest way to go about it usually to inheret the standard
-            datahandler class. Note: will overwrite the datahandler used for
-            lowmemory_mode.
+            be given here. See extraction.py for examples. Easiest way to go about it usually is to inheret the standard
+            datahandler class. Note: will overwrite the datahandler used for lowmemory_mode.
 
         """
         if isinstance(images, basestring):
@@ -215,10 +213,11 @@ class Experiment():
 
         if datahandler_custom is None:
             if lowmemory_mode:
-                from .datahandler_framebyframe import DataHandler
+                from .extraction import DataHandlerPillow
+                self.datahandler = DataHandlerPillow()
             else:
-                from .datahandler import DataHandler
-            self.datahandler = DataHandler()
+                from .extraction import DataHandler
+                self.datahandler = DataHandler()
         else:
             self.datahandler = datahandler_custom
 
