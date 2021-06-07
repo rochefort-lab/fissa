@@ -263,6 +263,12 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
+    def test_subfolder(self):
+        """Check we can write to a subfolder"""
+        output_dir = os.path.join(self.output_dir, "subdir")
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, output_dir)
+        exp.separate()
+
     def test_prepfirst(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separation_prep()
