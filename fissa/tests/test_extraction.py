@@ -81,7 +81,7 @@ class TestRois2MasksTifffile(BaseTestCase):
         with self.assertRaises(TypeError):
             self.datahandler.rois2masks(self.polys[0], self.data)
 
-    def test_polys_not_2d(self):
+    def test_polys_1d(self):
         # check that rois2masks fails when the polys are not 2d
         polys1d = [
             np.array([[39.,]]),
@@ -89,6 +89,9 @@ class TestRois2MasksTifffile(BaseTestCase):
         ]
         with self.assertRaises(ValueError):
             self.datahandler.rois2masks(polys1d, self.data)
+
+    def test_polys_3d(self):
+        # check that rois2masks fails when the polys are not 2d
         polys3d = [
             np.array([[39., 62., 0.], [60., 45., 0.], [48., 71., 0.]]),
             np.array([[72., 107., 0.], [78., 130., 0.], [100., 110., 0.]]),
