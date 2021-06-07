@@ -188,9 +188,12 @@ class Experiment():
             option reduces the memory load, and may be necessary for very
             large inputs. Default is ``False``.
         datahandler : extraction.DataHandlerAbstract or None, optional
-            A custom datahandler class object for handling ROIs and calcium data can
-            be given here. See extraction.py for examples. Easiest way to go about it usually is to inheret the standard
-            DataHandlerTifffile class. Note: will overwrite the datahandler used for lowmemory_mode.
+            A custom datahandler object for handling ROIs and calcium data can
+            be given here. See :mod:`extraction` for example datahandler
+            classes. The default datahandler is
+            :class:`~extraction.DataHandlerTifffile`.
+            Note: if `datahandler` is set, the `lowmemory_mode` parameter is
+            ignored.
 
         """
         if isinstance(images, basestring):
