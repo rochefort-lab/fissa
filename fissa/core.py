@@ -387,6 +387,7 @@ class Experiment():
         # Do data preparation
         if redo_prep or self.raw is None:
             self.separation_prep(redo_prep)
+        if redo_prep:
             redo_sep = True
 
         # Define filename to store data in
