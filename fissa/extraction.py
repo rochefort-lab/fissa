@@ -102,7 +102,7 @@ class DataHandlerAbstract():
         """
         raise NotImplementedError()
 
-class DataHandler(DataHandlerAbstract):
+class DataHandlerTifffile(DataHandlerAbstract):
     """Using tifffile to interact with TIFF images."""
 
     def image2array(self, image):
