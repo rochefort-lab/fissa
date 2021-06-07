@@ -16,6 +16,7 @@ import collections
 
 import numpy as np
 import tifffile
+from PIL import Image, ImageSequence
 
 from . import roitools
 
