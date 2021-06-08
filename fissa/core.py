@@ -285,7 +285,10 @@ class Experiment():
             try:
                 nCell, raw, roi_polys = np.load(fname, allow_pickle=True)
                 print('Reloading previously prepared data...')
-            except BaseException:
+            except BaseException as err:
+                print("An error occurred while loading {}".format(fname))
+                print(err)
+                print("Extraction will be redone and {} overwritten".format(fname))
                 redo = True
 
         if redo:
@@ -400,7 +403,13 @@ class Experiment():
             try:
                 info, mixmat, sep, result = np.load(fname, allow_pickle=True)
                 print('Reloading previously separated data...')
-            except BaseException:
+            except BaseException as err:
+                print("An error occurred while loading {}".format(fname))
+                print(err)
+                print(
+                    "Signal separation will be redone and {} overwritten"
+                    "".format(fname)
+                )
                 redo_sep = True
 
         # separate data, if necessary
