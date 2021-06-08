@@ -387,6 +387,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
