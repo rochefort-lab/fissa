@@ -16710,22 +16710,24 @@ Finished ROI number 0
 </div>
 
 </div>
-
 </div>
 
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Handling-custom-formats">Handling custom formats<a class="anchor-link" href="#Handling-custom-formats">&#182;</a></h3><p>By default FISSA can use tiff files or numpy arrays as its input image data, and numpy arrays or ImageJ zip files for the ROI definitions.
-It is also possible to give FISSA a custom script in order to work with other custom and/or proprietary formats that might be used in your lab.</p>
-<p>By default the above is all handled by the DataHandler class defined in fissa.datahandler. The class can be inhereted and adjusted as below, and then passed to FISSA. DataHandler has four subfunctions:</p>
-<p><code>DataHandler.image2array(image)</code> takes an image of whatever format and turns it into an array.</p>
-<p><code>DataHandler.getmean(data)</code> calculates the 2D mean for a video defined by the 3D data array.</p>
-<p><code>DataHandler.rois2masks(rois, data)</code> creates masks from the rois inputs, of appropriate size for the data array.</p>
-<p><code>DataHandler.extracttraces(data, masks)</code> Applies masks to some data to extract traces.</p>
-<p>See <code>fissa/datahandler.py</code> for detailed help for each function and how it should be formatted.</p>
-<p>To define a custom datahandler class one can inheret the original class, and adjust what needs adjusting. The main use-case is likely a custom image format, in which case one would for example do the following:
-(It is usually safest to make sure each function still outputs the same formats)</p>
+<h3 id="Handling-custom-formats">Handling custom formats<a class="anchor-link" href="#Handling-custom-formats">&#182;</a></h3><p>By default, FISSA can use tiff files or numpy arrays as its input image data, and numpy arrays or ImageJ zip files for the ROI definitions.
+However, it is also possible to extend this functionality and integrate other data formats into FISSA in order to work with other custom and/or proprietary formats that might be used in your lab.</p>
+<p>This is done by defining your own DataHandler class.
+Your custom data handler should be a subclass of <a href="https://fissa.readthedocs.io/en/stable/source/packages/fissa.extraction.html#fissa.extraction.DataHandlerAbstract">fissa.extraction.DataHandlerAbstract</a>, and implement the following methods:</p>
+<ul>
+<li><code>image2array(image)</code> takes an image of whatever format and turns it into <em>data</em> (typically a numpy.ndarray).</li>
+<li><code>getmean(data)</code> calculates the 2D mean for a video defined by <em>data</em>.</li>
+<li><code>rois2masks(rois, data)</code> creates masks from the rois inputs, of appropriate size <em>data</em>.</li>
+<li><code>extracttraces(data, masks)</code> applies the <em>masks</em> to <em>data</em> in order to extract traces.</li>
+</ul>
+<p>See <a href="https://fissa.readthedocs.io/en/stable/source/packages/fissa.extraction.html#fissa.extraction.DataHandlerAbstract">fissa.extraction.DataHandlerAbstract</a> for further description for each of the methods.</p>
+<p>If you only need to handle a new <em>image</em> input format, which is converted to a numpy.ndarray, you may find it is easier to create a subclass of the default datahandler, <a href="https://fissa.readthedocs.io/en/stable/source/packages/fissa.extraction.html#fissa.extraction.DataHandlerTifffile">fissa.extraction.DataHandlerTifffile</a>.
+In this case, only the <code>image2array</code> method needs to be overwritten and the other methods can be left as they are.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -16736,7 +16738,12 @@ It is also possible to give FISSA a custom script in order to work with other cu
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">fissa.extraction</span> <span class="kn">import</span> <span class="n">DataHandlerTifffile</span>
 
-<span class="c1"># define the custom datahandler class</span>
+<span class="c1"># Define a custom datahandler class.</span>
+<span class="c1">#</span>
+<span class="c1"># By inheriting from DataHandlerTifffile, most methods are defined</span>
+<span class="c1"># appropriately. In this case, we only need to overwrite the</span>
+<span class="c1"># `image2array` method to work with our custom data format.</span>
+
 <span class="k">class</span> <span class="nc">DataHandlerCustom</span><span class="p">(</span><span class="n">DataHandlerTifffile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">image2array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Open a given image file as a custom instance.</span>
@@ -16744,51 +16751,30 @@ It is also possible to give FISSA a custom script in order to work with other cu
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        image : custom</span>
-<span class="sd">            Image of a custom sort (can avi, hdf5, etc.)</span>
+<span class="sd">            Your image format (avi, hdf5, etc.)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        numpy.ndarray</span>
-<span class="sd">            A 3D array containing the data, with dimensions corresponding to</span>
-<span class="sd">            `(frames, y_coordinate, x_coordinate)`.</span>
+<span class="sd">            A 3D array containing the data, shaped</span>
+<span class="sd">            ``(frames, y_coordinate, x_coordinate)``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Some custom code</span>
         <span class="k">pass</span>
-    
-<span class="c1"># this can then be passed at experiment definition as follows</span>
-<span class="n">datahandler_custom</span> <span class="o">=</span> <span class="n">DataHandlerCustom</span><span class="p">()</span>
+
+<span class="c1"># Then pass an instance of this class to fissa.Experiment when creating</span>
+<span class="c1"># a new experiment.</span>
+<span class="n">datahandler</span> <span class="o">=</span> <span class="n">DataHandlerCustom</span><span class="p">()</span>
 
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">fissa</span><span class="o">.</span><span class="n">Experiment</span><span class="p">(</span>
     <span class="n">images_location</span><span class="p">,</span>
     <span class="n">rois_location</span><span class="p">,</span>
-    <span class="n">output_folder</span><span class="p">,</span>
-    <span class="n">datahandler_custom</span><span class="o">=</span><span class="n">datahandler_custom</span>
+    <span class="n">datahandler</span><span class="o">=</span><span class="n">datahandler</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 
-     </div>
+    </div>
 </div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Reloading previously prepared data...
-Reloading previously separated data...
-</pre>
-</div>
-</div>
-
 </div>
 
 </div>
@@ -16796,16 +16782,11 @@ Reloading previously separated data...
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>For advanced users that want to replace the full DataHandler method, you can also inheret a class from fissa.extraction.DataHandlerAbstract(). See the docstring of that class for details.
-This can be useful if you want to integrate FISSA into your workflow without changing everything into the specific numpy array formats required for default FISSA.</p>
-
+<p>For advanced users that want to entirely replace the DataHandler with their own methods, you can also inherit a class from the abstract class, <a href="https://fissa.readthedocs.io/en/stable/source/packages/fissa.extraction.html#fissa.extraction.DataHandlerAbstract">fissa.extraction.DataHandlerAbstract</a>.
+This can be useful if you want to integrate FISSA into your workflow without changing everything into the numpy array formats that FISSA usually uses internally.</p>
 </div>
 </div>
 </body>
-
-
-
-
 
 
 
