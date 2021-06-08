@@ -16745,7 +16745,8 @@ In this case, only the <code>image2array</code> method needs to be overwritten a
 <span class="c1"># `image2array` method to work with our custom data format.</span>
 
 <span class="k">class</span> <span class="nc">DataHandlerCustom</span><span class="p">(</span><span class="n">DataHandlerTifffile</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">image2array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">image2array</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Open a given image file as a custom instance.</span>
 
 <span class="sd">        Parameters</span>

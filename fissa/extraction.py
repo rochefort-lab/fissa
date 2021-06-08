@@ -35,10 +35,8 @@ class DataHandlerAbstract():
     See :class:`DataHandlerTifffile` and :class:`DataHandlerPillow` for example
     subclasses.
     """
-    def __init__(self):
-        pass
-
-    def image2array(self, image):
+    @staticmethod
+    def image2array(image):
         """
         Load data (from a path) as an array, or similar internal structure.
 
@@ -55,7 +53,8 @@ class DataHandlerAbstract():
         """
         raise NotImplementedError()
 
-    def getmean(self, data):
+    @staticmethod
+    def getmean(data):
         """
         Determine the mean image across all frames.
 
@@ -73,7 +72,8 @@ class DataHandlerAbstract():
         """
         raise NotImplementedError()
 
-    def rois2masks(self, rois, data):
+    @staticmethod
+    def rois2masks(rois, data):
         """
         Convert `rois` into a collection of binary masks.
 
@@ -91,7 +91,8 @@ class DataHandlerAbstract():
         """
         raise NotImplementedError()
 
-    def extracttraces(self, data, masks):
+    @staticmethod
+    def extracttraces(data, masks):
         """
         Extract from data the average signal within each mask, across time.
 
@@ -116,8 +117,8 @@ class DataHandlerTifffile(DataHandlerAbstract):
     """
     Extract data from TIFF images using tifffile.
     """
-
-    def image2array(self, image):
+    @staticmethod
+    def image2array(image):
         """
         Load a TIFF image from disk.
 
@@ -136,7 +137,8 @@ class DataHandlerTifffile(DataHandlerAbstract):
             return tifffile.imread(image)
         return np.array(image)
 
-    def getmean(self, data):
+    @staticmethod
+    def getmean(data):
         """
         Determine the mean image across all frames.
 
@@ -152,7 +154,8 @@ class DataHandlerTifffile(DataHandlerAbstract):
         """
         return data.mean(axis=0)
 
-    def rois2masks(self, rois, data):
+    @staticmethod
+    def rois2masks(rois, data):
         """Take the object `rois` and returns it as a list of binary masks.
 
         Parameters
@@ -192,7 +195,8 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         raise ValueError('Wrong ROIs input format: unfamiliar shape.')
 
-    def extracttraces(self, data, masks):
+    @staticmethod
+    def extracttraces(data, masks):
         """
         Extract a temporal trace for each spatial mask.
 
@@ -229,8 +233,8 @@ class DataHandlerPillow(DataHandlerAbstract):
 
     Slower, but less memory-intensive than :class:`DataHandlerTifffile`.
     """
-
-    def image2array(self, image):
+    @staticmethod
+    def image2array(image):
         """
         Open an image file as a :class:`PIL.Image` instance.
 
@@ -247,7 +251,8 @@ class DataHandlerPillow(DataHandlerAbstract):
         """
         return Image.open(image)
 
-    def getmean(self, data):
+    @staticmethod
+    def getmean(data):
         """
         Determine the mean image across all frames.
 
@@ -279,7 +284,8 @@ class DataHandlerPillow(DataHandlerAbstract):
         avg /= data.n_frames
         return avg
 
-    def rois2masks(self, rois, data):
+    @staticmethod
+    def rois2masks(rois, data):
         """
         Take the object `rois` and returns it as a list of binary masks.
 
@@ -319,7 +325,8 @@ class DataHandlerPillow(DataHandlerAbstract):
 
         raise ValueError('Wrong ROIs input format: unfamiliar shape.')
 
-    def extracttraces(self, data, masks):
+    @staticmethod
+    def extracttraces(data, masks):
         """
         Extract the average signal within each mask across the data.
 
