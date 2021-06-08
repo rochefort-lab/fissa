@@ -7,6 +7,7 @@ import contextlib
 import unittest
 import os.path
 from inspect import getsourcefile
+import sys
 
 import numpy as np
 from numpy.testing import (assert_almost_equal,
@@ -48,6 +49,33 @@ class BaseTestCase(unittest.TestCase):
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
         self.capsys = capsys
+
+    def recapsys(self, *captures):
+        """
+        Capture stdout and stderr, then write them back to stdout and stderr.
+
+        Capture is done using the `pytest.capsys` fixture.
+
+        Parameters
+        ----------
+        *captures : pytest.CaptureResult, optional
+            A series of extra captures to output. For each `capture` in
+            `captures`, `capture.out` and `capture.err` are written to stdout
+            and stderr.
+
+        Returns
+        -------
+        capture : pytest.CaptureResult
+            `capture.out` and `capture.err` contain all the outputs to stdout
+            and stderr since the previous capture with `~pytest.capsys`.
+        """
+        capture_now = self.capsys.readouterr()
+        for capture in captures:
+            sys.stdout.write(capture.out)
+            sys.stderr.write(capture.err)
+        sys.stdout.write(capture_now.out)
+        sys.stderr.write(capture_now.err)
+        return capture_now
 
     def assert_almost_equal(self, *args, **kwargs):
         return assert_almost_equal(*args, **kwargs)
