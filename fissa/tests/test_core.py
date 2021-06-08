@@ -314,6 +314,97 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
 
+    @unittest.expectedFailure
+    def test_badprepcache_init1(self):
+        """
+        With a faulty prep cache, test prep hits an error during init and then stops.
+        """
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+            f.write("badfilecontents")
+
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("An error occurred", capture_post.out)
+
+        self.assertTrue(exp.raw is None)
+
+    @unittest.expectedFailure
+    def test_badprepcache_init2(self):
+        """
+        With a faulty prep cache, test prep initially errors but then runs when called.
+        """
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+            f.write("badfilecontents")
+
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("An error occurred", capture_post.out)
+
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("Doing region growing", capture_post.out)
+
+    def test_badprepcache(self):
+        """
+        With a faulty prep cache, test prep catches error and runs when called.
+        """
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+            f.write("badfilecontents")
+
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("An error occurred", capture_post.out)
+
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separate()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("Doing signal separation", capture_post.out)
+
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_badsepcache(self):
+        """
+        With a faulty separated cache, test separate catches error and runs when called.
+        """
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp.separation_prep()
+        with open(os.path.join(self.output_dir, "separated.npy"), "w") as f:
+            f.write("badfilecontents")
+
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separate()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("An error occurred", capture_post.out)
+
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
     def test_calcdeltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
