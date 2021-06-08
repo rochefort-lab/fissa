@@ -281,6 +281,8 @@ class Experiment():
             fname = os.path.join(self.folder, 'preparation.npy')
 
         # try to load data from filename
+        if fname is None or not os.path.isfile(fname):
+            redo = True
         if not redo:
             try:
                 nCell, raw, roi_polys = np.load(fname, allow_pickle=True)
@@ -399,6 +401,8 @@ class Experiment():
             redo_sep = True
         else:
             fname = os.path.join(self.folder, 'separated.npy')
+        if fname is None or not os.path.isfile(fname):
+            redo_sep = True
         if not redo_sep:
             try:
                 info, mixmat, sep, result = np.load(fname, allow_pickle=True)
