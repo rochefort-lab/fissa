@@ -243,33 +243,72 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose(actual[0][0], self.expected_00)
 
     def test_redo(self):
+        """Test whether experiment redoes work when requested."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
+        capture_post = self.recapsys(capture_pre)
+        self.assert_starts_with("Doing", capture_post.out)
+        capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate(redo_prep=True, redo_sep=True)
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        capture_post = self.recapsys(capture_pre)
+        self.assert_starts_with("Doing", capture_post.out)
 
-    def test_noredo(self):
+    def test_load_cache(self):
+        """Test whether cached output is loaded during init."""
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separate()
         exp = core.Experiment(image_path, roi_path, self.output_dir)
-        exp.separate()
+        # Cache should be loaded without calling separate
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
 
-    def test_previousprep(self):
+    def test_load_cache_piecemeal(self):
+        """
+        Test whether cached output is loaded during individual method calls.
+        """
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir)
+        exp1.separate()
+        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)
+        self.assert_starts_with("Reloading previously prepared", capture_post.out)
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separate()
+        capture_post = self.recapsys(capture_pre)
+        self.assert_starts_with("Reloading previously separated", capture_post.out)
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_load_cached_prep(self):
+        """
+        With prep cached, test prep loads and separate waits for us to call it.
+        """
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separation_prep()
+        capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("Reloading previously prepared", capture_post.out)
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with("Reloading previously prepared", capture_post.out)
+        capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
+        capture_post = self.recapsys(capture_pre)
+        self.assert_starts_with("Doing signal separation", capture_post.out)
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
