@@ -281,11 +281,16 @@ class Experiment():
             fname = os.path.join(self.folder, 'preparation.npy')
 
         # try to load data from filename
+        if fname is None or not os.path.isfile(fname):
+            redo = True
         if not redo:
             try:
                 nCell, raw, roi_polys = np.load(fname, allow_pickle=True)
                 print('Reloading previously prepared data...')
-            except BaseException:
+            except BaseException as err:
+                print("An error occurred while loading {}".format(fname))
+                print(err)
+                print("Extraction will be redone and {} overwritten".format(fname))
                 redo = True
 
         if redo:
@@ -387,6 +392,7 @@ class Experiment():
         # Do data preparation
         if redo_prep or self.raw is None:
             self.separation_prep(redo_prep)
+        if redo_prep:
             redo_sep = True
 
         # Define filename to store data in
@@ -395,11 +401,19 @@ class Experiment():
             redo_sep = True
         else:
             fname = os.path.join(self.folder, 'separated.npy')
+        if fname is None or not os.path.isfile(fname):
+            redo_sep = True
         if not redo_sep:
             try:
                 info, mixmat, sep, result = np.load(fname, allow_pickle=True)
                 print('Reloading previously separated data...')
-            except BaseException:
+            except BaseException as err:
+                print("An error occurred while loading {}".format(fname))
+                print(err)
+                print(
+                    "Signal separation will be redone and {} overwritten"
+                    "".format(fname)
+                )
                 redo_sep = True
 
         # separate data, if necessary

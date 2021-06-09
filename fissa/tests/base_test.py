@@ -7,12 +7,14 @@ import contextlib
 import unittest
 import os.path
 from inspect import getsourcefile
+import sys
 
 import numpy as np
 from numpy.testing import (assert_almost_equal,
                            assert_array_equal,
                            assert_allclose,
                            assert_equal)
+import pytest
 
 
 # Check where the test directory is located, to be used when fetching
@@ -44,6 +46,37 @@ class BaseTestCase(unittest.TestCase):
         else:
             yield None
 
+    @pytest.fixture(autouse=True)
+    def capsys(self, capsys):
+        self.capsys = capsys
+
+    def recapsys(self, *captures):
+        """
+        Capture stdout and stderr, then write them back to stdout and stderr.
+
+        Capture is done using the `pytest.capsys` fixture.
+
+        Parameters
+        ----------
+        *captures : pytest.CaptureResult, optional
+            A series of extra captures to output. For each `capture` in
+            `captures`, `capture.out` and `capture.err` are written to stdout
+            and stderr.
+
+        Returns
+        -------
+        capture : pytest.CaptureResult
+            `capture.out` and `capture.err` contain all the outputs to stdout
+            and stderr since the previous capture with `~pytest.capsys`.
+        """
+        capture_now = self.capsys.readouterr()
+        for capture in captures:
+            sys.stdout.write(capture.out)
+            sys.stderr.write(capture.err)
+        sys.stdout.write(capture_now.out)
+        sys.stderr.write(capture_now.err)
+        return capture_now
+
     def assert_almost_equal(self, *args, **kwargs):
         return assert_almost_equal(*args, **kwargs)
 
@@ -72,3 +105,35 @@ class BaseTestCase(unittest.TestCase):
         self.assertEqual(desired.keys(), actual.keys())
         for k in desired.keys():
             self.assertEqual(desired[k], actual[k])
+
+    def assert_starts_with(self, desired, actual):
+        """
+        Check that a string starts with a certain substring.
+
+        Parameters
+        ----------
+        desired : str
+            Desired initial string.
+        actual : str-like
+            Actual string or string-like object.
+        """
+        try:
+            self.assertTrue(len(actual) >= len(desired))
+        except BaseException as err:
+            print("Actual string too short ({} < {} characters)".format(len(actual), len(desired)))
+            print("ACTUAL: {}".format(actual))
+            raise
+        try:
+            return assert_equal(str(actual)[:len(desired)], desired)
+        except BaseException as err:
+            msg = "ACTUAL: {}".format(actual)
+            if isinstance(getattr(err, "args", None), str):
+                err.args += "\n" + msg
+            elif isinstance(getattr(err, "args", None), tuple):
+                if len(err.args) == 1:
+                    err.args = (err.args[0] + "\n" + msg, )
+                else:
+                    err.args += (msg, )
+            else:
+                print(msg)
+            raise
