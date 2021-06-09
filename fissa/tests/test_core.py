@@ -12,7 +12,7 @@ import numpy as np
 
 from .base_test import BaseTestCase
 from .. import core
-from .. import datahandler
+from ..extraction import DataHandlerTifffile
 
 
 class TestExperimentA(BaseTestCase):
@@ -100,6 +100,7 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
+        datahandler = DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
         exp = core.Experiment(images, self.roi_zip_path, self.output_dir)
         exp.separate()
@@ -216,7 +217,7 @@ class TestExperimentA(BaseTestCase):
             self.images_dir,
             self.roi_zip_path,
             self.output_dir,
-            datahandler_custom=datahandler,
+            datahandler=DataHandlerTifffile(),
         )
         exp.separate()
         actual = exp.result
