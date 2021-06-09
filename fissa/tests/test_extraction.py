@@ -9,21 +9,25 @@ import imageio
 from PIL import Image
 
 from .base_test import BaseTestCase
-from ..extraction import DataHandlerTifffile,  DataHandlerPillow
+from .. import extraction
 from .. import roitools
 
-class TestImage2ArrayTifffile(BaseTestCase):
-    """Tests for image2array using DataHandlerTifffile."""
+
+class Image2ArrayBase():
+    """Tests for image2array."""
+
+    # should be a 3D array of shape (frame_number, x-coords, y-coords)
+
+    expected = np.array(
+        [
+            [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
+            [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
+        ]
+    )
+
     def setup_class(self):
-        # should be a 3D array of shape (frame_number, x-coords, y-coords)
-        self.expected = np.array(
-            [
-                [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
-                [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
-            ]
-        )
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'tiffs')
-        self.datahandler = DataHandlerTifffile()
+        self.datahandler = None
 
     def test_imsave_tiff(self):
         """
@@ -35,10 +39,7 @@ class TestImage2ArrayTifffile(BaseTestCase):
 
         with tifffile version 2021.4.8.
         """
-        # load from tif
         actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_imsave.tif'))
-
-        # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_tiffwriter_tiff(self):
@@ -53,10 +54,7 @@ class TestImage2ArrayTifffile(BaseTestCase):
 
         with tifffile version 2021.4.8.
         """
-        # load from tif
         actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_tiffwriter.tif'))
-
-        # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_suite2p_tiff(self):
@@ -74,27 +72,55 @@ class TestImage2ArrayTifffile(BaseTestCase):
         This is the saving method used by Suite2p:
         https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59
         """
-        # load from tif
         actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_suite2p.tif'))
-
-        # assert equality
         self.assert_equal(actual, self.expected)
 
     def test_array(self):
-        # load from array
         actual = self.datahandler.image2array(self.expected)
-        # assert equality
         self.assert_equal(actual, self.expected)
 
 
-class TestRois2MasksTifffile(BaseTestCase):
-    """Tests for rois2masks using DataHandlerTifffile."""
+class TestImage2ArrayTifffile(BaseTestCase, Image2ArrayBase):
+    """Tests for image2array using DataHandlerTifffile."""
+    def setup_class(self, *args, **kwargs):
+        super(TestImage2ArrayTifffile, self).setup_class(self, *args, **kwargs)
+        self.datahandler = extraction.DataHandlerTifffile()
+
+
+class TestImage2ArrayPillow(BaseTestCase):
+    """Tests for image2array using DataHandlerPillow."""
     def setup_class(self):
-        self.polys = [np.array([[39., 62.], [60., 45.], [48., 71.]]),
-                      np.array([[72., 107.], [78., 130.], [100., 110.]])]
+        self.expected = np.array(
+            [
+                [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
+                [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
+            ],
+            dtype=np.uint8,
+        )
+        imageio.imwrite('test.tif', self.expected)
+        self.datahandler = extraction.DataHandlerPillow()
+
+    def test_imageio_tiff(self):
+        actual = self.datahandler.image2array('test.tif')
+        self.assert_equal(np.asarray(actual), self.expected)
+
+    def teardown_class(self):
+        # remove tif
+        os.remove('test.tif')
+
+
+class Rois2MasksBase():
+    """Tests for rois2masks using DataHandlerTifffile."""
+
+    polys = [
+        np.array([[39., 62.], [60., 45.], [48., 71.]]),
+        np.array([[72., 107.], [78., 130.], [100., 110.]]),
+    ]
+
+    def setup_class(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
-        self.datahandler = DataHandlerTifffile()
+        self.datahandler = None
 
     def test_imagej_zip(self):
         # load zip of rois
@@ -149,37 +175,17 @@ class TestRois2MasksTifffile(BaseTestCase):
             self.datahandler.rois2masks(polys3d, self.data)
 
 
-class TestImage2ArrayPillow(BaseTestCase):
-    """Tests for image2array using DataHandlerPillow."""
-    def setup_class(self):
-        self.expected = np.array(
-            [
-                [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
-                [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
-            ],
-            dtype=np.uint8,
-        )
-        # make tif
-        imageio.imwrite('test.tif', self.expected)
-        self.datahandler = DataHandlerPillow()
+class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
+    """Tests for rois2masks using DataHandlerTifffile."""
 
-    def test_imageio_tiff(self):
-        # load from tif
-        actual = self.datahandler.image2array('test.tif')
-
-        # assert equality
-        self.assert_equal(np.asarray(actual), self.expected)
-
-    def teardown_class(self):
-        # remove tif
-        os.remove('test.tif')
+    def setup_class(self, *args, **kwargs):
+        super(TestRois2MasksTifffile, self).setup_class(self, *args, **kwargs)
+        self.datahandler = extraction.DataHandlerTifffile()
 
 
-class TestRois2MasksPillow(TestRois2MasksTifffile):
+class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
     '''Tests for rois2masks using DataHandlerPillow.'''
-    def setup_class(self):
-        self.polys = [np.array([[39., 62.], [60., 45.], [48., 71.]]),
-                      np.array([[72., 107.], [78., 130.], [100., 110.]])]
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = Image.fromarray(np.zeros((176, 156), dtype=np.uint8))
-        self.datahandler = DataHandlerPillow()
+    def setup_class(self, *args, **kwargs):
+        super(TestRois2MasksPillow, self).setup_class(self, *args, **kwargs)
+        self.data = Image.fromarray(self.data.reshape(self.data.shape[-2:]).astype(np.uint8))
+        self.datahandler = extraction.DataHandlerPillow()
