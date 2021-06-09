@@ -1,6 +1,6 @@
-'''
-Tests for datahandler.py
-'''
+"""
+Tests for extraction.py
+"""
 import os
 
 import numpy as np
@@ -13,7 +13,7 @@ from ..extraction import DataHandlerTifffile,  DataHandlerPillow
 from .. import roitools
 
 class TestImage2ArrayTifffile(BaseTestCase):
-    ''' Tests for image2array.'''
+    """Tests for image2array using DataHandlerTifffile."""
     def setup_class(self):
         # should be a 3D array of shape (frame_number, x-coords, y-coords)
         self.expected = np.array(
@@ -27,11 +27,13 @@ class TestImage2ArrayTifffile(BaseTestCase):
 
     def test_imsave_tiff(self):
         """
-        Tiff generated from self.expected as
+        Test loading of image saved with tifffile.imsave.
+
+        Tiff resource generated from self.expected using command
 
         >>> tifffile.imsave('test_imsave.tif', data)
 
-        using tifffile.__version__ = 2021.4.8
+        with tifffile version 2021.4.8.
         """
         # load from tif
         actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_imsave.tif'))
@@ -41,13 +43,15 @@ class TestImage2ArrayTifffile(BaseTestCase):
 
     def test_tiffwriter_tiff(self):
         """
-        Tiff generated from self.expected as
+        Test loading of image saved with tifffile.TiffWriter().write().
+
+        Tiff resource generated from self.expected using command
 
         >>> with tifffile.TiffWriter('test_tiffwriter.tif') as tif:
         >>>     for i in range(data.shape[0]):
         >>>         tif.write(data[i, :, :], contiguous=True)
 
-        using tifffile.__version__ = 2021.4.8
+        with tifffile version 2021.4.8.
         """
         # load from tif
         actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_tiffwriter.tif'))
@@ -57,16 +61,18 @@ class TestImage2ArrayTifffile(BaseTestCase):
 
     def test_suite2p_tiff(self):
         """
-        Tiff generated from self.expected as
+        Test loading of image saved with tifffile.TiffWriter().save().
+
+        Tiff resource generated from self.expected using command
 
         >>> with tifffile.TiffWriter('test_suite2p.tif') as tif:
         >>>     for frame in np.floor(data).astype(np.int16):
         >>>         tif.save(frame)
 
-        using tifffile.__version__ = 2021.4.8
+        with tifffile version 2021.4.8.
 
-        As done by Suite2p:
-        (https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59)
+        This is the saving method used by Suite2p:
+        https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59
         """
         # load from tif
         actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_suite2p.tif'))
@@ -82,7 +88,7 @@ class TestImage2ArrayTifffile(BaseTestCase):
 
 
 class TestRois2MasksTifffile(BaseTestCase):
-    '''Tests for rois2masks.'''
+    """Tests for rois2masks using DataHandlerTifffile."""
     def setup_class(self):
         self.polys = [np.array([[39., 62.], [60., 45.], [48., 71.]]),
                       np.array([[72., 107.], [78., 130.], [100., 110.]])]
@@ -144,7 +150,7 @@ class TestRois2MasksTifffile(BaseTestCase):
 
 
 class TestImage2ArrayPillow(BaseTestCase):
-    ''' Tests for image2array.'''
+    """Tests for image2array using DataHandlerPillow."""
     def setup_class(self):
         self.expected = np.array(
             [
