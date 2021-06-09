@@ -152,8 +152,6 @@ on_success:
   # Push coverage reports
   - '%CMD_IN_ENV% python -m pip install codecov'
   - '%CMD_IN_ENV% python -m codecov -f coverage.xml || echo "Codecov push failed" && ver>nul'
-  - '%CMD_IN_ENV% python -m pip install coveralls'
-  - '%CMD_IN_ENV% python -m coveralls || echo "Coveralls push failed" && ver>nul'
 
 on_finish:
   # Upload test results to AppVeyor
