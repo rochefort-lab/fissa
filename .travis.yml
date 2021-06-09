@@ -82,6 +82,11 @@ jobs:
         - USE_OLDEST_DEPS="true"
         - TEST_NOTEBOOKS="false"
 
+  allow_failures:
+    - env:
+        - USE_CONDA="binder"
+        - USE_SUITE2P="true"
+
 
 ###############################################################################
 # Setup the environment before installing
