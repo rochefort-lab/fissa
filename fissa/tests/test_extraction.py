@@ -146,6 +146,146 @@ def test_multiframe_image2array_higherdim(base_fname, shp, dtype, datahandler):
     )
 
 
+def multiframe_mean_tester(base_fname, dtype, datahandler):
+    expected = np.array(
+        [
+            [[-11, 12], [14, 15], [17, 18]],
+            [[21, 22], [24, 25], [27, 28]],
+            [[31, 32], [34, 35], [37, 38]],
+            [[41, 42], [44, 45], [47, 48]],
+            [[51, 52], [54, 55], [57, 58]],
+            [[61, 62], [64, 55], [67, 68]],
+        ]
+    )
+    expected = get_dtyped_expected(expected, dtype)
+    expected = np.mean(expected, axis=0)
+    fname = os.path.join(
+        RESOURCES_DIR,
+        base_fname + "_{}.tif".format(dtype)
+    )
+    data = datahandler.image2array(fname)
+    actual = datahandler.getmean(data)
+    base_test.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "base_fname",
+    [
+        "tifffile.imsave",
+        "tifffile.imsave.bigtiff",
+        "TiffWriter.mixedA",
+        "TiffWriter.mixedB",
+        "TiffWriter.mixedC",
+        "TiffWriter.save",
+        "TiffWriter.write.contiguous",
+        "TiffWriter.write.discontiguous",
+    ],
+)
+@pytest.mark.parametrize(
+    "dtype",
+    ["uint8", "uint16", "uint64", "int16", "int64", "float16", "float32", "float64"],
+)
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+def test_multiframe_mean(base_fname, dtype, datahandler):
+    return multiframe_mean_tester(
+        base_fname=base_fname, dtype=dtype, datahandler=datahandler
+    )
+
+
+@pytest.mark.parametrize(
+    "base_fname",
+    [
+        "tifffile.imsave",
+        pytest.param("tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")),
+        "TiffWriter.mixedA",
+        pytest.param("TiffWriter.mixedB", marks=pytest.mark.xfail(reason="not supported")),
+        "TiffWriter.mixedC",
+        "TiffWriter.save",
+        "TiffWriter.write.contiguous",
+        "TiffWriter.write.discontiguous",
+    ],
+)
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        "uint8",
+        "uint16",
+        pytest.param("uint64", marks=pytest.mark.xfail(reason="not supported")),
+        "int16",
+        pytest.param("int64", marks=pytest.mark.xfail(reason="not supported")),
+        pytest.param("float16", marks=pytest.mark.xfail(reason="not supported")),
+        "float32",
+        pytest.param("float64", marks=pytest.mark.xfail(reason="not supported")),
+    ],
+)
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
+def test_multiframe_mean_pillow(base_fname, dtype, datahandler):
+    return multiframe_mean_tester(
+        base_fname=base_fname, dtype=dtype, datahandler=datahandler
+    )
+
+
+@pytest.mark.parametrize("dtype", ["uint8", "uint16", "float32"])
+@pytest.mark.parametrize(
+    "datahandler",
+    [extraction.DataHandlerTifffile, extraction.DataHandlerPillow],
+)
+def test_multiframe_mean_imagejformat(dtype, datahandler):
+    return multiframe_mean_tester(
+        base_fname="tifffile.imsave.imagej",
+        dtype=dtype,
+        datahandler=datahandler,
+    )
+
+
+@pytest.mark.parametrize(
+    "base_fname",
+    [
+        "tifffile.imsave",
+        "tifffile.imsave.bigtiff",
+        "TiffWriter.save",
+        "TiffWriter.write.contiguous",
+        "TiffWriter.write.discontiguous",
+    ],
+)
+@pytest.mark.parametrize("dtype", ["uint8"])
+@pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2"])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
+    return multiframe_mean_tester(
+        base_fname=base_fname + "_" + shp,
+        dtype=dtype,
+        datahandler=datahandler,
+    )
+
+
+@pytest.mark.parametrize(
+    "base_fname",
+    [
+        "tifffile.imsave",
+        pytest.param("tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")),
+        "TiffWriter.save",
+        "TiffWriter.write.contiguous",
+        "TiffWriter.write.discontiguous",
+    ],
+)
+@pytest.mark.parametrize("dtype", ["uint8"])
+@pytest.mark.parametrize(
+    "shp",
+    [
+        "3,2,3,2",
+        pytest.param("2,1,3,3,2", marks=pytest.mark.xfail(reason="looks like RGB")),
+    ]
+)
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
+def test_multiframe_mean_higherdim_pillow(base_fname, shp, dtype, datahandler):
+    return multiframe_mean_tester(
+        base_fname=base_fname + "_" + shp,
+        dtype=dtype,
+        datahandler=datahandler,
+    )
+
+
 class Rois2MasksBase():
     """Tests for rois2masks using DataHandlerTifffile."""
 
