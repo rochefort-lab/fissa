@@ -133,9 +133,24 @@ class DataHandlerTifffile(DataHandlerAbstract):
             A 3D array containing the data, with dimensions corresponding to
             ``(frames, y_coordinate, x_coordinate)``.
         """
-        if isinstance(image, basestring):
-            return tifffile.imread(image)
-        return np.array(image)
+        if not isinstance(image, basestring):
+            return np.array(image)
+
+        with tifffile.TiffFile(image) as tif:
+            frames = []
+            for page in tif.pages:
+                page = page.asarray()
+                if page.ndim < 2:
+                    raise EnvironmentError(
+                        "TIFF {} has pages with {} dimensions (page shaped {})."
+                        " Pages must have at least 2 dimensions".format(
+                            image, page.ndim, page.shape
+                        )
+                    )
+                shp = [-1] + list(page.shape[-2:])
+                frames.append(page.reshape(shp))
+
+        return np.concatenate(frames, axis=0)
 
     @staticmethod
     def getmean(data):
