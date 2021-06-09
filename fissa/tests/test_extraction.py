@@ -1,112 +1,149 @@
 """
 Tests for extraction.py
 """
+
+from __future__ import division
+
 import os
 
 import numpy as np
 import tifffile
 import imageio
 from PIL import Image
+import pytest
 
+from . import base_test
 from .base_test import BaseTestCase
 from .. import extraction
 from .. import roitools
 
 
-class Image2ArrayBase():
-    """Tests for image2array."""
+RESOURCES_DIR = os.path.join(base_test.TEST_DIRECTORY, 'resources', 'tiffs')
 
-    # should be a 3D array of shape (frame_number, x-coords, y-coords)
 
+def get_dtyped_expected(expected, dtype):
+    expected = np.copy(expected)
+    if "uint" in str(dtype):
+        expected = np.abs(expected)
+    if "float" in str(dtype):
+        expected = expected / 10
+    return expected.astype(dtype)
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    ["uint8", "uint16", "uint64", "int16", "int64", "float16", "float32", "float64"],
+)
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+def test_single_frame_3d(dtype, datahandler):
+    expected = np.array([[[-11, 12], [14, 15], [17, 18]]])
+    expected = get_dtyped_expected(expected, dtype)
+    fname = os.path.join(
+        RESOURCES_DIR,
+        "imageio.imwrite_{}.tif".format(dtype)
+    )
+    actual = datahandler.image2array(fname)
+    base_test.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        "uint8",
+        "uint16",
+        pytest.param("uint64", marks=pytest.mark.xfail(reason="not supported")),
+        "int16",
+        pytest.param("int64", marks=pytest.mark.xfail(reason="not supported")),
+        pytest.param("float16", marks=pytest.mark.xfail(reason="not supported")),
+        "float32",
+        pytest.param("float64", marks=pytest.mark.xfail(reason="not supported")),
+    ],
+)
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
+def test_single_frame_2d(dtype, datahandler):
+    expected = np.array([[-11, 12], [14, 15], [17, 18]])
+    expected = get_dtyped_expected(expected, dtype)
+    fname = os.path.join(
+        RESOURCES_DIR,
+        "imageio.imwrite_{}.tif".format(dtype)
+    )
+    actual = datahandler.image2array(fname)
+    base_test.assert_equal(actual, expected)
+
+
+def multiframe_image2array_tester(base_fname, dtype, datahandler):
     expected = np.array(
         [
-            [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
-            [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
+            [[-11, 12], [14, 15], [17, 18]],
+            [[21, 22], [24, 25], [27, 28]],
+            [[31, 32], [34, 35], [37, 38]],
+            [[41, 42], [44, 45], [47, 48]],
+            [[51, 52], [54, 55], [57, 58]],
+            [[61, 62], [64, 55], [67, 68]],
         ]
     )
-
-    def setup_class(self):
-        self.resources_dir = os.path.join(self.test_directory, 'resources', 'tiffs')
-        self.datahandler = None
-
-    def test_imsave_tiff(self):
-        """
-        Test loading of image saved with tifffile.imsave.
-
-        Tiff resource generated from self.expected using command
-
-        >>> tifffile.imsave('test_imsave.tif', data)
-
-        with tifffile version 2021.4.8.
-        """
-        actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_imsave.tif'))
-        self.assert_equal(actual, self.expected)
-
-    def test_tiffwriter_tiff(self):
-        """
-        Test loading of image saved with tifffile.TiffWriter().write().
-
-        Tiff resource generated from self.expected using command
-
-        >>> with tifffile.TiffWriter('test_tiffwriter.tif') as tif:
-        >>>     for i in range(data.shape[0]):
-        >>>         tif.write(data[i, :, :], contiguous=True)
-
-        with tifffile version 2021.4.8.
-        """
-        actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_tiffwriter.tif'))
-        self.assert_equal(actual, self.expected)
-
-    def test_suite2p_tiff(self):
-        """
-        Test loading of image saved with tifffile.TiffWriter().save().
-
-        Tiff resource generated from self.expected using command
-
-        >>> with tifffile.TiffWriter('test_suite2p.tif') as tif:
-        >>>     for frame in np.floor(data).astype(np.int16):
-        >>>         tif.save(frame)
-
-        with tifffile version 2021.4.8.
-
-        This is the saving method used by Suite2p:
-        https://github.com/MouseLand/suite2p/blob/4b6c3a95b53e5581dbab1feb26d67878db866068/suite2p/io/tiff.py#L59
-        """
-        actual = self.datahandler.image2array(os.path.join(self.resources_dir, 'test_suite2p.tif'))
-        self.assert_equal(actual, self.expected)
-
-    def test_array(self):
-        actual = self.datahandler.image2array(self.expected)
-        self.assert_equal(actual, self.expected)
+    expected = get_dtyped_expected(expected, dtype)
+    fname = os.path.join(
+        RESOURCES_DIR,
+        base_fname + "_{}.tif".format(dtype)
+    )
+    actual = datahandler.image2array(fname)
+    base_test.assert_equal(actual, expected)
 
 
-class TestImage2ArrayTifffile(BaseTestCase, Image2ArrayBase):
-    """Tests for image2array using DataHandlerTifffile."""
-    def setup_class(self, *args, **kwargs):
-        super(TestImage2ArrayTifffile, self).setup_class(self, *args, **kwargs)
-        self.datahandler = extraction.DataHandlerTifffile()
+@pytest.mark.parametrize(
+    "base_fname",
+    [
+        "tifffile.imsave",
+        "tifffile.imsave.bigtiff",
+        "TiffWriter.mixedA",
+        "TiffWriter.mixedB",
+        "TiffWriter.mixedC",
+        "TiffWriter.save",
+        "TiffWriter.write.contiguous",
+        "TiffWriter.write.discontiguous",
+    ],
+)
+@pytest.mark.parametrize(
+    "dtype",
+    ["uint8", "uint16", "uint64", "int16", "int64", "float16", "float32", "float64"],
+)
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+def test_multiframe_image2array(base_fname, dtype, datahandler):
+    return multiframe_image2array_tester(
+        base_fname=base_fname, dtype=dtype, datahandler=datahandler
+    )
 
 
-class TestImage2ArrayPillow(BaseTestCase):
-    """Tests for image2array using DataHandlerPillow."""
-    def setup_class(self):
-        self.expected = np.array(
-            [
-                [[1, 2, 3], [5, 6, 7], [8, 9, 10]],
-                [[11, 12, 13], [15, 16, 17], [18, 19, 20]],
-            ],
-            dtype=np.uint8,
-        )
-        imageio.imwrite('test.tif', self.expected)
-        self.datahandler = extraction.DataHandlerPillow()
+@pytest.mark.parametrize("dtype", ["uint8", "uint16", "float32"])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+def test_multiframe_image2array_imagejformat(dtype, datahandler):
+    return multiframe_image2array_tester(
+        base_fname="tifffile.imsave.imagej",
+        dtype=dtype,
+        datahandler=datahandler,
+    )
 
-    def test_imageio_tiff(self):
-        actual = self.datahandler.image2array('test.tif')
-        self.assert_equal(np.asarray(actual), self.expected)
 
-    def teardown_class(self):
-        # remove tif
-        os.remove('test.tif')
+@pytest.mark.parametrize(
+    "base_fname",
+    [
+        "tifffile.imsave",
+        "tifffile.imsave.bigtiff",
+        "TiffWriter.save",
+        "TiffWriter.write.contiguous",
+        "TiffWriter.write.discontiguous",
+    ],
+)
+@pytest.mark.parametrize("dtype", ["uint8"])
+@pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2"])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+def test_multiframe_image2array_higherdim(base_fname, shp, dtype, datahandler):
+    return multiframe_image2array_tester(
+        base_fname=base_fname + "_" + shp,
+        dtype=dtype,
+        datahandler=datahandler,
+    )
 
 
 class Rois2MasksBase():
