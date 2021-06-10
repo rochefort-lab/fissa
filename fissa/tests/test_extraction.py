@@ -8,7 +8,6 @@ import os
 
 import numpy as np
 import tifffile
-import imageio
 from PIL import Image
 import pytest
 

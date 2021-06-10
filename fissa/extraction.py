@@ -13,7 +13,6 @@ import collections
 import numpy as np
 import tifffile
 from PIL import Image, ImageSequence
-import imageio
 
 from . import roitools
 
