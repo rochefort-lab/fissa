@@ -7,6 +7,7 @@ from __future__ import division
 import functools
 import os
 import sys
+import tempfile
 
 import numpy as np
 import tifffile
@@ -269,12 +270,21 @@ def multiframe_mean_tester(base_fname, dtype, datahandler):
 )
 @pytest.mark.parametrize(
     "dtype",
-    ["uint8", "uint16", "uint64", "int16", "int64", "float16", "float32", "float64"],
+    [
+        "uint8",
+        "uint16",
+        "uint64",
+        "int16",
+        "int64",
+        "float16",
+        "float32",
+        "float64",
+    ],
 )
-@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy])
 def test_multiframe_mean(base_fname, dtype, datahandler):
     """
-    Test the mean of TIFFs loaded with :class:`~extraction.DataHandlerTifffile`.
+    Test the mean of TIFFs.
     """
     fn = functools.partial(
         multiframe_mean_tester,
@@ -330,7 +340,7 @@ def test_multiframe_mean_pillow(base_fname, dtype, datahandler):
 @pytest.mark.parametrize("dtype", ["uint8", "uint16", "float32"])
 @pytest.mark.parametrize(
     "datahandler",
-    [extraction.DataHandlerTifffile, extraction.DataHandlerPillow],
+    [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy, extraction.DataHandlerPillow],
 )
 def test_multiframe_mean_imagejformat(dtype, datahandler):
     """
@@ -358,10 +368,10 @@ def test_multiframe_mean_imagejformat(dtype, datahandler):
 )
 @pytest.mark.parametrize("dtype", ["uint8"])
 @pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2", "2,3,1,1,3,2"])
-@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy])
 def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     """
-    Test the mean of 4d/5d TIFFs loaded with :class:`~extraction.DataHandlerTifffile`.
+    Test the mean of 4d/5d TIFFs.
     """
     fn = functools.partial(
         multiframe_mean_tester,
@@ -482,6 +492,22 @@ class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
         self.datahandler = extraction.DataHandlerTifffile()
+
+
+class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
+    """Tests for rois2masks using :~extraction.TestRois2MasksTifffileLazy:."""
+
+    def setup_class(self):
+        self.expected = roitools.getmasks(self.polys, (176, 156))
+        self.data = np.zeros((1, 176, 156))
+        self.file = tempfile.NamedTemporaryFile()
+        tifffile.imsave(self.file.name, self.data)
+        self.data = tifffile.TiffFile(self.file.name)
+        self.datahandler = extraction.DataHandlerTifffileLazy()
+
+    def teardown_class(self):
+        self.data.close()
+        self.file.close()
 
 
 class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
