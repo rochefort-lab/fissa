@@ -355,14 +355,17 @@ class Rois2MasksBase():
 class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
     """Tests for rois2masks using DataHandlerTifffile."""
 
-    def setup_class(self, *args, **kwargs):
-        super(TestRois2MasksTifffile, self).setup_class(self, *args, **kwargs)
+    def setup_class(self):
+        self.expected = roitools.getmasks(self.polys, (176, 156))
+        self.data = np.zeros((1, 176, 156))
         self.datahandler = extraction.DataHandlerTifffile()
 
 
 class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
     '''Tests for rois2masks using DataHandlerPillow.'''
-    def setup_class(self, *args, **kwargs):
-        super(TestRois2MasksPillow, self).setup_class(self, *args, **kwargs)
+
+    def setup_class(self):
+        self.expected = roitools.getmasks(self.polys, (176, 156))
+        self.data = np.zeros((1, 176, 156))
         self.data = Image.fromarray(self.data.reshape(self.data.shape[-2:]).astype(np.uint8))
         self.datahandler = extraction.DataHandlerPillow()
