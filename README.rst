@@ -27,8 +27,9 @@ For details of the algorithm, please see our `companion paper <doi_>`_
 published in Scientific Reports. For the code used to generate the simulated
 data in the companion paper, see the `SimCalc repository`_.
 
-FISSA is compatible with both Python 2.7 and Python >=3.5, however Python 3 is
-strongly encouraged as Python 2 has `reached its end of life <sunset_python2_>`_.
+FISSA is compatible with both Python 2.7 and Python >=3.5, however it is
+strongly encouraged that you use Python 3, since as Python 2 has
+`reached its end of life <sunset_python2_>`_.
 FISSA is continually tested on Ubuntu, Windows, and Mac OSX during its
 development cycle.
 
