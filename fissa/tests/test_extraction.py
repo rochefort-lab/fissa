@@ -4,6 +4,7 @@ Tests for extraction.py
 
 from __future__ import division
 
+import functools
 import os
 
 import numpy as np
@@ -155,9 +156,19 @@ def test_multiframe_image2array(base_fname, dtype, datahandler):
     """
     Test loading TIFFs with :class:`~extraction.DataHandlerTifffile`.
     """
-    return multiframe_image2array_tester(
-        base_fname=base_fname, dtype=dtype, datahandler=datahandler
+    fn = functools.partial(
+        multiframe_image2array_tester,
+        base_fname=base_fname,
+        dtype=dtype,
+        datahandler=datahandler,
     )
+    if ".mixedB" in base_fname:
+        with BaseTestCase().assertWarnsRegex(
+            UserWarning, ".*dimensions .*will be .*flattened.*"
+        ):
+            return fn()
+    else:
+        return fn()
 
 
 @pytest.mark.parametrize("dtype", ["uint8", "uint16", "float32"])
@@ -190,11 +201,19 @@ def test_multiframe_image2array_higherdim(base_fname, shp, dtype, datahandler):
     """
     Test loading 4d and 5d TIFFs with :class:`~extraction.DataHandlerTifffile`.
     """
-    return multiframe_image2array_tester(
+    fn = functools.partial(
+        multiframe_image2array_tester,
         base_fname=base_fname + "_" + shp,
         dtype=dtype,
         datahandler=datahandler,
     )
+    if shp == "2,1,3,3,2":
+        with BaseTestCase().assertWarnsRegex(
+            UserWarning, ".*dimensions .*will be .*flattened.*"
+        ):
+            return fn()
+    else:
+        return fn()
 
 
 def multiframe_mean_tester(base_fname, dtype, datahandler):
@@ -256,9 +275,19 @@ def test_multiframe_mean(base_fname, dtype, datahandler):
     """
     Test the mean of TIFFs loaded with :class:`~extraction.DataHandlerTifffile`.
     """
-    return multiframe_mean_tester(
-        base_fname=base_fname, dtype=dtype, datahandler=datahandler
+    fn = functools.partial(
+        multiframe_mean_tester,
+        base_fname=base_fname,
+        dtype=dtype,
+        datahandler=datahandler,
     )
+    if ".mixedB" in base_fname:
+        with BaseTestCase().assertWarnsRegex(
+            UserWarning, ".*dimensions .*will be .*flattened.*"
+        ):
+            return fn()
+    else:
+        return fn()
 
 
 @pytest.mark.parametrize(
@@ -333,11 +362,19 @@ def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     """
     Test the mean of 4d/5d TIFFs loaded with :class:`~extraction.DataHandlerTifffile`.
     """
-    return multiframe_mean_tester(
+    fn = functools.partial(
+        multiframe_mean_tester,
         base_fname=base_fname + "_" + shp,
         dtype=dtype,
         datahandler=datahandler,
     )
+    if shp == "2,1,3,3,2":
+        with BaseTestCase().assertWarnsRegex(
+            UserWarning, ".*dimensions .*will be .*flattened.*"
+        ):
+            return fn()
+    else:
+        return fn()
 
 
 @pytest.mark.parametrize(
