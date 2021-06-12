@@ -198,7 +198,7 @@ class Experiment():
         """
         if isinstance(images, basestring):
             self.images = sorted(glob.glob(os.path.join(images, '*.tif*')))
-        elif isinstance(images, collections.Sequence):
+        elif isinstance(images, collections.abc.Sequence):
             self.images = images
         else:
             raise ValueError('images should either be string or list')
@@ -208,7 +208,7 @@ class Experiment():
                 self.rois = [rois] * len(self.images)
             else:
                 self.rois = sorted(glob.glob(os.path.join(rois, '*.zip')))
-        elif isinstance(rois, collections.Sequence):
+        elif isinstance(rois, collections.abc.Sequence):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
                 self.rois *= len(self.images)
