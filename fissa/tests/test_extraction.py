@@ -297,7 +297,7 @@ def test_multiframe_mean(base_fname, dtype, datahandler):
         "tifffile.imsave",
         pytest.param("tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")),
         "TiffWriter.mixedA",
-        pytest.param("TiffWriter.mixedB", marks=pytest.mark.xfail(reason="not supported")),
+        # pytest.param("TiffWriter.mixedB", marks=pytest.mark.xfail(reason="not supported")),
         "TiffWriter.mixedC",
         "TiffWriter.save",
         "TiffWriter.write.contiguous",
@@ -309,12 +309,12 @@ def test_multiframe_mean(base_fname, dtype, datahandler):
     [
         "uint8",
         "uint16",
-        pytest.param("uint64", marks=pytest.mark.xfail(reason="not supported")),
+        # pytest.param("uint64", marks=pytest.mark.xfail(reason="not supported")),
         "int16",
-        pytest.param("int64", marks=pytest.mark.xfail(reason="not supported")),
-        pytest.param("float16", marks=pytest.mark.xfail(reason="not supported")),
+        # pytest.param("int64", marks=pytest.mark.xfail(reason="not supported")),
+        # pytest.param("float16", marks=pytest.mark.xfail(reason="not supported")),
         "float32",
-        pytest.param("float64", marks=pytest.mark.xfail(reason="not supported")),
+        # pytest.param("float64", marks=pytest.mark.xfail(reason="not supported")),
     ],
 )
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
@@ -382,7 +382,7 @@ def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     "base_fname",
     [
         "tifffile.imsave",
-        pytest.param("tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")),
+        # pytest.param("tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")),
         "TiffWriter.save",
         "TiffWriter.write.contiguous",
         "TiffWriter.write.discontiguous",
