@@ -12,7 +12,7 @@ import numpy as np
 
 from .base_test import BaseTestCase
 from .. import core
-from ..extraction import DataHandlerTifffile
+from .. import extraction
 
 
 class TestExperimentA(BaseTestCase):
@@ -105,7 +105,7 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
-        datahandler = DataHandlerTifffile()
+        datahandler = extraction.DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
         exp = core.Experiment(images, self.roi_zip_path)
         exp.separate()
@@ -232,12 +232,38 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
-    def test_manualhandler(self):
+    def test_manualhandler_Tifffile(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
             self.output_dir,
-            datahandler=DataHandlerTifffile(),
+            datahandler=extraction.DataHandlerTifffile(),
+        )
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_manualhandler_TifffileLazy(self):
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            datahandler=extraction.DataHandlerTifffileLazy(),
+        )
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_manualhandler_Pillow(self):
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            datahandler=extraction.DataHandlerPillow(),
         )
         exp.separate()
         actual = exp.result
