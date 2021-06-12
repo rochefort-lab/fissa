@@ -1,32 +1,33 @@
-'''
+"""
 Functions for computing correcting fluorescence signals for changes in
 baseline activity.
 
 Authors:
-    - Scott C Lowe
-'''
+    - Scott C Lowe <scott.code.lowe@gmail.com>
+"""
 
 import numpy as np
 import scipy.signal
 
 
 def findBaselineF0(rawF, fs, axis=0, keepdims=False):
-    """Find the baseline for a fluorescence imaging trace line.
+    """
+    Find the baseline for a fluorescence imaging trace line.
 
     The baseline, F0, is the 5th-percentile of the 1Hz
     lowpass filtered signal.
 
     Parameters
     ----------
-    rawF : array_like
+    rawF : :term:`array_like`
         Raw fluorescence signal.
     fs : float
-        Sampling frequency of rawF, in Hz.
+        Sampling frequency of `rawF`, in Hz.
     axis : int, optional
-        Dimension which contains the time series. Default is 0.
+        Dimension which contains the time series. Default is ``0``.
     keepdims : bool, optional
         Whether to preserve the dimensionality of the input. Default is
-        `False`.
+        ``False``.
 
     Returns
     -------
@@ -35,10 +36,9 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
 
     Note
     ----
-    In typical usage, the input rawF is expected to be sized
-    `(numROI, numTimePoints, numRecs)`
-    and the output will then be sized `(numROI, 1, numRecs)`
-    if `keepdims` is `True`.
+    In typical usage, the input `rawF` is expected to be sized
+    ``(numROI, numTimePoints, numRecs)``, and the output is correspondingly
+    sized ``(numROI, 1, numRecs)`` if `keepdims` is ``True``.
     """
     # Parameters --------------------------------------------------------------
     nfilt = 30  # Number of taps to use in FIR filter

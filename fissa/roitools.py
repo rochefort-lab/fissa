@@ -1,8 +1,9 @@
-'''Functions used for ROI manipulation.
+"""
+Functions used for ROI manipulation.
 
 Authors:
     - Sander W Keemink <swkeemink@scimail.eu>
-'''
+"""
 
 from __future__ import division
 
@@ -14,21 +15,21 @@ from .ROI import poly2mask
 
 
 def get_mask_com(mask):
-    '''
+    """
     Get the center of mass for a boolean mask.
 
     Parameters
     ----------
-    mask : array_like
+    mask : :term:`array_like`
         A two-dimensional boolean-mask.
 
     Returns
     -------
-    float
+    x : float
         Center of mass along first dimension.
-    float
+    y : float
         Center of mass along second dimension.
-    '''
+    """
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
@@ -44,31 +45,29 @@ def get_mask_com(mask):
 
 
 def split_npil(mask, centre, num_slices, adaptive_num=False):
-    '''
-    Splits a mask into a number of approximately equal slices by area around
-    the center of the mask.
+    """
+    Split a mask into approximately equal slices by area around its center.
 
     Parameters
     ----------
-    mask : array_like
+    mask : :term:`array_like`
         Mask as a 2d boolean array.
     centre : tuple
         The center co-ordinates around which the mask will be split.
     num_slices : int
         The number of slices into which the mask will be divided.
     adaptive_num : bool, optional
-        If True, the `num_slices` input is treated as the number of
+        If ``True``, the `num_slices` input is treated as the number of
         slices to use if the ROI is surrounded by valid pixels, and
         automatically reduces the number of slices if it is on the
         boundary of the sampled region.
 
     Returns
     -------
-    list
+    masks : list
         A list with `num_slices` many masks, each of which is a 2d
         boolean numpy array.
-
-    '''
+    """
     #TODO: This should yield an iterable instead.
 
     # Ensure array_like input is a numpy.ndarray
@@ -134,25 +133,24 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
 
 
 def shift_2d_array(a, shift=1, axis=0):
-    '''
+    """
     Shifts an entire array in the direction of axis by the amount shift,
     without refilling the array.
 
     Parameters
     ----------
-    a : array_like
+    a : :term:`array_like`
         Input array.
     shift : int, optional
-        How much to shift array by. Default is 1.
+        How much to shift array by. Default is ``1``.
     axis : int, optional
-        The axis along which elements are shifted. Default is 0.
+        The axis along which elements are shifted. Default is ``0``.
 
     Returns
     -------
-    numpy.ndarray
-        Array with the same shape as a, but shifted appropriately.
-
-    '''
+    out : numpy.ndarray
+        Array with the same shape as `a`, but shifted appropriately.
+    """
     # Ensure array_like input is a numpy.ndarray
     a = np.asarray(a)
 
@@ -181,26 +179,9 @@ def shift_2d_array(a, shift=1, axis=0):
 
 
 def get_npil_mask(mask, totalexpansion=4):
-    '''
+    """
     Given the masks for a ROI, find the surrounding neuropil.
 
-    Parameters
-    ----------
-    mask : array_like
-        The reference ROI mask to expand the neuropil from. The array
-        should contain only boolean values.
-    expansion : float, optional
-        How much larger to make the neuropil total area than mask area.
-
-    Returns
-    -------
-    numpy.ndarray
-        A boolean numpy.ndarray mask, where the region surrounding
-        the input is now True and the region of the input mask is
-        False.
-
-    Notes
-    -----
     Our implementation is as follows:
 
     - On even iterations (where indexing begins at zero), expand
@@ -211,11 +192,27 @@ def get_npil_mask(mask, totalexpansion=4):
     This procedure generates a neuropil whose shape is similar to the
     shape of the input ROI mask.
 
+    Parameters
+    ----------
+    mask : :term:`array_like`
+        The reference ROI mask to expand the neuropil from. The array
+        should contain only boolean values.
+    totalexpansion : float, optional
+        How much larger to make the neuropil total area than mask area.
+        Default is ``4``.
+
+    Returns
+    -------
+    grown_mask : numpy.ndarray
+        A boolean numpy.ndarray mask, where the region surrounding
+        the input is now ``True`` and the region of the input mask is
+        ``False``.
+
     Note
     ----
     For fixed number of `iterations`, squarer input masks will have
     larger output neuropil masks.
-    '''
+    """
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 
@@ -280,22 +277,24 @@ def get_npil_mask(mask, totalexpansion=4):
 
 
 def getmasks_npil(cellMask, nNpil=4, expansion=1):
-    '''Generate neuropil masks using the get_npil_mask function.
+    """
+    Generate neuropil masks using :func:`get_npil_mask` function.
 
     Parameters
     ----------
-    cellMask : array_like
-        the cell mask (boolean 2d arrays)
-    nNpil : int
-        number of neuropil subregions
-    expansion : float
-        How much larger to make neuropil subregion area than in `cellMask`
+    cellMask : :term:`array_like`
+        The cell mask (boolean 2d arrays).
+    nNpil : int, optional
+        Number of neuropil subregions. Default is ``4``.
+    expansion : float, optional
+        Area of each neuropil region, relative to the area of `cellMask`.
+        Default is ``1``.
 
     Returns
     -------
-    list
-        Returns a list with soma + neuropil masks (boolean 2d arrays)
-    '''
+    masks_split : list
+        Returns a list with soma and neuropil masks (boolean 2d arrays).
+    """
     # Ensure array_like input is a numpy.ndarray
     cellMask = np.asarray(cellMask)
 
@@ -312,19 +311,22 @@ def getmasks_npil(cellMask, nNpil=4, expansion=1):
 
 
 def readrois(roiset):
-    ''' read the imagej rois in the zipfile roiset, and make sure that the
-    third dimension (i.e. frame number) is always zero.
+    """
+    Read ImageJ rois from a roiset zipfile.
+
+    We ensure that the third dimension (i.e. frame number) is always zero.
 
     Parameters
     ----------
     roiset : str
-        folder to a zip file with rois
+        Path to a roiset zipfile.
 
     Returns
     -------
-    list
-        Returns the rois as polygons
-    '''
+    rois : list
+        The ROIs (regions of interest) from within roiset, as polygons
+        describing the outline of each ROI.
+    """
     # read rois
     rois = read_imagej_roi_zip(roiset)
 
@@ -358,26 +360,27 @@ def readrois(roiset):
 
 
 def getmasks(rois, shpe):
-    '''Get the masks for the specified rois.
+    """
+    Get the masks for the specified rois.
 
     Parameters
     ----------
-    rois : list
-        list of roi coordinates. Each roi coordinate should be a 2d-array
+    rois : :term:`array_like`
+        List of roi coordinates. Each roi coordinate should be a 2d-array
         or equivalent list. i.e.:
-        ``roi = [[0,0], [0,1], [1,1], [1,0]]``
+        ``roi = [[0, 0], [0, 1], [1, 1], [1, 0]]``
         or
-        ``roi = np.array([[0,0], [0,1], [1,1], [1,0]])``
+        ``roi = np.array([[0, 0], [0, 1], [1, 1], [1, 0]])``
         i.e. a n by 2 array, where n is the number of coordinates.
         If a 2 by n array is given, this will be transposed.
-    shpe : array/list
-        shape of underlying image [width,height]
+    shpe : :term:`array_like`
+        Shape of underlying image ``(width, height)``.
 
     Returns
     -------
-    list of numpy.ndarray
-        List of masks for each roi in the rois list
-    '''
+    masks : :term:`list` of :class:`numpy.ndarray`
+        List of masks for each ROI in `rois`.
+    """
     # get number of rois
     nrois = len(rois)
 
@@ -398,21 +401,21 @@ def getmasks(rois, shpe):
 
 
 def find_roi_edge(mask):
-    '''
-    Finds the outline of a mask, using the find_contour function from
-    skimage.measure.
+    """
+    Find the outline of a mask.
+
+    Uses :func:`skimage.measure.find_contours`.
 
     Parameters
     ----------
-    mask : array_like
-        the mask, a binary array
+    mask : :term:`array_like`
+        The mask, as a binary array.
 
     Returns
     -------
-    outline : list of (n,2)-ndarrays
-        Array with coordinates of pixels in the outline of the mask
-    '''
-
+    outline : :term:`list` of (n,2)-:class:`~numpy.ndarray`
+        Array with coordinates of pixels in the outline of the mask.
+    """
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
 

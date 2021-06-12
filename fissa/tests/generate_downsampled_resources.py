@@ -46,7 +46,7 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
         filename already exists, it will be overwritten.
     downsamp : list or array_like, optional
         Downsampling factor for [x, y]. This must be a length two list,
-        tuple, or array_like. Default is `[1, 1]`, which corresponds to
+        tuple, or :term:`array-like`. Default is `[1, 1]`, which corresponds to
         an output roi the same size as the original roi. If `downsamp=[2, 2]`,
         the output will be half the size.
     offsets : list or array_like, optional
