@@ -6,6 +6,7 @@ from __future__ import division
 
 import functools
 import os
+import sys
 
 import numpy as np
 import tifffile
@@ -162,7 +163,7 @@ def test_multiframe_image2array(base_fname, dtype, datahandler):
         dtype=dtype,
         datahandler=datahandler,
     )
-    if ".mixedB" in base_fname:
+    if ".mixedB" in base_fname and sys.version_info >= (3, 2):
         with BaseTestCase().assertWarnsRegex(
             UserWarning, ".*dimensions .*will be .*flattened.*"
         ):
@@ -207,7 +208,7 @@ def test_multiframe_image2array_higherdim(base_fname, shp, dtype, datahandler):
         dtype=dtype,
         datahandler=datahandler,
     )
-    if shp == "2,1,3,3,2":
+    if shp == "2,1,3,3,2" and sys.version_info >= (3, 2):
         with BaseTestCase().assertWarnsRegex(
             UserWarning, ".*dimensions .*will be .*flattened.*"
         ):
@@ -281,7 +282,7 @@ def test_multiframe_mean(base_fname, dtype, datahandler):
         dtype=dtype,
         datahandler=datahandler,
     )
-    if ".mixedB" in base_fname:
+    if ".mixedB" in base_fname and sys.version_info >= (3, 2):
         with BaseTestCase().assertWarnsRegex(
             UserWarning, ".*dimensions .*will be .*flattened.*"
         ):
@@ -368,7 +369,7 @@ def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
         dtype=dtype,
         datahandler=datahandler,
     )
-    if shp == "2,1,3,3,2":
+    if shp == "2,1,3,3,2" and sys.version_info >= (3, 2):
         with BaseTestCase().assertWarnsRegex(
             UserWarning, ".*dimensions .*will be .*flattened.*"
         ):
