@@ -40,6 +40,8 @@ def test_poly2mask():
     masks = ROI.poly2mask([poly1, poly2], (3, 3))
     assert_equal(
         masks[0].todense(),
-        np.matrix([[True, False, False],
-                   [True, True, False],
-                   [False, False, False]], dtype=bool))
+        np.array(
+            [[True, False, False], [True, True, False], [False, False, False]],
+            dtype=bool,
+        ),
+    )
