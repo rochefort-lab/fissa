@@ -9,6 +9,7 @@ Authors:
 from past.builtins import basestring
 
 import collections
+import warnings
 
 import numpy as np
 import tifffile
@@ -137,12 +138,37 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         with tifffile.TiffFile(image) as tif:
             frames = []
+            n_pages = len(tif.pages)
             for page in tif.pages:
                 page = page.asarray()
                 if page.ndim < 2:
                     raise EnvironmentError(
                         "TIFF {} has pages with {} dimensions (page shaped {})."
                         " Pages must have at least 2 dimensions".format(
+                            image, page.ndim, page.shape
+                        )
+                    )
+                if (
+                    n_pages > 1 and
+                    page.ndim > 2 and
+                    (np.array(page.shape[:-2]) > 1).sum() > 0
+                ):
+                    warnings.warn(
+                        "Multipage TIFF {} with {} pages has at least one page"
+                        " with {} dimensions (page shaped {})."
+                        " All dimensions before the final two (height and"
+                        " width) will be treated as time-like and flattened."
+                        "".format(
+                            image, n_pages, page.ndim, page.shape
+                        )
+                    )
+                elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
+                    warnings.warn(
+                        "TIFF {} has at least one page with {} dimensions"
+                        " (page shaped {})."
+                        " All dimensions before the final two (height and"
+                        " width) will be treated as time-like and flattened."
+                        "".format(
                             image, page.ndim, page.shape
                         )
                     )
