@@ -317,8 +317,33 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
         memory = None
         n_frames = 0
 
+        n_pages = len(data.pages)
         for page in data.pages:
             page = page.asarray()
+            if (
+                n_pages > 1 and
+                page.ndim > 2 and
+                (np.array(page.shape[:-2]) > 1).sum() > 0
+            ):
+                warnings.warn(
+                    "Multipage TIFF {} with {} pages has at least one page"
+                    " with {} dimensions (page shaped {})."
+                    " All dimensions before the final two (height and"
+                    " width) will be treated as time-like and flattened."
+                    "".format(
+                        "", n_pages, page.ndim, page.shape
+                    )
+                )
+            elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
+                warnings.warn(
+                    "TIFF {} has at least one page with {} dimensions"
+                    " (page shaped {})."
+                    " All dimensions before the final two (height and"
+                    " width) will be treated as time-like and flattened."
+                    "".format(
+                        "", page.ndim, page.shape
+                    )
+                )
             shp = [-1] + list(page.shape[-2:])
             page = page.reshape(shp)
             if memory is None:
