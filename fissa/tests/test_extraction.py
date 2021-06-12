@@ -184,7 +184,7 @@ def test_multiframe_image2array_imagejformat(dtype, datahandler):
     ],
 )
 @pytest.mark.parametrize("dtype", ["uint8"])
-@pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2"])
+@pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2", "2,3,1,1,3,2"])
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
 def test_multiframe_image2array_higherdim(base_fname, shp, dtype, datahandler):
     """
@@ -327,7 +327,7 @@ def test_multiframe_mean_imagejformat(dtype, datahandler):
     ],
 )
 @pytest.mark.parametrize("dtype", ["uint8"])
-@pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2"])
+@pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2", "2,3,1,1,3,2"])
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
 def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     """
@@ -356,6 +356,7 @@ def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     [
         "3,2,3,2",
         pytest.param("2,1,3,3,2", marks=pytest.mark.xfail(reason="looks like RGB")),
+        "2,3,1,1,3,2",
     ]
 )
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])

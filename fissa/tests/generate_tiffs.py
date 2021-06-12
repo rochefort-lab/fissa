@@ -31,6 +31,7 @@ def main():
         (expected, "uint8", None),
         (expected, "uint8", (3, 2, 3, 2)),
         (expected, "uint8", (2, 1, 3, 3, 2)),
+        (expected, "uint8", (2, 3, 1, 1, 3, 2)),
         (expected, "uint16", None),
         (expected, "uint64", None),
         (expected, "int16", None),
@@ -66,7 +67,7 @@ def main():
             data,
             bigtiff=True,
         )
-        if dtype in ("uint8", "uint16", "float32"):
+        if dtype in ("uint8", "uint16", "float32") and (shp is None or len(shp) <= 5):
             tifffile.imsave(
                 os.path.join(
                     output_dir, "tifffile.imsave.imagej{}.tif".format(qualifier)
