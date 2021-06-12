@@ -7,6 +7,9 @@ import tifffile
 
 
 def main():
+    """
+    Generate TIFF test resources, using a variety save methods, formats, dtypes.
+    """
     expected = np.array(
         [
             [[-11, 12], [14, 15], [17, 18]],
