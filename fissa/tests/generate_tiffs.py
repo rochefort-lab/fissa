@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 import os
+from inspect import getsourcefile
 
 import imageio
 import numpy as np
 import tifffile
+
+
+TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
 def main():
@@ -20,7 +24,7 @@ def main():
             [[61, 62], [64, 55], [67, 68]],
         ]
     )
-    output_dir = "fissa/tests/resources/tiffs/"
+    output_dir = os.path.join(TEST_DIRECTORY, "resources", "tiffs")
     os.makedirs(output_dir, exist_ok=True)
 
     for data, dtype, shp in (
