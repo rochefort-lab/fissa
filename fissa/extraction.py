@@ -134,7 +134,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
             ``(frames, y_coordinate, x_coordinate)``.
         """
         if not isinstance(image, basestring):
-            return np.array(image)
+            return np.asarray(image)
 
         with tifffile.TiffFile(image) as tif:
             frames = []
