@@ -22,6 +22,53 @@ import pytest
 TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
+def assert_equal_list_of_array_perm_inv(desired, actual):
+    assert_equal(len(desired), len(actual))
+    for desired_i in desired:
+        n_matches = 0
+        for actual_j in actual:
+            if np.equal(actual_j, desired_i).all():
+                n_matches += 1
+        assert n_matches >= 0
+
+def assert_equal_dict_of_array(desired, actual):
+    assert_equal(desired.keys(), actual.keys())
+    for k in desired.keys():
+        assert_equal(desired[k], actual[k])
+
+def assert_starts_with(desired, actual):
+    """
+    Check that a string starts with a certain substring.
+
+    Parameters
+    ----------
+    desired : str
+        Desired initial string.
+    actual : str-like
+        Actual string or string-like object.
+    """
+    try:
+        assert len(actual) >= len(desired)
+    except BaseException as err:
+        print("Actual string too short ({} < {} characters)".format(len(actual), len(desired)))
+        print("ACTUAL: {}".format(actual))
+        raise
+    try:
+        return assert_equal(str(actual)[:len(desired)], desired)
+    except BaseException as err:
+        msg = "ACTUAL: {}".format(actual)
+        if isinstance(getattr(err, "args", None), str):
+            err.args += "\n" + msg
+        elif isinstance(getattr(err, "args", None), tuple):
+            if len(err.args) == 1:
+                err.args = (err.args[0] + "\n" + msg, )
+            else:
+                err.args += (msg, )
+        else:
+            print(msg)
+        raise
+
+
 class BaseTestCase(unittest.TestCase):
 
     '''
@@ -93,47 +140,10 @@ class BaseTestCase(unittest.TestCase):
         return assert_equal(*args, **kwargs)
 
     def assert_equal_list_of_array_perm_inv(self, desired, actual):
-        self.assert_equal(len(desired), len(actual))
-        for desired_i in desired:
-            n_matches = 0
-            for actual_j in actual:
-                if np.equal(actual_j, desired_i).all():
-                    n_matches += 1
-            self.assertTrue(n_matches >= 0)
+        return assert_equal_list_of_array_perm_inv(desired, actual)
 
     def assert_equal_dict_of_array(self, desired, actual):
-        self.assertEqual(desired.keys(), actual.keys())
-        for k in desired.keys():
-            self.assertEqual(desired[k], actual[k])
+        return assert_equal_dict_of_array(desired, actual)
 
     def assert_starts_with(self, desired, actual):
-        """
-        Check that a string starts with a certain substring.
-
-        Parameters
-        ----------
-        desired : str
-            Desired initial string.
-        actual : str-like
-            Actual string or string-like object.
-        """
-        try:
-            self.assertTrue(len(actual) >= len(desired))
-        except BaseException as err:
-            print("Actual string too short ({} < {} characters)".format(len(actual), len(desired)))
-            print("ACTUAL: {}".format(actual))
-            raise
-        try:
-            return assert_equal(str(actual)[:len(desired)], desired)
-        except BaseException as err:
-            msg = "ACTUAL: {}".format(actual)
-            if isinstance(getattr(err, "args", None), str):
-                err.args += "\n" + msg
-            elif isinstance(getattr(err, "args", None), tuple):
-                if len(err.args) == 1:
-                    err.args = (err.args[0] + "\n" + msg, )
-                else:
-                    err.args += (msg, )
-            else:
-                print(msg)
-            raise
+        return assert_starts_with(desired, actual)

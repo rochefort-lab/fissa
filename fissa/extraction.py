@@ -12,11 +12,11 @@ try:
     from collections import abc
 except ImportError:
     import collections as abc
+import warnings
 
 import numpy as np
 import tifffile
 from PIL import Image, ImageSequence
-import imageio
 
 from . import roitools
 
@@ -136,9 +136,49 @@ class DataHandlerTifffile(DataHandlerAbstract):
             A 3D array containing the data, with dimensions corresponding to
             ``(frames, y_coordinate, x_coordinate)``.
         """
-        if isinstance(image, basestring):
-            return tifffile.imread(image)
-        return np.array(image)
+        if not isinstance(image, basestring):
+            return np.asarray(image)
+
+        with tifffile.TiffFile(image) as tif:
+            frames = []
+            n_pages = len(tif.pages)
+            for page in tif.pages:
+                page = page.asarray()
+                if page.ndim < 2:
+                    raise EnvironmentError(
+                        "TIFF {} has pages with {} dimensions (page shaped {})."
+                        " Pages must have at least 2 dimensions".format(
+                            image, page.ndim, page.shape
+                        )
+                    )
+                if (
+                    n_pages > 1 and
+                    page.ndim > 2 and
+                    (np.array(page.shape[:-2]) > 1).sum() > 0
+                ):
+                    warnings.warn(
+                        "Multipage TIFF {} with {} pages has at least one page"
+                        " with {} dimensions (page shaped {})."
+                        " All dimensions before the final two (height and"
+                        " width) will be treated as time-like and flattened."
+                        "".format(
+                            image, n_pages, page.ndim, page.shape
+                        )
+                    )
+                elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
+                    warnings.warn(
+                        "TIFF {} has at least one page with {} dimensions"
+                        " (page shaped {})."
+                        " All dimensions before the final two (height and"
+                        " width) will be treated as time-like and flattened."
+                        "".format(
+                            image, page.ndim, page.shape
+                        )
+                    )
+                shp = [-1] + list(page.shape[-2:])
+                frames.append(page.reshape(shp))
+
+        return np.concatenate(frames, axis=0)
 
     @staticmethod
     def getmean(data):
