@@ -230,18 +230,11 @@ class Experiment():
 
         # define class variables
         self.folder = folder
-        self.raw = None
-        self.info = None
-        self.mixmat = None
-        self.sep = None
-        self.result = None
-        self.deltaf_raw = None
-        self.deltaf_result = None
+        self.clear()
         self.nRegions = nRegions
         self.expansion = expansion
         self.alpha = alpha
         self.nTrials = len(self.images)  # number of trials
-        self.means = []
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
         self.method = method
@@ -256,6 +249,32 @@ class Experiment():
                 self.separate()
             else:
                 self.separation_prep()
+
+    def clear(self):
+        """
+        Clear prepared data, and all data downstream of prepared data.
+        """
+        # Wipe outputs
+        self.means = []
+        self.nCell = None
+        self.raw = None
+        self.roi_polys = None
+        # Wipe outputs of calc_deltaf(), as it no longer matches self.result
+        self.deltaf_raw = None
+        # Wipe outputs of separate(), as they no longer match self.raw
+        self.clear_separated()
+
+    def clear_separated(self):
+        """
+        Clear prepared data, and all data downstream of prepared data.
+        """
+        # Wipe outputs
+        self.info = None
+        self.mixmat = None
+        self.sep = None
+        self.result = None
+        # Wipe deltaf_result, as it no longer matches self.result
+        self.deltaf_result = None
 
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
@@ -292,25 +311,6 @@ class Experiment():
         else:
             fname = os.path.join(self.folder, "preparation.npz")
 
-        def _wipe():
-            """
-            Wipe outputs, and attributes downstream of outputs.
-            """
-            # Wipe outputs
-            self.means = []
-            self.nCell = None
-            self.raw = None
-            self.roi_polys = None
-            # Wipe outputs of separate(), as they no longer match self.raw
-            self.info = None
-            self.mixmat = None
-            self.sep = None
-            self.result = None
-            # Wipe outputs of calc_deltaf(), as they no longer match self.raw
-            # or self.result
-            self.deltaf_raw = None
-            self.deltaf_result = None
-
         # try to load data from filename
         if fname is None or not os.path.isfile(fname):
             redo = True
@@ -318,7 +318,7 @@ class Experiment():
             try:
                 cache = np.load(fname, allow_pickle=True)
                 print('Reloading previously prepared data...')
-                _wipe()
+                self.clear()
                 for field in cache.files:
                     setattr(self, field, cache[field])
                 if self.raw is not None:
@@ -368,7 +368,7 @@ class Experiment():
         roi_polys = np.copy(raw)
 
         # Set outputs
-        _wipe()
+        self.clear()
 
         for trial in range(self.nTrials):
             self.means.append(results[trial][2])
@@ -447,18 +447,6 @@ class Experiment():
         if redo_prep:
             redo_sep = True
 
-        def _wipe():
-            """
-            Wipe outputs, and attributes downstream of outputs.
-            """
-            # Wipe outputs
-            self.info = None
-            self.mixmat = None
-            self.sep = None
-            self.result = None
-            # Wipe deltaf_result, as it no longer matches self.result
-            self.deltaf_result = None
-
         # Define filename to store data in
         if self.folder is None:
             fname = None
@@ -471,7 +459,7 @@ class Experiment():
             try:
                 cache = np.load(fname, allow_pickle=True)
                 print('Reloading previously separated data...')
-                _wipe()
+                self.clear_separated()
                 for field in cache.files:
                     setattr(self, field, cache[field])
                 if self.result is not None:
@@ -547,7 +535,7 @@ class Experiment():
                 info[cell][trial] = convergence
 
         # Wipe outputs
-        _wipe()
+        self.clear_separated()
         # Set outputs
         self.info = info
         self.mixmat = mixmat
