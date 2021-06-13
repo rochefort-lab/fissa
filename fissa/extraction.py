@@ -44,12 +44,12 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        image : type
+        image : image_type
             Some handle to, or representation of, the raw imagery data.
 
         Returns
         -------
-        data : type
+        data : data_type
             Internal representation of the images which will be used by all
             the other methods in this class.
         """
@@ -64,7 +64,7 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        data : type
+        data : data_type
             The same object as returned by :meth:`image2array`.
 
         Returns
@@ -90,7 +90,7 @@ class DataHandlerAbstract():
 
         Returns
         -------
-        masks : type
+        masks : mask_type
             Masks, in a format accepted by :meth:`extracttraces`.
 
         See Also
@@ -108,9 +108,9 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        data : type
+        data : data_type
             The same object as returned by :meth:`image2array`.
-        masks : type
+        masks : mask_type
             The same object as returned by :meth:`rois2masks`.
 
         Returns
