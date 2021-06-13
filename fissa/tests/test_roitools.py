@@ -226,7 +226,6 @@ class TestGetNpilMask(BaseTestCase):
 
     '''Tests for get_npil_mask.'''
 
-    @unittest.expectedFailure
     def test_empty(self):
         mask = [
             [True, False, False],
@@ -259,7 +258,6 @@ class TestGetNpilMask(BaseTestCase):
         actual = roitools.get_npil_mask(mask, 1000)
         self.assert_equal(actual, desired)
 
-    @unittest.expectedFailure
     def test_corner(self):
         mask = [
             [True, False, False],

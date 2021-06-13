@@ -262,15 +262,14 @@ def get_npil_mask(mask, totalexpansion=4):
                     movedmask = shift_2d_array(movedmask, dy, 1)
                     grown_mask[movedmask] = True
 
-        # Don't expand based on the original mask; any expansion into
-        # this region is marked as False once more.
-        grown_mask[mask] = False
-
         # update area
-        area_current = grown_mask.sum()
+        area_current = grown_mask.sum() - area_orig
 
         # iterate counter
         count += 1
+
+    # Remove original mask from the neuropil mask
+    grown_mask[mask] = False
 
     # Return the finished neuropil mask
     return grown_mask
