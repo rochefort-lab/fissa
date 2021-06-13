@@ -393,7 +393,7 @@ class Experiment():
             Path to output file. The default destination is ``"separated.npz"``
             within the cache directory ``self.folder``.
         """
-        fields = ["nCell", "raw", "roi_polys"]
+        fields = ["means", "nCell", "raw", "roi_polys"]
         if destination is None:
             if self.folder is None:
                 raise ValueError(
