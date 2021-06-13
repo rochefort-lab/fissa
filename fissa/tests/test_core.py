@@ -282,7 +282,7 @@ class TestExperimentA(BaseTestCase):
 
     def test_subfolder(self):
         """Check we can write to a subfolder"""
-        output_dir = os.path.join(self.output_dir, "subdir")
+        output_dir = os.path.join(self.output_dir, "a", "b", "c")
         exp = core.Experiment(self.images_dir, self.roi_zip_path, output_dir)
         exp.separate()
 
