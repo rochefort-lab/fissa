@@ -494,7 +494,7 @@ class Experiment():
         info = np.copy(sep)
 
         # loop over cells to define function inputs
-        inputs = [0] * self.nCell
+        inputs = [0] * int(self.nCell)
         for cell in range(self.nCell):
             # initiate concatenated data
             X = np.concatenate(self.raw[cell], axis=1)
@@ -527,7 +527,7 @@ class Experiment():
                 # run separation
                 results = pool.map(separate_func, inputs)
         else:
-            results = [0] * self.nCell
+            results = [0] * int(self.nCell)
             for cell in range(self.nCell):
                 results[cell] = separate_func(inputs[cell])
 
