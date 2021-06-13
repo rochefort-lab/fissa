@@ -567,7 +567,7 @@ class Experiment():
             Path to output file. The default destination is ``"separated.npz"``
             within the cache directory ``self.folder``.
         """
-        fields = ["info", "mixmat", "sep", "result"]
+        fields = ["deltaf_raw", "deltaf_result", "info", "mixmat", "sep", "result"]
         if destination is None:
             if self.folder is None:
                 raise ValueError(
@@ -662,6 +662,10 @@ class Experiment():
 
         self.deltaf_raw = deltaf_raw
         self.deltaf_result = deltaf_result
+
+        # Maybe save to cache file
+        if self.folder is not None:
+            self.save_separated()
 
     def save_to_matlab(self, fname=None):
         """Save the results to a MATLAB file.
