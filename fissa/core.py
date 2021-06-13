@@ -848,7 +848,7 @@ class Experiment:
             ``"preparation.npz"`` within the cache directory
             ``experiment.folder``.
         """
-        fields = ["means", "nCell", "raw", "roi_polys"]
+        fields = ["expansion", "means", "nCell", "nRegions", "raw", "roi_polys"]
         if destination is None:
             if self.folder is None:
                 raise ValueError(
@@ -1061,7 +1061,19 @@ class Experiment:
             Path to output file. The default destination is ``"separated.npz"``
             within the cache directory ``experiment.folder``.
         """
-        fields = ["deltaf_raw", "deltaf_result", "info", "mixmat", "sep", "result"]
+        fields = [
+            "alpha",
+            "deltaf_raw",
+            "deltaf_result",
+            "info",
+            "max_iter",
+            "max_tries",
+            "method",
+            "mixmat",
+            "sep",
+            "tol",
+            "result",
+        ]
         if destination is None:
             if self.folder is None:
                 raise ValueError(
