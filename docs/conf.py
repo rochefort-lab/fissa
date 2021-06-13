@@ -115,8 +115,12 @@ napoleon_use_admonition_for_examples = False
 napoleon_use_admonition_for_notes = False
 napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
-napoleon_use_param = True
 napoleon_use_rtype = True
+napoleon_use_param = True
+napoleon_type_aliases = {
+    "array_like": ":term:`array_like`",
+    "array-like": ":term:`array-like <array_like>`",
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -255,14 +259,19 @@ epub_exclude_files = ['search.html']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
+# Common intersphinx mappings can be found here:
+# https://gist.github.com/bskinn/0e164963428d4b51017cebdb6cda5209
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/', None),
-    'NumPy': ('https://docs.scipy.org/doc/numpy/', None),
-    'SciPy': ('https://docs.scipy.org/doc/scipy/reference', None),
-    'matplotlib': ('https://matplotlib.org', None),
-    'sklearn': ('https://scikit-learn.org/stable', None),
-    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
-    'skimage': ('https://github.com/scikit-image/docs/raw/gh-pages/dev/', None),
+    "python": ("https://docs.python.org/", None),
+    "python3": ("https://docs.python.org/3/", None),
+    "attrs": ("https://www.attrs.org/en/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "Pillow": ("https://pillow.readthedocs.io/en/latest/", None),
+    "skimage": ("https://scikit-image.org/", None),
+    "sklearn": ("https://scikit-learn.org/stable/", None),
 }
 
 # -- Options for todo extension ----------------------------------------------

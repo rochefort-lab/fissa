@@ -31,12 +31,11 @@ class DataHandlerAbstract():
       :meth:`extracttraces` must be the same format as the output to
       :meth:`image2array`.
     - The `masks` input into :meth:`extracttraces` must be the same format
-      as the output of :meth:`rois2mask`.
+      as the output of :meth:`rois2masks`.
 
     See Also
     --------
-    See :class:`DataHandlerTifffile` and :class:`DataHandlerPillow` for example
-    subclasses.
+    DataHandlerTifffile, DataHandlerPillow
     """
     @staticmethod
     def image2array(image):
@@ -45,12 +44,12 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        image : type
+        image : image_type
             Some handle to, or representation of, the raw imagery data.
 
         Returns
         -------
-        data : type
+        data : data_type
             Internal representation of the images which will be used by all
             the other methods in this class.
         """
@@ -65,7 +64,7 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        data : type
+        data : data_type
             The same object as returned by :meth:`image2array`.
 
         Returns
@@ -78,19 +77,25 @@ class DataHandlerAbstract():
     @staticmethod
     def rois2masks(rois, data):
         """
-        Convert `rois` into a collection of binary masks.
+        Convert ROIs into a collection of binary masks.
 
         Parameters
         ----------
-        rois : type
-            Incoming ROIs are formatted before becoming binary masks.
-        data : type
+        rois : str or :term:`list` of :term:`array_like`
+            Either a string containing a path to an ImageJ roi zip file,
+            or a list of arrays encoding polygons, or list of binary arrays
+            representing masks.
+        data : data_type
             The same object as returned by :meth:`image2array`.
 
         Returns
         -------
-        masks : type
+        masks : mask_type
             Masks, in a format accepted by :meth:`extracttraces`.
+
+        See Also
+        --------
+        fissa.roitools.getmasks, fissa.roitools.readrois
         """
         raise NotImplementedError()
 
@@ -103,9 +108,9 @@ class DataHandlerAbstract():
 
         Parameters
         ----------
-        data : type
+        data : data_type
             The same object as returned by :meth:`image2array`.
-        masks : type
+        masks : mask_type
             The same object as returned by :meth:`rois2masks`.
 
         Returns
@@ -127,8 +132,8 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         Parameters
         ----------
-        image : str or array_like
-            Either a path to a TIFF file, or array_like data.
+        image : str or :term:`array_like`
+            Either a path to a TIFF file, or :term:`array_like` data.
 
         Returns
         -------
@@ -187,7 +192,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         Parameters
         ----------
-        data : array_like
+        data : :term:`array_like`
             Data array as made by :meth:`image2array`, shaped ``(frames, y, x)``.
 
         Returns
@@ -203,17 +208,17 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         Parameters
         ----------
-        rois : str or list of array_like
+        rois : str or :term:`list` of :term:`array_like`
             Either a string containing a path to an ImageJ roi zip file,
             or a list of arrays encoding polygons, or list of binary arrays
             representing masks.
-        data : array
+        data : :term:`array_like`
             Data array as made by :meth:`image2array`. Must be shaped
             ``(frames, y, x)``.
 
         Returns
         -------
-        masks : list of numpy.ndarray
+        masks : :term:`list` of :class:`numpy.ndarray`
             List of binary arrays.
         """
         # get the image shape
@@ -245,9 +250,9 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         Parameters
         ----------
-        data : array_like
+        data : :term:`array_like`
             Data array as made by :meth:`image2array`, shaped ``(frames, y, x)``.
-        masks : list of array_like
+        masks : :class:`list` of :term:`array_like`
             List of binary arrays.
 
         Returns
@@ -334,7 +339,7 @@ class DataHandlerPillow(DataHandlerAbstract):
 
         Parameters
         ----------
-        rois : str or list of array_like
+        rois : str or :term:`list` of :term:`array_like`
             Either a string containing a path to an ImageJ roi zip file,
             or a list of arrays encoding polygons, or list of binary arrays
             representing masks.
@@ -377,7 +382,7 @@ class DataHandlerPillow(DataHandlerAbstract):
         ----------
         data : PIL.Image
             An open :class:`PIL.Image` handle to a multi-frame TIFF image.
-        masks : list of array_like
+        masks : list of :term:`array_like`
             List of binary arrays.
 
         Returns

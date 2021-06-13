@@ -26,7 +26,8 @@ if sys.version_info >= (3, 0):
 
 
 def _parse_roi_file_py2(roi_obj):
-    """Parses an individual ImageJ ROI
+    """
+    Parse an individual ImageJ ROI.
 
     This is based on the Java implementation:
     http://rsbweb.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
@@ -42,16 +43,15 @@ def _parse_roi_file_py2(roi_obj):
     Returns
     -------
     dict
-        Returns a parsed ROI object, a dictionary with either a `'polygons'`
-        or a `'mask'` field.
+        Returns a parsed ROI object, a dictionary with either a ``"polygons"``
+        or a ``"mask"`` field.
 
     Raises
     ------
     IOError
-        If there is an error reading the roi file object
+        If there is an error reading the roi file object.
     ValueError
-        If unable to parse ROI
-
+        If unable to parse ROI.
     """
     # If this is a string, try opening the path as a file and running on its
     # contents
@@ -274,13 +274,13 @@ def _parse_roi_file_py3(roi_source):
     Parameters
     ----------
     roi_source : str or file object
-        Path to file, or file object containing a single ImageJ ROI
+        Path to file, or file object containing a single ImageJ ROI.
 
     Returns
     -------
     dict
-        Returns a parsed ROI object, a dictionary with either a `'polygons'`
-        or a `'mask'` field.
+        Returns a parsed ROI object, a dictionary with either a ``"polygons"``
+        or a ``"mask"`` field.
 
     Raises
     ------
@@ -411,17 +411,18 @@ parse_roi_file = _parse_roi_file_py3 if sys.version_info >= (3, 0) else _parse_r
 
 
 def read_imagej_roi_zip(filename):
-    """Reads an ImageJ ROI zip set and parses each ROI individually
+    """
+    Read an ImageJ ROI zip set and parse each ROI individually.
 
     Parameters
     ----------
     filename : str
-        Path to the ImageJ ROis zip file
+        Path to the ImageJ ROis zip file.
 
     Returns
     -------
     roi_list : list
-        List of the parsed ImageJ ROIs
+        List of the parsed ImageJ ROIs.
     """
     roi_list = []
     with zipfile.ZipFile(filename) as zf:

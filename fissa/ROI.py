@@ -30,11 +30,12 @@ from shapely.geometry import MultiPolygon, Polygon, Point
 
 
 def poly2mask(polygons, im_size):
-    """Converts polygons to a sparse binary mask.
+    """
+    Convert polygons to a sparse binary mask.
 
     >>> from fissa.ROI import poly2mask
-    >>> poly1 = [[0,0], [0,1], [1,1], [1,0]]
-    >>> poly2 = [[0,1], [0,2], [2,2], [2,1]]
+    >>> poly1 = [[0, 0], [0, 1], [1, 1], [1, 0]]
+    >>> poly2 = [[0, 1], [0, 2], [2, 2], [2, 1]]
     >>> mask = poly2mask([poly1, poly2], (3, 3))
     >>> mask[0].todense()
     matrix([[ True, False, False],
@@ -44,11 +45,11 @@ def poly2mask(polygons, im_size):
     Parameters
     ----------
     polygons : sequence of coordinates or sequence of Polygons
-        A sequence of polygons where each is either a sequence of (x,y) or
-        (x,y,z) coordinate pairs, an Nx2 or Nx3 numpy array, or a Polygon
+        A sequence of polygons where each is either a sequence of ``(x, y)`` or
+        ``(x, y, z)`` coordinate pairs, an Nx2 or Nx3 numpy array, or a Polygon
         object.
     im_size : tuple
-        Final size of the resulting mask
+        Final size of the resulting mask.
 
     Returns
     -------
@@ -94,7 +95,8 @@ def poly2mask(polygons, im_size):
 
 
 def _reformat_polygons(polygons):
-    """Convert polygons to a MulitPolygon.
+    """
+    Convert polygons to a MultiPolygon.
 
     Accepts one more more sequence of 2- or 3-element sequences or a sequence
     of shapely Polygon objects.
@@ -103,13 +105,12 @@ def _reformat_polygons(polygons):
     ----------
     polygons : sequence of 2- or 3-element coordinates or sequence of Polygons
         Polygon(s) to be converted to a MulitPolygon.  Coordinates are used to
-        initialize a shapely MultiPolygon, and thus should follow a (x, y, z)
-        coordinate space convention.
+        initialize a shapely MultiPolygon, and thus should follow a
+        ``(x, y, z)`` coordinate space convention.
 
     Returns
     -------
     MultiPolygon
-
     """
     if len(polygons) == 0:
         # Just return an empty MultiPolygon

@@ -2,8 +2,8 @@
 Functions for removal of neuropil from calcium signals.
 
 Authors:
-    - Sander W Keemink (swkeemink@scimail.eu)
-    - Scott C Lowe
+    - Sander W Keemink <swkeemink@scimail.eu>
+    - Scott C Lowe <scott.code.lowe@gmail.com>
 Created:
     2015-05-15
 """
@@ -21,66 +21,67 @@ def separate(
 
     Parameters
     ----------
-    S : array_like
+    S : :term:`array_like`
         2-d array containing mixed input signals.
         Each column of `S` should be a different signal, and each row an
-        observation of the signals. For `S[i,j]`, `j` = each signal,
-        `i` = signal content.
-        The first column, `j = 0`, is considered the primary signal and the
+        observation of the signals. For ``S[i,j]``, `j` = each signal,
+        ``i`` = signal content.
+        The first column, ``j = 0``, is considered the primary signal and the
         one for which we will try to extract a decontaminated equivalent.
 
-    sep_method : {'ica','nmf'}
+    sep_method : {"ica", "nmf"}
         Which source separation method to use, either ICA or NMF.
 
-        - `'ica'`: Independent Component Analysis
-        - `'nmf'`: Non-negative Matrix Factorization
+        - ``"ica"``: Independent Component Analysis
+        - ``"nmf"``: Non-negative Matrix Factorization
 
     n : int, optional
-        How many components to estimate. If `None` (default), use PCA to
+        How many components to estimate. If ``None`` (default), use PCA to
         estimate how many components would explain at least 99% of the
-        variance and adopt this value for `n`.
+        variance and adopt this value for ``n``.
     maxiter : int, optional
-        Number of maximally allowed iterations. Default is 500.
+        Number of maximally allowed iterations. Default is ``500``.
     tol : float, optional
-        Error tolerance for termination. Default is 1e-5.
-    random_state : int, optional
-        Initial state for the random number generator. Set to None to use
-        the numpy.random default. Default seed is 892.
+        Error tolerance for termination. Default is ``1e-5``.
+    random_state : int or None, optional
+        Initial state for the random number generator. Set to ``None`` to use
+        the numpy.random default. Default seed is ``892``.
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
-        Default is 10.
-    W0 : array_like, optional
-        Optional starting condition for `W` in NMF algorithm.
+        Default is ``10``.
+    W0 : :term:`array_like`, optional
+        Optional starting condition for ``W`` in NMF algorithm.
         (Ignored when using the ICA method.)
-    H0 : array_like, optional
-        Optional starting condition for `H` in NMF algorithm.
+    H0 : :term:`array_like`, optional
+        Optional starting condition for ``H`` in NMF algorithm.
         (Ignored when using the ICA method.)
     alpha : float, optional
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
-        remove regularization. Default is 0.1.
+        remove regularization. Default is ``0.1``.
         (Ignored when using the ICA method.)
 
     Returns
     -------
-    numpy.ndarray
+    S_sep : numpy.ndarray
         The raw separated traces.
-    numpy.ndarray
+    S_matched : numpy.ndarray
         The separated traces matched to the primary signal, in order
         of matching quality (see Methods below).
-    numpy.ndarray
+    A_sep : numpy.ndarray
         Mixing matrix.
-    dict
+    convergence : dict
         Metadata for the convergence result, with keys:
 
-        - `'random_state'`: seed for ICA initiation
-        - `'iterations'`: number of iterations needed for convergence
-        - `'max_iterations'`: maximum number of iterations allowed
-        - `'converged'`: whether the algorithm converged or not (bool)
+        - ``"random_state"``: seed for ICA initiation
+        - ``"iterations"``: number of iterations needed for convergence
+        - ``"max_iterations"``: maximum number of iterations allowed
+        - ``"converged"``: whether the algorithm converged or not (`bool`)
 
     Notes
     -----
     Concept by Scott Lowe and Sander Keemink.
-    Normalize the columns in estimated mixing matrix A so that `sum(column)=1`.
+    Normalize the columns in estimated mixing matrix A so that
+    ``sum(column) = 1``.
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
     """
