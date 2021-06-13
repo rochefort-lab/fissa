@@ -328,6 +328,9 @@ class Experiment():
                 print(err)
                 print("Extraction will be redone and {} overwritten".format(fname))
 
+        # Wipe outputs
+        self.clear()
+        # Extract signals
         print('Doing region growing and data extraction....')
         # define inputs
         inputs = [[]] * self.nTrials
@@ -368,8 +371,6 @@ class Experiment():
         roi_polys = np.copy(raw)
 
         # Set outputs
-        self.clear()
-
         for trial in range(self.nTrials):
             self.means.append(results[trial][2])
             for cell in range(nCell):
@@ -472,7 +473,9 @@ class Experiment():
                     "".format(fname)
                 )
 
-        # separate data, if necessary
+        # Wipe outputs
+        self.clear_separated()
+        # Separate data
         print('Doing signal separation....')
         # predefine data structures
         sep = [[None for t in range(self.nTrials)]
@@ -534,8 +537,6 @@ class Experiment():
                 mixmat[cell][trial] = Xmixmat
                 info[cell][trial] = convergence
 
-        # Wipe outputs
-        self.clear_separated()
         # Set outputs
         self.info = info
         self.mixmat = mixmat
