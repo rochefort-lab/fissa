@@ -359,7 +359,7 @@ class TestExperimentA(BaseTestCase):
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -378,7 +378,7 @@ class TestExperimentA(BaseTestCase):
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -400,7 +400,7 @@ class TestExperimentA(BaseTestCase):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         exp = core.Experiment(image_path, roi_path, self.output_dir)
-        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -428,7 +428,7 @@ class TestExperimentA(BaseTestCase):
             os.makedirs(self.output_dir)
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         exp.separation_prep()
-        with open(os.path.join(self.output_dir, "separated.npy"), "w") as f:
+        with open(os.path.join(self.output_dir, "separated.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
