@@ -502,6 +502,38 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
+    def test_manual_save_prep(self):
+        """Saving prep results with manually specified filename."""
+        destination = os.path.join(self.output_dir, "m", ".test_output.npz")
+        os.makedirs(os.path.dirname(destination))
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separation_prep()
+        exp.save_prep(destination=destination)
+        self.assertTrue(os.path.isfile(destination))
+
+    def test_manual_save_sep(self):
+        """Saving sep results with manually specified filename."""
+        destination = os.path.join(self.output_dir, "m", ".test_output.npz")
+        os.makedirs(os.path.dirname(destination))
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        exp.save_separated(destination=destination)
+        self.assertTrue(os.path.isfile(destination))
+
+    def test_manual_save_sep_undefined(self):
+        """Saving prep results without specifying a filename."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separation_prep()
+        with self.assertRaises(ValueError):
+            exp.save_prep()
+
+    def test_manual_save_prep_undefined(self):
+        """Saving sep results without specifying a filename."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        with self.assertRaises(ValueError):
+            exp.save_separated()
+
     def test_calcdeltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
