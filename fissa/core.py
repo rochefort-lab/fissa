@@ -297,6 +297,7 @@ class Experiment():
             Wipe outputs, and attributes downstream of outputs.
             """
             # Wipe outputs
+            self.means = []
             self.nCell = None
             self.raw = None
             self.roi_polys = None
@@ -366,15 +367,15 @@ class Experiment():
         raw = np.asarray(raw)
         roi_polys = np.copy(raw)
 
-        # store results
+        # Set outputs
+        _wipe()
+
         for trial in range(self.nTrials):
             self.means += [results[trial][2]]
             for cell in range(nCell):
                 raw[cell][trial] = results[trial][0][cell]
                 roi_polys[cell][trial] = results[trial][1][cell]
 
-        # Set outputs
-        _wipe()
         self.nCell = nCell  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
