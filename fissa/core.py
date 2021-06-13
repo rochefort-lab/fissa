@@ -244,11 +244,8 @@ class Experiment():
             pass
         elif folder and not os.path.exists(folder):
             os.makedirs(folder)
-        elif os.path.isfile(os.path.join(folder, "preparation.npz")):
-            if os.path.isfile(os.path.join(folder, "separated.npz")):
-                self.separate()
-            else:
-                self.separation_prep()
+        else:
+            self.load()
 
     def clear(self):
         """
@@ -275,6 +272,35 @@ class Experiment():
         self.result = None
         # Wipe deltaf_result, as it no longer matches self.result
         self.deltaf_result = None
+
+    def load(self, path=None):
+        """
+        Load data from cache file in npz format.
+
+        Parameters
+        ----------
+        path : str or None, optional
+            Path to cache file. If ``None`` (default), the default cache paths
+            of ``"<folder>/preparation.npz"`` and ``"<folder>/separated.npz"``
+            are loaded, where ``<folder>`` is the `folder` parameter
+            (``self.folder``) which was provided when the object was
+            initialised.
+        """
+        if path is None:
+            if self.folder is None:
+                raise ValueError(
+                    "path must be provided if experiment folder is not defined"
+                )
+            for fname in ("preparation.npz", "separated.npz"):
+                path = os.path.join(self.folder, fname)
+                if not os.path.exists(path):
+                    continue
+                self.load(path)
+            return
+        print("Reloading data from cache {}...".format(path))
+        cache = np.load(path, allow_pickle=True)
+        for field in cache.files:
+            setattr(self, field, cache[field])
 
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
@@ -316,11 +342,8 @@ class Experiment():
             redo = True
         if not redo:
             try:
-                cache = np.load(fname, allow_pickle=True)
-                print('Reloading previously prepared data...')
                 self.clear()
-                for field in cache.files:
-                    setattr(self, field, cache[field])
+                self.load(fname)
                 if self.raw is not None:
                     return
             except BaseException as err:
@@ -458,11 +481,8 @@ class Experiment():
             redo_sep = True
         if not redo_sep:
             try:
-                cache = np.load(fname, allow_pickle=True)
-                print('Reloading previously separated data...')
                 self.clear_separated()
-                for field in cache.files:
-                    setattr(self, field, cache[field])
+                self.load(fname)
                 if self.result is not None:
                     return
             except BaseException as err:
