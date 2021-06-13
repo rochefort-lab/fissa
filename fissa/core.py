@@ -330,7 +330,7 @@ class Experiment():
 
         print('Doing region growing and data extraction....')
         # define inputs
-        inputs = [0] * self.nTrials
+        inputs = [[]] * self.nTrials
         for trial in range(self.nTrials):
             inputs[trial] = [self.images[trial], self.rois[trial],
                              self.nRegions, self.expansion, self.datahandler]
@@ -355,7 +355,7 @@ class Experiment():
                 results = pool.map(extract_func, inputs)
 
         else:
-            results = [0] * self.nTrials
+            results = [[]] * self.nTrials
             for trial in range(self.nTrials):
                 results[trial] = extract_func(inputs[trial])
 
@@ -495,7 +495,7 @@ class Experiment():
         info = np.copy(sep)
 
         # loop over cells to define function inputs
-        inputs = [0] * int(self.nCell)
+        inputs = [[]] * int(self.nCell)
         for cell in range(self.nCell):
             # initiate concatenated data
             X = np.concatenate(self.raw[cell], axis=1)
@@ -528,7 +528,7 @@ class Experiment():
                 # run separation
                 results = pool.map(separate_func, inputs)
         else:
-            results = [0] * int(self.nCell)
+            results = [[]] * int(self.nCell)
             for cell in range(self.nCell):
                 results[cell] = separate_func(inputs[cell])
 
