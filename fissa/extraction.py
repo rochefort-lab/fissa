@@ -8,7 +8,10 @@ Authors:
 
 from past.builtins import basestring
 
-import collections
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 import warnings
 
 import numpy as np
@@ -220,7 +223,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
         if isinstance(rois, basestring):
             rois = roitools.readrois(rois)
 
-        if not isinstance(rois, collections.Sequence):
+        if not isinstance(rois, abc.Sequence):
             raise TypeError(
                 'Wrong ROIs input format: expected a list or sequence, but got'
                 ' a {}'.format(rois.__class__)
@@ -350,7 +353,7 @@ class DataHandlerPillow(DataHandlerAbstract):
         if isinstance(rois, basestring):
             rois = roitools.readrois(rois)
 
-        if not isinstance(rois, collections.Sequence):
+        if not isinstance(rois, abc.Sequence):
             raise TypeError(
                 'Wrong ROIs input format: expected a list or sequence, but got'
                 ' a {}'.format(rois.__class__)
