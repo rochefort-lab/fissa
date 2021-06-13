@@ -371,7 +371,7 @@ class Experiment():
         _wipe()
 
         for trial in range(self.nTrials):
-            self.means += [results[trial][2]]
+            self.means.append(results[trial][2])
             for cell in range(nCell):
                 raw[cell][trial] = results[trial][0][cell]
                 roi_polys[cell][trial] = results[trial][1][cell]
