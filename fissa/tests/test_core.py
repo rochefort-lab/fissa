@@ -405,6 +405,71 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
+    def test_load_manual_prep(self):
+        """Loading prep results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separation_prep()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp.load(os.path.join(prev_folder, "preparation.npz"))
+        # Cached prep should now be loaded correctly
+        self.assert_allclose_ragged(exp.raw, exp1.raw)
+
+    def test_load_manual_sep(self):
+        """Loading prep results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separate()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp.load(os.path.join(prev_folder, "separated.npz"))
+        # Cached results should now be loaded correctly
+        self.assert_allclose_ragged(exp.result, exp1.result)
+
+    def test_load_manual_directory(self):
+        """Loading results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separate()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp.load(prev_folder)
+        # Cache should now be loaded correctly
+        self.assert_allclose_ragged(exp.raw, exp1.raw)
+        self.assert_allclose_ragged(exp.result, exp1.result)
+
+    def test_load_manual(self):
+        """Loading results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separate()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        # Copy the contents from the old cache to the new cache
+        shutil.copytree(prev_folder, new_folder, dirs_exist_ok=True)
+        # Manually trigger loading the new cache
+        exp.load()
+        # Cache should now be loaded correctly
+        self.assert_allclose_ragged(exp.raw, exp1.raw)
+        self.assert_allclose_ragged(exp.result, exp1.result)
+
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
         """
@@ -533,6 +598,12 @@ class TestExperimentA(BaseTestCase):
         exp.separate()
         with self.assertRaises(ValueError):
             exp.save_separated()
+
+    def test_load_manual_undefined(self):
+        """Loading results without specifying a filename or cache folder."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        with self.assertRaises(ValueError):
+            exp.load()
 
     def test_calcdeltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
