@@ -880,7 +880,7 @@ class Experiment:
         if verbosity >= 1 and keys_cleared:
             print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
 
-    def load(self, path=None):
+    def load(self, path=None, force=False):
         r"""
         Load data from cache file in npz format.
 
@@ -894,8 +894,12 @@ class Experiment:
             Default behaviour is to use the :attr:`folder` parameter which was
             provided when the object was initialised is used
             (``experiment.folder``).
+        force : bool, optional
+            Whether to load the cache even if its experiment parameters differ
+            from the properties of this experiment. Default is ``False``.
         """
         dynamic_properties = ["nCell", "nTrials"]
+        validate_fields = ["alpha", "expansion", "method", "nRegions"]
         if path is None:
             if self.folder is None:
                 raise ValueError(
@@ -912,6 +916,19 @@ class Experiment:
         if self.verbosity >= 1:
             print("Reloading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
+        if not force:
+            for field in validate_fields:
+                if (
+                    field in cache.files
+                    and getattr(self, field, None) is not None
+                    and cache[field] != getattr(self, field)
+                ):
+                    raise ValueError(
+                        "Cache value {} ({}) does not match the current"
+                        " experiment value {}.".format(
+                            field, cache[field], getattr(self, field)
+                        )
+                    )
         for field in cache.files:
             if field in dynamic_properties:
                 continue
