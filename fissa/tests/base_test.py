@@ -22,8 +22,8 @@ import pytest
 TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
-def assert_equal_list_of_array_perm_inv(desired, actual):
-    assert_equal(len(desired), len(actual))
+def assert_equal_list_of_array_perm_inv(actual, desired):
+    assert_equal(len(actual), len(desired))
     for desired_i in desired:
         n_matches = 0
         for actual_j in actual:
@@ -31,12 +31,12 @@ def assert_equal_list_of_array_perm_inv(desired, actual):
                 n_matches += 1
         assert n_matches >= 0
 
-def assert_equal_dict_of_array(desired, actual):
-    assert_equal(desired.keys(), actual.keys())
+def assert_equal_dict_of_array(actual, desired):
+    assert_equal(actual.keys(), desired.keys())
     for k in desired.keys():
-        assert_equal(desired[k], actual[k])
+        assert_equal(actual[k], desired[k])
 
-def assert_starts_with(desired, actual):
+def assert_starts_with(actual, desired):
     """
     Check that a string starts with a certain substring.
 
@@ -139,11 +139,11 @@ class BaseTestCase(unittest.TestCase):
     def assert_equal(self, actual, desired, *args, **kwargs):
         return assert_equal(actual, desired, *args, **kwargs)
 
-    def assert_equal_list_of_array_perm_inv(self, desired, actual):
-        return assert_equal_list_of_array_perm_inv(desired, actual)
+    def assert_equal_list_of_array_perm_inv(self, actual, desired):
+        return assert_equal_list_of_array_perm_inv(actual, desired)
 
-    def assert_equal_dict_of_array(self, desired, actual):
-        return assert_equal_dict_of_array(desired, actual)
+    def assert_equal_dict_of_array(self, actual, desired):
+        return assert_equal_dict_of_array(actual, desired)
 
-    def assert_starts_with(self, desired, actual):
-        return assert_starts_with(desired, actual)
+    def assert_starts_with(self, actual, desired):
+        return assert_starts_with(actual, desired)

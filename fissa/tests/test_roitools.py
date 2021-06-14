@@ -185,8 +185,7 @@ class TestSplitNpil(BaseTestCase):
             np.array([[False, False], [True, False]]),
             np.array([[True, False], [False, False]]),
         ]
-        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
-                                                 npil_masks)
+        self.assert_equal_list_of_array_perm_inv(npil_masks, desired_npil_masks)
 
     def test_bottom(self):
         mask = [[0, 0], [1, 1]]
@@ -197,8 +196,7 @@ class TestSplitNpil(BaseTestCase):
             np.array([[False, False], [False, False]]),
             np.array([[False, False], [True, False]]),
         ]
-        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
-                                                 npil_masks)
+        self.assert_equal_list_of_array_perm_inv(npil_masks, desired_npil_masks)
 
     def test_bottom2(self):
         mask = [[0, 0], [1, 1]]
@@ -207,8 +205,7 @@ class TestSplitNpil(BaseTestCase):
             np.array([[False, False], [False,  True]]),
             np.array([[False, False], [True, False]]),
         ]
-        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
-                                                 npil_masks)
+        self.assert_equal_list_of_array_perm_inv(npil_masks, desired_npil_masks)
 
     def test_bottom_adaptive(self):
         mask = [[0, 0], [1, 1]]
@@ -218,8 +215,7 @@ class TestSplitNpil(BaseTestCase):
             np.array([[False, False], [False,  True]]),
             np.array([[False, False], [True, False]]),
         ]
-        self.assert_equal_list_of_array_perm_inv(desired_npil_masks,
-                                                 npil_masks)
+        self.assert_equal_list_of_array_perm_inv(npil_masks, desired_npil_masks)
 
 
 class TestGetNpilMask(BaseTestCase):
