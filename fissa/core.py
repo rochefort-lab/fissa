@@ -381,9 +381,7 @@ class Experiment():
                 results = pool.map(extract_func, inputs)
 
         else:
-            results = [[]] * self.nTrials
-            for trial in range(self.nTrials):
-                results[trial] = extract_func(inputs[trial])
+            results = [extract_func(inputs[trial]) for trial in range(self.nTrials)]
 
         # get number of cells
         nCell = len(results[0][1])
@@ -539,9 +537,7 @@ class Experiment():
                 # run separation
                 results = pool.map(separate_func, inputs)
         else:
-            results = [[]] * int(self.nCell)
-            for cell in range(self.nCell):
-                results[cell] = separate_func(inputs[cell])
+            results = [separate_func(inputs[cell]) for cell in range(self.nCell)]
 
         # read results
         for cell in range(self.nCell):
