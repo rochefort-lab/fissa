@@ -318,11 +318,11 @@ class TestExperimentA(BaseTestCase):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Doing", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing")
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate(redo_prep=True, redo_sep=True)
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Doing", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing")
 
     def test_load_cache(self):
         """Test whether cached output is loaded during init."""
@@ -354,17 +354,17 @@ class TestExperimentA(BaseTestCase):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Reloading data", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Reloading data", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
         # Ensure previous cache is loaded again when we run separate
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Reloading data", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
         # Check the contents loaded from cache
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -386,17 +386,17 @@ class TestExperimentA(BaseTestCase):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Reloading data", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Reloading data", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
         # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Doing signal separation", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing signal separation")
         # Check the contents loaded from cache
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -446,7 +446,7 @@ class TestExperimentA(BaseTestCase):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Doing region growing", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing region growing")
 
     def test_badprepcache(self):
         """
@@ -469,7 +469,7 @@ class TestExperimentA(BaseTestCase):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Doing signal separation", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing signal separation")
 
         actual = exp.result
         self.assert_equal(len(actual), 1)
