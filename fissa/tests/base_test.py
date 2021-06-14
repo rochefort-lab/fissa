@@ -124,20 +124,20 @@ class BaseTestCase(unittest.TestCase):
         sys.stderr.write(capture_now.err)
         return capture_now
 
-    def assert_almost_equal(self, *args, **kwargs):
-        return assert_almost_equal(*args, **kwargs)
+    def assert_almost_equal(self, actual, desired, *args, **kwargs):
+        return assert_almost_equal(actual, desired, *args, **kwargs)
 
-    def assert_array_equal(self, *args, **kwargs):
-        return assert_array_equal(*args, **kwargs)
+    def assert_array_equal(self, actual, desired, *args, **kwargs):
+        return assert_array_equal(actual, desired, *args, **kwargs)
 
-    def assert_allclose(self, *args, **kwargs):
+    def assert_allclose(self, actual, desired, *args, **kwargs):
         # Handle msg argument, which is passed from assertEqual, established
         # with addTypeEqualityFunc in __init__
         msg = kwargs.pop('msg', None)
-        return assert_allclose(*args, **kwargs)
+        return assert_allclose(actual, desired, *args, **kwargs)
 
-    def assert_equal(self, *args, **kwargs):
-        return assert_equal(*args, **kwargs)
+    def assert_equal(self, actual, desired, *args, **kwargs):
+        return assert_equal(actual, desired, *args, **kwargs)
 
     def assert_equal_list_of_array_perm_inv(self, desired, actual):
         return assert_equal_list_of_array_perm_inv(desired, actual)
