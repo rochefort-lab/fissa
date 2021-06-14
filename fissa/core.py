@@ -280,22 +280,23 @@ class Experiment():
         Parameters
         ----------
         path : str or None, optional
-            Path to cache file. If ``None`` (default), the default cache paths
-            of ``"<folder>/preparation.npz"`` and ``"<folder>/separated.npz"``
-            are loaded, where ``<folder>`` is the `folder` parameter
-            (``self.folder``) which was provided when the object was
-            initialised.
+            Path to cache file (.npz format) or a directory containing
+            ``"preparation.npz"`` and/or ``"separated.npz"`` files.
+            If ``None`` (default), the `folder` parameter which was provided
+            when the object was initialised is used (``self.folder``).
         """
         if path is None:
             if self.folder is None:
                 raise ValueError(
                     "path must be provided if experiment folder is not defined"
                 )
+            path = self.folder
+        if os.path.isdir(path) or path == "":
             for fname in ("preparation.npz", "separated.npz"):
-                path = os.path.join(self.folder, fname)
-                if not os.path.exists(path):
+                fullfname = os.path.join(path, fname)
+                if not os.path.exists(fullfname):
                     continue
-                self.load(path)
+                self.load(fullfname)
             return
         print("Reloading data from cache {}...".format(path))
         cache = np.load(path, allow_pickle=True)
