@@ -22,6 +22,14 @@ import pytest
 TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
+def assert_allclose_ragged(actual, desired):
+    assert_equal(np.shape(actual), np.shape(desired))
+    for desired_i, actual_i in zip(desired, actual):
+        if desired.dtype == object:
+            assert_allclose_ragged(actual_i, desired_i)
+        else:
+            assert_allclose(actual_i, desired_i)
+
 def assert_equal_list_of_array_perm_inv(actual, desired):
     assert_equal(len(actual), len(desired))
     for desired_i in desired:
@@ -138,6 +146,9 @@ class BaseTestCase(unittest.TestCase):
 
     def assert_equal(self, actual, desired, *args, **kwargs):
         return assert_equal(actual, desired, *args, **kwargs)
+
+    def assert_allclose_ragged(self, actual, desired):
+        return assert_allclose_ragged(actual, desired)
 
     def assert_equal_list_of_array_perm_inv(self, actual, desired):
         return assert_equal_list_of_array_perm_inv(actual, desired)
