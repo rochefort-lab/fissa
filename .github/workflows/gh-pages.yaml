@@ -1,0 +1,67 @@
+# Docs workflow
+#
+# Deploys example notebooks to github pages.
+
+name: gh-pages
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  notebooks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Determine default branch
+      run: |
+        DEFAULT_BRANCH=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+        echo "default_branch=$DEFAULT_BRANCH" >> $GITHUB_ENV
+        echo "default_branch_ref=refs/heads/$DEFAULT_BRANCH" >> $GITHUB_ENV
+
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.6"
+
+    - name: Get pip cache dir
+      id: pip-cache
+      run: echo "::set-output name=dir::$(pip cache dir)"
+
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[plotting]
+        python -m pip install sima
+
+    - name: Build notebooks
+      run: |
+        cd examples
+        for file in *.ipynb; do
+            echo "Processing $file";
+            jupyter nbconvert --execute --to notebook --inplace "$file" \
+                && jupyter nbconvert --to html "$file" \
+                || echo "Error executing $file notebook";
+            if [ ! -f "${file%.*}.html" ]; then
+                jupyter nbconvert --to html "$file" \
+                    || echo "Error converting $file to HTML";
+            fi;
+        done
+        cd ..
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == env.default_branch_ref
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: examples
+        destination_dir: examples
+        force_orphan: true
