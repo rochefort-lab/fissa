@@ -10,6 +10,7 @@ import random
 import shutil
 import string
 import sys
+import tempfile
 import unittest
 from inspect import getsourcefile
 
@@ -89,7 +90,7 @@ class BaseTestCase(unittest.TestCase):
         super(BaseTestCase, self).__init__(*args, **kwargs)  # Works on Python2
         self.addTypeEqualityFunc(np.ndarray, self.assert_allclose)
         self.tempdir = os.path.join(
-            self.test_directory,
+            tempfile.gettempdir(),
             "out-" + self.generate_temp_name(),
         )
 
