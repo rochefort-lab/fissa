@@ -463,7 +463,8 @@ class TestExperimentA(BaseTestCase):
         new_folder = os.path.join(self.output_dir, "b")
         exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
         # Copy the contents from the old cache to the new cache
-        shutil.copytree(prev_folder, new_folder, dirs_exist_ok=True)
+        shutil.rmtree(new_folder)
+        shutil.copytree(prev_folder, new_folder)
         # Manually trigger loading the new cache
         exp.load()
         # Cache should now be loaded correctly
