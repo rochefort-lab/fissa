@@ -2,8 +2,6 @@
 
 from __future__ import division
 
-from datetime import datetime
-import random
 import os, os.path
 import shutil
 import unittest
@@ -22,13 +20,7 @@ class TestExperimentA(BaseTestCase):
         super(TestExperimentA, self).__init__(*args, **kwargs)
 
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
-        self.output_dir = os.path.join(
-            self.resources_dir,
-            'out-{}-{:06d}'.format(
-                datetime.now().strftime('%H%M%S%f'),
-                random.randrange(999999)
-            )
-        )
+        self.output_dir = self.tempdir
         self.images_dir = os.path.join(self.resources_dir, 'images')
         self.image_names = ['AVG_A01_R1_small.tif']
         self.image_shape = (8, 17)
@@ -713,10 +705,7 @@ class TestExperimentA(BaseTestCase):
     def test_matlab_custom_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        fname = os.path.join(
-            self.output_dir,
-            'test_{}.mat'.format(random.randrange(999999))
-        )
+        fname = os.path.join(self.output_dir, "test_output.mat")
         exp.save_to_matlab(fname)
         self.assertTrue(os.path.isfile(fname))
         #TODO: Check contents of the .mat file
