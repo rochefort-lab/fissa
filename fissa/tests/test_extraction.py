@@ -54,7 +54,7 @@ def get_dtyped_expected(expected, dtype):
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
 def test_single_frame_3d(dtype, datahandler):
     """
-    Test loading a regular, single-frame TIFF using :~extraction.DataHandlerTifffile:.
+    Test loading a regular, single-frame TIFF using `~extraction.DataHandlerTifffile`.
 
     The return value be 3d ``(1, 3, 2)``, including an axis for time.
     """
@@ -84,12 +84,12 @@ def test_single_frame_3d(dtype, datahandler):
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
 def test_single_frame_2d(dtype, datahandler):
     """
-    Test loading a regular, single-frame TIFF using :~extraction.DataHandlerPillow:.
+    Test loading a regular, single-frame TIFF using `~extraction.DataHandlerPillow`.
 
     When we cast the output of ``datahandler.image2array(fname)`` as a
     :class:`numpy.ndarray`, the return value will be 2d, shaped ``(3, 2)``
     without an axis for time. This is fine because the other methods in
-    :~extraction.DataHandlerPillow: do not interact with the :class:`PIL.Image`
+    `~extraction.DataHandlerPillow` do not interact with the :class:`PIL.Image`
     object in this way.
     """
     expected = np.array([[-11, 12], [14, 15], [17, 18]])
@@ -486,7 +486,7 @@ class Rois2MasksBase():
 
 
 class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
-    """Tests for rois2masks using :~extraction.DataHandlerTifffile:."""
+    """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
     def setup_class(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
@@ -495,7 +495,7 @@ class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
 
 
 class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
-    """Tests for rois2masks using :~extraction.TestRois2MasksTifffileLazy:."""
+    """Tests for rois2masks using `~extraction.TestRois2MasksTifffileLazy`."""
 
     def setup_class(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
@@ -511,7 +511,7 @@ class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
 
 
 class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
-    """Tests for rois2masks using :~extraction.DataHandlerPillow:."""
+    """Tests for rois2masks using `~extraction.DataHandlerPillow`."""
 
     def setup_class(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
