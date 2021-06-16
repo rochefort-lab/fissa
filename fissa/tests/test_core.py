@@ -471,6 +471,31 @@ class TestExperimentA(BaseTestCase):
         self.assert_allclose_ragged(exp.raw, exp1.raw)
         self.assert_allclose_ragged(exp.result, exp1.result)
 
+    def test_load_empty_prep(self):
+        """Behaviour when loading a prep cache that is empty."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Make an empty prep save file
+        np.savez_compressed(os.path.join(self.output_dir, "preparation.npz"))
+        #
+        exp.separation_prep()
+        actual = exp.raw
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0].shape, self.expected_00.shape)
+
+    def test_load_empty_sep(self):
+        """Behaviour when loading a separated cache that is empty."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Make an empty separated save file
+        np.savez_compressed(os.path.join(self.output_dir, "separated.npz"))
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
+
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
         """
