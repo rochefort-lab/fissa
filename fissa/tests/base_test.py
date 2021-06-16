@@ -79,10 +79,10 @@ class BaseTestCase(unittest.TestCase):
     # a top-level variable
     test_directory = TEST_DIRECTORY
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kwargs):
         '''Add test for numpy type'''
         # super(self).__init__(*args, **kw)  # Only works on Python3
-        super(BaseTestCase, self).__init__(*args, **kw)  # Works on Python2
+        super(BaseTestCase, self).__init__(*args, **kwargs)  # Works on Python2
         self.addTypeEqualityFunc(np.ndarray, self.assert_allclose)
 
     @contextlib.contextmanager

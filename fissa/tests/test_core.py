@@ -18,8 +18,8 @@ from .. import extraction
 class TestExperimentA(BaseTestCase):
     '''Test Experiment class and its methods.'''
 
-    def __init__(self, *args, **kw):
-        super(TestExperimentA, self).__init__(*args, **kw)
+    def __init__(self, *args, **kwargs):
+        super(TestExperimentA, self).__init__(*args, **kwargs)
 
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
         self.output_dir = os.path.join(
