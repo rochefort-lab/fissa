@@ -6,6 +6,7 @@ from __future__ import division
 
 import functools
 import os
+import shutil
 import sys
 import tempfile
 
@@ -497,17 +498,19 @@ class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
 class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
     """Tests for rois2masks using `~extraction.TestRois2MasksTifffileLazy`."""
 
-    def setup_class(self):
+    def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
-        self.file = tempfile.NamedTemporaryFile()
-        tifffile.imsave(self.file.name, self.data)
-        self.data = tifffile.TiffFile(self.file.name)
+        os.makedirs(self.tempdir)
+        self.filename = os.path.join(self.tempdir, "tmp.tif")
+        tifffile.imsave(self.filename, self.data)
+        self.data = tifffile.TiffFile(self.filename)
         self.datahandler = extraction.DataHandlerTifffileLazy()
 
-    def teardown_class(self):
+    def tearDown(self):
         self.data.close()
-        self.file.close()
+        if os.path.isdir(self.tempdir):
+            shutil.rmtree(self.tempdir)
 
 
 class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
