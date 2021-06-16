@@ -200,7 +200,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
         numpy.ndarray
             y by x array for the mean values
         """
-        return data.mean(axis=0)
+        return data.mean(axis=0, dtype=np.float64)
 
     @staticmethod
     def rois2masks(rois, data):
@@ -270,7 +270,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
         # loop over masks
         for i in range(nrois):  # for masks
             # get mean data from mask
-            out[i, :] = data[:, masks[i]].mean(axis=1)
+            out[i, :] = data[:, masks[i]].mean(axis=1, dtype=np.float64)
 
         return out
 
@@ -317,7 +317,7 @@ class DataHandlerPillow(DataHandlerAbstract):
         # We don't load the entire image into memory at once, because
         # it is likely to be rather large.
         # Initialise holding array with zeros
-        avg = np.zeros(data.size[::-1])
+        avg = np.zeros(data.size[::-1], dtype=np.float64)
 
         # Make sure we seek to the first frame before iterating. This is
         # because the Iterator outputs the value for the current frame for
@@ -411,6 +411,6 @@ class DataHandlerPillow(DataHandlerAbstract):
             # loop over masks
             for i in range(nrois):
                 # get mean data from mask
-                out[i, f] = np.mean(curframe[masks[i]])
+                out[i, f] = np.mean(curframe[masks[i]], dtype=np.float64)
 
         return out

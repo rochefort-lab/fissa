@@ -244,7 +244,7 @@ def multiframe_mean_tester(base_fname, dtype, datahandler):
         ]
     )
     expected = get_dtyped_expected(expected, dtype)
-    expected = np.mean(expected, axis=0)
+    expected = np.mean(expected, dtype=np.float64, axis=0)
     fname = os.path.join(
         RESOURCES_DIR,
         base_fname + "_{}.tif".format(dtype)
