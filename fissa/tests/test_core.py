@@ -415,7 +415,7 @@ class TestExperimentA(BaseTestCase):
         exp1.separation_prep()
         # Make a new experiment we will test
         new_folder = os.path.join(self.output_dir, "b")
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(os.path.join(prev_folder, "preparation.npz"))
         # Cached prep should now be loaded correctly
         self.assert_allclose_ragged(exp.raw, exp1.raw)
@@ -430,7 +430,7 @@ class TestExperimentA(BaseTestCase):
         exp1.separate()
         # Make a new experiment we will test
         new_folder = os.path.join(self.output_dir, "b")
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(os.path.join(prev_folder, "separated.npz"))
         # Cached results should now be loaded correctly
         self.assert_allclose_ragged(exp.result, exp1.result)
@@ -445,7 +445,7 @@ class TestExperimentA(BaseTestCase):
         exp1.separate()
         # Make a new experiment we will test
         new_folder = os.path.join(self.output_dir, "b")
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(prev_folder)
         # Cache should now be loaded correctly
         self.assert_allclose_ragged(exp.raw, exp1.raw)
@@ -461,7 +461,7 @@ class TestExperimentA(BaseTestCase):
         exp1.separate()
         # Make a new experiment we will test
         new_folder = os.path.join(self.output_dir, "b")
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, new_folder)
+        exp = core.Experiment(image_path, roi_path, new_folder)
         # Copy the contents from the old cache to the new cache
         shutil.rmtree(new_folder)
         shutil.copytree(prev_folder, new_folder)
