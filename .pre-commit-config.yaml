@@ -30,3 +30,8 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
         exclude: \.(html|svg)$
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.4.0
+    hooks:
+      - id: nbstripout
