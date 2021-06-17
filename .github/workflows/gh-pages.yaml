@@ -57,11 +57,24 @@ jobs:
         done
         cd ..
 
+    - name: Add index.html redirect
+      run: |
+        mkdir public;
+        mv examples public/;
+        NEW_URL="https://fissa.readthedocs.io/";
+        FILE="public/index.html";
+        echo "<!DOCTYPE HTML>" > $FILE;
+        echo "<html lang='en'><head><meta charset='utf-8'>" >> $FILE;
+        echo "<meta http-equiv='refresh' content='0;url=${NEW_URL}' />" >> $FILE;
+        echo "<link rel='canonical' href='${NEW_URL}' />" >> $FILE;
+        echo "</head>" >> $FILE;
+        echo "<body><p>The page been moved to <a href='${NEW_URL}'>${NEW_URL}</a></p></body>" >> $FILE;
+        echo "</html>" >> $FILE;
+
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       if: github.ref == env.default_branch_ref
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: examples
-        destination_dir: examples
+        publish_dir: public
         force_orphan: true
