@@ -880,7 +880,7 @@ class Experiment:
         if verbosity >= 1 and keys_cleared:
             print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
 
-    def load(self, path=None, force=False):
+    def load(self, path=None, force=False, skip_clear=False):
         r"""
         Load data from cache file in npz format.
 
@@ -897,9 +897,38 @@ class Experiment:
         force : bool, optional
             Whether to load the cache even if its experiment parameters differ
             from the properties of this experiment. Default is ``False``.
+        skip_clear : bool, optional
+            Whether to skip clearing values before loading. Default is ``False``.
         """
         dynamic_properties = ["nCell", "nTrials"]
-        validate_fields = ["alpha", "expansion", "method", "nRegions"]
+        ValGroup = collections.namedtuple(
+            "ValGroup",
+            ["category", "validators", "fields", "clearif", "clearfn"],
+        )
+        validation_groups = [
+            ValGroup(
+                "prepared",
+                ["expansion", "nRegions"],
+                ["deltaf_raw", "means", "nCell", "raw", "roi_polys"],
+                ["raw"],
+                self.clear,
+            ),
+            ValGroup(
+                "separated",
+                [
+                    "alpha",
+                    "nRegions",
+                    "expansion",
+                    "max_iter",
+                    "max_tries",
+                    "method",
+                    "tol",
+                ],
+                ["deltaf_result", "info", "mixmat", "sep", "result"],
+                ["result"],
+                self.clear_separated,
+            ),
+        ]
         if path is None:
             if self.folder is None:
                 raise ValueError(
@@ -916,29 +945,80 @@ class Experiment:
         if self.verbosity >= 1:
             print("Reloading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
-        if not force:
-            for field in validate_fields:
-                if (
-                    field in cache.files
-                    and getattr(self, field, None) is not None
-                    and cache[field] != getattr(self, field)
-                ):
-                    raise ValueError(
-                        "Cache value {} ({}) does not match the current"
-                        " experiment value {}.".format(
-                            field, cache[field], getattr(self, field)
+        if force:
+            for field in cache.files:
+                if field in dynamic_properties:
+                    continue
+                setattr(self, field, cache[field])
+            return
+        set_fields = set()
+        for category, validators, fields, clearif, clearfn in validation_groups:
+            valid = True
+            validation_errors = []
+            for validator in validators:
+                if validator not in cache or cache[validator] is None:
+                    # If the validator is not set in the cache, we can't
+                    # verify that the cached data is compatible.
+                    valid = False
+                    break
+                if getattr(self, validator, None) is None:
+                    # If the validator is not yet set locally, it is fine to
+                    # overwrite it.
+                    continue
+                if getattr(self, validator) != cache[validator]:
+                    # If the validator is set and doesn't match the value in
+                    # the cache, we will raise an error.
+                    validation_errors.append(
+                        "    {}: Experiment (ours) {}, Cache (theirs) {}".format(
+                            validator, getattr(self, validator), cache[validator]
                         )
                     )
-        for field in cache.files:
-            if field in dynamic_properties:
+            if len(validation_errors) > 0:
+                raise ValueError(
+                    "Experiment parameter value(s) in {} do not match the"
+                    " current experiment values:\n{}".format(
+                        path, "\n".join(validation_errors)
+                    )
+                )
+            if not valid:
                 continue
-            value = cache[field]
-            if np.array_equal(value, None):
-                value = None
-            elif value.ndim == 0:
-                # Handle loading scalars
-                value = value.item()
-            setattr(self, field, value)
+            # Wipe the values currently held before setting new values
+            if not skip_clear and clearif in cache.files:
+                clearfn()
+            # All the validators were valid, so we are okay to load the fields
+            for validator in validators:
+                # Load all the validators, overwriting our local values if None
+                if getattr(self, validator, None) is None:
+                    print(
+                        "Adopting value {}={} from {}".format(
+                            validator, cache[validator], path
+                        )
+                    )
+                setattr(self, validator, cache[validator])
+                set_fields.add(validator)
+            for field in fields:
+                if field not in cache or field in dynamic_properties:
+                    continue
+                value = cache[field]
+                if np.array_equal(value, None):
+                    value = None
+                elif value.ndim == 0:
+                    # Handle loading scalars
+                    value = value.item()
+                setattr(self, field, value)
+                set_fields.add(field)
+            print("Loaded {} data from {}".format(category, path))
+
+        # Check there weren't any left over fields in the cache which
+        # were left unloaded
+        unset_fields = []
+        for field in cache.files:
+            if field not in set_fields:
+                unset_fields.append(field)
+        if len(unset_fields) > 0:
+            print(
+                "Warning: field(s) {} in {} were not loaded.".format(unset_fields, path)
+            )
 
     def separation_prep(self, redo=False):
         r"""
