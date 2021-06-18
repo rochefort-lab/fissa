@@ -31,6 +31,7 @@ class TestExperimentA(BaseTestCase):
         )
         self.images_dir = os.path.join(self.resources_dir, 'images')
         self.image_names = ['AVG_A01_R1_small.tif']
+        self.image_shape = (8, 17)
         self.roi_zip_path = os.path.join(self.resources_dir, 'rois.zip')
         self.roi_paths = [os.path.join('rois', r) for r in ['01.roi']]
 
@@ -69,31 +70,35 @@ class TestExperimentA(BaseTestCase):
 
     def setUp(self):
         self.tearDown()
-        os.makedirs(self.output_dir)
 
     def tearDown(self):
         if os.path.isdir(self.output_dir):
             shutil.rmtree(self.output_dir)
 
     def test_imagedir_roizip(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_imagelist_roizip(self):
         image_paths = [
             os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
-        exp = core.Experiment(image_paths, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(image_paths, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(len(exp.means), len(image_paths))
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_imagelistloaded_roizip(self):
         image_paths = [
@@ -102,12 +107,15 @@ class TestExperimentA(BaseTestCase):
         ]
         datahandler = DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
-        exp = core.Experiment(images, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(images, self.roi_zip_path)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(len(exp.means), len(image_paths))
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     @unittest.expectedFailure
     def test_imagedir_roilistpath(self):
@@ -115,12 +123,14 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.resources_dir, r)
             for r in self.roi_paths
         ]
-        exp = core.Experiment(self.images_dir, roi_paths, self.output_dir)
+        exp = core.Experiment(self.images_dir, roi_paths)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     @unittest.expectedFailure
     def test_imagelist_roilistpath(self):
@@ -132,12 +142,15 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.resources_dir, r)
             for r in self.roi_paths
         ]
-        exp = core.Experiment(image_paths, roi_paths, self.output_dir)
+        exp = core.Experiment(image_paths, roi_paths)
         exp.separate()
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(len(exp.means), len(image_paths))
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_nocache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
@@ -146,12 +159,13 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_preparation_1(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_preparation=1,
         )
         exp.separate()
@@ -159,12 +173,13 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_preparation_2(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_preparation=2,
         )
         exp.separate()
@@ -172,12 +187,13 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_separate_1(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_separation=1,
         )
         exp.separate()
@@ -185,12 +201,13 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_ncores_separate_2(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             ncores_separation=2,
         )
         exp.separate()
@@ -198,12 +215,13 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_lowmemorymode(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             lowmemory_mode=True,
         )
         exp.separate()
@@ -211,6 +229,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_manualhandler(self):
         exp = core.Experiment(
@@ -224,15 +244,62 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
-    def test_nofolder(self):
-        self.tearDown()
+    def test_caching(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_prefolder(self):
+        os.makedirs(self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp.separate()
+
+    def test_cache_pwd_explict(self):
+        """Check we can use pwd as the cache folder"""
+        prevdir = os.getcwd()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        try:
+            os.chdir(self.output_dir)
+            exp = core.Experiment(self.images_dir, self.roi_zip_path, ".")
+            exp.separate()
+        finally:
+            os.chdir(prevdir)
+
+    def test_cache_pwd_implicit(self):
+        """Check we can use pwd as the cache folder"""
+        prevdir = os.getcwd()
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        try:
+            os.chdir(self.output_dir)
+            exp = core.Experiment(self.images_dir, self.roi_zip_path, "")
+            exp.separate()
+        finally:
+            os.chdir(prevdir)
+
+    def test_subfolder(self):
+        """Check we can write to a subfolder"""
+        output_dir = os.path.join(self.output_dir, "a", "b", "c")
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, output_dir)
+        exp.separate()
+
+    def test_folder_deleted_before_call(self):
+        """Check we can write to a folder that is deleted in the middle"""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Delete the folder between instantiating Experiment and separate()
+        self.tearDown()
+        exp.separate()
+
+    def test_folder_deleted_between_prep_sep(self):
+        """Check we can write to a folder that is deleted in the middle"""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Delete the folder between separation_prep() and separate()
+        exp.separation_prep()
+        self.tearDown()
+        exp.separate()
 
     def test_prepfirst(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -242,6 +309,8 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
@@ -249,24 +318,28 @@ class TestExperimentA(BaseTestCase):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Doing", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing")
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate(redo_prep=True, redo_sep=True)
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Doing", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing")
 
     def test_load_cache(self):
         """Test whether cached output is loaded during init."""
         image_path = self.images_dir
         roi_path = self.roi_zip_path
+        # Run an experiment to generate the cache
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separate()
+        # Make a new experiment we will test
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         # Cache should be loaded without calling separate
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_load_cache_piecemeal(self):
         """
@@ -274,21 +347,31 @@ class TestExperimentA(BaseTestCase):
         """
         image_path = self.images_dir
         roi_path = self.roi_zip_path
+        # Run an experiment to generate the cache
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separate()
+        # Make a new experiment we will test; this should load the cache
+        capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_starts_with(capture_post.out, "Reloading data")
+        # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Reloading previously prepared", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
+        # Ensure previous cache is loaded again when we run separate
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Reloading previously separated", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
+        # Check the contents loaded from cache
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     def test_load_cached_prep(self):
         """
@@ -296,24 +379,122 @@ class TestExperimentA(BaseTestCase):
         """
         image_path = self.images_dir
         roi_path = self.roi_zip_path
+        # Run an experiment to generate the cache
         exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separation_prep()
+        # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Reloading previously prepared", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
+        # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Reloading previously prepared", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Reloading data")
+        # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with("Doing signal separation", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing signal separation")
+        # Check the contents loaded from cache
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
+
+    def test_load_manual_prep(self):
+        """Loading prep results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separation_prep()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(image_path, roi_path, new_folder)
+        exp.load(os.path.join(prev_folder, "preparation.npz"))
+        # Cached prep should now be loaded correctly
+        self.assert_allclose_ragged(exp.raw, exp1.raw)
+
+    def test_load_manual_sep(self):
+        """Loading prep results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separate()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(image_path, roi_path, new_folder)
+        exp.load(os.path.join(prev_folder, "separated.npz"))
+        # Cached results should now be loaded correctly
+        self.assert_allclose_ragged(exp.result, exp1.result)
+
+    def test_load_manual_directory(self):
+        """Loading results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separate()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(image_path, roi_path, new_folder)
+        exp.load(prev_folder)
+        # Cache should now be loaded correctly
+        self.assert_allclose_ragged(exp.raw, exp1.raw)
+        self.assert_allclose_ragged(exp.result, exp1.result)
+
+    def test_load_manual(self):
+        """Loading results from a different folder."""
+        image_path = self.images_dir
+        roi_path = self.roi_zip_path
+        prev_folder = os.path.join(self.output_dir, "a")
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(image_path, roi_path, prev_folder)
+        exp1.separate()
+        # Make a new experiment we will test
+        new_folder = os.path.join(self.output_dir, "b")
+        exp = core.Experiment(image_path, roi_path, new_folder)
+        # Copy the contents from the old cache to the new cache
+        shutil.rmtree(new_folder)
+        shutil.copytree(prev_folder, new_folder)
+        # Manually trigger loading the new cache
+        exp.load()
+        # Cache should now be loaded correctly
+        self.assert_allclose_ragged(exp.raw, exp1.raw)
+        self.assert_allclose_ragged(exp.result, exp1.result)
+
+    def test_load_empty_prep(self):
+        """Behaviour when loading a prep cache that is empty."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Make an empty prep save file
+        np.savez_compressed(os.path.join(self.output_dir, "preparation.npz"))
+        #
+        exp.separation_prep()
+        actual = exp.raw
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0].shape, self.expected_00.shape)
+
+    def test_load_empty_sep(self):
+        """Behaviour when loading a separated cache that is empty."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Make an empty separated save file
+        np.savez_compressed(os.path.join(self.output_dir, "separated.npz"))
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
 
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
@@ -324,13 +505,14 @@ class TestExperimentA(BaseTestCase):
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+        # Make a bad cache
+        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("An error occurred", capture_post.out)
+        self.assertTrue("An error occurred" in capture_post.out)
 
         self.assertTrue(exp.raw is None)
 
@@ -343,18 +525,19 @@ class TestExperimentA(BaseTestCase):
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+        # Make a bad cache
+        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("An error occurred", capture_post.out)
+        self.assertTrue("An error occurred" in capture_post.out)
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Doing region growing", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing region growing")
 
     def test_badprepcache(self):
         """
@@ -365,18 +548,19 @@ class TestExperimentA(BaseTestCase):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         exp = core.Experiment(image_path, roi_path, self.output_dir)
-        with open(os.path.join(self.output_dir, "preparation.npy"), "w") as f:
+        # Make a bad cache
+        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("An error occurred", capture_post.out)
+        self.assertTrue("An error occurred" in capture_post.out)
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("Doing signal separation", capture_post.out)
+        self.assert_starts_with(capture_post.out, "Doing signal separation")
 
         actual = exp.result
         self.assert_equal(len(actual), 1)
@@ -393,20 +577,70 @@ class TestExperimentA(BaseTestCase):
             os.makedirs(self.output_dir)
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         exp.separation_prep()
-        with open(os.path.join(self.output_dir, "separated.npy"), "w") as f:
+        # Make a bad cache
+        with open(os.path.join(self.output_dir, "separated.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with("An error occurred", capture_post.out)
+        self.assertTrue("An error occurred" in capture_post.out)
 
         actual = exp.result
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         self.assert_allclose(actual[0][0], self.expected_00)
+        self.assert_equal(exp.means[0].shape, self.image_shape)
+        self.assert_equal(exp.means[-1].shape, self.image_shape)
+
+    def test_manual_save_prep(self):
+        """Saving prep results with manually specified filename."""
+        destination = os.path.join(self.output_dir, "m", ".test_output.npz")
+        os.makedirs(os.path.dirname(destination))
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separation_prep()
+        exp.save_prep(destination=destination)
+        self.assertTrue(os.path.isfile(destination))
+
+    def test_manual_save_sep(self):
+        """Saving sep results with manually specified filename."""
+        destination = os.path.join(self.output_dir, "m", ".test_output.npz")
+        os.makedirs(os.path.dirname(destination))
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        exp.save_separated(destination=destination)
+        self.assertTrue(os.path.isfile(destination))
+
+    def test_manual_save_sep_undefined(self):
+        """Saving prep results without specifying a filename."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separation_prep()
+        with self.assertRaises(ValueError):
+            exp.save_prep()
+
+    def test_manual_save_prep_undefined(self):
+        """Saving sep results without specifying a filename."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        with self.assertRaises(ValueError):
+            exp.save_separated()
+
+    def test_load_manual_undefined(self):
+        """Loading results without specifying a filename or cache folder."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        with self.assertRaises(ValueError):
+            exp.load()
 
     def test_calcdeltaf(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        exp.calc_deltaf(4)
+        actual = exp.deltaf_result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        #TODO: Check contents of exp.deltaf_result
+
+    def test_calcdeltaf_cache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4)
@@ -416,7 +650,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notrawf0(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False)
         actual = exp.deltaf_result
@@ -425,7 +659,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notacrosstrials(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, across_trials=False)
         actual = exp.deltaf_result
@@ -434,7 +668,7 @@ class TestExperimentA(BaseTestCase):
         #TODO: Check contents of exp.deltaf_result
 
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False, across_trials=False)
         actual = exp.deltaf_result

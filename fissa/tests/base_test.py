@@ -22,8 +22,16 @@ import pytest
 TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
-def assert_equal_list_of_array_perm_inv(desired, actual):
-    assert_equal(len(desired), len(actual))
+def assert_allclose_ragged(actual, desired):
+    assert_equal(np.shape(actual), np.shape(desired))
+    for desired_i, actual_i in zip(desired, actual):
+        if desired.dtype == object:
+            assert_allclose_ragged(actual_i, desired_i)
+        else:
+            assert_allclose(actual_i, desired_i)
+
+def assert_equal_list_of_array_perm_inv(actual, desired):
+    assert_equal(len(actual), len(desired))
     for desired_i in desired:
         n_matches = 0
         for actual_j in actual:
@@ -31,12 +39,12 @@ def assert_equal_list_of_array_perm_inv(desired, actual):
                 n_matches += 1
         assert n_matches >= 0
 
-def assert_equal_dict_of_array(desired, actual):
-    assert_equal(desired.keys(), actual.keys())
+def assert_equal_dict_of_array(actual, desired):
+    assert_equal(actual.keys(), desired.keys())
     for k in desired.keys():
-        assert_equal(desired[k], actual[k])
+        assert_equal(actual[k], desired[k])
 
-def assert_starts_with(desired, actual):
+def assert_starts_with(actual, desired):
     """
     Check that a string starts with a certain substring.
 
@@ -124,26 +132,29 @@ class BaseTestCase(unittest.TestCase):
         sys.stderr.write(capture_now.err)
         return capture_now
 
-    def assert_almost_equal(self, *args, **kwargs):
-        return assert_almost_equal(*args, **kwargs)
+    def assert_almost_equal(self, actual, desired, *args, **kwargs):
+        return assert_almost_equal(actual, desired, *args, **kwargs)
 
-    def assert_array_equal(self, *args, **kwargs):
-        return assert_array_equal(*args, **kwargs)
+    def assert_array_equal(self, actual, desired, *args, **kwargs):
+        return assert_array_equal(actual, desired, *args, **kwargs)
 
-    def assert_allclose(self, *args, **kwargs):
+    def assert_allclose(self, actual, desired, *args, **kwargs):
         # Handle msg argument, which is passed from assertEqual, established
         # with addTypeEqualityFunc in __init__
         msg = kwargs.pop('msg', None)
-        return assert_allclose(*args, **kwargs)
+        return assert_allclose(actual, desired, *args, **kwargs)
 
-    def assert_equal(self, *args, **kwargs):
-        return assert_equal(*args, **kwargs)
+    def assert_equal(self, actual, desired, *args, **kwargs):
+        return assert_equal(actual, desired, *args, **kwargs)
 
-    def assert_equal_list_of_array_perm_inv(self, desired, actual):
-        return assert_equal_list_of_array_perm_inv(desired, actual)
+    def assert_allclose_ragged(self, actual, desired):
+        return assert_allclose_ragged(actual, desired)
 
-    def assert_equal_dict_of_array(self, desired, actual):
-        return assert_equal_dict_of_array(desired, actual)
+    def assert_equal_list_of_array_perm_inv(self, actual, desired):
+        return assert_equal_list_of_array_perm_inv(actual, desired)
 
-    def assert_starts_with(self, desired, actual):
-        return assert_starts_with(desired, actual)
+    def assert_equal_dict_of_array(self, actual, desired):
+        return assert_equal_dict_of_array(actual, desired)
+
+    def assert_starts_with(self, actual, desired):
+        return assert_starts_with(actual, desired)
