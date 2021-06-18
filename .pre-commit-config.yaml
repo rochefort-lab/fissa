@@ -10,6 +10,16 @@ repos:
       - id: rst-inline-touching-normal
         types: [text]
 
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.4.0
+    hooks:
+      - id: nbstripout
+
+  - repo: https://github.com/dfm/black_nbconvert
+    rev: dcd7789
+    hooks:
+      - id: black_nbconvert
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.3.0
     hooks:
@@ -30,8 +40,3 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
         exclude: \.(html|svg)$
-
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.4.0
-    hooks:
-      - id: nbstripout
