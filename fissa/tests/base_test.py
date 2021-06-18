@@ -15,12 +15,13 @@ import unittest
 from inspect import getsourcefile
 
 import numpy as np
-from numpy.testing import (assert_almost_equal,
-                           assert_array_equal,
-                           assert_allclose,
-                           assert_equal)
 import pytest
-
+from numpy.testing import (
+    assert_allclose,
+    assert_almost_equal,
+    assert_array_equal,
+    assert_equal,
+)
 
 # Check where the test directory is located, to be used when fetching
 # test resource files

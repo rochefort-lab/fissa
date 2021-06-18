@@ -12,7 +12,6 @@ https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
 
 import fissa
 
-
 # On Windows, it is necessary to wrap the script in a __name__ check, so
 # that multiprocessing works correctly. Multiprocessing is triggered by the
 # experiment.separate() step.

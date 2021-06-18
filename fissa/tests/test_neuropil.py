@@ -8,8 +8,8 @@ import warnings
 
 import numpy as np
 
-from .base_test import BaseTestCase
 from .. import neuropil as npil
+from .base_test import BaseTestCase
 
 
 class NeuropilMixin:

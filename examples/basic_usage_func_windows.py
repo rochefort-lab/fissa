@@ -12,7 +12,6 @@ https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20
 
 import fissa
 
-
 # On Windows, it is necessary to wrap the script within a block that checks
 # for __name__ == "__main__", so that multiprocessing works correctly.
 if __name__ == "__main__":

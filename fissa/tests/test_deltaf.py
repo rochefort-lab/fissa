@@ -3,10 +3,11 @@
 from __future__ import division
 
 import unittest
+
 import numpy as np
 
-from .base_test import BaseTestCase
 from .. import deltaf
+from .base_test import BaseTestCase
 
 
 class TestFindBaseline(BaseTestCase):

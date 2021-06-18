@@ -10,10 +10,10 @@ Authors:
 
 """
 
-from past.builtins import basestring
-
 import numpy as np
 import tifffile
+from past.builtins import basestring
+
 from fissa import roitools
 
 

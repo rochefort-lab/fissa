@@ -8,7 +8,6 @@ Authors:
 """
 
 from __future__ import print_function
-from past.builtins import basestring
 
 import collections
 import functools
@@ -18,6 +17,9 @@ import multiprocessing
 import os.path
 import sys
 import warnings
+
+from past.builtins import basestring
+
 try:
     from collections import abc
 except ImportError:
@@ -26,8 +28,7 @@ except ImportError:
 import numpy as np
 from scipy.io import savemat
 
-from . import deltaf
-from . import extraction
+from . import deltaf, extraction
 from . import neuropil as npil
 from . import roitools
 

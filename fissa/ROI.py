@@ -22,11 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from itertools import product
-# from warnings import warn
 
 import numpy as np
 from scipy.sparse import lil_matrix
-from shapely.geometry import MultiPolygon, Polygon, Point
+from shapely.geometry import MultiPolygon, Point, Polygon
 
 
 def poly2mask(polygons, im_size):

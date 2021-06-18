@@ -9,8 +9,8 @@ import unittest
 
 import numpy as np
 
-from .base_test import BaseTestCase
 from .. import readimagejrois
+from .base_test import BaseTestCase
 
 
 class TestReadImageJRois(BaseTestCase):

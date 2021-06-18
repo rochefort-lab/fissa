@@ -11,15 +11,13 @@ import sys
 import tempfile
 
 import numpy as np
+import pytest
 import tifffile
 from PIL import Image
-import pytest
 
+from .. import extraction, roitools
 from . import base_test
 from .base_test import BaseTestCase
-from .. import extraction
-from .. import roitools
-
 
 RESOURCES_DIR = os.path.join(base_test.TEST_DIRECTORY, 'resources', 'tiffs')
 

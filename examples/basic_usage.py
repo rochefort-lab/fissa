@@ -12,7 +12,6 @@ https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
 
 import fissa
 
-
 # Define the data to extract
 rois = 'exampleData/20150429.zip'
 images = 'exampleData/20150529'

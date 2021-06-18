@@ -2,7 +2,7 @@
 
 from __future__ import division
 
-import os, os.path
+import os
 import shutil
 import sys
 import types
@@ -11,9 +11,8 @@ import unittest
 import numpy as np
 from scipy.io import loadmat
 
+from .. import core, extraction
 from .base_test import BaseTestCase
-from .. import core
-from .. import extraction
 
 
 class ExperimentTestMixin:

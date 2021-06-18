@@ -10,16 +10,15 @@ Modified
     - 2015 by Scott Lowe (@scottclowe) and Sander Keemink (@swkeemink).
 '''
 
-from __future__ import division
-from __future__ import unicode_literals
-from past.builtins import basestring
+from __future__ import division, unicode_literals
 
 import sys
+import zipfile
 from itertools import product
 
 import numpy as np
+from past.builtins import basestring
 from skimage.draw import ellipse
-import zipfile
 
 if sys.version_info >= (3, 0):
     import read_roi

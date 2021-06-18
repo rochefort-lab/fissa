@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 
-from __future__ import division
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 
 import glob
 import os
-from itertools import product
-import sys
 import shutil
+import sys
+import zipfile
+from itertools import product
 
 import numpy as np
 import scipy.ndimage
-from skimage.draw import ellipse
 import tifffile
-import zipfile
+from skimage.draw import ellipse
 
-from fissa import readimagejrois
-from fissa import extraction
+from fissa import extraction, readimagejrois
 
 
 def maybe_make_dir(dirname):
