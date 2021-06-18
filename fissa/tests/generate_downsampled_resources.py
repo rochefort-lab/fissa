@@ -3,7 +3,8 @@
 from __future__ import division
 from __future__ import unicode_literals
 
-import os, os.path
+import glob
+import os
 from itertools import product
 import sys
 import shutil
@@ -309,10 +310,19 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             outhand.write(line)
 
 
-def main():
+def main(name=None, roi_ids=None, dwn_x=4, dwn_y=None, dwn_t=10):
     '''
     Convert example data into downsampled test data.
     '''
+    # Default arguments
+    if dwn_y is None:
+        dwn_y = dwn_x
+
+    if name is None:
+        import datetime
+
+        name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
     # Input resolution
     this_dir = os.path.dirname(os.path.abspath(__file__))
     repo_dir = os.path.dirname(os.path.dirname(this_dir))
@@ -322,13 +332,12 @@ def main():
     images_location = os.path.join(
         repo_dir, 'examples', 'exampleData', '20150529',
     )
+
     # Output configuration
     output_folder_base = os.path.join(this_dir, 'resources')
     roi_extract_dir = os.path.join(output_folder_base, '_build_rois')
-    output_folder = os.path.join(output_folder_base, 'a')
-    dwn_x = 4
-    dwn_y = dwn_x
-    dwn_t = 10
+
+    output_folder = os.path.join(output_folder_base, name)
 
     datahandler = extraction.DataHandlerTifffile
 
@@ -342,50 +351,68 @@ def main():
 
     # Read in rois
     roi_list = readimagejrois.read_imagej_roi_zip(rois_location)
+    if roi_ids is None:
+        roi_ids = range(len(roi_list))
 
-    # Read in image
-    image_location = os.path.join(images_location, 'AVG_A01.tif')
-    img = datahandler.image2array(image_location)
+    image_paths = sorted(glob.glob(os.path.join(images_location, "*.tif*")))
+    img = datahandler.image2array(image_paths[0])
 
-    # Downscale image
-    roi_id = 1
-    mn = roi_list[roi_id]['polygons'].min(0)  # [ 86. 164.  40.]
-    mx = roi_list[roi_id]['polygons'].max(0)  # [113. 175.  40.]
-    off_x = max(0, int(mn[0] - 19))  # 67
-    end_x = min(img.shape[2], int(mx[0] + 19))  # 132
-    off_y = max(0, int(mn[1] - 19))  # 145
-    end_y = min(img.shape[1], int(mx[1] + 19))  # 176
-    img_dwn = scipy.ndimage.uniform_filter(img, size=[dwn_t, dwn_y, dwn_x])
-    img_dwn = img_dwn[::dwn_t, off_y:end_y:dwn_y, off_x:end_x:dwn_x]
-    img_dwn_pth = os.path.join(output_folder, 'images', 'AVG_A01_R1_small.tif')
-    print(
-        'Saving {}, {} downsampled image as {}'
-        ''.format(dwn_x, dwn_y, img_dwn_pth)
-    )
-    maybe_make_dir(os.path.dirname(img_dwn_pth))
-    tifffile.imsave(img_dwn_pth, img_dwn)
+    # Workout where to crop images when downscaling to include ROIs
+    buffer = 19
+    off_x = off_y = 1e9
+    end_x = end_y = 0
+    for roi_id in roi_ids:
+        mn = roi_list[roi_id]["polygons"].min(0)
+        mx = roi_list[roi_id]["polygons"].max(0)
+        off_x = min(off_x, max(0, int(mn[0] - buffer)))
+        end_x = max(end_x, min(img.shape[2], int(mx[0] + buffer)))
+        off_y = min(off_y, max(0, int(mn[1] - buffer)))
+        end_y = max(end_y, min(img.shape[1], int(mx[1] + buffer)))
 
-    # Downscale roi
-    roi_raw_pth = os.path.join(
-        roi_extract_dir, '{:02d}.roi'.format(roi_id + 1),
-    )
-    roi_dwn_pth = os.path.join(output_folder, 'rois', '01.roi')
-    print(
-        'Downsampling {} with factor {}, {} as {}'
-        ''.format(roi_raw_pth, dwn_x, dwn_y, roi_dwn_pth)
-    )
-    maybe_make_dir(os.path.dirname(roi_dwn_pth))
-    downscale_roi(roi_raw_pth, roi_dwn_pth, [dwn_x, dwn_y], [-off_x, -off_y])
+    # Downsample images
+    for img_pth in image_paths:
+        img = datahandler.image2array(img_pth)
+        print("Loaded image {} shaped {}".format(img_pth, img.shape))
+        img_dwn = scipy.ndimage.uniform_filter(img, size=[dwn_t, dwn_y, dwn_x])
+        img_dwn = img_dwn[::dwn_t, off_y:end_y:dwn_y, off_x:end_x:dwn_x]
+        img_dwn_pth = os.path.join(output_folder, "images", os.path.basename(img_pth))
+        print(
+            "Saving downsampled image shaped {} as {}".format(
+                img_dwn.shape, img_dwn_pth
+            )
+        )
+        maybe_make_dir(os.path.dirname(img_dwn_pth))
+        tifffile.imsave(img_dwn_pth, img_dwn)
+
+    # Downscale roi(s)
+    for roi_id in roi_ids:
+        roi_raw_pth = os.path.join(
+            roi_extract_dir, "{:02d}.roi".format(roi_id + 1),
+        )
+        roi_dwn_pth = os.path.join(
+            output_folder, "rois", "{:02d}.roi".format(roi_id + 1)
+        )
+        print(
+            "Downsampling ROI {} with factor ({}, {}); saving as {}"
+            "".format(roi_raw_pth, dwn_x, dwn_y, roi_dwn_pth)
+        )
+        maybe_make_dir(os.path.dirname(roi_dwn_pth))
+        downscale_roi(roi_raw_pth, roi_dwn_pth, [dwn_x, dwn_y], [-off_x, -off_y])
 
     # Turn rois into a zip file
     roi_zip_pth = os.path.join(output_folder, 'rois.zip')
-    print('Zipping rois {} as {}'.format(roi_dwn_pth, roi_zip_pth))
+    print("Zipping rois {} as {}".format(os.path.dirname(roi_dwn_pth), roi_zip_pth))
     maybe_make_dir(os.path.dirname(roi_dwn_pth))
     with zipfile.ZipFile(roi_zip_pth, 'w') as zr:
-        zr.write(roi_dwn_pth, os.path.basename(roi_dwn_pth))
+        for roi_id in roi_ids:
+            roi_dwn_pth = os.path.join(
+                output_folder, "rois", "{:02d}.roi".format(roi_id + 1)
+            )
+            zr.write(roi_dwn_pth, os.path.basename(roi_dwn_pth))
 
     # Remove _build_rois directory
     shutil.rmtree(roi_extract_dir)
+
 
 if __name__ == '__main__':
     __package__ = 'fissa.tests.generate_downsampled_resources'
