@@ -6,7 +6,9 @@ from __future__ import division
 
 import functools
 import os
+import shutil
 import sys
+import tempfile
 
 import numpy as np
 import tifffile
@@ -53,7 +55,7 @@ def get_dtyped_expected(expected, dtype):
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
 def test_single_frame_3d(dtype, datahandler):
     """
-    Test loading a regular, single-frame TIFF using :~extraction.DataHandlerTifffile:.
+    Test loading a regular, single-frame TIFF using `~extraction.DataHandlerTifffile`.
 
     The return value be 3d ``(1, 3, 2)``, including an axis for time.
     """
@@ -83,12 +85,12 @@ def test_single_frame_3d(dtype, datahandler):
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
 def test_single_frame_2d(dtype, datahandler):
     """
-    Test loading a regular, single-frame TIFF using :~extraction.DataHandlerPillow:.
+    Test loading a regular, single-frame TIFF using `~extraction.DataHandlerPillow`.
 
     When we cast the output of ``datahandler.image2array(fname)`` as a
     :class:`numpy.ndarray`, the return value will be 2d, shaped ``(3, 2)``
     without an axis for time. This is fine because the other methods in
-    :~extraction.DataHandlerPillow: do not interact with the :class:`PIL.Image`
+    `~extraction.DataHandlerPillow` do not interact with the :class:`PIL.Image`
     object in this way.
     """
     expected = np.array([[-11, 12], [14, 15], [17, 18]])
@@ -269,12 +271,21 @@ def multiframe_mean_tester(base_fname, dtype, datahandler):
 )
 @pytest.mark.parametrize(
     "dtype",
-    ["uint8", "uint16", "uint64", "int16", "int64", "float16", "float32", "float64"],
+    [
+        "uint8",
+        "uint16",
+        "uint64",
+        "int16",
+        "int64",
+        "float16",
+        "float32",
+        "float64",
+    ],
 )
-@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy])
 def test_multiframe_mean(base_fname, dtype, datahandler):
     """
-    Test the mean of TIFFs loaded with :class:`~extraction.DataHandlerTifffile`.
+    Test the mean of TIFFs.
     """
     fn = functools.partial(
         multiframe_mean_tester,
@@ -330,7 +341,7 @@ def test_multiframe_mean_pillow(base_fname, dtype, datahandler):
 @pytest.mark.parametrize("dtype", ["uint8", "uint16", "float32"])
 @pytest.mark.parametrize(
     "datahandler",
-    [extraction.DataHandlerTifffile, extraction.DataHandlerPillow],
+    [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy, extraction.DataHandlerPillow],
 )
 def test_multiframe_mean_imagejformat(dtype, datahandler):
     """
@@ -358,10 +369,10 @@ def test_multiframe_mean_imagejformat(dtype, datahandler):
 )
 @pytest.mark.parametrize("dtype", ["uint8"])
 @pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2", "2,3,1,1,3,2"])
-@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile])
+@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy])
 def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     """
-    Test the mean of 4d/5d TIFFs loaded with :class:`~extraction.DataHandlerTifffile`.
+    Test the mean of 4d/5d TIFFs.
     """
     fn = functools.partial(
         multiframe_mean_tester,
@@ -476,7 +487,7 @@ class Rois2MasksBase():
 
 
 class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
-    """Tests for rois2masks using :~extraction.DataHandlerTifffile:."""
+    """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
     def setup_class(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
@@ -484,8 +495,26 @@ class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
         self.datahandler = extraction.DataHandlerTifffile()
 
 
+class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
+    """Tests for rois2masks using `~extraction.TestRois2MasksTifffileLazy`."""
+
+    def setUp(self):
+        self.expected = roitools.getmasks(self.polys, (176, 156))
+        self.data = np.zeros((1, 176, 156))
+        os.makedirs(self.tempdir)
+        self.filename = os.path.join(self.tempdir, "tmp.tif")
+        tifffile.imsave(self.filename, self.data)
+        self.data = tifffile.TiffFile(self.filename)
+        self.datahandler = extraction.DataHandlerTifffileLazy()
+
+    def tearDown(self):
+        self.data.close()
+        if os.path.isdir(self.tempdir):
+            shutil.rmtree(self.tempdir)
+
+
 class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
-    """Tests for rois2masks using :~extraction.DataHandlerPillow:."""
+    """Tests for rois2masks using `~extraction.DataHandlerPillow`."""
 
     def setup_class(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))

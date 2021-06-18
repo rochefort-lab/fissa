@@ -224,7 +224,7 @@ class Experiment():
         if datahandler is not None:
             self.datahandler = datahandler
         elif lowmemory_mode:
-            self.datahandler = extraction.DataHandlerPillow()
+            self.datahandler = extraction.DataHandlerTifffileLazy()
         else:
             self.datahandler = extraction.DataHandlerTifffile()
 

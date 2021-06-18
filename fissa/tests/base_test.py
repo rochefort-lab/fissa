@@ -4,10 +4,15 @@ and also provides the numpy testing functions.
 '''
 
 import contextlib
-import unittest
+import datetime
 import os.path
-from inspect import getsourcefile
+import random
+import shutil
+import string
 import sys
+import tempfile
+import unittest
+from inspect import getsourcefile
 
 import numpy as np
 from numpy.testing import (assert_almost_equal,
@@ -87,11 +92,33 @@ class BaseTestCase(unittest.TestCase):
     # a top-level variable
     test_directory = TEST_DIRECTORY
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kwargs):
         '''Add test for numpy type'''
         # super(self).__init__(*args, **kw)  # Only works on Python3
-        super(BaseTestCase, self).__init__(*args, **kw)  # Works on Python2
+        super(BaseTestCase, self).__init__(*args, **kwargs)  # Works on Python2
         self.addTypeEqualityFunc(np.ndarray, self.assert_allclose)
+        self.tempdir = os.path.join(
+            tempfile.gettempdir(),
+            "out-" + self.generate_temp_name(),
+        )
+
+    def generate_temp_name(self, n_character=12):
+        """
+        Generate a random string to use as a temporary output path.
+        """
+        population = string.ascii_uppercase + string.digits
+        if hasattr(random, "choices"):
+            # Python 3.6+
+            rstr = "".join(random.choices(population, k=n_character))
+        else:
+            # Python 2.7/3.5
+            rstr = "".join(random.choice(population) for _ in range(n_character))
+        return "{}-{}".format(datetime.datetime.now().strftime("%M%S%f"), rstr)
+
+    def tearDown(self):
+        # If it was created, delete the randomly generated temporary directory
+        if os.path.isdir(self.tempdir):
+            shutil.rmtree(self.tempdir)
 
     @contextlib.contextmanager
     def subTest(self, *args, **kwargs):

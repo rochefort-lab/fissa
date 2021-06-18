@@ -275,6 +275,170 @@ class DataHandlerTifffile(DataHandlerAbstract):
         return out
 
 
+class DataHandlerTifffileLazy(DataHandlerAbstract):
+    """
+    Extract data from TIFF images using tifffile, with lazy loading.
+    """
+
+    @staticmethod
+    def image2array(image):
+        """
+        Load a TIFF image from disk.
+
+        Parameters
+        ----------
+        image : str
+            A path to a TIFF file.
+
+        Returns
+        -------
+        data : tifffile.TiffFile
+            Open tifffile.TiffFile object.
+        """
+        return tifffile.TiffFile(image)
+
+    @staticmethod
+    def getmean(data):
+        """
+        Determine the mean image across all frames.
+
+        Parameters
+        ----------
+        data : tifffile.TiffFile
+            Open tifffile.TiffFile object.
+
+        Returns
+        -------
+        numpy.ndarray
+            y by x array for the mean values
+        """
+        # We don't load the entire image into memory at once, because
+        # it is likely to be rather large.
+        memory = None
+        n_frames = 0
+
+        n_pages = len(data.pages)
+        for page in data.pages:
+            page = page.asarray()
+            if (
+                n_pages > 1 and
+                page.ndim > 2 and
+                (np.array(page.shape[:-2]) > 1).sum() > 0
+            ):
+                warnings.warn(
+                    "Multipage TIFF {} with {} pages has at least one page"
+                    " with {} dimensions (page shaped {})."
+                    " All dimensions before the final two (height and"
+                    " width) will be treated as time-like and flattened."
+                    "".format(
+                        "", n_pages, page.ndim, page.shape
+                    )
+                )
+            elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
+                warnings.warn(
+                    "TIFF {} has at least one page with {} dimensions"
+                    " (page shaped {})."
+                    " All dimensions before the final two (height and"
+                    " width) will be treated as time-like and flattened."
+                    "".format(
+                        "", page.ndim, page.shape
+                    )
+                )
+            shp = [-1] + list(page.shape[-2:])
+            page = page.reshape(shp)
+            if memory is None:
+                # Initialise holding array with zeros, now we know the shape
+                # of the image frames
+                memory = np.zeros(page.shape[-2:], dtype=np.float64)
+            memory += np.mean(page, dtype=np.float64, axis=0) * page.shape[0]
+            n_frames += page.shape[0]
+
+        return memory / n_frames
+
+    @staticmethod
+    def rois2masks(rois, data):
+        """Take the object `rois` and returns it as a list of binary masks.
+
+        Parameters
+        ----------
+        rois : str or list of array_like
+            Either a string containing a path to an ImageJ roi zip file,
+            or a list of arrays encoding polygons, or list of binary arrays
+            representing masks.
+        data : tifffile.TiffFile
+            Open tifffile.TiffFile object.
+
+        Returns
+        -------
+        masks : list of numpy.ndarray
+            List of binary arrays.
+        """
+        # Get the image shape
+        shape = data.pages[0].shape[-2:]
+
+        # If it's a string, parse the string
+        if isinstance(rois, basestring):
+            rois = roitools.readrois(rois)
+
+        if not isinstance(rois, abc.Sequence):
+            raise TypeError(
+                "Wrong ROIs input format: expected a list or sequence, but got"
+                " a {}".format(rois.__class__)
+            )
+
+        # If it's a something by 2 array (or vice versa), assume polygons
+        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+            return roitools.getmasks(rois, shape)
+        # If it's a list of bigger arrays, assume masks
+        elif np.shape(rois[0]) == shape:
+            return rois
+
+        raise ValueError("Wrong ROIs input format: unfamiliar shape.")
+
+    @staticmethod
+    def extracttraces(data, masks):
+        """
+        Extract a temporal trace for each spatial mask.
+
+        Parameters
+        ----------
+        data : tifffile.TiffFile
+            Open tifffile.TiffFile object.
+        masks : list of array_like
+            List of binary arrays.
+
+        Returns
+        -------
+        traces : numpy.ndarray
+            Trace for each mask, shaped ``(len(masks), n_frames)``.
+        """
+        # Get the number rois
+        nrois = len(masks)
+
+        # Initialise output as a list, because we don't know how many frames
+        # there will be
+        out = []
+
+        # For each frame, get the data
+        for page in data.pages:
+            page = page.asarray()
+            shp = [-1] + list(page.shape[-2:])
+            page = page.reshape(shp)
+
+            page_traces = np.zeros((nrois, page.shape[0]), dtype=np.float64)
+            for i in range(nrois):
+                # Get mean data from mask
+                page_traces[i, :] = np.mean(
+                    page[..., masks[i]],
+                    dtype=np.float64,
+                    axis=-1,
+                )
+            out.append(page_traces)
+
+        out = np.concatenate(out, axis=-1)
+        return out
+
+
 class DataHandlerPillow(DataHandlerAbstract):
     """
     Extract data from TIFF images frame-by-frame using Pillow (:class:`PIL.Image`).

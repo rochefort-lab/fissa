@@ -2,8 +2,6 @@
 
 from __future__ import division
 
-from datetime import datetime
-import random
 import os, os.path
 import shutil
 import unittest
@@ -12,23 +10,17 @@ import numpy as np
 
 from .base_test import BaseTestCase
 from .. import core
-from ..extraction import DataHandlerTifffile
+from .. import extraction
 
 
 class TestExperimentA(BaseTestCase):
     '''Test Experiment class and its methods.'''
 
-    def __init__(self, *args, **kw):
-        super(TestExperimentA, self).__init__(*args, **kw)
+    def __init__(self, *args, **kwargs):
+        super(TestExperimentA, self).__init__(*args, **kwargs)
 
         self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
-        self.output_dir = os.path.join(
-            self.resources_dir,
-            'out-{}-{:06d}'.format(
-                datetime.now().strftime('%H%M%S%f'),
-                random.randrange(999999)
-            )
-        )
+        self.output_dir = self.tempdir
         self.images_dir = os.path.join(self.resources_dir, 'images')
         self.image_names = ['AVG_A01_R1_small.tif']
         self.image_shape = (8, 17)
@@ -105,7 +97,7 @@ class TestExperimentA(BaseTestCase):
             os.path.join(self.images_dir, img)
             for img in self.image_names
         ]
-        datahandler = DataHandlerTifffile()
+        datahandler = extraction.DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
         exp = core.Experiment(images, self.roi_zip_path)
         exp.separate()
@@ -232,12 +224,38 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
-    def test_manualhandler(self):
+    def test_manualhandler_Tifffile(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
             self.output_dir,
-            datahandler=DataHandlerTifffile(),
+            datahandler=extraction.DataHandlerTifffile(),
+        )
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_manualhandler_TifffileLazy(self):
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            datahandler=extraction.DataHandlerTifffileLazy(),
+        )
+        exp.separate()
+        actual = exp.result
+        self.assert_equal(len(actual), 1)
+        self.assert_equal(len(actual[0]), 1)
+        self.assert_allclose(actual[0][0], self.expected_00)
+
+    def test_manualhandler_Pillow(self):
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+            datahandler=extraction.DataHandlerPillow(),
         )
         exp.separate()
         actual = exp.result
@@ -687,10 +705,7 @@ class TestExperimentA(BaseTestCase):
     def test_matlab_custom_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        fname = os.path.join(
-            self.output_dir,
-            'test_{}.mat'.format(random.randrange(999999))
-        )
+        fname = os.path.join(self.output_dir, "test_output.mat")
         exp.save_to_matlab(fname)
         self.assertTrue(os.path.isfile(fname))
         #TODO: Check contents of the .mat file
