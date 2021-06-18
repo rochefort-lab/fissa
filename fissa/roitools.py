@@ -8,7 +8,13 @@ Authors:
 from __future__ import division
 
 import numpy as np
+from past.builtins import basestring
 from skimage.measure import find_contours
+
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 
 from .readimagejrois import read_imagej_roi_zip
 from .ROI import poly2mask
@@ -438,3 +444,41 @@ def find_roi_edge(mask):
         outline[i] -= 0.5
 
     return outline
+
+
+def rois2masks(rois, shape):
+    """
+    Convert ROIs into a list of binary masks.
+
+    Parameters
+    ----------
+    rois : str or list of array_like
+        Either a string containing a path to an ImageJ roi zip file,
+        or a list of arrays encoding polygons, or list of binary arrays
+        representing masks.
+    shape : array_like
+        Image shape as a length 2 vector.
+
+    Returns
+    -------
+    masks : list of numpy.ndarray
+        List of binary arrays.
+    """
+    # If it's a string, parse the string
+    if isinstance(rois, basestring):
+        rois = readrois(rois)
+
+    if not isinstance(rois, abc.Sequence):
+        raise TypeError(
+            "Wrong ROIs input format: expected a list or sequence, but got"
+            " a {}".format(rois.__class__)
+        )
+
+    # If it's a something by 2 array (or vice versa), assume polygons
+    if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
+        return getmasks(rois, shape)
+    # If it's a list of bigger arrays, assume masks
+    elif np.shape(rois[0]) == shape:
+        return rois
+
+    raise ValueError("Wrong ROIs input format: unfamiliar shape.")

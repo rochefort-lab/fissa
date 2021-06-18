@@ -227,24 +227,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
         # get the image shape
         shape = data.shape[1:]
 
-        # if it's a list of strings
-        if isinstance(rois, basestring):
-            rois = roitools.readrois(rois)
-
-        if not isinstance(rois, abc.Sequence):
-            raise TypeError(
-                'Wrong ROIs input format: expected a list or sequence, but got'
-                ' a {}'.format(rois.__class__)
-            )
-
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
-
-        raise ValueError('Wrong ROIs input format: unfamiliar shape.')
+        return roitools.rois2masks(rois, shape)
 
     @staticmethod
     def extracttraces(data, masks):
@@ -379,24 +362,7 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
         # Get the image shape
         shape = data.pages[0].shape[-2:]
 
-        # If it's a string, parse the string
-        if isinstance(rois, basestring):
-            rois = roitools.readrois(rois)
-
-        if not isinstance(rois, abc.Sequence):
-            raise TypeError(
-                "Wrong ROIs input format: expected a list or sequence, but got"
-                " a {}".format(rois.__class__)
-            )
-
-        # If it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # If it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
-
-        raise ValueError("Wrong ROIs input format: unfamiliar shape.")
+        return roitools.rois2masks(rois, shape)
 
     @staticmethod
     def extracttraces(data, masks):
@@ -521,24 +487,7 @@ class DataHandlerPillow(DataHandlerAbstract):
         # get the image shape
         shape = data.size[::-1]
 
-        # If rois is string, we first need to read the contents of the file
-        if isinstance(rois, basestring):
-            rois = roitools.readrois(rois)
-
-        if not isinstance(rois, abc.Sequence):
-            raise TypeError(
-                'Wrong ROIs input format: expected a list or sequence, but got'
-                ' a {}'.format(rois.__class__)
-            )
-
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
-
-        raise ValueError('Wrong ROIs input format: unfamiliar shape.')
+        return roitools.rois2masks(rois, shape)
 
     @staticmethod
     def extracttraces(data, masks):
