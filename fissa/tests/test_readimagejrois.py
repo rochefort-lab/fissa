@@ -54,11 +54,15 @@ class TestReadImageJRois(BaseTestCase):
     def test_freeline(self):
         self.check_polygon("freeline")
 
-    @unittest.skipIf(sys.version_info < (3, 0), "multipoint rois only supported on Python 3")
+    @unittest.skipIf(
+        sys.version_info < (3, 0), "multipoint rois only supported on Python 3"
+    )
     def test_multipoint(self):
         self.check_polygon("multipoint")
 
-    @unittest.skipIf(sys.version_info >= (3, 0), "multipoint rois are supported on Python 3")
+    @unittest.skipIf(
+        sys.version_info >= (3, 0), "multipoint rois are supported on Python 3"
+    )
     def test_multipoint_py2_raises(self):
         with self.assertRaises(ValueError):
             self.check_polygon("multipoint")
@@ -81,16 +85,12 @@ class TestReadImageJRois(BaseTestCase):
     def test_polygon_left_offscreen(self):
         name = "polygon-left-offscreen"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))
 
     def test_polygon_top_offscreen(self):
         name = "polygon-top-offscreen"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))
 
     def test_polygon_right_offscreen(self):
         self.check_polygon("polygon-right-offscreen")
@@ -104,11 +104,15 @@ class TestReadImageJRois(BaseTestCase):
     def test_rectangle(self):
         self.check_polygon("rectangle")
 
-    @unittest.skipIf(sys.version_info < (3, 0), "Rotated rectangle rois only supported on Python 3")
+    @unittest.skipIf(
+        sys.version_info < (3, 0), "Rotated rectangle rois only supported on Python 3"
+    )
     def test_rectangle_rotated(self):
         self.check_polygon("rectangle-rotated")
 
-    @unittest.skipIf(sys.version_info >= (3, 0), "Rotated rectangle rois are supported on Python 3")
+    @unittest.skipIf(
+        sys.version_info >= (3, 0), "Rotated rectangle rois are supported on Python 3"
+    )
     def test_rectangle_rotated_py2_raises(self):
         with self.assertRaises(ValueError):
             self.check_polygon("rectangle-rotated")
@@ -139,16 +143,12 @@ class TestReadImageJRois(BaseTestCase):
     def test_oval_left_offscreen(self):
         name = "oval-left-offscreen"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))
 
     def test_oval_top_offscreen(self):
         name = "oval-top-offscreen"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))
 
     def test_oval_right_offscreen(self):
         self.check_mask("oval-right-offscreen")
@@ -174,16 +174,12 @@ class TestReadImageJRois(BaseTestCase):
     def test_ellipse_left_offscreen(self):
         name = "ellipse-left-offscreen"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))
 
     def test_ellipse_top_offscreen(self):
         name = "ellipse-top-offscreen"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))
 
     def test_ellipse_right_offscreen(self):
         self.check_mask("ellipse-right-offscreen")
@@ -195,6 +191,4 @@ class TestReadImageJRois(BaseTestCase):
         # ROI which is too small to cover a single pixel
         name = "ellipse-tiny"
         with self.assertRaises(ValueError):
-            readimagejrois.parse_roi_file(
-                os.path.join(self.data_dir, name + ".roi")
-            )
+            readimagejrois.parse_roi_file(os.path.join(self.data_dir, name + ".roi"))

@@ -73,7 +73,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
 
         # Make a set of weights to use with our taps.
         # We use an FIR filter with a Hamming window.
-        b = scipy.signal.firwin(nfilt, cutoff=cutoff, window='hamming')
+        b = scipy.signal.firwin(nfilt, cutoff=cutoff, window="hamming")
 
         # The default padlen for filtfilt is 3 * nfilt, but in case our
         # dataset is small, we need to make sure padlen is not too big
@@ -81,12 +81,10 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
 
         # Use filtfilt to filter with the FIR filter, both forwards and
         # backwards.
-        filtered_f = scipy.signal.filtfilt(b, [1.0], rawF, axis=axis,
-                                           padlen=padlen)
+        filtered_f = scipy.signal.filtfilt(b, [1.0], rawF, axis=axis, padlen=padlen)
 
     # Take a percentile of the filtered signal
-    baselineF0 = np.percentile(filtered_f, base_pctle, axis=axis,
-                               keepdims=keepdims)
+    baselineF0 = np.percentile(filtered_f, base_pctle, axis=axis, keepdims=keepdims)
 
     # Ensure filtering doesn't take us below the minimum value which actually
     # occurs in the data. This can occur when the amount of data is very low.

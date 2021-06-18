@@ -1,4 +1,4 @@
-'''Unit tests for core.py.'''
+"""Unit tests for core.py."""
 
 from __future__ import division
 
@@ -91,13 +91,13 @@ class ExperimentTestMixin:
             self.compare_deltaf_result(actual.deltaf_result)
 
     def compare_experiments(
-            self,
-            actual,
-            expected,
-            folder=True,
-            prepared=True,
-            separated=True,
-        ):
+        self,
+        actual,
+        expected,
+        folder=True,
+        prepared=True,
+        separated=True,
+    ):
         """
         Compare attributes of two experiments.
 
@@ -292,7 +292,6 @@ class ExperimentTestMixin:
         exp2 = eval(actual)
         self.compare_experiments(exp, exp2)
 
-
     def test_imagedir_roizip(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
@@ -301,10 +300,7 @@ class ExperimentTestMixin:
         self.compare_str_repr_contents(repr(exp))
 
     def test_imagelist_roizip(self):
-        image_paths = [
-            os.path.join(self.images_dir, img)
-            for img in self.image_names
-        ]
+        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
         exp = core.Experiment(image_paths, self.roi_zip_path)
         exp.separate()
         self.compare_output(exp)
@@ -312,10 +308,7 @@ class ExperimentTestMixin:
         self.compare_str_repr_contents(repr(exp))
 
     def test_imagelistloaded_roizip(self):
-        image_paths = [
-            os.path.join(self.images_dir, img)
-            for img in self.image_names
-        ]
+        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
         datahandler = extraction.DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
         exp = core.Experiment(images, self.roi_zip_path)
@@ -326,10 +319,7 @@ class ExperimentTestMixin:
 
     @unittest.expectedFailure
     def test_imagedir_roilistpath(self):
-        roi_paths = [
-            os.path.join(self.resources_dir, r)
-            for r in self.roi_paths
-        ]
+        roi_paths = [os.path.join(self.resources_dir, r) for r in self.roi_paths]
         exp = core.Experiment(self.images_dir, roi_paths)
         exp.separate()
         self.compare_output(exp)
@@ -338,14 +328,8 @@ class ExperimentTestMixin:
 
     @unittest.expectedFailure
     def test_imagelist_roilistpath(self):
-        image_paths = [
-            os.path.join(self.images_dir, img)
-            for img in self.image_names
-        ]
-        roi_paths = [
-            os.path.join(self.resources_dir, r)
-            for r in self.roi_paths
-        ]
+        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
+        roi_paths = [os.path.join(self.resources_dir, r) for r in self.roi_paths]
         exp = core.Experiment(image_paths, roi_paths)
         exp.separate()
         self.compare_output(exp)

@@ -1,4 +1,4 @@
-'''
+"""
 Tools for reading ImageJ files.
 
 Based on code originally written by Luis Pedro Coelho <luis@luispedro.org>,
@@ -8,7 +8,7 @@ under the MIT License.
 Modified
     - 2014 by Jeffrey Zaremba (@jzaremba), https://github.com/losonczylab/sima
     - 2015 by Scott Lowe (@scottclowe) and Sander Keemink (@swkeemink).
-'''
+"""
 
 from __future__ import division, unicode_literals
 
@@ -83,7 +83,7 @@ def _parse_roi_file_py2(roi_obj):
         pos[0] += 1
         s = roi_obj.read(1)
         if not s:
-            raise IOError('read_imagej_roi: Unexpected EOF')
+            raise IOError("read_imagej_roi: Unexpected EOF")
         return ord(s)
 
     def _get16():
@@ -130,8 +130,8 @@ def _parse_roi_file_py2(roi_obj):
         return points
 
     magic = roi_obj.read(4)
-    if magic != b'Iout':
-        raise IOError('read_imagej_roi: Magic number not found')
+    if magic != b"Iout":
+        raise IOError("read_imagej_roi: Magic number not found")
 
     _get16()  # version
 
@@ -140,8 +140,12 @@ def _parse_roi_file_py2(roi_obj):
     _get8()
 
     if not (0 <= roi_type < 11):
-        raise ValueError('read_imagej_roi: \
-                          ROI type {} not supported'.format(roi_type))
+        raise ValueError(
+            "read_imagej_roi: \
+                          ROI type {} not supported".format(
+                roi_type
+            )
+        )
 
     top = _get16signed()
     left = _get16signed()
@@ -163,12 +167,17 @@ def _parse_roi_file_py2(roi_obj):
     subtype = _get16()
     if subtype == 5:
         raise ValueError(
-            'read_imagej_roi: ROI subtype {} (rotated rectangle) not supported'
-            .format(subtype)
+            "read_imagej_roi: ROI subtype {} (rotated rectangle) not supported".format(
+                subtype
+            )
         )
     if subtype != 0 and subtype != 3:
-        raise ValueError('read_imagej_roi: \
-                          ROI subtype {} not supported (!= 0)'.format(subtype))
+        raise ValueError(
+            "read_imagej_roi: \
+                          ROI subtype {} not supported (!= 0)".format(
+                subtype
+            )
+        )
     options = _get16()
     if subtype == 3 and roi_type == 7:
         # ellipse aspect ratio
@@ -185,14 +194,18 @@ def _parse_roi_file_py2(roi_obj):
     if roi_type == 0:
         # Polygon
         coords = _getcoords(z)
-        coords = coords.astype('float')
-        return {'polygons': coords}
+        coords = coords.astype("float")
+        return {"polygons": coords}
     elif roi_type == 1:
         # Rectangle
-        coords = [[left, top, z], [right, top, z], [right, bottom, z],
-                  [left, bottom, z]]
-        coords = np.array(coords).astype('float')
-        return {'polygons': coords}
+        coords = [
+            [left, top, z],
+            [right, top, z],
+            [right, bottom, z],
+            [left, bottom, z],
+        ]
+        coords = np.array(coords).astype("float")
+        return {"polygons": coords}
     elif roi_type == 2:
         # Oval
         width = right - left
@@ -202,23 +215,26 @@ def _parse_roi_file_py2(roi_obj):
         x_mid = (right + left) / 2.0 - 0.5
         y_mid = (top + bottom) / 2.0 - 0.5
         mask = np.zeros((z + 1, right, bottom), dtype=bool)
-        for y, x in product(np.arange(max(0, top), bottom), np.arange(max(0, left), right)):
-            mask[z, x, y] = ((x - x_mid) ** 2 / (width / 2.0) ** 2 +
-                             (y - y_mid) ** 2 / (height / 2.0) ** 2 <= 1)
-        return {'mask': mask}
+        for y, x in product(
+            np.arange(max(0, top), bottom), np.arange(max(0, left), right)
+        ):
+            mask[z, x, y] = (x - x_mid) ** 2 / (width / 2.0) ** 2 + (y - y_mid) ** 2 / (
+                height / 2.0
+            ) ** 2 <= 1
+        return {"mask": mask}
     elif roi_type == 7:
         if subtype == 3:
             if (x1 < 0 and x2 < 0) or (y1 < 0 and y2 < 0):
                 raise ValueError("ROI is entirely offscreen.")
             # Ellipse
             # Radius of major and minor axes
-            r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.
+            r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.0
             c_radius = r_radius * aspect_ratio
             # Centre coordinates
             # We subtract 0.5 because ImageJ's co-ordinate system has indices at
             # the pixel boundaries, and we are using indices at the pixel centers.
-            x_mid = (x1 + x2) / 2. - 0.5
-            y_mid = (y1 + y2) / 2. - 0.5
+            x_mid = (x1 + x2) / 2.0 - 0.5
+            y_mid = (y1 + y2) / 2.0 - 0.5
             orientation = np.arctan2(y2 - y1, x2 - x1)
 
             # We need to make a mask which is a bit bigger than this, because
@@ -241,15 +257,15 @@ def _parse_roi_file_py2(roi_obj):
                 raise ValueError("Ellipse ROI is empty.")
 
             # Trim mask down to only the points needed
-            mask = mask[:, :max(xx) + 1, :max(yy) + 1]
+            mask = mask[:, : max(xx) + 1, : max(yy) + 1]
             # Convert sparse ellipse representation to mask
             mask[z, xx, yy] = True
-            return {'mask': mask}
+            return {"mask": mask}
         else:
             # Freehand
             coords = _getcoords(z)
-            coords = coords.astype('float')
-            return {'polygons': coords}
+            coords = coords.astype("float")
+            return {"polygons": coords}
 
     elif roi_type == 10:
         raise ValueError("read_imagej_roi: point/mulipoint types are not supported")
@@ -257,11 +273,12 @@ def _parse_roi_file_py2(roi_obj):
     else:
         try:
             coords = _getcoords(z)
-            coords = coords.astype('float')
-            return {'polygons': coords}
+            coords = coords.astype("float")
+            return {"polygons": coords}
         except BaseException:
             raise ValueError(
-                'read_imagej_roi: ROI type {} not supported'.format(roi_type))
+                "read_imagej_roi: ROI type {} not supported".format(roi_type)
+            )
 
 
 def _parse_roi_file_py3(roi_source):
@@ -298,45 +315,49 @@ def _parse_roi_file_py3(roi_source):
         roi = roi[keys[0]]
 
     # Convert the roi dictionary into either polygon or a mask
-    if 'x' in roi and 'y' in roi and 'n' in roi:
+    if "x" in roi and "y" in roi and "n" in roi:
         # ROI types "freehand", "freeline", "multipoint", "point", "polygon",
         # "polyline", and "trace" are loaded and returned as a set of polygon
         # co-ordinates.
-        coords = np.empty((roi['n'], 3), dtype=np.float64)
-        coords[:, 0] = roi['x']
-        coords[:, 1] = roi['y']
-        coords[:, 2] = roi.get('z', 0)
+        coords = np.empty((roi["n"], 3), dtype=np.float64)
+        coords[:, 0] = roi["x"]
+        coords[:, 1] = roi["y"]
+        coords[:, 2] = roi.get("z", 0)
         if np.all(coords[:, 0] < 0) or np.all(coords[:, 1] < 0):
             raise ValueError("ROI is entirely offscreen.")
-        return {'polygons': coords}
+        return {"polygons": coords}
 
-    if 'width' in roi and 'height' in roi and 'left' in roi and 'top' in roi:
-        width = roi['width']
-        height = roi['height']
-        left = roi['left']
-        top = roi['top']
+    if "width" in roi and "height" in roi and "left" in roi and "top" in roi:
+        width = roi["width"]
+        height = roi["height"]
+        left = roi["left"]
+        top = roi["top"]
         right = left + width
         bottom = top + height
         if right < 0 or bottom < 0:
             raise ValueError("ROI is entirely offscreen.")
 
-    z = roi.get('z', 0)
+    z = roi.get("z", 0)
 
-    if roi['type'] == 'rectangle':
+    if roi["type"] == "rectangle":
         # Rectangle is converted into polygon co-ordinates
-        coords = [[left, top, z], [right, top, z], [right, bottom, z],
-                  [left, bottom, z]]
-        coords = np.array(coords).astype('float')
-        return {'polygons': coords}
+        coords = [
+            [left, top, z],
+            [right, top, z],
+            [right, bottom, z],
+            [left, bottom, z],
+        ]
+        coords = np.array(coords).astype("float")
+        return {"polygons": coords}
 
-    elif roi['type'] == 'oval':
+    elif roi["type"] == "oval":
         # Oval
         mask = np.zeros((z + 1, right, bottom), dtype=bool)
 
         # We subtract 0.5 because ImageJ's co-ordinate system has indices at
         # the pixel boundaries, and we are using indices at the pixel centers.
-        x_mid = left + width / 2. - 0.5
-        y_mid = top + height / 2. - 0.5
+        x_mid = left + width / 2.0 - 0.5
+        y_mid = top + height / 2.0 - 0.5
 
         # Ensure we only make a mask of things which are inside the image
         left = max(0, left)
@@ -346,32 +367,32 @@ def _parse_roi_file_py3(roi_source):
         # pixels within the extent of the oval.
         xx = np.arange(left, right)
         yy = np.arange(top, bottom)
-        xx = ((xx - x_mid) / (width / 2.)) ** 2
-        yy = ((yy - y_mid) / (height / 2.)) ** 2
+        xx = ((xx - x_mid) / (width / 2.0)) ** 2
+        yy = ((yy - y_mid) / (height / 2.0)) ** 2
         dd = np.expand_dims(xx, 1) + np.expand_dims(yy, 0)
         mask[z, left:, top:] = dd <= 1
-        return {'mask': mask}
+        return {"mask": mask}
 
-    elif roi['type'] == 'ellipse' or (
-        roi['type'] == 'freehand' and 'aspect_ratio' in roi and 'ex1' in roi
+    elif roi["type"] == "ellipse" or (
+        roi["type"] == "freehand" and "aspect_ratio" in roi and "ex1" in roi
     ):
         # Ellipse
         # Co-ordinates of points at either end of major axis
-        x1 = roi['ex1']
-        y1 = roi['ey1']
-        x2 = roi['ex2']
-        y2 = roi['ey2']
+        x1 = roi["ex1"]
+        y1 = roi["ey1"]
+        x2 = roi["ex2"]
+        y2 = roi["ey2"]
         if (x1 < 0 and x2 < 0) or (y1 < 0 and y2 < 0):
             raise ValueError("ROI is entirely offscreen.")
 
         # Radius of major and minor axes
-        r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.
-        c_radius = r_radius * roi['aspect_ratio']
+        r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.0
+        c_radius = r_radius * roi["aspect_ratio"]
         # Centre coordinates
         # We subtract 0.5 because ImageJ's co-ordinate system has indices at
         # the pixel boundaries, and we are using indices at the pixel centers.
-        x_mid = (x1 + x2) / 2. - 0.5
-        y_mid = (y1 + y2) / 2. - 0.5
+        x_mid = (x1 + x2) / 2.0 - 0.5
+        y_mid = (y1 + y2) / 2.0 - 0.5
         orientation = np.arctan2(y2 - y1, x2 - x1)
 
         # We need to make a mask which is a bit bigger than this, because
@@ -394,19 +415,19 @@ def _parse_roi_file_py3(roi_source):
             raise ValueError("Ellipse ROI is empty.")
 
         # Trim mask down to only the points needed
-        mask = mask[:, :max(xx) + 1, :max(yy) + 1]
+        mask = mask[:, : max(xx) + 1, : max(yy) + 1]
         # Convert sparse ellipse representation to mask
         mask[z, xx, yy] = True
-        return {'mask': mask}
+        return {"mask": mask}
 
     else:
-        raise ValueError(
-            'ROI type {} not supported'.format(roi['type'])
-        )
+        raise ValueError("ROI type {} not supported".format(roi["type"]))
 
 
 # Handle different functions on Python 2/3
-parse_roi_file = _parse_roi_file_py3 if sys.version_info >= (3, 0) else _parse_roi_file_py2
+parse_roi_file = (
+    _parse_roi_file_py3 if sys.version_info >= (3, 0) else _parse_roi_file_py2
+)
 
 
 def read_imagej_roi_zip(filename):
@@ -429,6 +450,6 @@ def read_imagej_roi_zip(filename):
             roi = parse_roi_file(zf.open(name))
             if roi is None:
                 continue
-            roi['label'] = str(name).rstrip('.roi')
+            roi["label"] = str(name).rstrip(".roi")
             roi_list.append(roi)
         return roi_list

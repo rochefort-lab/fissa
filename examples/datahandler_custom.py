@@ -88,8 +88,7 @@ def rois2masks(rois, data):
             return rois
 
     else:
-        raise ValueError('Wrong rois input format')
-
+        raise ValueError("Wrong rois input format")
 
 
 def extracttraces(data, masks):

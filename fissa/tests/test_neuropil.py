@@ -40,7 +40,7 @@ class NeuropilMixin:
         self.assert_equal(S_sep.shape, self.shape_desired)
         # If specified, assert that the result is as expected
         if expected_converged is not None:
-            self.assert_equal(convergence['converged'], expected_converged)
+            self.assert_equal(convergence["converged"], expected_converged)
 
     def test_method(self):
         self.run_method(self.method, expected_converged=True, maxtries=1)
@@ -63,28 +63,25 @@ class NeuropilMixin:
 
 
 class TestNeuropilNMF(BaseTestCase, NeuropilMixin):
-
     def setUp(self):
         NeuropilMixin.setUp(self)
         self.method = "nmf"
 
     def test_nmf_manual_alpha(self):
-        self.run_method(self.method, expected_converged=True, alpha=.2)
+        self.run_method(self.method, expected_converged=True, alpha=0.2)
 
     def test_badmethod(self):
         with self.assertRaises(ValueError):
-            npil.separate(self.S, sep_method='bogus_method')
+            npil.separate(self.S, sep_method="bogus_method")
 
 
 class TestNeuropilICA(BaseTestCase, NeuropilMixin):
-
     def setUp(self):
         NeuropilMixin.setUp(self)
         self.method = "ica"
 
 
 class TestNeuropilFA(BaseTestCase, NeuropilMixin):
-
     def setUp(self):
         NeuropilMixin.setUp(self)
         self.method = "FactorAnalysis"

@@ -19,7 +19,7 @@ from .. import extraction, roitools
 from . import base_test
 from .base_test import BaseTestCase
 
-RESOURCES_DIR = os.path.join(base_test.TEST_DIRECTORY, 'resources', 'tiffs')
+RESOURCES_DIR = os.path.join(base_test.TEST_DIRECTORY, "resources", "tiffs")
 
 
 def get_dtyped_expected(expected, dtype):
@@ -59,10 +59,7 @@ def test_single_frame_3d(dtype, datahandler):
     """
     expected = np.array([[[-11, 12], [14, 15], [17, 18]]])
     expected = get_dtyped_expected(expected, dtype)
-    fname = os.path.join(
-        RESOURCES_DIR,
-        "imageio.imwrite_{}.tif".format(dtype)
-    )
+    fname = os.path.join(RESOURCES_DIR, "imageio.imwrite_{}.tif".format(dtype))
     actual = datahandler.image2array(fname)
     base_test.assert_equal(actual, expected)
 
@@ -93,10 +90,7 @@ def test_single_frame_2d(dtype, datahandler):
     """
     expected = np.array([[-11, 12], [14, 15], [17, 18]])
     expected = get_dtyped_expected(expected, dtype)
-    fname = os.path.join(
-        RESOURCES_DIR,
-        "imageio.imwrite_{}.tif".format(dtype)
-    )
+    fname = os.path.join(RESOURCES_DIR, "imageio.imwrite_{}.tif".format(dtype))
     actual = datahandler.image2array(fname)
     base_test.assert_equal(actual, expected)
 
@@ -127,10 +121,7 @@ def multiframe_image2array_tester(base_fname, dtype, datahandler):
         ]
     )
     expected = get_dtyped_expected(expected, dtype)
-    fname = os.path.join(
-        RESOURCES_DIR,
-        base_fname + "_{}.tif".format(dtype)
-    )
+    fname = os.path.join(RESOURCES_DIR, base_fname + "_{}.tif".format(dtype))
     actual = datahandler.image2array(fname)
     base_test.assert_equal(actual, expected)
 
@@ -245,10 +236,7 @@ def multiframe_mean_tester(base_fname, dtype, datahandler):
     )
     expected = get_dtyped_expected(expected, dtype)
     expected = np.mean(expected, dtype=np.float64, axis=0)
-    fname = os.path.join(
-        RESOURCES_DIR,
-        base_fname + "_{}.tif".format(dtype)
-    )
+    fname = os.path.join(RESOURCES_DIR, base_fname + "_{}.tif".format(dtype))
     data = datahandler.image2array(fname)
     actual = datahandler.getmean(data)
     base_test.assert_allclose(actual, expected)
@@ -280,7 +268,9 @@ def multiframe_mean_tester(base_fname, dtype, datahandler):
         "float64",
     ],
 )
-@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy])
+@pytest.mark.parametrize(
+    "datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy]
+)
 def test_multiframe_mean(base_fname, dtype, datahandler):
     """
     Test the mean of TIFFs.
@@ -304,7 +294,9 @@ def test_multiframe_mean(base_fname, dtype, datahandler):
     "base_fname",
     [
         "tifffile.imsave",
-        pytest.param("tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")),
+        pytest.param(
+            "tifffile.imsave.bigtiff", marks=pytest.mark.xfail(reason="not supported")
+        ),
         "TiffWriter.mixedA",
         # pytest.param("TiffWriter.mixedB", marks=pytest.mark.xfail(reason="not supported")),
         "TiffWriter.mixedC",
@@ -339,7 +331,11 @@ def test_multiframe_mean_pillow(base_fname, dtype, datahandler):
 @pytest.mark.parametrize("dtype", ["uint8", "uint16", "float32"])
 @pytest.mark.parametrize(
     "datahandler",
-    [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy, extraction.DataHandlerPillow],
+    [
+        extraction.DataHandlerTifffile,
+        extraction.DataHandlerTifffileLazy,
+        extraction.DataHandlerPillow,
+    ],
 )
 def test_multiframe_mean_imagejformat(dtype, datahandler):
     """
@@ -367,7 +363,9 @@ def test_multiframe_mean_imagejformat(dtype, datahandler):
 )
 @pytest.mark.parametrize("dtype", ["uint8"])
 @pytest.mark.parametrize("shp", ["3,2,3,2", "2,1,3,3,2", "2,3,1,1,3,2"])
-@pytest.mark.parametrize("datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy])
+@pytest.mark.parametrize(
+    "datahandler", [extraction.DataHandlerTifffile, extraction.DataHandlerTifffileLazy]
+)
 def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
     """
     Test the mean of 4d/5d TIFFs.
@@ -404,7 +402,7 @@ def test_multiframe_mean_higherdim(base_fname, shp, dtype, datahandler):
         "3,2,3,2",
         pytest.param("2,1,3,3,2", marks=pytest.mark.xfail(reason="looks like RGB")),
         "2,3,1,1,3,2",
-    ]
+    ],
 )
 @pytest.mark.parametrize("datahandler", [extraction.DataHandlerPillow])
 def test_multiframe_mean_higherdim_pillow(base_fname, shp, dtype, datahandler):
@@ -416,6 +414,7 @@ def test_multiframe_mean_higherdim_pillow(base_fname, shp, dtype, datahandler):
         dtype=dtype,
         datahandler=datahandler,
     )
+
 
 class TestDataHandlerRepr(BaseTestCase):
     """String representations of DataHandler are correct."""
@@ -439,8 +438,8 @@ class Rois2MasksTestMixin:
     """Tests for rois2masks."""
 
     polys = [
-        np.array([[39., 62.], [60., 45.], [48., 71.]]),
-        np.array([[72., 107.], [78., 130.], [100., 110.]]),
+        np.array([[39.0, 62.0], [60.0, 45.0], [48.0, 71.0]]),
+        np.array([[72.0, 107.0], [78.0, 130.0], [100.0, 110.0]]),
     ]
 
     def setUp(self):
@@ -450,7 +449,7 @@ class Rois2MasksTestMixin:
 
     def test_imagej_zip(self):
         # load zip of rois
-        ROI_loc = os.path.join(self.test_directory, 'resources', 'RoiSet.zip')
+        ROI_loc = os.path.join(self.test_directory, "resources", "RoiSet.zip")
         actual = self.datahandler.rois2masks(ROI_loc, self.data)
 
         # assert equality
@@ -485,8 +484,20 @@ class Rois2MasksTestMixin:
     def test_polys_1d(self):
         # check that rois2masks fails when the polys are not 2d
         polys1d = [
-            np.array([[39.,]]),
-            np.array([[72.,]]),
+            np.array(
+                [
+                    [
+                        39.0,
+                    ]
+                ]
+            ),
+            np.array(
+                [
+                    [
+                        72.0,
+                    ]
+                ]
+            ),
         ]
         with self.assertRaises(ValueError):
             self.datahandler.rois2masks(polys1d, self.data)
@@ -494,8 +505,8 @@ class Rois2MasksTestMixin:
     def test_polys_3d(self):
         # check that rois2masks fails when the polys are not 2d
         polys3d = [
-            np.array([[39., 62., 0.], [60., 45., 0.], [48., 71., 0.]]),
-            np.array([[72., 107., 0.], [78., 130., 0.], [100., 110., 0.]]),
+            np.array([[39.0, 62.0, 0.0], [60.0, 45.0, 0.0], [48.0, 71.0, 0.0]]),
+            np.array([[72.0, 107.0, 0.0], [78.0, 130.0, 0.0], [100.0, 110.0, 0.0]]),
         ]
         with self.assertRaises(ValueError):
             self.datahandler.rois2masks(polys3d, self.data)
@@ -540,5 +551,7 @@ class TestRois2MasksPillow(BaseTestCase, Rois2MasksTestMixin):
 
     def setUp(self):
         Rois2MasksTestMixin.setUp(self)
-        self.data = Image.fromarray(self.data.reshape(self.data.shape[-2:]).astype(np.uint8))
+        self.data = Image.fromarray(
+            self.data.reshape(self.data.shape[-2:]).astype(np.uint8)
+        )
         self.datahandler = extraction.DataHandlerPillow()
