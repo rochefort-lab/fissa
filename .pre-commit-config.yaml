@@ -1,14 +1,14 @@
 repos:
-  - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.9.1
     hooks:
-      - id: python-check-blanket-noqa
-      - id: python-no-log-warn
-      - id: rst-backticks
-      - id: rst-directive-colons
-        types: [text]
-      - id: rst-inline-touching-normal
-        types: [text]
+      - id: isort
+        name: isort
+        args: ["--profile", "black"]
+      - id: isort
+        name: isort (cython)
+        types: [cython]
+        args: ["--profile", "black"]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.4.0
@@ -19,6 +19,17 @@ repos:
     rev: dcd7789
     hooks:
       - id: black_nbconvert
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.9.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-no-log-warn
+      - id: rst-backticks
+      - id: rst-directive-colons
+        types: [text]
+      - id: rst-inline-touching-normal
+        types: [text]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
