@@ -10,6 +10,8 @@ FISSA
 +------------------+----------------------------------------------------------+
 | Build Status     | |Documentation| |GHA tests| |AppVeyor| |Codecov|         |
 +------------------+----------------------------------------------------------+
+| Code style       | |black| |pre-commit|                                     |
++------------------+----------------------------------------------------------+
 | Interactive Demo | |Binder|                                                 |
 +------------------+----------------------------------------------------------+
 | Support          | |Gitter|                                                 |
@@ -389,3 +391,9 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |License| image:: https://img.shields.io/pypi/l/fissa
    :target: https://raw.githubusercontent.com/rochefort-lab/fissa/master/LICENSE
    :alt: GPLv3 License
+.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: black
