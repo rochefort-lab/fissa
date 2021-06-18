@@ -296,7 +296,7 @@ install:
   # Update pip
   - $PYTHONCMD -m pip install --upgrade pip
   # Make a list of all requirements
-  - cat requirements.txt requirements-dev.txt > requirements_all.txt
+  - cat requirements.txt requirements-test.txt > requirements_all.txt
   # Conditionally install the packages which are needed for building docs
   - if [[ "$BUILD_DOCS" == "true" ]]; then
         cat requirements_docs.txt >> requirements_all.txt;

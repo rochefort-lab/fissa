@@ -126,7 +126,7 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
-  - "%CMD_IN_ENV% python -m pip install .[dev]"
+  - "%CMD_IN_ENV% python -m pip install .[test]"
   - IF "%BUILD_DOCS%"=="true" ( %CMD_IN_ENV% python -m pip install .[docs] )
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
