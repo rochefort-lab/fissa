@@ -25,8 +25,11 @@ extras_require['plotting'] = read('requirements_plots.txt').splitlines()
 # Dependencies for generating documentation
 extras_require['docs'] = read('requirements_docs.txt').splitlines()
 
-# Dev dependencies
-extras_require['dev'] = read('requirements-dev.txt').splitlines()
+# Test dependencies
+extras_require["test"] = read("requirements-test.txt").splitlines()
+
+# Development dependencies
+extras_require["dev"] = read("requirements-dev.txt").splitlines()
 
 # Everything as a list. Replicated items are removed by use of set with {}.
 extras_require['all'] = sorted(list(
