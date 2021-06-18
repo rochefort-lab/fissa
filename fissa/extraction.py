@@ -75,7 +75,24 @@ class DataHandlerAbstract():
         raise NotImplementedError()
 
     @staticmethod
-    def rois2masks(rois, data):
+    def get_frame_size(data):
+        """
+        Determine the shape of each frame within the recording.
+
+        Parameters
+        ----------
+        data : data_type
+            The same object as returned by :meth:`image2array`.
+
+        Returns
+        -------
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def rois2masks(cls, rois, data):
         """
         Convert ROIs into a collection of binary masks.
 
@@ -97,7 +114,7 @@ class DataHandlerAbstract():
         --------
         fissa.roitools.getmasks, fissa.roitools.readrois
         """
-        raise NotImplementedError()
+        return roitools.rois2masks(rois, cls.get_frame_size(data))
 
     @staticmethod
     def extracttraces(data, masks):
@@ -203,28 +220,21 @@ class DataHandlerTifffile(DataHandlerAbstract):
         return data.mean(axis=0, dtype=np.float64)
 
     @staticmethod
-    def rois2masks(rois, data):
-        """Take the object `rois` and returns it as a list of binary masks.
+    def get_frame_size(data):
+        """
+        Determine the shape of each frame within the recording.
 
         Parameters
         ----------
-        rois : str or :term:`list` of :term:`array_like`
-            Either a string containing a path to an ImageJ roi zip file,
-            or a list of arrays encoding polygons, or list of binary arrays
-            representing masks.
-        data : :term:`array_like`
-            Data array as made by :meth:`image2array`. Must be shaped
-            ``(frames, y, x)``.
+        data : data_type
+            The same object as returned by :meth:`image2array`.
 
         Returns
         -------
-        masks : :term:`list` of :class:`numpy.ndarray`
-            List of binary arrays.
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
         """
-        # get the image shape
-        shape = data.shape[1:]
-
-        return roitools.rois2masks(rois, shape)
+        return data.shape[-2:]
 
     @staticmethod
     def extracttraces(data, masks):
@@ -339,27 +349,21 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
         return memory / n_frames
 
     @staticmethod
-    def rois2masks(rois, data):
-        """Take the object `rois` and returns it as a list of binary masks.
+    def get_frame_size(data):
+        """
+        Determine the shape of each frame within the recording.
 
         Parameters
         ----------
-        rois : str or list of array_like
-            Either a string containing a path to an ImageJ roi zip file,
-            or a list of arrays encoding polygons, or list of binary arrays
-            representing masks.
-        data : tifffile.TiffFile
-            Open tifffile.TiffFile object.
+        data : data_type
+            The same object as returned by :meth:`image2array`.
 
         Returns
         -------
-        masks : list of numpy.ndarray
-            List of binary arrays.
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
         """
-        # Get the image shape
-        shape = data.pages[0].shape[-2:]
-
-        return roitools.rois2masks(rois, shape)
+        return data.pages[0].shape[-2:]
 
     @staticmethod
     def extracttraces(data, masks):
@@ -463,28 +467,21 @@ class DataHandlerPillow(DataHandlerAbstract):
         return avg
 
     @staticmethod
-    def rois2masks(rois, data):
+    def get_frame_size(data):
         """
-        Take the object `rois` and returns it as a list of binary masks.
+        Determine the shape of each frame within the recording.
 
         Parameters
         ----------
-        rois : str or :term:`list` of :term:`array_like`
-            Either a string containing a path to an ImageJ roi zip file,
-            or a list of arrays encoding polygons, or list of binary arrays
-            representing masks.
         data : PIL.Image
             An open :class:`PIL.Image` handle to a multi-frame TIFF image.
 
         Returns
         -------
-        masks : list of numpy.ndarray
-            List of binary arrays.
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
         """
-        # get the image shape
-        shape = data.size[::-1]
-
-        return roitools.rois2masks(rois, shape)
+        return data.size[::-1]
 
     @staticmethod
     def extracttraces(data, masks):
