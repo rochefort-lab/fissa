@@ -179,7 +179,7 @@ These tests can be collectively performed in one line with:
 
 .. code:: bash
 
-    pip install -r requirements-dev.txt
+    pip install -r requirements-test.txt
     pytest --flake8 --cov=fissa --cov-config .coveragerc --cov-report html --cov-report term
 
 Commit messages
