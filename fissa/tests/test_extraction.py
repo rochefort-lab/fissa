@@ -503,6 +503,15 @@ class Rois2MasksTestMixin:
             self.datahandler.rois2masks(polys3d, self.data)
 
 
+class TestRois2MasksRoitools(BaseTestCase, Rois2MasksTestMixin):
+    """Test roitools.rois2masks."""
+
+    def setUp(self):
+        Rois2MasksTestMixin.setUp(self)
+        self.data = (176, 156)
+        self.datahandler = roitools
+
+
 class TestRois2MasksTifffile(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
