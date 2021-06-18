@@ -14,52 +14,11 @@ from .. import core
 from .. import extraction
 
 
-class TestExperimentA(BaseTestCase):
-    '''Test Experiment class and its methods.'''
+class ExperimentTestMixin:
+    """Base tests for Experiment class."""
 
     def __init__(self, *args, **kwargs):
-        super(TestExperimentA, self).__init__(*args, **kwargs)
-
-        self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
         self.output_dir = self.tempdir
-        self.images_dir = os.path.join(self.resources_dir, 'images')
-        self.image_names = ['AVG_A01_R1_small.tif']
-        self.image_shape = (8, 17)
-        self.roi_zip_path = os.path.join(self.resources_dir, 'rois.zip')
-        self.roi_paths = [os.path.join('rois', r) for r in ['01.roi']]
-
-        self.expected_00 = np.array([
-           [11.25423074,  0.        ,  0.        ,  7.55432252, 19.11182766,
-             0.        ,  6.37473238,  0.        ,  0.        ,  0.        ,
-             0.        ,  1.58567319,  2.28185467,  0.        , 16.70204514,
-            17.55112746, 17.23642459,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        , 14.75392227],
-           [89.75326173, 81.33290066, 88.77502093, 80.71108594, 85.5315738 ,
-            78.42423771, 80.3659251 , 84.46124736, 78.04229961, 81.48360449,
-            82.12879963, 83.11862592, 83.09085808, 91.22418523, 86.42399606,
-            81.05860567, 86.15497276, 81.53903092, 80.53875696, 83.41061814,
-            80.59332446, 81.64495893, 86.26057223, 82.47622273, 83.28735277,
-            84.00697623, 83.68517083, 83.19829805, 82.06518458],
-           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ],
-           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ],
-           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ],
-        ])
 
     def setUp(self):
         self.tearDown()
@@ -155,7 +114,7 @@ class TestExperimentA(BaseTestCase):
 
     def compare_matlab(self, fname, experiment, compare_deltaf=None):
         """
-        Compare experiment output against expected from test attributes.
+        Compare matfile contents against an experiment.
 
         Parameters
         ----------
@@ -828,6 +787,7 @@ class TestExperimentA(BaseTestCase):
         actual = core.run_fissa(
             image_path, roi_path, self.output_dir, freq=4, return_deltaf=True
         )
+        #TODO: Check contents of the .mat file
         self.assert_equal(len(actual), 1)
         self.assert_equal(len(actual[0]), 1)
         # TODO: Check contents of deltaf output
@@ -837,3 +797,51 @@ class TestExperimentA(BaseTestCase):
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         with self.assertRaises(ValueError):
             core.run_fissa(image_path, roi_path, self.output_dir, return_deltaf=True)
+
+
+class TestExperimentA(BaseTestCase, ExperimentTestMixin):
+    """Test core on Experiment A, which has 1 roi and 1 TIFF."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestExperimentA, self).__init__(*args, **kwargs)
+        ExperimentTestMixin.__init__(self)
+
+        self.resources_dir = os.path.join(self.test_directory, "resources", "a")
+        self.images_dir = os.path.join(self.resources_dir, "images")
+        self.image_names = ["AVG_A01_R1_small.tif"]
+        self.image_shape = (8, 17)
+        self.roi_zip_path = os.path.join(self.resources_dir, "rois.zip")
+        self.roi_paths = [os.path.join("rois", r) for r in ["01.roi"]]
+
+        self.expected_00 = np.array([
+           [11.25423074,  0.        ,  0.        ,  7.55432252, 19.11182766,
+             0.        ,  6.37473238,  0.        ,  0.        ,  0.        ,
+             0.        ,  1.58567319,  2.28185467,  0.        , 16.70204514,
+            17.55112746, 17.23642459,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        , 14.75392227],
+           [89.75326173, 81.33290066, 88.77502093, 80.71108594, 85.5315738 ,
+            78.42423771, 80.3659251 , 84.46124736, 78.04229961, 81.48360449,
+            82.12879963, 83.11862592, 83.09085808, 91.22418523, 86.42399606,
+            81.05860567, 86.15497276, 81.53903092, 80.53875696, 83.41061814,
+            80.59332446, 81.64495893, 86.26057223, 82.47622273, 83.28735277,
+            84.00697623, 83.68517083, 83.19829805, 82.06518458],
+           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ],
+           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ],
+           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+             0.        ,  0.        ,  0.        ,  0.        ],
+        ])
