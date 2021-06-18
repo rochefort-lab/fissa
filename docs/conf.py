@@ -95,10 +95,10 @@ def setup(app):
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+# needs_sphinx = "1.0"
 
 # Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
@@ -140,7 +140,7 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
+# source_suffix = [".rst", ".md"]
 source_suffix = ".rst"
 
 # The encoding of source files.
@@ -199,8 +199,8 @@ html_static_path = ["_static"]
 #
 # The default sidebars (for documents that don't match any pattern) are
 # defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
+# default: ``["localtoc.html", "relations.html", "sourcelink.html",
+# "searchbox.html"]``.
 #
 # html_sidebars = {}
 
@@ -214,18 +214,18 @@ htmlhelp_basename = project + "doc"
 # -- Options for LaTeX output ------------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
+    # The paper size ("letterpaper" or "a4paper").
+    # "papersize": "letterpaper",
     #
-    # 'papersize': 'letterpaper',
-    # The font size ('10pt', '11pt' or '12pt').
+    # The font size ("10pt", "11pt" or "12pt").
+    # "pointsize": "10pt",
     #
-    # 'pointsize': '10pt',
     # Additional stuff for the LaTeX preamble.
+    # "preamble": "",
     #
-    # 'preamble': '',
     # Latex figure (float) alignment
-    #
     # 'figure_align': 'htbp',
+    #
     # Need to manually declare what the delta symbol (Δ) corresponds to.
     "preamble": """
 \DeclareUnicodeCharacter{394}{$\Delta$}
@@ -279,11 +279,11 @@ epub_title = project
 # The unique identifier of the text. This can be a ISBN number
 # or the project homepage.
 #
-# epub_identifier = ''
+# epub_identifier = ""
 
 # A unique identification for the text.
 #
-# epub_uid = ''
+# epub_uid = ""
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ["search.html"]

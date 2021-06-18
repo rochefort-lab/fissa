@@ -67,11 +67,6 @@ def poly2mask(polygons, im_size):
     for poly in polygons:
         # assuming all points in the polygon share a z-coordinate
         z = int(np.array(poly.exterior.coords)[0][2])
-        # @swkeemink: Commented out to remove a warning message for FISSA.
-        #        if z > im_size[0]:
-        #            warn('Polygon with zero-coordinate {} '.format(z) +
-        #                 'cropped using im_size = {}'.format(im_size))
-        #            continue
         x_min, y_min, x_max, y_max = poly.bounds
 
         # Shift all points by 0.5 to move coordinates to corner of pixel

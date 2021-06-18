@@ -484,20 +484,8 @@ class Rois2MasksTestMixin:
     def test_polys_1d(self):
         # check that rois2masks fails when the polys are not 2d
         polys1d = [
-            np.array(
-                [
-                    [
-                        39.0,
-                    ]
-                ]
-            ),
-            np.array(
-                [
-                    [
-                        72.0,
-                    ]
-                ]
-            ),
+            np.array([[39.0]]),
+            np.array([[72.0]]),
         ]
         with self.assertRaises(ValueError):
             self.datahandler.rois2masks(polys1d, self.data)
