@@ -861,3 +861,27 @@ class TestExperimentA(BaseTestCase, ExperimentTestMixin):
             ),
             allow_pickle=True,
         )
+
+
+class TestExperimentB(BaseTestCase, ExperimentTestMixin):
+    """Test core on Experiment B, which has 2 ROIs and 3 TIFFs."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestExperimentB, self).__init__(*args, **kwargs)
+        ExperimentTestMixin.__init__(self)
+
+        self.resources_dir = os.path.join(self.test_directory, "resources", "b")
+        self.images_dir = os.path.join(self.resources_dir, "images")
+        self.image_names = ["AVG_A01.tif", "AVG_A02.tif", "AVG_A03.tif"]
+        self.image_shape = (29, 21)
+        self.fs = 1
+        self.roi_zip_path = os.path.join(self.resources_dir, "rois.zip")
+        self.roi_paths = [os.path.join("rois", "{:02d}.roi") for r in range(3, 5)]
+
+        self.expected = np.load(
+            os.path.join(
+                self.resources_dir,
+                "expected_py{}.npz".format(sys.version_info.major),
+            ),
+            allow_pickle=True,
+        )
