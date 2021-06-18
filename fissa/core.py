@@ -14,7 +14,7 @@ import collections
 import functools
 import glob
 import itertools
-from multiprocessing import Pool
+import multiprocessing
 import os.path
 import sys
 import warnings
@@ -645,7 +645,7 @@ class Experiment():
         # Do the extraction
         if use_multiprocessing and sys.version_info < (3, 0):
             # define pool
-            pool = Pool(self.ncores_preparation)
+            pool = multiprocessing.Pool(self.ncores_preparation)
             # run extraction
             results = pool.map(
                 _extract_func_wrapper,
@@ -661,7 +661,7 @@ class Experiment():
             pool.join()
 
         elif use_multiprocessing:
-            with Pool(self.ncores_preparation) as pool:
+            with multiprocessing.Pool(self.ncores_preparation) as pool:
                 # run extraction
                 results = pool.starmap(_extract_cfg, zip(self.images, self.rois))
 
@@ -821,7 +821,7 @@ class Experiment():
         # Do the extraction
         if use_multiprocessing and sys.version_info < (3, 0):
             # define pool
-            pool = Pool(self.ncores_separation)
+            pool = multiprocessing.Pool(self.ncores_separation)
             # run separation
             results = pool.map(
                 _separate_func_wrapper,
@@ -836,7 +836,7 @@ class Experiment():
             pool.join()
 
         elif use_multiprocessing:
-            with Pool(self.ncores_separation) as pool:
+            with multiprocessing.Pool(self.ncores_separation) as pool:
                 # run separation
                 results = pool.starmap(
                     _separate_cfg,
