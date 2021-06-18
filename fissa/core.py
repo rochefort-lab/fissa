@@ -80,9 +80,7 @@ def extract_func(inputs):
         data[cell] = datahandler.extracttraces(curdata, masks)
 
         # store ROI outlines
-        roi_polys[cell] = []
-        for i in range(len(masks)):
-            roi_polys[cell].append(roitools.find_roi_edge(masks[i]))
+        roi_polys[cell] = [roitools.find_roi_edge(mask) for mask in masks]
 
     return data, roi_polys, mean
 
