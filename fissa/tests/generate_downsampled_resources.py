@@ -15,7 +15,7 @@ import tifffile
 import zipfile
 
 from fissa import readimagejrois
-from fissa import datahandler
+from fissa import extraction
 
 
 def maybe_make_dir(dirname):
@@ -329,6 +329,8 @@ def main():
     dwn_x = 4
     dwn_y = dwn_x
     dwn_t = 10
+
+    datahandler = extraction.DataHandlerTifffile
 
     # Extract the rois from the zip file
     print(
