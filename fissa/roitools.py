@@ -384,7 +384,7 @@ def getmasks(rois, shpe):
     nrois = len(rois)
 
     # start empty mask list
-    masks = [''] * nrois
+    masks = []
 
     for i in range(nrois):
         # transpose if array of 2 by n
@@ -394,7 +394,7 @@ def getmasks(rois, shpe):
         # transform current roi to mask
         mask = poly2mask(rois[i], shpe)
         # store in list
-        masks[i] = np.array(mask[0].todense())
+        masks.append(np.array(mask[0].todense()))
 
     return masks
 
