@@ -152,7 +152,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
 
         Parameters
         ----------
-        image : str or :term:`array_like`
+        image : str or :term:`array_like` shaped (time, height, width)
             Either a path to a TIFF file, or :term:`array_like` data.
 
         Returns

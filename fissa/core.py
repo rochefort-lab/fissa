@@ -11,7 +11,9 @@ from __future__ import print_function
 from past.builtins import basestring
 
 import collections
+import functools
 import glob
+import itertools
 from multiprocessing import Pool
 import os.path
 import sys
@@ -30,18 +32,30 @@ from . import neuropil as npil
 from . import roitools
 
 
-def extract_func(inputs):
-    """Extract data using multiprocessing.
+def extract_func(image, rois, nRegions=4, expansion=1, datahandler=None):
+    r"""
+    Extract data for all ROIs in a single 3d array or TIFF file.
+
+    .. versionchanged:: 1.0.0
 
     Parameters
     ----------
-    inputs : list
-        list of inputs
-
-        0. image array
-        1. the rois
-        2. number of neuropil regions
-        3. how much larger neuropil region should be then central ROI
+    image : str or :term:`array_like` shaped (time, height, width)
+        Either a path to a multipage TIFF file, or 3d :term:`array_like` data.
+    rois : str or :term:`list` of :term:`array_like`
+        Either a string containing a path to an ImageJ roi zip file,
+        or a list of arrays encoding polygons, or list of binary arrays
+        representing masks.
+    nRegions : int, default=4
+        Number of neuropil regions to draw. Use a higher number for
+        densely labelled tissue. Default is ``4``.
+    expansion : float, default=1
+        Expansion factor for the neuropil region, relative to the
+        ROI area. Default is ``1``. The total neuropil area will be
+        ``nRegions * expansion * area(ROI)``.
+    datahandler : fissa.extraction.DataHandlerAbstract, optional
+        A datahandler object for handling ROIs and calcium data.
+        The default is :class:`~fissa.extraction.DataHandlerTifffile`.
 
     Returns
     -------
@@ -49,14 +63,11 @@ def extract_func(inputs):
         Data across cells.
     roi_polys : dict
         Polygons for each ROI.
-    mean : np.ndarray
+    mean : :class:`numpy.ndarray` shaped (height, width)
         Mean image.
     """
-    image = inputs[0]
-    rois = inputs[1]
-    nNpil = inputs[2]
-    expansion = inputs[3]
-    datahandler = inputs[4]
+    if datahandler is None:
+        datahandler = extraction.DataHandlerTifffile()
 
     # get data as arrays and rois as masks
     curdata = datahandler.image2array(image)
@@ -72,8 +83,9 @@ def extract_func(inputs):
     # get neuropil masks and extract signals
     for cell in range(len(base_masks)):
         # neuropil masks
-        npil_masks = roitools.getmasks_npil(base_masks[cell], nNpil=nNpil,
-                                            expansion=expansion)
+        npil_masks = roitools.getmasks_npil(
+            base_masks[cell], nNpil=nRegions, expansion=expansion
+        )
         # add all current masks together
         masks = [base_masks[cell]] + npil_masks
 
@@ -86,40 +98,83 @@ def extract_func(inputs):
     return data, roi_polys, mean
 
 
-def separate_func(inputs):
-    """Extraction function for multiprocessing.
+def separate_func(raw, roi_label=None, alpha=0.1, method="nmf"):
+    r"""
+    Separate signals in a 2d array.
+
+    .. versionchanged:: 1.0.0
 
     Parameters
     ----------
-    inputs : list
-        list of inputs
+    raw : :term:`array_like` shaped (regions, observations)
+        Raw signals. A 2d array containing mixed input signals.
+        Each column of `raw` should be a different signal, and each row an
+        observation of the signals. For ``raw[i, j]``, ``j`` is the signal
+        index, and ``i`` is the observation index.
+        The first column, ``j = 0``, should be the signal from the ROI,
+        for which a matching output signal will be identified.
 
-        0. Array with signals to separate
-        1. Alpha input to npil.separate
-        2. Method
-        3. Current ROI number
+    roi_label : str or int, optional
+        Label/name or index of the ROI currently being processed.
+        Only used for progress messages.
+
+    alpha : float, default=0.1
+        Sparsity regularizaton weight for NMF algorithm. Set to zero to
+        remove regularization. Default is ``0.1``.
+        (Only used for ``method="nmf"``.)
+
+    method : {"nmf", "ica"}, default="nmf"
+        Which blind source-separation method to use. Either ``"nmf"``
+        for non-negative matrix factorization, or ``"ica"`` for
+        independent component analysis. Default is ``"nmf"``.
 
     Returns
     -------
-    Xsep : numpy.ndarray
-        The raw separated traces.
-    Xmatch : numpy.ndarray
-        The separated traces matched to the primary signal.
-    Xmixmat : numpy.ndarray
-        Mixing matrix.
-    convergence : dict
-        Metadata for the convergence result.
-    """
-    X = inputs[0]
-    alpha = inputs[1]
-    method = inputs[2]
+    Xsep : :class:`numpy.ndarray`, shaped (signals, observations)
+        The separated signals, unordered.
 
+    Xmatch : :class:`numpy.ndarray`, shaped (signals, observations)
+        The separated traces, ordered by matching score against the raw ROI
+        signal.
+
+    Xmixmat : :class:`numpy.ndarray`, shaped (signals, signals)
+        Mixing matrix.
+
+    convergence : dict
+        Metadata for the convergence result, with the following keys and
+        values:
+
+        converged : bool
+            Whether the separation model converged, or if it ended due to
+            reaching the maximum number of iterations.
+        iterations : int
+            The number of iterations which were needed for the separation model
+            to converge.
+        max_iterations : int
+            Maximum number of iterations to use when fitting the
+            separation model.
+        random_state : int or None
+            Random seed used to initialise the separation model.
+    """
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
+        raw, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
     )
-    ROInum = inputs[3]
-    print('Finished ROI number ' + str(ROInum))
+    message = "Finished separating ROI"
+    if roi_label is not None:
+        message += " number {}".format(roi_label)
+    print(message)
     return Xsep, Xmatch, Xmixmat, convergence
+
+
+if sys.version_info < (3, 0):
+    # Define helper functions which are needed on Python 2.7, which does not
+    # have multiprocessing.Pool.starmap.
+
+    def _extract_func_wrapper(args):
+        return extract_func(*args)
+
+    def _separate_func_wrapper(args):
+        return separate_func(*args)
 
 
 class Experiment():
@@ -371,12 +426,10 @@ class Experiment():
             raise ValueError(
                 "Only one of lowmemory_mode and datahandler should be set."
             )
-        elif datahandler is not None:
-            self.datahandler = datahandler
         elif lowmemory_mode:
             self.datahandler = extraction.DataHandlerTifffileLazy()
         else:
-            self.datahandler = extraction.DataHandlerTifffile()
+            self.datahandler = datahandler
 
         # define class variables
         self.folder = folder
@@ -576,11 +629,14 @@ class Experiment():
         self.clear()
         # Extract signals
         print('Doing region growing and data extraction....')
-        # define inputs
-        inputs = [[]] * self.nTrials
-        for trial in range(self.nTrials):
-            inputs[trial] = [self.images[trial], self.rois[trial],
-                             self.nRegions, self.expansion, self.datahandler]
+
+        # Make a handle to the extraction function with parameters configured
+        _extract_cfg = functools.partial(
+            extract_func,
+            nRegions=self.nRegions,
+            expansion=self.expansion,
+            datahandler=self.datahandler,
+        )
 
         # Check whether we should use multiprocessing
         use_multiprocessing = (
@@ -590,19 +646,27 @@ class Experiment():
         if use_multiprocessing and sys.version_info < (3, 0):
             # define pool
             pool = Pool(self.ncores_preparation)
-
             # run extraction
-            results = pool.map(extract_func, inputs)
+            results = pool.map(
+                _extract_func_wrapper,
+                zip(
+                    self.images,
+                    self.rois,
+                    itertools.repeat(self.nRegions, len(self.images)),
+                    itertools.repeat(self.expansion, len(self.images)),
+                    itertools.repeat(self.datahandler, len(self.images)),
+                ),
+            )
             pool.close()
             pool.join()
 
         elif use_multiprocessing:
             with Pool(self.ncores_preparation) as pool:
                 # run extraction
-                results = pool.map(extract_func, inputs)
+                results = pool.starmap(_extract_cfg, zip(self.images, self.rois))
 
         else:
-            results = [extract_func(inputs[trial]) for trial in range(self.nTrials)]
+            results = [_extract_cfg(*args) for args in zip(self.images, self.rois)]
 
         # get number of cells
         nCell = len(results[0][1])
@@ -730,20 +794,25 @@ class Experiment():
         mixmat = np.copy(sep)
         info = np.copy(sep)
 
-        # loop over cells to define function inputs
-        inputs = [[]] * int(self.nCell)
-        for cell in range(self.nCell):
-            # initiate concatenated data
-            X = np.concatenate(self.raw[cell], axis=1)
+        # Make a handle to the separation function with parameters configured
+        _separate_cfg = functools.partial(
+            separate_func,
+            alpha=self.alpha,
+            method=self.method,
+        )
 
-            # check for below 0 values
+        # Join together the raw data across trials, collapsing down the trials
+        def _vectorise(raw_cell):
+            X = np.concatenate(raw_cell, axis=1)
+            # Check for values below 0
             if X.min() < 0:
-                warnings.warn('Found values below zero in signal, ' +
-                              'setting minimum to 0.')
+                warnings.warn(
+                    "Found values below zero in signal. Offsetting so minimum is 0."
+                )
                 X -= X.min()
+            return X
 
-            # update inputs
-            inputs[cell] = [X, self.alpha, self.method, cell]
+        raw_vectors = [_vectorise(self.raw[cell]) for cell in range(self.nCell)]
 
         # Check whether we should use multiprocessing
         use_multiprocessing = (
@@ -753,18 +822,30 @@ class Experiment():
         if use_multiprocessing and sys.version_info < (3, 0):
             # define pool
             pool = Pool(self.ncores_separation)
-
             # run separation
-            results = pool.map(separate_func, inputs)
+            results = pool.map(
+                _separate_func_wrapper,
+                zip(
+                    raw_vectors,
+                    range(len(raw_vectors)),
+                    itertools.repeat(self.alpha, len(raw_vectors)),
+                    itertools.repeat(self.method, len(raw_vectors)),
+                ),
+            )
             pool.close()
             pool.join()
 
         elif use_multiprocessing:
             with Pool(self.ncores_separation) as pool:
                 # run separation
-                results = pool.map(separate_func, inputs)
+                results = pool.starmap(
+                    _separate_cfg,
+                    zip(raw_vectors, range(len(raw_vectors))),
+                )
         else:
-            results = [separate_func(inputs[cell]) for cell in range(self.nCell)]
+            results = [
+                _separate_cfg(X, roi_label=i) for i, X in enumerate(raw_vectors)
+            ]
 
         # read results
         for cell in range(self.nCell):
