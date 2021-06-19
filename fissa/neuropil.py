@@ -115,7 +115,7 @@ def separate(
 
     for i_try in range(maxtries):
 
-        if sep_method.lower() == "ica":
+        if sep_method.lower() in {"ica", "fastica"}:
             # Use sklearn's implementation of ICA.
 
             # Make an instance of the FastICA class. We can do whitening of
@@ -147,6 +147,23 @@ def separate(
             # Perform NMF and find separated signals
             S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
 
+        elif hasattr(sklearn.decomposition, sep_method):
+
+            print(
+                "Using ad hoc signal decomposition method"
+                " sklearn.decomposition.{}. Only NMF and ICA are officially"
+                " supported.".format(sep_method)
+            )
+
+            # Load up arbitrary decomposition algorithm from sklearn
+            estimator = getattr(sklearn.decomposition, sep_method)(
+                n_components=n,
+                tol=tol,
+                max_iter=maxiter,
+                random_state=random_state,
+            )
+            S_sep = estimator.fit_transform(S.T)
+
         else:
             raise ValueError('Unknown separation method "{}".'.format(sep_method))
 
@@ -154,7 +171,7 @@ def separate(
         if estimator.n_iter_ < maxiter:
             print(
                 "{} converged after {} iterations.".format(
-                    sep_method.upper(), estimator.n_iter_
+                    sep_method, estimator.n_iter_
                 )
             )
             break
