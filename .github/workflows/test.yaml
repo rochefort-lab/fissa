@@ -86,7 +86,17 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest --cov=fissa --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
+        python -m pytest --cov=fissa --cov-report term --cov-report xml --junitxml=testresults.xml
+
+    - name: Upload unittest coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        flags: unittests
+        env_vars: OS,PYTHON
+        name: Python ${{ matrix.python-version }} on ${{ runner.os }}
+
+    - name: Delete current coverage files
+      run: rm .coverage.* *.xml || echo "Continuing"
 
     - name: "Notebooks: Remove SIMA notebooks"
       if: ${{ env.test_sima != 'True' }}
@@ -105,12 +115,12 @@ jobs:
       run: python -m pytest --nbsmoke-lint ./examples/
 
     - name: "Notebooks: Smoke test"
-      run: python -m pytest --nbsmoke-run ./examples/
+      run: python -m pytest --nbsmoke-run ./examples/ --cov=fissa --cov-report term --cov-report xml --junitxml=nbsmoke.xml
 
-    - name: Upload coverage to Codecov
+    - name: "Notebooks: Upload coverage to Codecov"
       uses: codecov/codecov-action@v1
       with:
-        flags: unittests
+        flags: nbsmoke
         env_vars: OS,PYTHON
         name: Python ${{ matrix.python-version }} on ${{ runner.os }}
 
