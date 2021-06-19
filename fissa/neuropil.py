@@ -14,8 +14,17 @@ import sklearn.decomposition
 
 
 def separate(
-        S, sep_method='nmf', n=None, maxiter=10000, tol=1e-4,
-        random_state=892, maxtries=10, W0=None, H0=None, alpha=0.1):
+    S,
+    sep_method="nmf",
+    n=None,
+    maxiter=10000,
+    tol=1e-4,
+    random_state=892,
+    maxtries=10,
+    W0=None,
+    H0=None,
+    alpha=0.1,
+):
     """
     Find independent signals, sorted by matching score against the first input signal.
 
@@ -191,13 +200,15 @@ def separate(
             print("Trying a new random state.")
             # Change to a new random_state
             if random_state is not None:
-                random_state = (random_state + 1) % 2**32
+                random_state = (random_state + 1) % 2 ** 32
 
     if estimator.n_iter_ == maxiter:
-        print((
-            'Warning: maximum number of allowed tries reached at {} '
-            'iterations for {} tries of different random seed states.'
-        ).format(estimator.n_iter_, i_try + 1))
+        print(
+            "Warning: maximum number of allowed tries reached at {} iterations"
+            " for {} tries of different random seed states.".format(
+                estimator.n_iter_, i_try + 1
+            )
+        )
 
     if hasattr(estimator, "mixing_"):
         A_sep = estimator.mixing_
