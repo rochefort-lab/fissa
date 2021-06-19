@@ -10,7 +10,7 @@ Created:
 
 import numpy as np
 import numpy.random as rand
-from sklearn.decomposition import FastICA, NMF, PCA
+import sklearn.decomposition
 
 
 def separate(
@@ -105,7 +105,7 @@ def separate(
     if n is None:
         if sep_method.lower() == "ica":
             # Perform PCA
-            pca = PCA(whiten=False)
+            pca = sklearn.decomposition.PCA(whiten=False)
             pca.fit(S.T)
 
             # find number of components with at least x percent explained var
@@ -120,7 +120,7 @@ def separate(
 
             # Make an instance of the FastICA class. We can do whitening of
             # the data now.
-            estimator = FastICA(
+            estimator = sklearn.decomposition.FastICA(
                 n_components=n,
                 whiten=True,
                 max_iter=maxiter,
@@ -134,7 +134,7 @@ def separate(
         elif sep_method.lower() == "nmf":
 
             # Make an instance of the sklearn NMF class
-            estimator = NMF(
+            estimator = sklearn.decomposition.NMF(
                 init="nndsvdar" if W0 is None and H0 is None else "custom",
                 n_components=n,
                 alpha=alpha,
