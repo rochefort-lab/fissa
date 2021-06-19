@@ -204,9 +204,6 @@ def separate(
     else:
         A_sep = estimator.components_.T
 
-    # make empty matched structure
-    S_matched = np.zeros(np.shape(S_sep))
-
     # Normalize the columns in A so that sum(column)=1 (can be done in one line
     # too).
     # This results in a relative score of how strongly each separated signal
@@ -229,10 +226,11 @@ def separate(
     # contribution is sorted first.
     order = np.argsort(scores)[::-1]
 
-    # order the signals according to their scores
+    # Order the signals according to their scores, and scale the magnitude
+    # back to the original magnitude.
+    S_matched = np.zeros_like(S_sep)
     for j in range(n):
-        s_ = A_sep[0, order[j]] * S_sep[:, order[j]]
-        S_matched[:, j] = s_
+        S_matched[:, j] = A_sep[0, order[j]] * S_sep[:, order[j]]
 
     # save the algorithm convergence info
     convergence = {}
