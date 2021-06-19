@@ -16,12 +16,12 @@ import sklearn.decomposition
 def separate(
         S, sep_method='nmf', n=None, maxiter=10000, tol=1e-4,
         random_state=892, maxtries=10, W0=None, H0=None, alpha=0.1):
-    """For the signals in S, finds the independent signals underlying it,
-    using ica or nmf.
+    """
+    Find independent signals, sorted by matching score against the first input signal.
 
     Parameters
     ----------
-    S : :term:`array_like`, shaped (signal, time)
+    S : :term:`array_like` shaped (signals, observations)
         2-d array containing mixed input signals.
         Each column of `S` should be a different signal, and each row an
         observation of the signals. For ``S[i, j]``, ``j`` is a signal, and
@@ -63,28 +63,34 @@ def separate(
 
     Returns
     -------
-    S_sep : numpy.ndarray, shaped (signal, time)
+    S_sep : :class:`numpy.ndarray` shaped (signals, observations)
         The raw separated traces.
-    S_matched : numpy.ndarray, shaped (signal, time)
+    S_matched : :class:`numpy.ndarray` shaped (signals, observations)
         The separated traces matched to the primary signal, in order
         of matching quality (see Notes below).
-    A_sep : numpy.ndarray
+    A_sep : :class:`numpy.ndarray` shaped (signals, signals)
         Mixing matrix.
     convergence : dict
-        Metadata for the convergence result, with keys:
+        Metadata for the convergence result, with the following keys and
+        values:
 
-        - ``"random_state"``: seed for ICA initiation
-        - ``"iterations"``: number of iterations needed for convergence
-        - ``"max_iterations"``: maximum number of iterations allowed
-        - ``"converged"``: whether the algorithm converged or not (`bool`)
+        ``convergence["random_state"]``
+            Seed for estimator initiation.
+        ``convergence["iterations"]``
+            Number of iterations needed for convergence.
+        ``convergence["max_iterations"]``
+            Maximum number of iterations allowed.
+        ``convergence["converged"]``
+            Whether the algorithm converged or not (:class:`bool`).
 
     Notes
     -----
-    Concept by Scott Lowe and Sander Keemink.
-    Normalize the columns in estimated mixing matrix A so that
-    ``sum(column) = 1``.
-    This results in a relative score of how strongly each separated signal
-    is represented in each ROI signal.
+    To identify which independent signal matches the primary signal best,
+    we first normalize the columns in the output mixing matrix `A` such that
+    ``sum(A[:, separated]) = 1``. This results in a relative score of how
+    strongly each raw signal contributes to each separated signal. From this,
+    we find the separated signal to which the ROI trace makes the largest
+    (relative) contribution.
 
     See Also
     --------
@@ -205,6 +211,11 @@ def separate(
     # too).
     # This results in a relative score of how strongly each separated signal
     # is represented in each ROI signal.
+    #
+    # Our mixing matrix is shaped (input/raw, output/separated). For each
+    # separated (output) signal, we find how much weighting each input (raw)
+    # signal contributes to that separated signal, relative to the other input
+    # signals.
     A = abs(np.copy(A_sep))
     for j in range(n):
         if np.sum(A[:, j]) != 0:
@@ -213,7 +224,9 @@ def separate(
     # get the scores for the somatic signal
     scores = A[0, :]
 
-    # Rank the original signals in descending ordering of their score
+    # Rank the separated signals in descending ordering of their score.
+    # The separated signal to which the somatic signal makes up the largest
+    # contribution is sorted first.
     order = np.argsort(scores)[::-1]
 
     # order the signals according to their scores
