@@ -46,7 +46,7 @@ class TestNeuropilFuns(BaseTestCase):
 
         # Run tests
         i_subtest = 0
-        for method in ['nmf', 'ica']:
+        for method in ["nmf", "ica", "FactorAnalysis"]:
             with self.subTest(i_subtest):
                 run_method(method, expected_converged=True, maxtries=1, n=2)
             i_subtest += 1
