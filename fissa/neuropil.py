@@ -103,7 +103,7 @@ def separate(
 
     # estimate number of signals to find, if not given
     if n is None:
-        if sep_method == 'ica':
+        if sep_method.lower() == "ica":
             # Perform PCA
             pca = PCA(whiten=False)
             pca.fit(S.T)
@@ -115,7 +115,7 @@ def separate(
 
     for i_try in range(maxtries):
 
-        if sep_method == "ica":
+        if sep_method.lower() == "ica":
             # Use sklearn's implementation of ICA.
 
             # Make an instance of the FastICA class. We can do whitening of
@@ -131,7 +131,7 @@ def separate(
             # Perform ICA and find separated signals
             S_sep = estimator.fit_transform(S.T)
 
-        elif sep_method == "nmf":
+        elif sep_method.lower() == "nmf":
 
             # Make an instance of the sklearn NMF class
             estimator = NMF(
