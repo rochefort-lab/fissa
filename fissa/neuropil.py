@@ -186,7 +186,7 @@ def separate(
         if estimator.n_iter_ < maxiter:
             print(
                 "{} converged after {} iterations.".format(
-                    sep_method, estimator.n_iter_
+                    repr(estimator).split("(")[0], estimator.n_iter_
                 )
             )
             break
