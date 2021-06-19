@@ -131,7 +131,7 @@ def separate(
             # Perform ICA and find separated signals
             S_sep = estimator.fit_transform(S.T)
 
-        elif sep_method.lower() == "nmf":
+        elif sep_method.lower() in {"nmf", "nnmf"}:
 
             # Make an instance of the sklearn NMF class
             estimator = sklearn.decomposition.NMF(
