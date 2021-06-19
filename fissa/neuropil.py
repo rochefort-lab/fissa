@@ -21,11 +21,11 @@ def separate(
 
     Parameters
     ----------
-    S : :term:`array_like`
+    S : :term:`array_like`, shaped (signal, time)
         2-d array containing mixed input signals.
         Each column of `S` should be a different signal, and each row an
-        observation of the signals. For ``S[i,j]``, `j` = each signal,
-        ``i`` = signal content.
+        observation of the signals. For ``S[i, j]``, ``j`` is a signal, and
+        ``i`` is an observation.
         The first column, ``j = 0``, is considered the primary signal and the
         one for which we will try to extract a decontaminated equivalent.
 
@@ -36,13 +36,14 @@ def separate(
         - ``"nmf"``: Non-negative Matrix Factorization
 
     n : int, optional
-        How many components to estimate. If ``None`` (default), use PCA to
-        estimate how many components would explain at least 99% of the
-        variance and adopt this value for ``n``.
+        How many components to estimate. If ``None`` (default), for the NMF
+        method, ``n`` is the number of input signals; for the ICA method,
+        we use PCA to estimate how many components would explain at least 99%
+        of the variance and adopt this value for ``n``.
     maxiter : int, optional
-        Number of maximally allowed iterations. Default is ``500``.
+        Number of maximally allowed iterations. Default is ``10000``.
     tol : float, optional
-        Error tolerance for termination. Default is ``1e-5``.
+        Error tolerance for termination. Default is ``1e-4``.
     random_state : int or None, optional
         Initial state for the random number generator. Set to ``None`` to use
         the numpy.random default. Default seed is ``892``.
@@ -62,11 +63,11 @@ def separate(
 
     Returns
     -------
-    S_sep : numpy.ndarray
+    S_sep : numpy.ndarray, shaped (signal, time)
         The raw separated traces.
-    S_matched : numpy.ndarray
+    S_matched : numpy.ndarray, shaped (signal, time)
         The separated traces matched to the primary signal, in order
-        of matching quality (see Methods below).
+        of matching quality (see Notes below).
     A_sep : numpy.ndarray
         Mixing matrix.
     convergence : dict
