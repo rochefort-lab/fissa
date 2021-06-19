@@ -113,94 +113,73 @@ def separate(
         else:
             n = S.shape[0]
 
-    if sep_method == 'ica':
-        # Use sklearn's implementation of ICA.
+    for i_try in range(maxtries):
 
-        for ith_try in range(maxtries):
+        if sep_method == "ica":
+            # Use sklearn's implementation of ICA.
+
             # Make an instance of the FastICA class. We can do whitening of
             # the data now.
-            ica = FastICA(n_components=n, whiten=True, max_iter=maxiter,
-                          tol=tol, random_state=random_state)
+            estimator = FastICA(
+                n_components=n,
+                whiten=True,
+                max_iter=maxiter,
+                tol=tol,
+                random_state=random_state,
+            )
 
             # Perform ICA and find separated signals
-            S_sep = ica.fit_transform(S.T)
+            S_sep = estimator.fit_transform(S.T)
 
-            # check if max number of iterations was reached
-            if ica.n_iter_ < maxiter:
-                print((
-                    'ICA converged after {} iterations.'
-                ).format(ica.n_iter_))
-                break
-            print((
-                'Attempt {} failed to converge at {} iterations.'
-            ).format(ith_try + 1, ica.n_iter_))
-            if ith_try + 1 < maxtries:
-                print('Trying a new random state.')
-                # Change to a new random_state
-                if random_state is not None:
-                    random_state = (random_state + 1) % 2**32
-
-        if ica.n_iter_ == maxiter:
-            print((
-                'Warning: maximum number of allowed tries reached at {} '
-                'iterations for {} tries of different random seed states.'
-            ).format(ica.n_iter_, ith_try + 1))
-
-        A_sep = ica.mixing_
-
-    elif sep_method == 'nmf':
-        for ith_try in range(maxtries):
-            # nSignals = nRegions +1
-            # ICA = FastICA(n_components=nSignals)
-            # ica = ICA.fit_transform(mixed.T)  # Reconstruct signals
-            # A_ica = ICA.mixing_  # Get estimated mixing matrix
-            #
-            #
+        elif sep_method == "nmf":
 
             # Make an instance of the sklearn NMF class
-            if W0 is None and H0 is None:
-                nmf = NMF(
-                    init='nndsvdar', n_components=n,
-                    alpha=alpha, l1_ratio=0.5,
-                    tol=tol, max_iter=maxiter, random_state=random_state)
+            estimator = NMF(
+                init="nndsvdar" if W0 is None and H0 is None else "custom",
+                n_components=n,
+                alpha=alpha,
+                l1_ratio=0.5,
+                tol=tol,
+                max_iter=maxiter,
+                random_state=random_state,
+            )
 
-                # Perform NMF and find separated signals
-                S_sep = nmf.fit_transform(S.T)
+            # Perform NMF and find separated signals
+            S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
 
-            else:
-                nmf = NMF(
-                    init='custom', n_components=n,
-                    alpha=alpha, l1_ratio=0.5,
-                    tol=tol, max_iter=maxiter, random_state=random_state)
+        else:
+            raise ValueError('Unknown separation method "{}".'.format(sep_method))
 
-                # Perform NMF and find separated signals
-                S_sep = nmf.fit_transform(S.T, W=W0, H=H0)
+        # check if max number of iterations was reached
+        if estimator.n_iter_ < maxiter:
+            print(
+                "{} converged after {} iterations.".format(
+                    sep_method.upper(), estimator.n_iter_
+                )
+            )
+            break
 
-            # check if max number of iterations was reached
-            if nmf.n_iter_ < maxiter - 1:
-                print((
-                    'NMF converged after {} iterations.'
-                ).format(nmf.n_iter_ + 1))
-                break
-            print((
-                'Attempt {} failed to converge at {} iterations.'
-            ).format(ith_try, nmf.n_iter_ + 1))
-            if ith_try + 1 < maxtries:
-                print('Trying a new random state.')
-                # Change to a new random_state
-                if random_state is not None:
-                    random_state = (random_state + 1) % 2**32
+        print(
+            "Attempt {} failed to converge at {} iterations.".format(
+                i_try + 1, estimator.n_iter_
+            )
+        )
+        if i_try + 1 < maxtries:
+            print("Trying a new random state.")
+            # Change to a new random_state
+            if random_state is not None:
+                random_state = (random_state + 1) % 2**32
 
-        if nmf.n_iter_ == maxiter - 1:
-            print((
-                'Warning: maximum number of allowed tries reached at {} '
-                'iterations for {} tries of different random seed states.'
-            ).format(nmf.n_iter_ + 1, ith_try + 1))
+    if estimator.n_iter_ == maxiter:
+        print((
+            'Warning: maximum number of allowed tries reached at {} '
+            'iterations for {} tries of different random seed states.'
+        ).format(estimator.n_iter_, i_try + 1))
 
-        A_sep = nmf.components_.T
-
+    if hasattr(estimator, "mixing_"):
+        A_sep = estimator.mixing_
     else:
-        raise ValueError('Unknown separation method "{}".'.format(sep_method))
+        A_sep = estimator.components_.T
 
     # make empty matched structure
     S_matched = np.zeros(np.shape(S_sep))
@@ -217,7 +196,7 @@ def separate(
     # get the scores for the somatic signal
     scores = A[0, :]
 
-    # get the order of scores
+    # Rank the original signals in descending ordering of their score
     order = np.argsort(scores)[::-1]
 
     # order the signals according to their scores
@@ -227,15 +206,10 @@ def separate(
 
     # save the algorithm convergence info
     convergence = {}
-    convergence['max_iterations'] = maxiter
-    if sep_method == 'ica':
-        convergence['random_state'] = random_state
-        convergence['iterations'] = ica.n_iter_
-        convergence['converged'] = not ica.n_iter_ == maxiter
-    elif sep_method == 'nmf':
-        convergence['random_state'] = random_state
-        convergence['iterations'] = nmf.n_iter_
-        convergence['converged'] = not nmf.n_iter_ == maxiter
+    convergence["max_iterations"] = maxiter
+    convergence["random_state"] = random_state
+    convergence["iterations"] = estimator.n_iter_
+    convergence["converged"] = estimator.n_iter_ != maxiter
 
     # scale back to raw magnitudes
     S_matched *= median
