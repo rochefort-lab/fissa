@@ -32,11 +32,11 @@ from . import neuropil as npil
 from . import roitools
 
 
-def extract_func(image, rois, nRegions=4, expansion=1, datahandler=None):
+def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     r"""
     Extract data for all ROIs in a single 3d array or TIFF file.
 
-    .. versionchanged:: 1.0.0
+    .. versionadded:: 1.0.0
 
     Parameters
     ----------
@@ -98,11 +98,11 @@ def extract_func(image, rois, nRegions=4, expansion=1, datahandler=None):
     return data, roi_polys, mean
 
 
-def separate_func(raw, roi_label=None, alpha=0.1, method="nmf"):
+def separate(raw, roi_label=None, alpha=0.1, method="nmf"):
     r"""
     Separate signals in a 2d array.
 
-    .. versionchanged:: 1.0.0
+    .. versionadded:: 1.0.0
 
     Parameters
     ----------
@@ -170,11 +170,11 @@ if sys.version_info < (3, 0):
     # Define helper functions which are needed on Python 2.7, which does not
     # have multiprocessing.Pool.starmap.
 
-    def _extract_func_wrapper(args):
-        return extract_func(*args)
+    def _extract_wrapper(args):
+        return extract(*args)
 
-    def _separate_func_wrapper(args):
-        return separate_func(*args)
+    def _separate_wrapper(args):
+        return separate(*args)
 
 
 class Experiment():
@@ -632,7 +632,7 @@ class Experiment():
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
-            extract_func,
+            extract,
             nRegions=self.nRegions,
             expansion=self.expansion,
             datahandler=self.datahandler,
@@ -648,7 +648,7 @@ class Experiment():
             pool = multiprocessing.Pool(self.ncores_preparation)
             # run extraction
             results = pool.map(
-                _extract_func_wrapper,
+                _extract_wrapper,
                 zip(
                     self.images,
                     self.rois,
@@ -796,7 +796,7 @@ class Experiment():
 
         # Make a handle to the separation function with parameters configured
         _separate_cfg = functools.partial(
-            separate_func,
+            separate,
             alpha=self.alpha,
             method=self.method,
         )
@@ -824,7 +824,7 @@ class Experiment():
             pool = multiprocessing.Pool(self.ncores_separation)
             # run separation
             results = pool.map(
-                _separate_func_wrapper,
+                _separate_wrapper,
                 zip(
                     raw_vectors,
                     range(len(raw_vectors)),
