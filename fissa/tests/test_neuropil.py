@@ -3,6 +3,9 @@
 Author: Sander Keemink (swkeemink@scimail.eu)
 Created: 2015-11-06
 """
+
+import warnings
+
 import numpy as np
 
 from .base_test import BaseTestCase
@@ -46,12 +49,14 @@ class NeuropilMixin:
         self.run_method(self.method, expected_converged=True, maxtries=1, n=2)
 
     def test_manual_seed(self):
-        self.run_method(
-            self.method,
-            expected_converged=True,
-            maxtries=1,
-            random_state=0,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.run_method(
+                self.method,
+                expected_converged=True,
+                maxtries=1,
+                random_state=0,
+            )
 
     def test_retry(self):
         self.run_method(self.method, maxiter=1, maxtries=3)
