@@ -420,7 +420,7 @@ def test_multiframe_mean_higherdim_pillow(base_fname, shp, dtype, datahandler):
     )
 
 
-class Rois2MasksBase():
+class Rois2MasksTestMixin:
     """Tests for rois2masks."""
 
     polys = [
@@ -428,10 +428,10 @@ class Rois2MasksBase():
         np.array([[72., 107.], [78., 130.], [100., 110.]]),
     ]
 
-    def setup_class(self):
+    def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
-        self.datahandler = None
+        # Child class must declare self.datahandler
 
     def test_imagej_zip(self):
         # load zip of rois
@@ -486,21 +486,19 @@ class Rois2MasksBase():
             self.datahandler.rois2masks(polys3d, self.data)
 
 
-class TestRois2MasksTifffile(BaseTestCase, Rois2MasksBase):
+class TestRois2MasksTifffile(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
-    def setup_class(self):
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = np.zeros((1, 176, 156))
+    def setUp(self):
+        Rois2MasksTestMixin.setUp(self)
         self.datahandler = extraction.DataHandlerTifffile()
 
 
-class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
-    """Tests for rois2masks using `~extraction.TestRois2MasksTifffileLazy`."""
+class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksTestMixin):
+    """Tests for rois2masks using `~extraction.DataHandlerTifffileLazy`."""
 
     def setUp(self):
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = np.zeros((1, 176, 156))
+        Rois2MasksTestMixin.setUp(self)
         os.makedirs(self.tempdir)
         self.filename = os.path.join(self.tempdir, "tmp.tif")
         tifffile.imsave(self.filename, self.data)
@@ -513,11 +511,10 @@ class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksBase):
             shutil.rmtree(self.tempdir)
 
 
-class TestRois2MasksPillow(BaseTestCase, Rois2MasksBase):
+class TestRois2MasksPillow(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerPillow`."""
 
-    def setup_class(self):
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = np.zeros((1, 176, 156))
+    def setUp(self):
+        Rois2MasksTestMixin.setUp(self)
         self.data = Image.fromarray(self.data.reshape(self.data.shape[-2:]).astype(np.uint8))
         self.datahandler = extraction.DataHandlerPillow()
