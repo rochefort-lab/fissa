@@ -161,14 +161,18 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-try:
-    # Use pydata on Python 3.6 and above
-    import pydata_sphinx_theme
+# Use pydata on Python 3.6 and above. If it is not available, use the
+# readthedocs theme. If that is unavailable, use the default builtin theme.
 
-    html_theme = "pydata_sphinx_theme"
-except ImportError:
-    # Use readthedocs theme
-    html_theme = "sphinx_rtd_theme"
+for name in ["pydata_sphinx_theme", "sphinx_rtd_theme"]:
+    try:
+        __import__(name)
+        html_theme = name
+        break
+    except ImportError:
+        pass
+else:
+    print("No sphinx theme installed. Using default theme.")
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
