@@ -431,7 +431,7 @@ class Rois2MasksTestMixin:
     def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
-        self.datahandler = None
+        # Child class must declare self.datahandler
 
     def test_imagej_zip(self):
         # load zip of rois
@@ -490,8 +490,7 @@ class TestRois2MasksTifffile(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
     def setUp(self):
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = np.zeros((1, 176, 156))
+        Rois2MasksTestMixin.setUp(self)
         self.datahandler = extraction.DataHandlerTifffile()
 
 
@@ -499,8 +498,7 @@ class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerTifffileLazy`."""
 
     def setUp(self):
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = np.zeros((1, 176, 156))
+        Rois2MasksTestMixin.setUp(self)
         os.makedirs(self.tempdir)
         self.filename = os.path.join(self.tempdir, "tmp.tif")
         tifffile.imsave(self.filename, self.data)
@@ -517,7 +515,6 @@ class TestRois2MasksPillow(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerPillow`."""
 
     def setUp(self):
-        self.expected = roitools.getmasks(self.polys, (176, 156))
-        self.data = np.zeros((1, 176, 156))
+        Rois2MasksTestMixin.setUp(self)
         self.data = Image.fromarray(self.data.reshape(self.data.shape[-2:]).astype(np.uint8))
         self.datahandler = extraction.DataHandlerPillow()
