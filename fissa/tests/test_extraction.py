@@ -431,7 +431,7 @@ class Rois2MasksTestMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def setup_class(self):
+    def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
         self.datahandler = None
@@ -492,7 +492,7 @@ class Rois2MasksTestMixin:
 class TestRois2MasksTifffile(Rois2MasksTestMixin, BaseTestCase):
     """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
-    def setup_class(self):
+    def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
         self.datahandler = extraction.DataHandlerTifffile()
@@ -519,7 +519,7 @@ class TestRois2MasksTifffileLazy(Rois2MasksTestMixin, BaseTestCase):
 class TestRois2MasksPillow(Rois2MasksTestMixin, BaseTestCase):
     """Tests for rois2masks using `~extraction.DataHandlerPillow`."""
 
-    def setup_class(self):
+    def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
         self.data = Image.fromarray(self.data.reshape(self.data.shape[-2:]).astype(np.uint8))
