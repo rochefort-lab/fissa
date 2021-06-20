@@ -1,2 +1,2 @@
 -r ../requirements.txt
--r ../requirements_docs.txt
+-r ../requirements-docs.txt

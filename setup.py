@@ -20,10 +20,10 @@ install_requires = read('requirements.txt').splitlines()
 extras_require = {}
 
 # Notebook dependencies for plotting
-extras_require['plotting'] = read('requirements_plots.txt').splitlines()
+extras_require['plotting'] = read('requirements-plots.txt').splitlines()
 
 # Dependencies for generating documentation
-extras_require['docs'] = read('requirements_docs.txt').splitlines()
+extras_require['docs'] = read('requirements-docs.txt').splitlines()
 
 # Test dependencies
 extras_require["test"] = read("requirements-test.txt").splitlines()

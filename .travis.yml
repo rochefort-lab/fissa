@@ -299,14 +299,14 @@ install:
   - cat requirements.txt requirements-test.txt > requirements_all.txt
   # Conditionally install the packages which are needed for building docs
   - if [[ "$BUILD_DOCS" == "true" ]]; then
-        cat requirements_docs.txt >> requirements_all.txt;
+        cat requirements-docs.txt >> requirements_all.txt;
     fi
   # Conditionally install the packages which are needed for plotting
   # Also, tell matplotlib to use the agg backend and not X server
   - |
     if [[ "$TEST_NOTEBOOKS" != "" && "$TEST_NOTEBOOKS" != "false" ]]; then
         export MPLBACKEND="agg";
-        cat requirements_plots.txt >> requirements_all.txt;
+        cat requirements-plots.txt >> requirements_all.txt;
         if [[ "$USE_SIMA" == "true" ]]; then
             echo "sima" >> requirements_all.txt;
         else
