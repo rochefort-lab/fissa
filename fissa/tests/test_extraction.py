@@ -499,7 +499,7 @@ class TestRois2MasksTifffile(Rois2MasksTestMixin, BaseTestCase):
 
 
 class TestRois2MasksTifffileLazy(Rois2MasksTestMixin, BaseTestCase):
-    """Tests for rois2masks using `~extraction.TestRois2MasksTifffileLazy`."""
+    """Tests for rois2masks using `~extraction.DataHandlerTifffileLazy`."""
 
     def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
