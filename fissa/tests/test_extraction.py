@@ -428,9 +428,6 @@ class Rois2MasksTestMixin:
         np.array([[72., 107.], [78., 130.], [100., 110.]]),
     ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def setUp(self):
         self.expected = roitools.getmasks(self.polys, (176, 156))
         self.data = np.zeros((1, 176, 156))
@@ -489,7 +486,7 @@ class Rois2MasksTestMixin:
             self.datahandler.rois2masks(polys3d, self.data)
 
 
-class TestRois2MasksTifffile(Rois2MasksTestMixin, BaseTestCase):
+class TestRois2MasksTifffile(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerTifffile`."""
 
     def setUp(self):
@@ -498,7 +495,7 @@ class TestRois2MasksTifffile(Rois2MasksTestMixin, BaseTestCase):
         self.datahandler = extraction.DataHandlerTifffile()
 
 
-class TestRois2MasksTifffileLazy(Rois2MasksTestMixin, BaseTestCase):
+class TestRois2MasksTifffileLazy(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerTifffileLazy`."""
 
     def setUp(self):
@@ -516,7 +513,7 @@ class TestRois2MasksTifffileLazy(Rois2MasksTestMixin, BaseTestCase):
             shutil.rmtree(self.tempdir)
 
 
-class TestRois2MasksPillow(Rois2MasksTestMixin, BaseTestCase):
+class TestRois2MasksPillow(BaseTestCase, Rois2MasksTestMixin):
     """Tests for rois2masks using `~extraction.DataHandlerPillow`."""
 
     def setUp(self):
