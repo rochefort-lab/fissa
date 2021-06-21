@@ -7,6 +7,7 @@ import shutil
 import unittest
 
 import numpy as np
+from scipy.io import loadmat
 
 from .base_test import BaseTestCase
 from .. import core
@@ -698,9 +699,16 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.save_to_matlab()
-        expected_file = os.path.join(self.output_dir, 'matlab.mat')
-        self.assertTrue(os.path.isfile(expected_file))
-        #TODO: Check contents of the .mat file
+        fname = os.path.join(self.output_dir, "matlab.mat")
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        for field in ["raw", "result"]:
+            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            exp.roi_polys[0, 0][0][0],
+        )
 
     def test_matlab_custom_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -708,7 +716,14 @@ class TestExperimentA(BaseTestCase):
         fname = os.path.join(self.output_dir, "test_output.mat")
         exp.save_to_matlab(fname)
         self.assertTrue(os.path.isfile(fname))
-        #TODO: Check contents of the .mat file
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        for field in ["raw", "result"]:
+            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            exp.roi_polys[0, 0][0][0],
+        )
 
     def test_matlab_no_cache_no_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
@@ -718,7 +733,20 @@ class TestExperimentA(BaseTestCase):
     def test_matlab_deltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        exp.save_to_matlab()
         exp.calc_deltaf(4)
         exp.save_to_matlab()
-        #TODO: Check contents of the .mat file
+        fname = os.path.join(self.output_dir, "matlab.mat")
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        for kmt, kpy in [("raw",) * 2, ("result",) * 2, ("df_result", "deltaf_result")]:
+            self.assert_allclose(M[kmt][0, 0][0][0, 0][0], getattr(exp, kpy)[0, 0])
+        # Row and column vectors on MATLAB are 2d instead of 1d, and df_raw
+        # is a vector, not a matrix, so has an extra dimension.
+        # N.B. This extra dimension is in the wrong place as it doesn't align
+        # with the other attributes.
+        self.assert_allclose(M["df_raw"][0, 0][0][0, 0][0][0, :], exp.deltaf_raw[0, 0])
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            exp.roi_polys[0, 0][0][0],
+        )
