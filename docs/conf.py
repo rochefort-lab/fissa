@@ -271,19 +271,18 @@ epub_exclude_files = ['search.html']
 
 # -- Options for intersphinx extension ---------------------------------------
 
-# Example configuration for intersphinx: refer to the Python standard library.
+# Configuration for intersphinx
 # Common intersphinx mappings can be found here:
 # https://gist.github.com/bskinn/0e164963428d4b51017cebdb6cda5209
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/", None),
-    "python3": ("https://docs.python.org/3/", None),
+    "python": ("https://docs.python.org/{.major}".format(sys.version_info), None),
     "attrs": ("https://www.attrs.org/en/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
-    "pandas": ("https://pandas.pydata.org/docs/", None),
-    "Pillow": ("https://pillow.readthedocs.io/en/latest/", None),
-    "skimage": ("https://scikit-image.org/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "Pillow": ("https://pillow.readthedocs.io/en/stable/", None),
+    "skimage": ("https://scikit-image.org/docs/stable/", None),
     "sklearn": ("https://scikit-learn.org/stable/", None),
 }
 
