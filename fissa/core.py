@@ -1459,6 +1459,167 @@ class Experiment:
         if self.folder is not None:
             self.save_separated()
 
+    def to_matfile(self, fname=None, legacy=False):
+        r"""Save the results to a MATLAB file.
+
+        .. versionadded:: 1.0.0
+
+        This will generate a MAT-file (.mat) which can be loaded into MATLAB.
+        The MAT-file contains structs for all the experiment output attributes
+        (:attr:`roi_polys`, :attr:`result`, :attr:`raw`, etc.)
+        and analysis parameters (:attr:`expansion`, :attr:`nRegions`,
+        :attr:`alpha`, etc.).
+        If Δf/f\ :sub:`0` was calculated with :meth:`calc_deltaf`,
+        :attr:`deltaf_result` and :attr:`deltaf_raw` are also included.
+
+        These can be interfaced with as illustrated below.
+
+        ``result{1, 1}(1, :)``
+            The separated signal for the first cell and first trial.
+            This is equivalent to ``experiment.result[0, 0][0, :]`` when
+            interacting with the :class:`Experiment` object in Python.
+        ``result{roi, trial}(1, :)``
+            The separated signal for the ``roi``-th cell and ``trial``-th trial.
+            This is equivalent to
+            ``experiment.result[roi - 1, trial - 1][0, :]`` when
+            interacting with the :class:`Experiment` object in Python.
+        ``result{roi, trial}(2, :)``
+            A contaminating signal.
+        ``raw{roi, trial}(1, :)``
+            Raw measured cell signal, average over the ROI.
+            This is equivalent to ``experiment.raw[roi - 1, trial - 1][0, :]``
+            when interacting with the :class:`Experiment` object in Python.
+        ``raw{roi, trial}(2, :)``
+            Raw signal from first neuropil region (of ``nRegions``).
+        ``roi_polys{roi, trial}{1}``
+            Polygon outlining the ROI, as an n-by-2 array of coordinates.
+        ``roi_polys{roi, trial}{2}``
+            Polygon outlining the first neuropil region (of ``nRegions``),
+            as an n-by-2 array of coordinates.
+
+        Examples
+        --------
+        Here are some example MATLAB plots.
+
+        Plotting raw and decontaminated traces:
+
+        .. code:: octave
+
+            % Load the FISSA output data
+            S = load('separated.mat')
+            % Separated signal for the third ROI, second trial
+            roi = 3; trial = 2;
+            % Plot the raw and result traces for the ROI signal
+            figure; hold on;
+            plot(S.raw{roi, trial}(1, :));
+            plot(S.result{roi, trial}(1, :));
+            title(sprintf('ROI %d, Trial %d', roi, trial));
+            xlabel('Time (frame number)');
+            ylabel('Signal intensity (candela per unit area)');
+            legend({'Raw', 'Result'});
+
+        If all ROIs are contiguous and described by a single contour,
+        the the mean image and ROI locations for one trial can be plotted as
+        follows:
+
+        .. code:: octave
+
+            % Load the FISSA output data
+            S = load('separated.mat')
+            trial = 1;
+            figure; hold on;
+            % Plot the mean image
+            imagesc(squeeze(S.means(trial, :, :)));
+            colormap('gray');
+            % Plot ROI locations
+            for i_roi = 1:size(S.result, 1);
+                contour = S.roi_polys{i_roi, trial}{1};
+                plot(contour(:, 2), contour(:, 1));
+            end
+            set(gca, 'YDir', 'reverse');
+
+        Parameters
+        ----------
+        fname : str, optional
+            Destination for output file. The default is a file named
+            ``"separated.mat"`` within the cache save directory for the
+            experiment (the :attr:`folder` argument when the
+            :class:`Experiment` instance was created).
+        legacy : bool, default=False
+            Whether to use the legacy format of :meth:`save_to_matlab`.
+            This also changes the default output name to ``"matlab.mat"``.
+        """
+        default_name = "separated.mat"
+        if legacy:
+            default_name = "matlab.mat"
+
+        # define filename
+        if fname is None:
+            if self.folder is None:
+                raise ValueError(
+                    "fname must be provided if experiment folder is undefined"
+                )
+            fname = os.path.join(self.folder, default_name)
+
+        # initialize dictionary to save
+        M = collections.OrderedDict()
+
+        def reformat_dict_for_legacy(orig_dict):
+            new_dict = collections.OrderedDict()
+            # loop over cells and trial
+            for cell in range(len(self.result)):
+                # get current cell label
+                c_lab = "cell" + str(cell)
+                # update dictionary
+                new_dict[c_lab] = collections.OrderedDict()
+                for trial in range(len(self.result[0])):
+                    # get current trial label
+                    t_lab = "trial" + str(trial)
+                    # update dictionary
+                    new_dict[c_lab][t_lab] = orig_dict[cell][trial]
+            return new_dict
+
+        if legacy:
+            M["ROIs"] = reformat_dict_for_legacy(self.roi_polys)
+            M["raw"] = reformat_dict_for_legacy(self.raw)
+            M["result"] = reformat_dict_for_legacy(self.result)
+            if getattr(self, "deltaf_raw", None) is not None:
+                M["df_raw"] = reformat_dict_for_legacy(self.deltaf_raw)
+            if getattr(self, "deltaf_result", None) is not None:
+                M["df_result"] = reformat_dict_for_legacy(self.deltaf_result)
+        else:
+            fields = [
+                "alpha",
+                "deltaf_raw",
+                "deltaf_result",
+                "expansion",
+                "info",
+                "max_iter",
+                "max_tries",
+                "means",
+                "method",
+                "mixmat",
+                "nCell",
+                "nRegions",
+                "raw",
+                "result",
+                "roi_polys",
+                "sep",
+                "tol",
+            ]
+            for field in fields:
+                x = getattr(self, field)
+                if x is None:
+                    continue
+                M[field] = x
+
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="Creating an ndarray from ragged nested sequences",
+            )
+            savemat(fname, M)
+
     def save_to_matlab(self, fname=None):
         r"""
         Save the results to a MATLAB file.
@@ -1491,51 +1652,12 @@ class Experiment:
             Destination for output file. Default is a file named
             ``"matlab.mat"`` within the cache save directory for the experiment
             (the `folder` argument when the ``Experiment`` instance was created).
+
+        See Also
+        --------
+        Experiment.to_matfile
         """
-        # define filename
-        if fname is None:
-            if self.folder is None:
-                raise ValueError(
-                    "fname must be provided if experiment folder is undefined"
-                )
-            fname = os.path.join(self.folder, "matlab.mat")
-
-        if self.verbosity >= 1:
-            print("Exporting results to matfile {}".format(fname))
-            sys.stdout.flush()
-
-        # initialize dictionary to save
-        M = collections.OrderedDict()
-
-        def reformat_dict_for_matlab(orig_dict):
-            new_dict = collections.OrderedDict()
-            # loop over cells and trial
-            for cell in range(len(self.result)):
-                # get current cell label
-                c_lab = "cell" + str(cell)
-                # update dictionary
-                new_dict[c_lab] = collections.OrderedDict()
-                for trial in range(len(self.result[0])):
-                    # get current trial label
-                    t_lab = "trial" + str(trial)
-                    # update dictionary
-                    new_dict[c_lab][t_lab] = orig_dict[cell][trial]
-            return new_dict
-
-        M["ROIs"] = reformat_dict_for_matlab(self.roi_polys)
-        M["raw"] = reformat_dict_for_matlab(self.raw)
-        M["result"] = reformat_dict_for_matlab(self.result)
-        if getattr(self, "deltaf_raw", None) is not None:
-            M["df_raw"] = reformat_dict_for_matlab(self.deltaf_raw)
-        if getattr(self, "deltaf_result", None) is not None:
-            M["df_result"] = reformat_dict_for_matlab(self.deltaf_result)
-
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                message="Creating an ndarray from ragged nested sequences",
-            )
-            savemat(fname, M)
+        return self.to_matfile(fname=fname, legacy=True)
 
 
 def run_fissa(
