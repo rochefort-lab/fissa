@@ -153,12 +153,8 @@ class ExperimentTestMixin:
                 M["df_result"][0, 0][0][0, 0][0],
                 experiment.deltaf_result[0, 0],
             )
-            # Row and column vectors on MATLAB are 2d instead of 1d, and df_raw
-            # is a vector, not a matrix, so has an extra dimension.
-            # N.B. This extra dimension is in the wrong place as it doesn't align
-            # with the other attributes.
             self.assert_allclose(
-                M["df_raw"][0, 0][0][0, 0][0][0, :],
+                M["df_raw"][0, 0][0][0, 0][0],
                 experiment.deltaf_raw[0, 0],
             )
 
