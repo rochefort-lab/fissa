@@ -730,6 +730,26 @@ class TestExperimentA(BaseTestCase):
         exp.separate()
         self.assertRaises(ValueError, exp.save_to_matlab)
 
+    def test_matlab_from_cache(self):
+        """Save to matfile after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Cache should be loaded without calling separate
+        exp.save_to_matlab()
+        fname = os.path.join(self.output_dir, "matlab.mat")
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        for field in ["raw", "result"]:
+            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            exp.roi_polys[0, 0][0][0],
+        )
+
     def test_matlab_deltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
