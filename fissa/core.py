@@ -299,7 +299,10 @@ class Experiment():
         print("Reloading data from cache {}...".format(path))
         cache = np.load(path, allow_pickle=True)
         for field in cache.files:
-            setattr(self, field, cache[field])
+            value = cache[field]
+            if np.array_equal(value, None):
+                value = None
+            setattr(self, field, value)
 
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
