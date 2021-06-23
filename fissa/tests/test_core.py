@@ -514,6 +514,21 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
+    def test_load_none(self):
+        """Behaviour when loading a cache containing None."""
+        fields = ["raw", "result", "deltaf_result"]
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Set the fields to be something other than `None`
+        for field in fields:
+            setattr(exp, field, 42)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        np.savez_compressed(fname, **{field: None for field in fields})
+        # Load the file and check the data appears as None, not np.array(None)
+        exp.load(fname)
+        for field in fields:
+            self.assertIs(getattr(exp, field), None)
+
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
         """
