@@ -495,7 +495,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Make an empty prep save file
         np.savez_compressed(os.path.join(self.output_dir, "preparation.npz"))
-        #
         exp.separation_prep()
         actual = exp.raw
         self.assert_equal(len(actual), 1)
