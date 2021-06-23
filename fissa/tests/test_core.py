@@ -547,7 +547,7 @@ class TestExperimentA(BaseTestCase):
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue("An error occurred" in capture_post.out)
 
-        self.assertTrue(exp.raw is None)
+        self.assertIs(exp.raw, None)
 
     @unittest.expectedFailure
     def test_badprepcache_init2(self):
