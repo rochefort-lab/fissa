@@ -495,7 +495,6 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Make an empty prep save file
         np.savez_compressed(os.path.join(self.output_dir, "preparation.npz"))
-        #
         exp.separation_prep()
         actual = exp.raw
         self.assert_equal(len(actual), 1)
@@ -515,6 +514,21 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(exp.means[0].shape, self.image_shape)
         self.assert_equal(exp.means[-1].shape, self.image_shape)
 
+    def test_load_none(self):
+        """Behaviour when loading a cache containing None."""
+        fields = ["raw", "result", "deltaf_result"]
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Set the fields to be something other than `None`
+        for field in fields:
+            setattr(exp, field, 42)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        np.savez_compressed(fname, **{field: None for field in fields})
+        # Load the file and check the data appears as None, not np.array(None)
+        exp.load(fname)
+        for field in fields:
+            self.assertIs(getattr(exp, field), None)
+
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
         """
@@ -533,7 +547,7 @@ class TestExperimentA(BaseTestCase):
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue("An error occurred" in capture_post.out)
 
-        self.assertTrue(exp.raw is None)
+        self.assertIs(exp.raw, None)
 
     @unittest.expectedFailure
     def test_badprepcache_init2(self):
@@ -729,6 +743,26 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         self.assertRaises(ValueError, exp.save_to_matlab)
+
+    def test_matlab_from_cache(self):
+        """Save to matfile after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Cache should be loaded without calling separate
+        exp.save_to_matlab()
+        fname = os.path.join(self.output_dir, "matlab.mat")
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        for field in ["raw", "result"]:
+            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            exp.roi_polys[0, 0][0][0],
+        )
 
     def test_matlab_deltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)

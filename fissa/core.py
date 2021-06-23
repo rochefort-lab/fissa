@@ -299,7 +299,10 @@ class Experiment():
         print("Reloading data from cache {}...".format(path))
         cache = np.load(path, allow_pickle=True)
         for field in cache.files:
-            setattr(self, field, cache[field])
+            value = cache[field]
+            if np.array_equal(value, None):
+                value = None
+            setattr(self, field, value)
 
     def separation_prep(self, redo=False):
         """Prepare and extract the data to be separated.
@@ -427,7 +430,11 @@ class Experiment():
             os.makedirs(destdir)
         np.savez_compressed(
             destination,
-            **{field: getattr(self, field) for field in fields}
+            **{
+                field: getattr(self, field)
+                for field in fields
+                if getattr(self, field) is not None
+            }
         )
 
     def separate(self, redo_prep=False, redo_sep=False):
@@ -584,7 +591,11 @@ class Experiment():
             os.makedirs(destdir)
         np.savez_compressed(
             destination,
-            **{field: getattr(self, field) for field in fields}
+            **{
+                field: getattr(self, field)
+                for field in fields
+                if getattr(self, field) is not None
+            }
         )
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
