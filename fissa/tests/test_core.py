@@ -68,15 +68,98 @@ class TestExperimentA(BaseTestCase):
         if os.path.isdir(self.output_dir):
             shutil.rmtree(self.output_dir)
 
+    def compare_output(self, experiment, separated=True):
+        """
+        Compare experiment output against expected from test attributes.
+
+        Parameters
+        ----------
+        experiment : fissa.Experiment
+            Actual experiment.
+        separated : bool
+            Whether to compare results of :meth:`fissa.Experiment.separate`.
+            Default is ``True``.
+        """
+        if separated:
+            self.assert_equal(len(experiment.result), 1)
+            self.assert_equal(len(experiment.result[0]), 1)
+            self.assert_allclose(experiment.result[0][0], self.expected_00)
+        self.assert_equal(len(experiment.means), len(self.image_names))
+        self.assert_equal(experiment.means[0].shape, self.image_shape)
+        self.assert_equal(experiment.means[-1].shape, self.image_shape)
+
+    def compare_experiments(self, actual, expected, prepared=True, separated=True):
+        """
+        Compare attributes of two experiments.
+
+        Parameters
+        ----------
+        actual : fissa.Experiment
+            Actual experiment.
+        expected : fissa.Experiment
+            Expected experiment.
+        prepared : bool
+            Whether to compare results of :meth:`fissa.Experiment.separation_prep`.
+            Default is ``True``.
+        separated : bool
+            Whether to compare results of :meth:`fissa.Experiment.separate`.
+            Default is ``True``.
+        """
+        if prepared:
+            if expected.raw is None:
+                self.assertIs(actual.raw, expected.raw)
+            else:
+                self.assert_allclose_ragged(actual.raw, expected.raw)
+            self.assert_allclose_ragged(actual.means, expected.means)
+        if separated:
+            self.assert_allclose_ragged(actual.result, expected.result)
+
+    def compare_matlab(self, fname, experiment, compare_deltaf=None):
+        """
+        Compare experiment output against expected from test attributes.
+
+        Parameters
+        ----------
+        fname : str
+            Path to .mat file to test.
+        experiment : fissa.Experiment
+            Experiment with expected values to compare against.
+        compare_deltaf : bool or None
+            Whether to compare ``experiment.deltaf_raw`` against
+            ``experiment.raw`` and ``experiment.deltaf_result`` against
+            ``experiment.result``.
+            If ``None`` (default), this is automatically determined based on
+            whether ``experiment.deltaf_result`` is not ``None``.
+        """
+        if compare_deltaf is None:
+            compare_deltaf = experiment.deltaf_result is not None
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        self.assert_allclose(M["raw"][0, 0][0][0, 0][0], experiment.raw[0, 0])
+        self.assert_allclose(M["result"][0, 0][0][0, 0][0], experiment.result[0, 0])
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            experiment.roi_polys[0, 0][0][0],
+        )
+        if compare_deltaf:
+            self.assert_allclose(
+                M["df_result"][0, 0][0][0, 0][0],
+                experiment.deltaf_result[0, 0],
+            )
+            # Row and column vectors on MATLAB are 2d instead of 1d, and df_raw
+            # is a vector, not a matrix, so has an extra dimension.
+            # N.B. This extra dimension is in the wrong place as it doesn't align
+            # with the other attributes.
+            self.assert_allclose(
+                M["df_raw"][0, 0][0][0, 0][0][0, :],
+                experiment.deltaf_raw[0, 0],
+            )
+
     def test_imagedir_roizip(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_imagelist_roizip(self):
         image_paths = [
@@ -85,13 +168,7 @@ class TestExperimentA(BaseTestCase):
         ]
         exp = core.Experiment(image_paths, self.roi_zip_path)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(len(exp.means), len(image_paths))
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_imagelistloaded_roizip(self):
         image_paths = [
@@ -102,13 +179,7 @@ class TestExperimentA(BaseTestCase):
         images = [datahandler.image2array(pth) for pth in image_paths]
         exp = core.Experiment(images, self.roi_zip_path)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(len(exp.means), len(image_paths))
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     @unittest.expectedFailure
     def test_imagedir_roilistpath(self):
@@ -118,12 +189,7 @@ class TestExperimentA(BaseTestCase):
         ]
         exp = core.Experiment(self.images_dir, roi_paths)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     @unittest.expectedFailure
     def test_imagelist_roilistpath(self):
@@ -137,23 +203,12 @@ class TestExperimentA(BaseTestCase):
         ]
         exp = core.Experiment(image_paths, roi_paths)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(len(exp.means), len(image_paths))
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_nocache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_ncores_preparation_1(self):
         exp = core.Experiment(
@@ -162,12 +217,7 @@ class TestExperimentA(BaseTestCase):
             ncores_preparation=1,
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_ncores_preparation_2(self):
         exp = core.Experiment(
@@ -176,12 +226,7 @@ class TestExperimentA(BaseTestCase):
             ncores_preparation=2,
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_ncores_separate_1(self):
         exp = core.Experiment(
@@ -190,12 +235,7 @@ class TestExperimentA(BaseTestCase):
             ncores_separation=1,
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_ncores_separate_2(self):
         exp = core.Experiment(
@@ -204,12 +244,7 @@ class TestExperimentA(BaseTestCase):
             ncores_separation=2,
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_lowmemorymode(self):
         exp = core.Experiment(
@@ -218,12 +253,7 @@ class TestExperimentA(BaseTestCase):
             lowmemory_mode=True,
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_manualhandler_Tifffile(self):
         exp = core.Experiment(
@@ -233,10 +263,7 @@ class TestExperimentA(BaseTestCase):
             datahandler=extraction.DataHandlerTifffile(),
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_manualhandler_TifffileLazy(self):
         exp = core.Experiment(
@@ -246,10 +273,7 @@ class TestExperimentA(BaseTestCase):
             datahandler=extraction.DataHandlerTifffileLazy(),
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_manualhandler_Pillow(self):
         exp = core.Experiment(
@@ -259,12 +283,7 @@ class TestExperimentA(BaseTestCase):
             datahandler=extraction.DataHandlerPillow(),
         )
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_caching(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -324,12 +343,7 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separation_prep()
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
@@ -342,6 +356,7 @@ class TestExperimentA(BaseTestCase):
         exp.separate(redo_prep=True, redo_sep=True)
         capture_post = self.recapsys(capture_pre)
         self.assert_starts_with(capture_post.out, "Doing")
+        self.compare_output(exp)
 
     def test_load_cache(self):
         """Test whether cached output is loaded during init."""
@@ -353,12 +368,7 @@ class TestExperimentA(BaseTestCase):
         # Make a new experiment we will test
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         # Cache should be loaded without calling separate
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_load_cache_piecemeal(self):
         """
@@ -385,12 +395,7 @@ class TestExperimentA(BaseTestCase):
         capture_post = self.recapsys(capture_pre)
         self.assert_starts_with(capture_post.out, "Reloading data")
         # Check the contents loaded from cache
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_load_cached_prep(self):
         """
@@ -417,12 +422,7 @@ class TestExperimentA(BaseTestCase):
         capture_post = self.recapsys(capture_pre)
         self.assert_starts_with(capture_post.out, "Doing signal separation")
         # Check the contents loaded from cache
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_load_manual_prep(self):
         """Loading prep results from a different folder."""
@@ -437,7 +437,7 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(os.path.join(prev_folder, "preparation.npz"))
         # Cached prep should now be loaded correctly
-        self.assert_allclose_ragged(exp.raw, exp1.raw)
+        self.compare_experiments(exp, exp1)
 
     def test_load_manual_sep(self):
         """Loading prep results from a different folder."""
@@ -452,7 +452,7 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(os.path.join(prev_folder, "separated.npz"))
         # Cached results should now be loaded correctly
-        self.assert_allclose_ragged(exp.result, exp1.result)
+        self.compare_experiments(exp, exp1, prepared=False)
 
     def test_load_manual_directory(self):
         """Loading results from a different folder."""
@@ -467,8 +467,7 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(prev_folder)
         # Cache should now be loaded correctly
-        self.assert_allclose_ragged(exp.raw, exp1.raw)
-        self.assert_allclose_ragged(exp.result, exp1.result)
+        self.compare_experiments(exp, exp1)
 
     def test_load_manual(self):
         """Loading results from a different folder."""
@@ -487,8 +486,7 @@ class TestExperimentA(BaseTestCase):
         # Manually trigger loading the new cache
         exp.load()
         # Cache should now be loaded correctly
-        self.assert_allclose_ragged(exp.raw, exp1.raw)
-        self.assert_allclose_ragged(exp.result, exp1.result)
+        self.compare_experiments(exp, exp1)
 
     def test_load_empty_prep(self):
         """Behaviour when loading a prep cache that is empty."""
@@ -496,10 +494,7 @@ class TestExperimentA(BaseTestCase):
         # Make an empty prep save file
         np.savez_compressed(os.path.join(self.output_dir, "preparation.npz"))
         exp.separation_prep()
-        actual = exp.raw
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0].shape, self.expected_00.shape)
+        self.compare_output(exp, separated=False)
 
     def test_load_empty_sep(self):
         """Behaviour when loading a separated cache that is empty."""
@@ -507,12 +502,7 @@ class TestExperimentA(BaseTestCase):
         # Make an empty separated save file
         np.savez_compressed(os.path.join(self.output_dir, "separated.npz"))
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_load_none(self):
         """Behaviour when loading a cache containing None."""
@@ -595,10 +585,7 @@ class TestExperimentA(BaseTestCase):
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_starts_with(capture_post.out, "Doing signal separation")
 
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_badsepcache(self):
         """
@@ -619,12 +606,7 @@ class TestExperimentA(BaseTestCase):
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue("An error occurred" in capture_post.out)
 
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assert_equal(exp.means[0].shape, self.image_shape)
-        self.assert_equal(exp.means[-1].shape, self.image_shape)
+        self.compare_output(exp)
 
     def test_manual_save_prep(self):
         """Saving prep results with manually specified filename."""
@@ -714,30 +696,16 @@ class TestExperimentA(BaseTestCase):
         exp.separate()
         exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
-        self.assertTrue(os.path.isfile(fname))
         # Check contents of the .mat file
-        M = loadmat(fname)
-        for field in ["raw", "result"]:
-            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
-        self.assert_allclose(
-            M["ROIs"][0, 0][0][0, 0][0][0][0],
-            exp.roi_polys[0, 0][0][0],
-        )
+        self.compare_matlab(fname, exp)
 
     def test_matlab_custom_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         fname = os.path.join(self.output_dir, "test_output.mat")
         exp.save_to_matlab(fname)
-        self.assertTrue(os.path.isfile(fname))
         # Check contents of the .mat file
-        M = loadmat(fname)
-        for field in ["raw", "result"]:
-            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
-        self.assert_allclose(
-            M["ROIs"][0, 0][0][0, 0][0][0][0],
-            exp.roi_polys[0, 0][0][0],
-        )
+        self.compare_matlab(fname, exp)
 
     def test_matlab_no_cache_no_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
@@ -754,15 +722,7 @@ class TestExperimentA(BaseTestCase):
         # Cache should be loaded without calling separate
         exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
-        self.assertTrue(os.path.isfile(fname))
-        # Check contents of the .mat file
-        M = loadmat(fname)
-        for field in ["raw", "result"]:
-            self.assert_allclose(M[field][0, 0][0][0, 0][0], getattr(exp, field)[0, 0])
-        self.assert_allclose(
-            M["ROIs"][0, 0][0][0, 0][0][0][0],
-            exp.roi_polys[0, 0][0][0],
-        )
+        self.compare_matlab(fname, exp)
 
     def test_matlab_deltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -770,17 +730,5 @@ class TestExperimentA(BaseTestCase):
         exp.calc_deltaf(4)
         exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
-        self.assertTrue(os.path.isfile(fname))
         # Check contents of the .mat file
-        M = loadmat(fname)
-        for kmt, kpy in [("raw",) * 2, ("result",) * 2, ("df_result", "deltaf_result")]:
-            self.assert_allclose(M[kmt][0, 0][0][0, 0][0], getattr(exp, kpy)[0, 0])
-        # Row and column vectors on MATLAB are 2d instead of 1d, and df_raw
-        # is a vector, not a matrix, so has an extra dimension.
-        # N.B. This extra dimension is in the wrong place as it doesn't align
-        # with the other attributes.
-        self.assert_allclose(M["df_raw"][0, 0][0][0, 0][0][0, :], exp.deltaf_raw[0, 0])
-        self.assert_allclose(
-            M["ROIs"][0, 0][0][0, 0][0][0][0],
-            exp.roi_polys[0, 0][0][0],
-        )
+        self.compare_matlab(fname, exp, compare_deltaf=True)
