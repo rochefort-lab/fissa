@@ -56,32 +56,40 @@ A concise example of how to use FISSA is as follows.
 
     import fissa
 
-    experiment = fissa.Experiment('path/to/tiffs', 'path/to/rois.zip', 'experiment_name')
-    experiment.separate()
+    result = fissa.run_fissa("path/to/tiffs", "path/to/rois.zip")
 
-    # The separated time series data is now available as experiment.result
-    experiment.result[roi_index, tiff_index][0, :]
+    # The decontaminated time series is now available as
+    # result[roi_index, tiff_index][0, :]
 
-We also have several example notebooks for a basic worflow and more complicated
+We also have several example notebooks for a basic workflow and more complicated
 workflows where FISSA needs to interact with the outputs of other two-photon
 calcium imaging toolboxes which can be used to automatically detect cells.
 
 You can try out each of the example notebooks interactively in your browser on
 Binder_ (note that it may take 10 minutes for Binder to boot up).
 
-+-----------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
-| Workflow              |                                  Jupyter Notebook                                   |                            Script                             |
-+=======================+==========================+===============================+==========================+================================+==============================+
-| Basic (ImageJ_)       | `NBViewer <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
-+-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With suite2p_         | `NBViewer <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
-+-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With SIMA_            | `NBViewer <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
-+-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With `CNMF (MATLAB)`_ | `NBViewer <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
-+-----------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
++---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
+| Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
++===========================+==========================+===============================+==========================+================================+==============================+
+| Functional (ImageJ_)      | `NBViewer <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
++---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| Object-oriented (ImageJ_) | `NBViewer <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
++---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With suite2p_             | `NBViewer <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
++---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With SIMA_                | `NBViewer <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
++---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With `CNMF (MATLAB)`_     | `NBViewer <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
++---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 
 .. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
+
+.. _func_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage%20-%20Functional.ipynb
+.. _func_html: https://rochefort-lab.github.io/fissa/examples/Basic%20usage%20-%20Functional.html
+.. _func_view: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Functional.ipynb
+.. _func_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage%20-%20Functional.ipynb
+.. _func_nixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func.py
+.. _func_winscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func_windows.py
 
 .. _basicbind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage.ipynb
 .. _basichtml: https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html
@@ -122,7 +130,7 @@ To do so, you will need to:
 3.  Download `a copy of the repository <download_repo_>`_, unzip it and browse
     to the examples_ directory.
 
-4.  Start up a jupyter notebook server to run our notebooks ``jupyter notebook``.
+4.  Start up a Jupyter notebook server to run our notebooks ``jupyter notebook``.
 
 If you're new to Jupyter notebooks, here is `an approachable tutorial`_.
 
