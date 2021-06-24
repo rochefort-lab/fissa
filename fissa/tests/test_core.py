@@ -80,6 +80,8 @@ class TestExperimentA(BaseTestCase):
             Whether to compare results of :meth:`fissa.Experiment.separate`.
             Default is ``True``.
         """
+        self.assert_equal(len(experiment.raw), 1)
+        self.assert_equal(len(experiment.raw[0]), 1)
         if separated:
             self.assert_equal(len(experiment.result), 1)
             self.assert_equal(len(experiment.result[0]), 1)
