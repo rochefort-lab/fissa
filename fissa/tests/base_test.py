@@ -175,6 +175,8 @@ class BaseTestCase(unittest.TestCase):
         return assert_equal(actual, desired, *args, **kwargs)
 
     def assert_allclose_ragged(self, actual, desired):
+        if desired is None:
+            return self.assertIs(actual, desired)
         return assert_allclose_ragged(actual, desired)
 
     def assert_equal_list_of_array_perm_inv(self, actual, desired):
