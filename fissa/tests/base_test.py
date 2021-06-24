@@ -30,7 +30,7 @@ TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 def assert_allclose_ragged(actual, desired):
     assert_equal(np.shape(actual), np.shape(desired))
     for desired_i, actual_i in zip(desired, actual):
-        if desired.dtype == object:
+        if np.asarray(desired).dtype == object:
             assert_allclose_ragged(actual_i, desired_i)
         else:
             assert_allclose(actual_i, desired_i)
