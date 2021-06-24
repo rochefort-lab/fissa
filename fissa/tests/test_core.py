@@ -68,7 +68,7 @@ class TestExperimentA(BaseTestCase):
         if os.path.isdir(self.output_dir):
             shutil.rmtree(self.output_dir)
 
-    def compare_output(self, experiment, separated=True):
+    def compare_output(self, experiment, separated=True, compare_deltaf=None):
         """
         Compare experiment output against expected from test attributes.
 
@@ -79,7 +79,19 @@ class TestExperimentA(BaseTestCase):
         separated : bool
             Whether to compare results of :meth:`fissa.Experiment.separate`.
             Default is ``True``.
+        compare_deltaf : bool or None
+            Whether to compare ``experiment.deltaf_raw`` against
+            ``experiment.raw`` and, if ``separated=True``,
+            ``experiment.deltaf_result`` against ``experiment.result``.
+            If ``None`` (default), this is automatically determined based on
+            whether ``experiment.deltaf_result`` (if ``separated=True``) or
+            ``experiment.deltaf_raw`` (otherwise) is not ``None``.
         """
+        if compare_deltaf is None:
+            if separated:
+                compare_deltaf = experiment.deltaf_result is not None
+            else:
+                compare_deltaf = experiment.deltaf_raw is not None
         self.assert_equal(len(experiment.raw), 1)
         self.assert_equal(len(experiment.raw[0]), 1)
         if separated:
@@ -89,6 +101,31 @@ class TestExperimentA(BaseTestCase):
         self.assert_equal(len(experiment.means), len(self.image_names))
         self.assert_equal(experiment.means[0].shape, self.image_shape)
         self.assert_equal(experiment.means[-1].shape, self.image_shape)
+        # TODO: Check contents of exp.deltaf_result instead of just the shape
+        if compare_deltaf:
+            if experiment.raw is None:
+                self.assertIs(experiment.deltaf_raw, experiment.raw)
+            else:
+                self.assert_equal(
+                    np.shape(experiment.deltaf_raw),
+                    np.shape(experiment.raw),
+                )
+                self.assert_equal(
+                    np.shape(experiment.deltaf_raw[0]),
+                    np.shape(experiment.raw[0]),
+                )
+        if compare_deltaf and separated:
+            if experiment.result is None:
+                self.assertIs(experiment.deltaf_result, experiment.result)
+            else:
+                self.assert_equal(
+                    np.shape(experiment.deltaf_result),
+                    np.shape(experiment.result),
+                )
+                self.assert_equal(
+                    np.shape(experiment.deltaf_result[0]),
+                    np.shape(experiment.result[0]),
+                )
 
     def compare_experiments(self, actual, expected, prepared=True, separated=True):
         """
@@ -652,46 +689,31 @@ class TestExperimentA(BaseTestCase):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4)
-        actual = exp.deltaf_result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        #TODO: Check contents of exp.deltaf_result
+        self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_cache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(4)
-        actual = exp.deltaf_result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        #TODO: Check contents of exp.deltaf_result
+        self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_notrawf0(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False)
-        actual = exp.deltaf_result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        #TODO: Check contents of exp.deltaf_result
+        self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_notacrosstrials(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, across_trials=False)
-        actual = exp.deltaf_result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        #TODO: Check contents of exp.deltaf_result
+        self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         exp.calc_deltaf(4, use_raw_f0=False, across_trials=False)
-        actual = exp.deltaf_result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        #TODO: Check contents of exp.deltaf_result
+        self.compare_output(exp, compare_deltaf=True)
 
     def test_matlab(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
