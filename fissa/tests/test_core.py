@@ -839,30 +839,6 @@ class ExperimentTestMixin:
             core.run_fissa(image_path, roi_path, self.output_dir, return_deltaf=True)
 
 
-class TestExperimentA(BaseTestCase, ExperimentTestMixin):
-    """Test core on Experiment A, which has 1 roi and 1 TIFF."""
-
-    def __init__(self, *args, **kwargs):
-        super(TestExperimentA, self).__init__(*args, **kwargs)
-        ExperimentTestMixin.__init__(self)
-
-        self.resources_dir = os.path.join(self.test_directory, "resources", "a")
-        self.images_dir = os.path.join(self.resources_dir, "images")
-        self.image_names = ["AVG_A01_R1_small.tif"]
-        self.image_shape = (8, 17)
-        self.fs = 1
-        self.roi_zip_path = os.path.join(self.resources_dir, "rois.zip")
-        self.roi_paths = [os.path.join("rois", r) for r in ["01.roi"]]
-
-        self.expected = np.load(
-            os.path.join(
-                self.resources_dir,
-                "expected_py{}.npz".format(sys.version_info.major),
-            ),
-            allow_pickle=True,
-        )
-
-
 class TestExperimentB(BaseTestCase, ExperimentTestMixin):
     """Test core on Experiment B, which has 2 ROIs and 3 TIFFs."""
 
