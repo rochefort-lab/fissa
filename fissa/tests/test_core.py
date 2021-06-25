@@ -4,6 +4,7 @@ from __future__ import division
 
 import os, os.path
 import shutil
+import sys
 import unittest
 
 import numpy as np
@@ -14,52 +15,11 @@ from .. import core
 from .. import extraction
 
 
-class TestExperimentA(BaseTestCase):
-    '''Test Experiment class and its methods.'''
+class ExperimentTestMixin:
+    """Base tests for Experiment class."""
 
     def __init__(self, *args, **kwargs):
-        super(TestExperimentA, self).__init__(*args, **kwargs)
-
-        self.resources_dir = os.path.join(self.test_directory, 'resources', 'a')
         self.output_dir = self.tempdir
-        self.images_dir = os.path.join(self.resources_dir, 'images')
-        self.image_names = ['AVG_A01_R1_small.tif']
-        self.image_shape = (8, 17)
-        self.roi_zip_path = os.path.join(self.resources_dir, 'rois.zip')
-        self.roi_paths = [os.path.join('rois', r) for r in ['01.roi']]
-
-        self.expected_00 = np.array([
-           [11.25423074,  0.        ,  0.        ,  7.55432252, 19.11182766,
-             0.        ,  6.37473238,  0.        ,  0.        ,  0.        ,
-             0.        ,  1.58567319,  2.28185467,  0.        , 16.70204514,
-            17.55112746, 17.23642459,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        , 14.75392227],
-           [89.75326173, 81.33290066, 88.77502093, 80.71108594, 85.5315738 ,
-            78.42423771, 80.3659251 , 84.46124736, 78.04229961, 81.48360449,
-            82.12879963, 83.11862592, 83.09085808, 91.22418523, 86.42399606,
-            81.05860567, 86.15497276, 81.53903092, 80.53875696, 83.41061814,
-            80.59332446, 81.64495893, 86.26057223, 82.47622273, 83.28735277,
-            84.00697623, 83.68517083, 83.19829805, 82.06518458],
-           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ],
-           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ],
-           [ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-             0.        ,  0.        ,  0.        ,  0.        ],
-        ])
 
     def setUp(self):
         self.tearDown()
@@ -68,64 +28,67 @@ class TestExperimentA(BaseTestCase):
         if os.path.isdir(self.output_dir):
             shutil.rmtree(self.output_dir)
 
-    def compare_output(self, experiment, separated=True, compare_deltaf=None):
+    def compare_result(self, actual):
         """
-        Compare experiment output against expected from test attributes.
+        Compare experiment result against self.expected["result"].
+        """
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(actual), expected_shape)
+        # Check contents are correct
+        self.assert_allclose_ragged(actual, self.expected["result"])
+
+    def compare_deltaf_result(self, actual):
+        """
+        Compare experiment result against self.expected["deltaf_result"].
+        """
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(actual), expected_shape)
+        self.assert_allclose_ragged(actual, self.expected["deltaf_result"])
+
+    def compare_output(self, actual, separated=True, compare_deltaf=None):
+        """
+        Compare actual output against expected from self.expected.
 
         Parameters
         ----------
-        experiment : fissa.Experiment
+        actual : fissa.Experiment
             Actual experiment.
         separated : bool
             Whether to compare results of :meth:`fissa.Experiment.separate`.
             Default is ``True``.
         compare_deltaf : bool or None
-            Whether to compare ``experiment.deltaf_raw`` against
-            ``experiment.raw`` and, if ``separated=True``,
-            ``experiment.deltaf_result`` against ``experiment.result``.
+            Whether to compare ``actual.deltaf_raw`` and
+            ``actual.deltaf_result`` against their targets.
             If ``None`` (default), this is automatically determined based on
-            whether ``experiment.deltaf_result`` (if ``separated=True``) or
-            ``experiment.deltaf_raw`` (otherwise) is not ``None``.
+            whether ``actual.deltaf_result`` (if ``separated=True``) or
+            ``actual.deltaf_raw`` (otherwise) is not ``None``.
         """
         if compare_deltaf is None:
             if separated:
-                compare_deltaf = experiment.deltaf_result is not None
+                compare_deltaf = actual.deltaf_result is not None
             else:
-                compare_deltaf = experiment.deltaf_raw is not None
-        self.assert_equal(len(experiment.raw), 1)
-        self.assert_equal(len(experiment.raw[0]), 1)
+                compare_deltaf = actual.deltaf_raw is not None
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(actual.raw), expected_shape)
+        self.assert_equal(len(actual.means), len(self.image_names))
+        # Check contents are correct
+        self.assert_equal(actual.means, self.expected["means"])
+        self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
         if separated:
-            self.assert_equal(len(experiment.result), 1)
-            self.assert_equal(len(experiment.result[0]), 1)
-            self.assert_allclose(experiment.result[0][0], self.expected_00)
-        self.assert_equal(len(experiment.means), len(self.image_names))
-        self.assert_equal(experiment.means[0].shape, self.image_shape)
-        self.assert_equal(experiment.means[-1].shape, self.image_shape)
-        # TODO: Check contents of exp.deltaf_result instead of just the shape
+            # Check sizes are correct
+            self.assert_equal(np.shape(actual.sep), expected_shape)
+            # Check result is correct
+            self.compare_result(actual.result)
+            # Check contents are correct
+            self.assert_allclose_ragged(actual.sep, self.expected["sep"])
+            self.assert_allclose_ragged(actual.mixmat, self.expected["mixmat"])
         if compare_deltaf:
-            if experiment.raw is None:
-                self.assertIs(experiment.deltaf_raw, experiment.raw)
-            else:
-                self.assert_equal(
-                    np.shape(experiment.deltaf_raw),
-                    np.shape(experiment.raw),
-                )
-                self.assert_equal(
-                    np.shape(experiment.deltaf_raw[0]),
-                    np.shape(experiment.raw[0]),
-                )
+            self.assert_allclose_ragged(actual.deltaf_raw, self.expected["deltaf_raw"])
         if compare_deltaf and separated:
-            if experiment.result is None:
-                self.assertIs(experiment.deltaf_result, experiment.result)
-            else:
-                self.assert_equal(
-                    np.shape(experiment.deltaf_result),
-                    np.shape(experiment.result),
-                )
-                self.assert_equal(
-                    np.shape(experiment.deltaf_result[0]),
-                    np.shape(experiment.result[0]),
-                )
+            self.compare_deltaf_result(actual.deltaf_result)
 
     def compare_experiments(self, actual, expected, prepared=True, separated=True):
         """
@@ -150,12 +113,16 @@ class TestExperimentA(BaseTestCase):
             else:
                 self.assert_allclose_ragged(actual.raw, expected.raw)
             self.assert_allclose_ragged(actual.means, expected.means)
+            self.assert_allclose_ragged(actual.roi_polys, expected.roi_polys)
         if separated:
             self.assert_allclose_ragged(actual.result, expected.result)
+            self.assert_allclose_ragged(actual.sep, expected.sep)
+            self.assert_allclose_ragged(actual.mixmat, expected.mixmat)
+            self.assert_equal(actual.info, expected.info)
 
     def compare_matlab(self, fname, experiment, compare_deltaf=None):
         """
-        Compare experiment output against expected from test attributes.
+        Compare matfile contents against an experiment.
 
         Parameters
         ----------
@@ -193,6 +160,44 @@ class TestExperimentA(BaseTestCase):
             self.assert_allclose(
                 M["df_raw"][0, 0][0][0, 0][0][0, :],
                 experiment.deltaf_raw[0, 0],
+            )
+
+    def compare_matlab_expected(self, fname, compare_deltaf=True):
+        """
+        Compare matfile contents against expected from test attributes.
+
+        Parameters
+        ----------
+        fname : str
+            Path to .mat file to test.
+        compare_deltaf : bool or None
+            Whether to compare ``deltaf_raw`` and ``deltaf_result``.
+            Default is ``True``.
+        """
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        self.assert_allclose(M["raw"][0, 0][0][0, 0][0], self.expected["raw"][0, 0])
+        self.assert_allclose(
+            M["result"][0, 0][0][0, 0][0],
+            self.expected["result"][0, 0],
+        )
+        self.assert_allclose(
+            M["ROIs"][0, 0][0][0, 0][0][0][0],
+            self.expected["roi_polys"][0, 0][0][0],
+        )
+        if compare_deltaf:
+            self.assert_allclose(
+                M["df_result"][0, 0][0][0, 0][0],
+                self.expected["deltaf_result"][0, 0],
+            )
+            # Row and column vectors on MATLAB are 2d instead of 1d, and df_raw
+            # is a vector, not a matrix, so has an extra dimension.
+            # N.B. This extra dimension is in the wrong place as it doesn't align
+            # with the other attributes.
+            self.assert_allclose(
+                M["df_raw"][0, 0][0][0, 0][0][0, :],
+                self.expected["deltaf_raw"][0, 0],
             )
 
     def test_imagedir_roizip(self):
@@ -688,32 +693,47 @@ class TestExperimentA(BaseTestCase):
     def test_calcdeltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        exp.calc_deltaf(4)
+        exp.calc_deltaf(self.fs)
         self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_cache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        exp.calc_deltaf(4)
+        exp.calc_deltaf(self.fs)
         self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_notrawf0(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        exp.calc_deltaf(4, use_raw_f0=False)
-        self.compare_output(exp, compare_deltaf=True)
+        exp.calc_deltaf(self.fs, use_raw_f0=False)
+        # We did not use this setting to generate the expected values, so can't
+        # compare the output against the target.
+        self.compare_output(exp, compare_deltaf=False)
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
     def test_calcdeltaf_notacrosstrials(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        exp.calc_deltaf(4, across_trials=False)
-        self.compare_output(exp, compare_deltaf=True)
+        exp.calc_deltaf(self.fs, across_trials=False)
+        # We did not use this setting to generate the expected values, so can't
+        # compare the output against the target.
+        self.compare_output(exp, compare_deltaf=False)
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        exp.calc_deltaf(4, use_raw_f0=False, across_trials=False)
-        self.compare_output(exp, compare_deltaf=True)
+        exp.calc_deltaf(self.fs, use_raw_f0=False, across_trials=False)
+        # We did not use this setting to generate the expected values, so can't
+        # compare the output against the target.
+        self.compare_output(exp, compare_deltaf=False)
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
     def test_matlab(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -751,7 +771,7 @@ class TestExperimentA(BaseTestCase):
     def test_matlab_deltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        exp.calc_deltaf(4)
+        exp.calc_deltaf(self.fs)
         exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
@@ -763,14 +783,10 @@ class TestExperimentA(BaseTestCase):
         actual = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=None
         )
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        expected_file = os.path.join(self.output_dir, "matlab.mat")
-        self.assertTrue(os.path.isfile(expected_file))
+        self.compare_result(actual)
         # Check contents of the .mat file
-        M = loadmat(expected_file)
-        self.assert_allclose(M["result"][0, 0][0][0, 0][0], actual[0, 0])
+        expected_file = os.path.join(self.output_dir, "matlab.mat")
+        self.compare_matlab_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_matlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
@@ -778,14 +794,9 @@ class TestExperimentA(BaseTestCase):
         actual = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=True
         )
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_result(actual)
         expected_file = os.path.join(self.output_dir, "matlab.mat")
-        self.assertTrue(os.path.isfile(expected_file))
-        # Check contents of the .mat file
-        M = loadmat(expected_file)
-        self.assert_allclose(M["result"][0, 0][0][0, 0][0], actual[0, 0])
+        self.compare_matlab_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_nomatlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
@@ -793,9 +804,7 @@ class TestExperimentA(BaseTestCase):
         actual = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=False
         )
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_result(actual)
         expected_file = os.path.join(self.output_dir, "matlab.mat")
         self.assertFalse(os.path.isfile(expected_file))
 
@@ -806,34 +815,49 @@ class TestExperimentA(BaseTestCase):
         actual = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=fname
         )
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-        self.assertTrue(os.path.isfile(fname))
-        # Check contents of the .mat file
-        M = loadmat(fname)
-        self.assert_allclose(M["result"][0, 0][0][0, 0][0], actual[0, 0])
+        self.compare_result(actual)
+        self.compare_matlab_expected(fname, compare_deltaf=False)
 
     def test_func_nocache(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         actual = core.run_fissa(image_path, roi_path)
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_result(actual)
 
     def test_func_deltaf(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         actual = core.run_fissa(
-            image_path, roi_path, self.output_dir, freq=4, return_deltaf=True
+            image_path, roi_path, self.output_dir, freq=self.fs, return_deltaf=True
         )
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        # TODO: Check contents of deltaf output
+        self.compare_deltaf_result(actual)
 
     def test_func_deltaf_nofreq(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         with self.assertRaises(ValueError):
             core.run_fissa(image_path, roi_path, self.output_dir, return_deltaf=True)
+
+
+class TestExperimentB(BaseTestCase, ExperimentTestMixin):
+    """Test core on Experiment B, which has 2 ROIs and 3 TIFFs."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestExperimentB, self).__init__(*args, **kwargs)
+        ExperimentTestMixin.__init__(self)
+
+        self.resources_dir = os.path.join(self.test_directory, "resources", "b")
+        self.images_dir = os.path.join(self.resources_dir, "images")
+        self.image_names = ["AVG_A01.tif", "AVG_A02.tif", "AVG_A03.tif"]
+        self.image_shape = (29, 21)
+        self.fs = 1
+        self.roi_zip_path = os.path.join(self.resources_dir, "rois.zip")
+        self.roi_paths = [os.path.join("rois", "{:02d}.roi") for r in range(3, 5)]
+
+        self.expected = np.load(
+            os.path.join(
+                self.resources_dir,
+                "expected_py{}.npz".format(sys.version_info.major),
+            ),
+            allow_pickle=True,
+        )
