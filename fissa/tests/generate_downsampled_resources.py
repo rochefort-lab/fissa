@@ -310,13 +310,13 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             outhand.write(line)
 
 
-def main(name=None, roi_ids=None, dwn_x=4, dwn_y=None, dwn_t=10):
+def main(name=None, roi_ids=None, x_down=4, y_down=None, t_down=10):
     '''
     Convert example data into downsampled test data.
     '''
     # Default arguments
-    if dwn_y is None:
-        dwn_y = dwn_x
+    if y_down is None:
+        y_down = x_down
 
     if name is None:
         import datetime
@@ -351,7 +351,7 @@ def main(name=None, roi_ids=None, dwn_x=4, dwn_y=None, dwn_t=10):
 
     # Read in rois
     roi_list = readimagejrois.read_imagej_roi_zip(rois_location)
-    if roi_ids is None:
+    if roi_ids is None or len(roi_ids) == 0:
         roi_ids = range(len(roi_list))
 
     image_paths = sorted(glob.glob(os.path.join(images_location, "*.tif*")))
@@ -373,8 +373,8 @@ def main(name=None, roi_ids=None, dwn_x=4, dwn_y=None, dwn_t=10):
     for img_pth in image_paths:
         img = datahandler.image2array(img_pth)
         print("Loaded image {} shaped {}".format(img_pth, img.shape))
-        img_dwn = scipy.ndimage.uniform_filter(img, size=[dwn_t, dwn_y, dwn_x])
-        img_dwn = img_dwn[::dwn_t, off_y:end_y:dwn_y, off_x:end_x:dwn_x]
+        img_dwn = scipy.ndimage.uniform_filter(img, size=[t_down, y_down, x_down])
+        img_dwn = img_dwn[::t_down, off_y:end_y:y_down, off_x:end_x:x_down]
         img_dwn_pth = os.path.join(output_folder, "images", os.path.basename(img_pth))
         print(
             "Saving downsampled image shaped {} as {}".format(
@@ -394,10 +394,10 @@ def main(name=None, roi_ids=None, dwn_x=4, dwn_y=None, dwn_t=10):
         )
         print(
             "Downsampling ROI {} with factor ({}, {}); saving as {}"
-            "".format(roi_raw_pth, dwn_x, dwn_y, roi_dwn_pth)
+            "".format(roi_raw_pth, x_down, y_down, roi_dwn_pth)
         )
         maybe_make_dir(os.path.dirname(roi_dwn_pth))
-        downscale_roi(roi_raw_pth, roi_dwn_pth, [dwn_x, dwn_y], [-off_x, -off_y])
+        downscale_roi(roi_raw_pth, roi_dwn_pth, [x_down, y_down], [-off_x, -off_y])
 
     # Turn rois into a zip file
     roi_zip_pth = os.path.join(output_folder, 'rois.zip')
@@ -414,6 +414,70 @@ def main(name=None, roi_ids=None, dwn_x=4, dwn_y=None, dwn_t=10):
     shutil.rmtree(roi_extract_dir)
 
 
+def get_parser():
+    """
+    Build parser for generate_downsampled_resources command line interface.
+
+    Returns
+    -------
+    parser : argparse.ArgumentParser
+        CLI argument parser.
+    """
+    import argparse
+
+    prog = os.path.split(sys.argv[0])[1]
+    if prog == "__main__.py" or prog == "__main__":
+        prog = os.path.split(__file__)[1]
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description="Downsample example dataset to create test data",
+        add_help=False,
+    )
+
+    parser.add_argument(
+        "-h", "--help", action="help", help="Show this help message and exit.",
+    )
+
+    parser.add_argument(
+        "--name",
+        type=str,
+        help="Name of output dataset (default: current datetime)",
+    )
+    parser.add_argument(
+        "--roi-id",
+        nargs="+",
+        type=int,
+        help="""
+            ROI indices to include. The image will be downsampled to include
+            the ROIs and their surroundings. Multiple ROIs can be specified.
+            If omitted, all ROIs are used.
+        """,
+    )
+    parser.add_argument(
+        "--x-down",
+        type=int,
+        default=4,
+        help="Downsampling factor for x dimension (default: 4)",
+    )
+    parser.add_argument(
+        "--y-down",
+        type=int,
+        default=4,
+        help="Downsampling factor for y dimension (default: 4)",
+    )
+    parser.add_argument(
+        "--t-down",
+        type=int,
+        default=10,
+        help="Downsampling factor for time dimension (default: 10)",
+    )
+
+    return parser
+
+
 if __name__ == '__main__':
     __package__ = 'fissa.tests.generate_downsampled_resources'
-    main()
+    parser = get_parser()
+    kwargs = vars(parser.parse_args())
+    roi_ids = kwargs.pop("roi_id")
+    main(roi_ids=roi_ids, **kwargs)
