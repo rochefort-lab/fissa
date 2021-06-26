@@ -331,6 +331,12 @@ class Experiment():
         of which is itself a :class:`numpy.ndarray` shaped
         ``(n_signals, n_timepoints)``.
 
+        The amount of change in fluorence relative to the baseline fluorence
+        (Δf/f\ :sub:`0`).
+        By default, the baseline is taken from :attr:`raw` because the
+        minimum values in :attr:`result` are typically zero.
+        See :meth:`calc_deltaf` for details.
+
         This field is only populated after :meth:`calc_deltaf` has been run;
         until then, it is set to ``None``.
     """
