@@ -78,7 +78,24 @@ class DataHandlerAbstract():
         raise NotImplementedError()
 
     @staticmethod
-    def rois2masks(rois, data):
+    def get_frame_size(data):
+        """
+        Determine the shape of each frame within the recording.
+
+        Parameters
+        ----------
+        data : data_type
+            The same object as returned by :meth:`image2array`.
+
+        Returns
+        -------
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def rois2masks(cls, rois, data):
         """
         Convert ROIs into a collection of binary masks.
 
@@ -100,7 +117,7 @@ class DataHandlerAbstract():
         --------
         fissa.roitools.getmasks, fissa.roitools.readrois
         """
-        raise NotImplementedError()
+        return roitools.rois2masks(rois, cls.get_frame_size(data))
 
     @staticmethod
     def extracttraces(data, masks):
@@ -206,45 +223,21 @@ class DataHandlerTifffile(DataHandlerAbstract):
         return data.mean(axis=0, dtype=np.float64)
 
     @staticmethod
-    def rois2masks(rois, data):
-        """Take the object `rois` and returns it as a list of binary masks.
+    def get_frame_size(data):
+        """
+        Determine the shape of each frame within the recording.
 
         Parameters
         ----------
-        rois : str or :term:`list` of :term:`array_like`
-            Either a string containing a path to an ImageJ roi zip file,
-            or a list of arrays encoding polygons, or list of binary arrays
-            representing masks.
-        data : :term:`array_like`
-            Data array as made by :meth:`image2array`. Must be shaped
-            ``(frames, y, x)``.
+        data : data_type
+            The same object as returned by :meth:`image2array`.
 
         Returns
         -------
-        masks : :term:`list` of :class:`numpy.ndarray`
-            List of binary arrays.
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
         """
-        # get the image shape
-        shape = data.shape[1:]
-
-        # if it's a list of strings
-        if isinstance(rois, basestring):
-            rois = roitools.readrois(rois)
-
-        if not isinstance(rois, abc.Sequence):
-            raise TypeError(
-                'Wrong ROIs input format: expected a list or sequence, but got'
-                ' a {}'.format(rois.__class__)
-            )
-
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
-
-        raise ValueError('Wrong ROIs input format: unfamiliar shape.')
+        return data.shape[-2:]
 
     @staticmethod
     def extracttraces(data, masks):
@@ -359,44 +352,21 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
         return memory / n_frames
 
     @staticmethod
-    def rois2masks(rois, data):
-        """Take the object `rois` and returns it as a list of binary masks.
+    def get_frame_size(data):
+        """
+        Determine the shape of each frame within the recording.
 
         Parameters
         ----------
-        rois : str or list of array_like
-            Either a string containing a path to an ImageJ roi zip file,
-            or a list of arrays encoding polygons, or list of binary arrays
-            representing masks.
-        data : tifffile.TiffFile
-            Open tifffile.TiffFile object.
+        data : data_type
+            The same object as returned by :meth:`image2array`.
 
         Returns
         -------
-        masks : list of numpy.ndarray
-            List of binary arrays.
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
         """
-        # Get the image shape
-        shape = data.pages[0].shape[-2:]
-
-        # If it's a string, parse the string
-        if isinstance(rois, basestring):
-            rois = roitools.readrois(rois)
-
-        if not isinstance(rois, abc.Sequence):
-            raise TypeError(
-                "Wrong ROIs input format: expected a list or sequence, but got"
-                " a {}".format(rois.__class__)
-            )
-
-        # If it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # If it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
-
-        raise ValueError("Wrong ROIs input format: unfamiliar shape.")
+        return data.pages[0].shape[-2:]
 
     @staticmethod
     def extracttraces(data, masks):
@@ -500,45 +470,21 @@ class DataHandlerPillow(DataHandlerAbstract):
         return avg
 
     @staticmethod
-    def rois2masks(rois, data):
+    def get_frame_size(data):
         """
-        Take the object `rois` and returns it as a list of binary masks.
+        Determine the shape of each frame within the recording.
 
         Parameters
         ----------
-        rois : str or :term:`list` of :term:`array_like`
-            Either a string containing a path to an ImageJ roi zip file,
-            or a list of arrays encoding polygons, or list of binary arrays
-            representing masks.
         data : PIL.Image
             An open :class:`PIL.Image` handle to a multi-frame TIFF image.
 
         Returns
         -------
-        masks : list of numpy.ndarray
-            List of binary arrays.
+        shape : tuple of ints
+            The 2D, y-by-x, shape of each frame in the movie.
         """
-        # get the image shape
-        shape = data.size[::-1]
-
-        # If rois is string, we first need to read the contents of the file
-        if isinstance(rois, basestring):
-            rois = roitools.readrois(rois)
-
-        if not isinstance(rois, abc.Sequence):
-            raise TypeError(
-                'Wrong ROIs input format: expected a list or sequence, but got'
-                ' a {}'.format(rois.__class__)
-            )
-
-        # if it's a something by 2 array (or vice versa), assume polygons
-        if np.shape(rois[0])[1] == 2 or np.shape(rois[0])[0] == 2:
-            return roitools.getmasks(rois, shape)
-        # if it's a list of bigger arrays, assume masks
-        elif np.shape(rois[0]) == shape:
-            return rois
-
-        raise ValueError('Wrong ROIs input format: unfamiliar shape.')
+        return data.size[::-1]
 
     @staticmethod
     def extracttraces(data, masks):
