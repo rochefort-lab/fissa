@@ -5,6 +5,7 @@ from __future__ import division
 import os, os.path
 import shutil
 import sys
+import types
 import unittest
 
 import numpy as np
@@ -200,10 +201,80 @@ class ExperimentTestMixin:
                 self.expected["deltaf_raw"][0, 0],
             )
 
+    def compare_str_repr_contents(self, actual, params=None):
+        print("ACTUAL: {}".format(actual))
+        self.assert_starts_with(actual, "fissa.core.Experiment(")
+        self.assertTrue(actual[-1] == ")")
+        self.assertTrue("images=" in actual)
+        self.assertTrue("rois=" in actual)
+        if not params:
+            return
+        for param, value in params.items():
+            expected = "{}={},".format(param, repr(value))
+            print("Testing presence of ~ {} ~".format(expected))
+            self.assertTrue(expected in actual)
+
+    def test_repr_class(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        self.compare_str_repr_contents(repr(exp))
+
+    def test_str_class(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        self.compare_str_repr_contents(str(exp))
+
+    def test_str_contains_stuff(self):
+        params = {
+            "nRegions": 7,
+            "expansion": 0.813962,
+            "alpha": 0.212827,
+            "ncores_preparation": 1,
+            "ncores_separation": None,
+            "method": "nmf",
+        }
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **params)
+        self.compare_str_repr_contents(str(exp), params)
+
+    def test_repr_contains_stuff(self):
+        params = {
+            "nRegions": 7,
+            "expansion": 0.813962,
+            "alpha": 0.212827,
+            "ncores_preparation": 1,
+            "ncores_separation": None,
+            "method": "nmf",
+        }
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **params)
+        self.compare_str_repr_contents(repr(exp), params)
+
+    def test_repr_eval(self):
+        params = {
+            "nRegions": 7,
+            "expansion": 0.813962,
+            "alpha": 0.212827,
+            "ncores_preparation": 1,
+            "ncores_separation": None,
+            "method": "nmf",
+        }
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **params)
+        actual = repr(exp)
+        # We've done relative imports to test the current version of the code,
+        # but the repr string expects to be able to find packages at fissa.
+        # To solve this, we make a dummy package named fissa and put aliases
+        # to core and extraction on it, so eval can find them.
+        fissa = types.ModuleType("DummyFissa")
+        fissa.core = core
+        fissa.extraction = extraction
+        print("Evaluating: {}".format(actual))
+        exp2 = eval(actual)
+        self.compare_experiments(exp, exp2)
+
+
     def test_imagedir_roizip(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         self.compare_output(exp)
+        self.compare_str_repr_contents(str(exp))
+        self.compare_str_repr_contents(repr(exp))
 
     def test_imagelist_roizip(self):
         image_paths = [
@@ -213,6 +284,8 @@ class ExperimentTestMixin:
         exp = core.Experiment(image_paths, self.roi_zip_path)
         exp.separate()
         self.compare_output(exp)
+        self.compare_str_repr_contents(str(exp))
+        self.compare_str_repr_contents(repr(exp))
 
     def test_imagelistloaded_roizip(self):
         image_paths = [
@@ -224,6 +297,8 @@ class ExperimentTestMixin:
         exp = core.Experiment(images, self.roi_zip_path)
         exp.separate()
         self.compare_output(exp)
+        self.compare_str_repr_contents(str(exp))
+        self.compare_str_repr_contents(repr(exp))
 
     @unittest.expectedFailure
     def test_imagedir_roilistpath(self):
@@ -234,6 +309,8 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, roi_paths)
         exp.separate()
         self.compare_output(exp)
+        self.compare_str_repr_contents(str(exp))
+        self.compare_str_repr_contents(repr(exp))
 
     @unittest.expectedFailure
     def test_imagelist_roilistpath(self):
@@ -248,6 +325,8 @@ class ExperimentTestMixin:
         exp = core.Experiment(image_paths, roi_paths)
         exp.separate()
         self.compare_output(exp)
+        self.compare_str_repr_contents(str(exp))
+        self.compare_str_repr_contents(repr(exp))
 
     def test_nocache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
