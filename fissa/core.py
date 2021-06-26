@@ -211,8 +211,124 @@ class Experiment():
         :class:`~extraction.DataHandlerTifffile`.
         If `datahandler` is set, the `lowmemory_mode` parameter is
         ignored.
-    """
 
+    Attributes
+    ----------
+    result : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a :class:`numpy.ndarray` shaped
+        ``(n_signals, n_timepoints)``.
+
+        The final output of FISSA, with separated signals ranked in order of
+        their weighting toward the raw cell ROI signal relative to their
+        weighting toward other mixed raw signals.
+        The ordering is such that ``experiment.result[cell][trial][0, :]``
+        is the signal with highest score in its contribution to the raw cell
+        signal. Subsequent signals are sorted in order of diminishing score.
+        The units are same as `raw` (candelas per unit area).
+
+        This field is only populated after :meth:`separate` has been run; until
+        then, it is set to ``None``.
+
+    roi_polys : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a list of length ``nRegions + 1``, each element of
+        which is a list of length ``1``, containing a :class:`numpy.ndarray`
+        of shape ``(n_nodes, 2)``.
+
+        The nodes describe the polygon outline of each region as ``(y, x)``
+        points.
+        The outline of a ROI is given by
+        ``experiment.roi_polys[i_roi][i_trial][0][0]``,
+        and the :attr:`nRegions` neuropil regions by
+        ``experiment.roi_polys[i_roi][i_trial][1 + i_region][0]``.
+
+    means : list of n_trials :class:`numpy.ndarray`s, each shaped ``(height, width)``
+        The temporal-mean image for each trial (i.e. for each TIFF file,
+        the average image over all of its frames).
+
+    raw : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a :class:`numpy.ndarray` shaped
+        ``(n_signals, n_timepoints)``.
+
+        For each ROI and trial (``raw[i_roi, i_trial]``) we extract a temporal
+        trace of the average value within the spatial area of each of the
+        ``nRegions + 1`` regions.
+        The 0-th region is the ``i_roi``-th ROI (``raw[i_roi, i_trial][0]``).
+        The subsequent ``nRegions`` vectors are the traces for each of the
+        neuropil regions.
+
+        The units are the same as the supplied imagery (candelas per unit
+        area).
+
+    sep : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a :class:`numpy.ndarray` shaped
+        ``(n_signals, n_timepoints)``.
+
+        The separated signals, before output signals are ranked according to
+        their matching against the raw signal from within the ROI.
+        Separated signal ``i`` for a specific cell and trial can be found at
+        ``experiment.sep[cell][trial][i, :]``.
+
+        This field is only populated after :meth:`separate` has been run; until
+        then, it is set to ``None``.
+
+    mixmat : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a :class:`numpy.ndarray` shaped
+        ``(n_rois, n_signals)``.
+
+        The mixing matrix, which maps from ``experiment.raw`` to
+        ``experiment.sep``.
+        Because we use the collate the traces from all trials to determine
+        separate the signals, the mixing matrices for a given ROI are the
+        same across all trials.
+        This means all ``n_trials`` elements in ``mixmat[i_roi, :]`` are
+        identical.
+
+        This field is only populated after :meth:`separate` has been run; until
+        then, it is set to ``None``.
+
+    info : :class:`numpy.ndarray` shaped ``(n_rois, n_trials)`` of dicts
+        Information about the separation routine.
+
+        Each dictionary in the array has the following fields:
+
+        converged : bool
+            Whether the separation model converged, or if it ended due to
+            reaching the maximum number of iterations.
+        iterations : int
+            The number of iterations which were needed for the separation model
+            to converge.
+        max_iterations : int
+            Maximum number of iterations to use when fitting the
+            separation model.
+        random_state : int or None
+            Random seed used to initialise the separation model.
+
+        This field is only populated after :meth:`separate` has been run; until
+        then, it is set to ``None``.
+
+    deltaf_raw : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a :class:`numpy.ndarray` shaped ``(n_timepoint, )``.
+
+        The amount of change in fluorence relative to the baseline fluorence
+        (Δf/f\ :sub:`0`).
+
+        This field is only populated after :meth:`calc_deltaf` has been run;
+        until then, it is set to ``None``.
+
+    deltaf_result : :class:`numpy.ndarray`
+        A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
+        of which is itself a :class:`numpy.ndarray` shaped
+        ``(n_signals, n_timepoints)``.
+
+        This field is only populated after :meth:`calc_deltaf` has been run;
+        until then, it is set to ``None``.
+    """
     def __init__(self, images, rois, folder=None, nRegions=4,
                  expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
