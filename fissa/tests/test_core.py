@@ -91,7 +91,14 @@ class ExperimentTestMixin:
         if compare_deltaf and separated:
             self.compare_deltaf_result(actual.deltaf_result)
 
-    def compare_experiments(self, actual, expected, prepared=True, separated=True):
+    def compare_experiments(
+            self,
+            actual,
+            expected,
+            folder=True,
+            prepared=True,
+            separated=True,
+        ):
         """
         Compare attributes of two experiments.
 
@@ -101,6 +108,8 @@ class ExperimentTestMixin:
             Actual experiment.
         expected : fissa.Experiment
             Expected experiment.
+        folder : bool
+            Whether to compare the folder values. Default is ``True``.
         prepared : bool
             Whether to compare results of :meth:`fissa.Experiment.separation_prep`.
             Default is ``True``.
@@ -108,6 +117,22 @@ class ExperimentTestMixin:
             Whether to compare results of :meth:`fissa.Experiment.separate`.
             Default is ``True``.
         """
+        # We do all these comparisons explicitly one-by-one instead of in a
+        # for loop so you can see which one is failing.
+
+        # Check the parameters are the same
+        self.assert_equal(actual.images, expected.images)
+        self.assert_equal(actual.rois, expected.rois)
+        if folder:
+            self.assert_equal(actual.folder, expected.folder)
+        self.assert_equal(actual.nRegions, expected.nRegions)
+        self.assert_equal(actual.expansion, expected.expansion)
+        self.assert_equal(actual.alpha, expected.alpha)
+        self.assert_equal(actual.ncores_preparation, expected.ncores_preparation)
+        self.assert_equal(actual.ncores_separation, expected.ncores_separation)
+        self.assert_equal(actual.method, expected.method)
+        # self.assert_equal(actual.datahandler, expected.datahandler)
+
         if prepared:
             if expected.raw is None:
                 self.assertIs(actual.raw, expected.raw)
@@ -569,7 +594,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(os.path.join(prev_folder, "preparation.npz"))
         # Cached prep should now be loaded correctly
-        self.compare_experiments(exp, exp1)
+        self.compare_experiments(exp, exp1, folder=False)
 
     def test_load_manual_sep(self):
         """Loading prep results from a different folder."""
@@ -584,7 +609,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(os.path.join(prev_folder, "separated.npz"))
         # Cached results should now be loaded correctly
-        self.compare_experiments(exp, exp1, prepared=False)
+        self.compare_experiments(exp, exp1, folder=False, prepared=False)
 
     def test_load_manual_directory(self):
         """Loading results from a different folder."""
@@ -599,7 +624,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(image_path, roi_path, new_folder)
         exp.load(prev_folder)
         # Cache should now be loaded correctly
-        self.compare_experiments(exp, exp1)
+        self.compare_experiments(exp, exp1, folder=False)
 
     def test_load_manual(self):
         """Loading results from a different folder."""
@@ -618,7 +643,7 @@ class ExperimentTestMixin:
         # Manually trigger loading the new cache
         exp.load()
         # Cache should now be loaded correctly
-        self.compare_experiments(exp, exp1)
+        self.compare_experiments(exp, exp1, folder=False)
 
     def test_load_empty_prep(self):
         """Behaviour when loading a prep cache that is empty."""
