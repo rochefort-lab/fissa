@@ -122,84 +122,84 @@ def separate_func(inputs):
 
 
 class Experiment():
-    """Does all the steps for FISSA."""
+    """
+    Does all the steps for FISSA.
+
+    Parameters
+    ----------
+    images : str or list
+        The raw recording data.
+        Should be one of:
+
+        - the path to a directory containing TIFF files (string),
+        - an explicit list of TIFF files (list of strings),
+        - a list of :term:`array_like` data already loaded into memory,
+          each shaped ``(frames, y-coords, x-coords)``.
+
+        Note that each TIFF/array is considered a single trial.
+
+    rois : str or list
+        The roi definitions.
+        Should be one of:
+
+        - the path to a directory containing ImageJ ZIP files (string),
+        - the path of a single ImageJ ZIP file (string),
+        - a list of ImageJ ZIP files (list of strings),
+        - a list of arrays, each encoding a ROI polygons,
+        - a list of lists of binary arrays, each representing a ROI mask.
+
+        This can either be a single roiset for all trials, or a different
+        roiset for each trial.
+
+    folder : str or None, optional
+        Output path to a directory in which the extracted data will
+        be stored. If ``None`` (default), the data will not be cached.
+    nRegions : int, optional
+        Number of neuropil regions to draw. Use a higher number for
+        densely labelled tissue. Default is ``4``.
+    expansion : float, optional
+        Expansion factor for the neuropil region, relative to the
+        ROI area. Default is ``1``. The total neuropil area will be
+        ``nRegions * expansion * area(ROI)``.
+    alpha : float, optional
+        Sparsity regularizaton weight for NMF algorithm. Set to zero to
+        remove regularization. Default is ``0.1``.
+        (Not used for ICA method.)
+    ncores_preparation : int or None, optional
+        Sets the number of subprocesses to be used during the data
+        preparation steps (ROI and subregions definitions, data
+        extraction from TIFFs, etc.).
+        If set to ``None`` (default), there will be as many subprocesses
+        as there are threads or cores on the machine. Note that this
+        behaviour can, especially for the data preparation step,
+        be very memory-intensive.
+    ncores_separation : int or None, optional
+        Same as `ncores_preparation`, but for the separation step.
+        Note that this step requires less memory per subprocess, and
+        hence can often be set higher than `ncores_preparation`.
+    method : {'nmf', 'ica'}, optional
+        Which blind source-separation method to use. Either ``'nmf'``
+        for non-negative matrix factorization, or ``'ica'`` for
+        independent component analysis. Default is ``'nmf'`` (recommended).
+    lowmemory_mode : bool, optional
+        If ``True``, FISSA will load TIFF files into memory frame-by-frame
+        instead of holding the entire TIFF in memory at once. This
+        option reduces the memory load, and may be necessary for very
+        large inputs. Default is ``False``.
+    datahandler : extraction.DataHandlerAbstract or None, optional
+        A custom datahandler object for handling ROIs and calcium data can
+        be given here. See :mod:`extraction` for example datahandler
+        classes. The default datahandler is
+        :class:`~extraction.DataHandlerTifffile`.
+        Note: if `datahandler` is set, the `lowmemory_mode` parameter is
+        ignored.
+    """
 
     def __init__(self, images, rois, folder=None, nRegions=4,
                  expansion=1, alpha=0.1, ncores_preparation=None,
                  ncores_separation=None, method='nmf',
                  lowmemory_mode=False, datahandler=None):
-        """
-        Initialisation. Set the parameters for your fissa.Experiment instance.
 
-        Parameters
-        ----------
-        images : str or list
-            The raw recording data.
-            Should be one of:
-
-            - the path to a directory containing TIFF files (string),
-            - an explicit list of TIFF files (list of strings),
-            - a list of :term:`array_like` data already loaded into memory,
-              each shaped ``(frames, y-coords, x-coords)``.
-
-            Note that each TIFF/array is considered a single trial.
-
-        rois : str or list
-            The roi definitions.
-            Should be one of:
-
-            - the path to a directory containing ImageJ ZIP files (string),
-            - the path of a single ImageJ ZIP file (string),
-            - a list of ImageJ ZIP files (list of strings),
-            - a list of arrays, each encoding a ROI polygons,
-            - a list of lists of binary arrays, each representing a ROI mask.
-
-            This can either be a single roiset for all trials, or a different
-            roiset for each trial.
-
-        folder : str or None, optional
-            Output path to a directory in which the extracted data will
-            be stored. If ``None`` (default), the data will not be cached.
-        nRegions : int, optional
-            Number of neuropil regions to draw. Use a higher number for
-            densely labelled tissue. Default is ``4``.
-        expansion : float, optional
-            Expansion factor for the neuropil region, relative to the
-            ROI area. Default is ``1``. The total neuropil area will be
-            ``nRegions * expansion * area(ROI)``.
-        alpha : float, optional
-            Sparsity regularizaton weight for NMF algorithm. Set to zero to
-            remove regularization. Default is ``0.1``.
-            (Not used for ICA method.)
-        ncores_preparation : int or None, optional
-            Sets the number of subprocesses to be used during the data
-            preparation steps (ROI and subregions definitions, data
-            extraction from TIFFs, etc.).
-            If set to ``None`` (default), there will be as many subprocesses
-            as there are threads or cores on the machine. Note that this
-            behaviour can, especially for the data preparation step,
-            be very memory-intensive.
-        ncores_separation : int or None, optional
-            Same as `ncores_preparation`, but for the separation step.
-            Note that this step requires less memory per subprocess, and
-            hence can often be set higher than `ncores_preparation`.
-        method : {'nmf', 'ica'}, optional
-            Which blind source-separation method to use. Either ``'nmf'``
-            for non-negative matrix factorization, or ``'ica'`` for
-            independent component analysis. Default is ``'nmf'`` (recommended).
-        lowmemory_mode : bool, optional
-            If ``True``, FISSA will load TIFF files into memory frame-by-frame
-            instead of holding the entire TIFF in memory at once. This
-            option reduces the memory load, and may be necessary for very
-            large inputs. Default is ``False``.
-        datahandler : extraction.DataHandlerAbstract or None, optional
-            A custom datahandler object for handling ROIs and calcium data can
-            be given here. See :mod:`extraction` for example datahandler
-            classes. The default datahandler is
-            :class:`~extraction.DataHandlerTifffile`.
-            Note: if `datahandler` is set, the `lowmemory_mode` parameter is
-            ignored.
-        """
         if isinstance(images, basestring):
             self.images = sorted(glob.glob(os.path.join(images, '*.tif*')))
         elif isinstance(images, abc.Sequence):
