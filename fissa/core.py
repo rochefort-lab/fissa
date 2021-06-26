@@ -358,7 +358,11 @@ class Experiment():
         else:
             raise ValueError('rois should either be string or list')
 
-        if datahandler is not None:
+        if datahandler is not None and lowmemory_mode:
+            raise ValueError(
+                "Only one of lowmemory_mode and datahandler should be set."
+            )
+        elif datahandler is not None:
             self.datahandler = datahandler
         elif lowmemory_mode:
             self.datahandler = extraction.DataHandlerTifffileLazy()
