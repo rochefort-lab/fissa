@@ -220,6 +220,11 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+
+    # Need to manually declare what the delta symbol (Δ) corresponds to.
+    "preamble": """
+\DeclareUnicodeCharacter{394}{$\Delta$}
+""",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
