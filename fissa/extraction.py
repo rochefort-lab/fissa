@@ -37,6 +37,9 @@ class DataHandlerAbstract():
     --------
     DataHandlerTifffile, DataHandlerPillow
     """
+    def __repr__(self):
+        return "{}.{}()".format(__name__, self.__class__.__name__)
+
     @staticmethod
     def image2array(image):
         """
