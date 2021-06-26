@@ -586,21 +586,21 @@ class Experiment():
 
         After running ``separate``, data can be found as follows:
 
-        self.sep
+        experiment.sep
             Raw separation output, without being matched. Signal ``i`` for
             a specific cell and trial can be found as
-            ``self.sep[cell][trial][i,:]``.
-        self.result
+            ``experiment.sep[cell][trial][i,:]``.
+        experiment.result
             Final output, in order of presence in cell ROI.
             Signal ``i`` for a specific cell and trial can be found at
-            ``self.result[cell][trial][i, :]``.
+            ``experiment.result[cell][trial][i, :]``.
             Note that the ordering is such that ``i = 0`` is the signal
             most strongly present in the ROI, and subsequent entries
             are in diminishing order.
-        self.mixmat
-            The mixing matrix, which maps how to from ``self.raw`` to
-            ``self.separated``.
-        self.info
+        experiment.mixmat
+            The mixing matrix, which maps from ``experiment.raw`` to
+            ``experiment.sep``.
+        experiment.info
             Information about separation routine, iterations needed, etc.
 
         Parameters
