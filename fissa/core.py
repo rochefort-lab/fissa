@@ -981,6 +981,10 @@ def run_fissa(
         trial ``t``. If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
         otherwise, it is the decontaminated signal scaled as per the raw
         signal.
+
+    See Also
+    --------
+    fissa.core.Experiment
     """
     # Parse arguments
     if export_to_matlab is None:
