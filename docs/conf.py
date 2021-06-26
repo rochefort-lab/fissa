@@ -102,7 +102,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
+    "numpydoc",  # handle NumPy documentation formatted docstrings
 ]
 
 # Some extension features only available on later Python versions
