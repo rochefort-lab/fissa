@@ -126,6 +126,11 @@ class Experiment():
     """
     FISSA Experiment.
 
+    Uses the methodology described in
+    `FISSA: A neuropil decontamination toolbox for calcium imaging signals <doi_>`_.
+
+    .. _doi: https://www.doi.org/10.1038/s41598-018-21640-2
+
     Parameters
     ----------
     images : str or list
