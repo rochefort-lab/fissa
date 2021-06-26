@@ -419,6 +419,23 @@ def test_multiframe_mean_higherdim_pillow(base_fname, shp, dtype, datahandler):
         datahandler=datahandler,
     )
 
+class TestDataHandlerRepr(BaseTestCase):
+    """String representations of DataHandler are correct."""
+
+    def test_repr_tifffile(self):
+        datahandler = extraction.DataHandlerTifffile()
+        self.assert_equal(repr(datahandler), "fissa.extraction.DataHandlerTifffile()")
+
+    def test_repr_tifffile_lazy(self):
+        datahandler = extraction.DataHandlerTifffileLazy()
+        self.assert_equal(
+            repr(datahandler), "fissa.extraction.DataHandlerTifffileLazy()"
+        )
+
+    def test_repr_pillow(self):
+        datahandler = extraction.DataHandlerPillow()
+        self.assert_equal(repr(datahandler), "fissa.extraction.DataHandlerPillow()")
+
 
 class Rois2MasksTestMixin:
     """Tests for rois2masks."""
