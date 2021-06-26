@@ -248,6 +248,8 @@ class Experiment():
     def clear(self):
         """
         Clear prepared data, and all data downstream of prepared data.
+
+        .. versionadded:: 1.0.0
         """
         # Wipe outputs
         self.means = []
@@ -262,6 +264,8 @@ class Experiment():
     def clear_separated(self):
         """
         Clear prepared data, and all data downstream of prepared data.
+
+        .. versionadded:: 1.0.0
         """
         # Wipe outputs
         self.info = None
@@ -274,6 +278,8 @@ class Experiment():
     def load(self, path=None):
         """
         Load data from cache file in npz format.
+
+        .. versionadded:: 1.0.0
 
         Parameters
         ----------
@@ -410,6 +416,8 @@ class Experiment():
     def save_prep(self, destination=None):
         """
         Save prepared raw signals, extracted from images, to an npz file.
+
+        .. versionadded:: 1.0.0
 
         Parameters
         ----------
@@ -571,6 +579,8 @@ class Experiment():
     def save_separated(self, destination=None):
         """
         Save separated signals to an npz file.
+
+        .. versionadded:: 1.0.0
 
         Parameters
         ----------
