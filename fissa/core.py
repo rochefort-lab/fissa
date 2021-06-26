@@ -123,7 +123,7 @@ def separate_func(inputs):
 
 
 class Experiment():
-    """
+    r"""
     FISSA Experiment.
 
     Uses the methodology described in
@@ -385,7 +385,7 @@ class Experiment():
             self.load()
 
     def clear(self):
-        """
+        r"""
         Clear prepared data, and all data downstream of prepared data.
 
         .. versionadded:: 1.0.0
@@ -401,7 +401,7 @@ class Experiment():
         self.clear_separated()
 
     def clear_separated(self):
-        """
+        r"""
         Clear separated data, and all data downstream of separated data.
 
         .. versionadded:: 1.0.0
@@ -415,7 +415,7 @@ class Experiment():
         self.deltaf_result = None
 
     def load(self, path=None):
-        """
+        r"""
         Load data from cache file in npz format.
 
         .. versionadded:: 1.0.0
@@ -451,7 +451,8 @@ class Experiment():
             setattr(self, field, value)
 
     def separation_prep(self, redo=False):
-        """Prepare and extract the data to be separated.
+        r"""
+        Prepare and extract the data to be separated.
 
         For each trial, performs the following steps:
 
@@ -554,7 +555,7 @@ class Experiment():
             self.save_prep()
 
     def save_prep(self, destination=None):
-        """
+        r"""
         Save prepared raw signals, extracted from images, to an npz file.
 
         .. versionadded:: 1.0.0
@@ -586,7 +587,7 @@ class Experiment():
         )
 
     def separate(self, redo_prep=False, redo_sep=False):
-        """
+        r"""
         Separate all the trials with FISSA algorithm.
 
         After running ``separate``, data can be found as follows:
@@ -717,7 +718,7 @@ class Experiment():
             self.save_separated()
 
     def save_separated(self, destination=None):
-        """
+        r"""
         Save separated signals to an npz file.
 
         .. versionadded:: 1.0.0
@@ -749,7 +750,7 @@ class Experiment():
         )
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
-        """
+        r"""
         Calculate deltaf/f0 for raw and result traces.
 
         The outputs are found in the :attr:`deltaf_raw` and
@@ -834,7 +835,8 @@ class Experiment():
             self.save_separated()
 
     def save_to_matlab(self, fname=None):
-        """Save the results to a MATLAB file.
+        r"""
+        Save the results to a MATLAB file.
 
         This will generate a .mat file which can be loaded into MATLAB to
         provide structs: ROIs, result, raw.
@@ -912,7 +914,7 @@ def run_fissa(
     export_to_matlab=False,
     **kwargs
 ):
-    """
+    r"""
     Functional interface to run FISSA.
 
     .. versionadded:: 1.0.0
