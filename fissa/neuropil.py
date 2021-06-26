@@ -84,6 +84,10 @@ def separate(
     ``sum(column) = 1``.
     This results in a relative score of how strongly each separated signal
     is represented in each ROI signal.
+
+    See Also
+    --------
+    sklearn.decomposition.NMF, sklearn.decomposition.FastICA
     """
     # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
