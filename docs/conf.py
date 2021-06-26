@@ -102,7 +102,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
+    "numpydoc",  # handle NumPy documentation formatted docstrings
 ]
 
 # Some extension features only available on later Python versions
@@ -136,6 +136,9 @@ templates_path = ['_templates']
 #
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
+
+# The encoding of source files.
+source_encoding = "utf-8"
 
 # The master toctree document.
 master_doc = 'index'
@@ -220,6 +223,11 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+
+    # Need to manually declare what the delta symbol (Δ) corresponds to.
+    "preamble": """
+\DeclareUnicodeCharacter{394}{$\Delta$}
+""",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

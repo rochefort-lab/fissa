@@ -414,6 +414,10 @@ def find_roi_edge(mask):
     -------
     outline : :term:`list` of (n,2)-:class:`~numpy.ndarray`
         Array with coordinates of pixels in the outline of the mask.
+
+    See Also
+    --------
+    skimage.measure.find_contours
     """
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
