@@ -124,7 +124,7 @@ def separate_func(inputs):
 
 class Experiment():
     """
-    Does all the steps for FISSA.
+    FISSA Experiment.
 
     Parameters
     ----------
@@ -133,14 +133,14 @@ class Experiment():
         Should be one of:
 
         - the path to a directory containing TIFF files (string),
-        - an explicit list of TIFF files (list of strings),
+        - a list of paths to TIFF files (list of strings),
         - a list of :term:`array_like` data already loaded into memory,
-          each shaped ``(frames, y-coords, x-coords)``.
+          each shaped ``(n_frames, height, width)``.
 
-        Note that each TIFF/array is considered a single trial.
+        Note that each TIFF or array is considered a single trial.
 
     rois : str or list
-        The roi definitions.
+        The region of interest (ROI) definitions.
         Should be one of:
 
         - the path to a directory containing ImageJ ZIP files (string),
@@ -152,47 +152,64 @@ class Experiment():
         This can either be a single roiset for all trials, or a different
         roiset for each trial.
 
-    folder : str or None, optional
-        Output path to a directory in which the extracted data will
-        be stored. If ``None`` (default), the data will not be cached.
-    nRegions : int, optional
-        Number of neuropil regions to draw. Use a higher number for
-        densely labelled tissue. Default is ``4``.
-    expansion : float, optional
-        Expansion factor for the neuropil region, relative to the
+    folder : str, optional
+        Path to a cache directory from which pre-extracted data will
+        be loaded if present, and saved to otherwise. If `folder` is
+        unset, the experiment data will not be saved.
+
+    nRegions : int, default=4
+        Number of neuropil regions and signals to use. Default is ``4``.
+        Use a higher number for densely labelled tissue.
+
+    expansion : float, default=1
+        Expansion factor for each neuropil region, relative to the
         ROI area. Default is ``1``. The total neuropil area will be
         ``nRegions * expansion * area(ROI)``.
-    alpha : float, optional
+
+    alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
-        (Not used for ICA method.)
-    ncores_preparation : int or None, optional
-        Sets the number of subprocesses to be used during the data
-        preparation steps (ROI and subregions definitions, data
-        extraction from TIFFs, etc.).
-        If set to ``None`` (default), there will be as many subprocesses
-        as there are threads or cores on the machine. Note that this
+
+    ncores_preparation : int or None, default=None
+        The number of parallel subprocesses to use during the data
+        preparation steps of :meth:`separation_prep`.
+        These are ROI and neuropil subregion definitions, and extracting
+        raw signals from TIFFs.
+
+        If set to ``None`` (default), the number of processes used will
+        equal the number of threads on the machine. Note that this
         behaviour can, especially for the data preparation step,
         be very memory-intensive.
-    ncores_separation : int or None, optional
-        Same as `ncores_preparation`, but for the separation step.
-        Note that this step requires less memory per subprocess, and
-        hence can often be set higher than `ncores_preparation`.
-    method : {'nmf', 'ica'}, optional
-        Which blind source-separation method to use. Either ``'nmf'``
-        for non-negative matrix factorization, or ``'ica'`` for
-        independent component analysis. Default is ``'nmf'`` (recommended).
+
+    ncores_separation : int or None, default=None
+        The number of parallel subprocesses to use during the signal
+        separation steps of :meth:`separate`.
+        The separation steps requires less memory per subprocess than
+        the preparation steps, and so can be often be set higher than
+        `ncores_preparation`.
+
+        If set to ``None`` (default), the number of processes used will
+        equal the number of threads on the machine. Note that this
+        behaviour can, especially for the data preparation step,
+        be very memory-intensive.
+
+    method : "nmf" or "ica", default="nmf"
+        Which blind source-separation method to use. Either ``"nmf"``
+        for non-negative matrix factorization, or ``"ica"`` for
+        independent component analysis. Default is ``"nmf"`` (recommended).
+
     lowmemory_mode : bool, optional
         If ``True``, FISSA will load TIFF files into memory frame-by-frame
         instead of holding the entire TIFF in memory at once. This
         option reduces the memory load, and may be necessary for very
         large inputs. Default is ``False``.
-    datahandler : extraction.DataHandlerAbstract or None, optional
+
+    datahandler : :class:`extraction.DataHandlerAbstract`, optional
         A custom datahandler object for handling ROIs and calcium data can
-        be given here. See :mod:`extraction` for example datahandler
+        be given here. See :mod:`fissa.extraction` for example datahandler
         classes. The default datahandler is
         :class:`~extraction.DataHandlerTifffile`.
-        Note: if `datahandler` is set, the `lowmemory_mode` parameter is
+        If `datahandler` is set, the `lowmemory_mode` parameter is
         ignored.
     """
 
@@ -264,7 +281,7 @@ class Experiment():
 
     def clear_separated(self):
         """
-        Clear prepared data, and all data downstream of prepared data.
+        Clear separated data, and all data downstream of separated data.
 
         .. versionadded:: 1.0.0
         """
@@ -284,11 +301,12 @@ class Experiment():
 
         Parameters
         ----------
-        path : str or None, optional
+        path : str, optional
             Path to cache file (.npz format) or a directory containing
             ``"preparation.npz"`` and/or ``"separated.npz"`` files.
-            If ``None`` (default), the `folder` parameter which was provided
-            when the object was initialised is used (``self.folder``).
+            Default behaviour is to use the :attr:`folder` parameter which was
+            provided when the object was initialised is used
+            (``experiment.folder``).
         """
         if path is None:
             if self.folder is None:
@@ -422,7 +440,7 @@ class Experiment():
 
         Parameters
         ----------
-        destination : str or None, optional
+        destination : str, optional
             Path to output file. The default destination is ``"separated.npz"``
             within the cache directory ``self.folder``.
         """
@@ -585,7 +603,7 @@ class Experiment():
 
         Parameters
         ----------
-        destination : str or None, optional
+        destination : str, optional
             Path to output file. The default destination is ``"separated.npz"``
             within the cache directory ``self.folder``.
         """
@@ -613,8 +631,9 @@ class Experiment():
         """
         Calculate deltaf/f0 for raw and result traces.
 
-        The results can be accessed as ``self.deltaf_raw`` and
-        ``self.deltaf_result``.
+        The outputs are found in the :attr:`deltaf_raw` and
+        :attr:`deltaf_result` attributes, which can be accessed at
+        ``experiment.deltaf_raw`` and ``experiment.deltaf_result``.
 
         Parameters
         ----------
@@ -627,7 +646,7 @@ class Experiment():
         across_trials : bool, optional
             If ``True``, we estimate a single baseline f0 value across all
             trials. If ``False``, each trial will have their own baseline f0,
-            and df/f0 value will be relative to the trial-specific f0.
+            and Δf/f\ :sub:`0` value will be relative to the trial-specific f0.
             Default is ``True``.
         """
         deltaf_raw = [[None for t in range(self.nTrials)]
@@ -699,7 +718,7 @@ class Experiment():
         This will generate a .mat file which can be loaded into MATLAB to
         provide structs: ROIs, result, raw.
 
-        If df/f0 was calculated, these will also be stored as ``df_result``
+        If Δf/f\ :sub:`0` was calculated, these will also be stored as ``df_result``
         and ``df_raw``, which will have the same format as ``result`` and
         ``raw``.
 
@@ -784,9 +803,9 @@ def run_fissa(
         Should be one of:
 
         - the path to a directory containing TIFF files (string),
-        - an explicit list of TIFF files (list of strings),
-        - a list of array-like data already loaded into memory, each shaped
-          ``(frames, y-coords, x-coords)``.
+        - a list of paths to TIFF files (list of strings),
+        - a list of :term:`array_like` data already loaded into memory, each
+          shaped ``(n_frames, height, width)``.
 
         Note that each TIFF/array is considered a single trial.
 
@@ -803,36 +822,43 @@ def run_fissa(
         This can either be a single roiset for all trials, or a different
         roiset for each trial.
 
-    folder : str or None, optional
-        Output path to a directory in which the extracted data will
-        be stored. If ``None`` (default), the data will not be cached.
-    freq : float or None, optional
-        Imaging frequency, in Hz. Required if `return_deltaf` is ``True``.
+    folder : str, optional
+        Path to a cache directory from which pre-extracted data will
+        be loaded if present, and saved to otherwise. If `folder` is
+        unset, the experiment data will not be saved.
+
+    freq : float, optional
+        Imaging frequency, in Hz. Required if ``return_deltaf=True``.
+
     return_deltaf : bool, optional
-        Whether to return df/f0. Otherwise, the decontaminated signal is
-        returned scaled against the raw recording. Default is ``False``.
-    deltaf_across_trials : bool, optional
+        Whether to return Δf/f\ :sub:`0`. Otherwise, the decontaminated signal
+        is returned scaled against the raw recording. Default is ``False``.
+
+    deltaf_across_trials : bool, default=True
         If ``True``, we estimate a single baseline f0 value across all
-        trials when computing df/f0. If ``False``, each trial will have their
-        own baseline f0, and df/f0 value will be relative to the trial-specific
-        f0. Default is ``True``.
-    export_to_matlab : bool or str or None, optional
+        trials when computing Δf/f\ :sub:`0`.
+        If ``False``, each trial will have their own baseline f0, and
+        Δf/f\ :sub:`0` value will be relative to the trial-specific f0.
+        Default is ``True``.
+
+    export_to_matlab : bool or str or None, default=False
         Whether to export the data to a MATLAB-compatible .mat file.
         If `export_to_matlab` is a string, it is used as the path to the output
-        file. If `export_to_matlab` is ``True``, the matfile is saved to the
+        file. If ``export_to_matlab=True``, the matfile is saved to the
         default path of ``"matlab.mat"`` within the `folder` directory, and
         `folder` must be set. If this is ``None``, the matfile is exported to
         the default path if `folder` is set, and otherwise is not exported.
         Default is ``False``.
+
     **kwargs
-        Additional keyword arguments as per `Experiment`.
+        Additional keyword arguments as per :class:`Experiment`.
 
     Returns
     -------
     result : 2d numpy.ndarray of 2d numpy.ndarrays of np.float64
-        The vector `result[c, t][0, :]` is the trace from cell `c` in
-        trial `t`. If `return_deltaf` is ``True``, this is df/f0.
-        Otherwise, it is the decontaminated signal scaled as per the raw
+        The vector ``result[c, t][0, :]`` is the trace from cell ``c`` in
+        trial ``t``. If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
+        otherwise, it is the decontaminated signal scaled as per the raw
         signal.
     """
     # Parse arguments
