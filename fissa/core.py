@@ -396,6 +396,66 @@ class Experiment():
         else:
             self.load()
 
+    def __str__(self):
+        if isinstance(self.images, basestring):
+            str_images = repr(self.images)
+        elif isinstance(self.images, abc.Sequence):
+            str_images = "<{} of length {}>".format(
+                self.images.__class__.__name__, len(self.images)
+            )
+        else:
+            str_images = repr(self.images)
+
+        if isinstance(self.rois, basestring):
+            str_rois = repr(self.rois)
+        elif isinstance(self.rois, abc.Sequence):
+            str_rois = "<{} of length {}>".format(
+                self.rois.__class__.__name__, len(self.rois)
+            )
+        else:
+            str_images = repr(self.rois)
+
+        fields = [
+            "folder",
+            "nRegions",
+            "expansion",
+            "alpha",
+            "ncores_preparation",
+            "ncores_separation",
+            "method",
+            "datahandler",
+        ]
+        str_parts = [
+            "{}={}".format(field, repr(getattr(self, field))) for field in fields
+        ]
+        return "{}.{}(images={}, rois={}, {})".format(
+            __name__,
+            self.__class__.__name__,
+            str_images,
+            str_rois,
+            ", ".join(str_parts),
+        )
+
+    def __repr__(self):
+        fields = [
+            "images",
+            "rois",
+            "folder",
+            "nRegions",
+            "expansion",
+            "alpha",
+            "ncores_preparation",
+            "ncores_separation",
+            "method",
+            "datahandler",
+        ]
+        repr_parts = [
+            "{}={}".format(field, repr(getattr(self, field))) for field in fields
+        ]
+        return "{}.{}({})".format(
+            __name__, self.__class__.__name__, ", ".join(repr_parts)
+        )
+
     def clear(self):
         r"""
         Clear prepared data, and all data downstream of prepared data.
