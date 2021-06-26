@@ -339,6 +339,9 @@ class Experiment():
                  ncores_separation=None, method='nmf',
                  lowmemory_mode=False, datahandler=None):
 
+        # Initialise internal variables
+        self.clear()
+
         if isinstance(images, basestring):
             self.images = sorted(glob.glob(os.path.join(images, '*.tif*')))
         elif isinstance(images, abc.Sequence):
@@ -371,7 +374,6 @@ class Experiment():
 
         # define class variables
         self.folder = folder
-        self.clear()
         self.nRegions = nRegions
         self.expansion = expansion
         self.alpha = alpha
