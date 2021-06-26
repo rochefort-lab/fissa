@@ -299,6 +299,15 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
+    def test_lowmemorymode_datahandler(self):
+        with self.assertRaises(ValueError):
+            exp = core.Experiment(
+                self.images_dir,
+                self.roi_zip_path,
+                lowmemory_mode=True,
+                datahandler=extraction.DataHandlerTifffile(),
+            )
+
     def test_manualhandler_Tifffile(self):
         exp = core.Experiment(
             self.images_dir,
