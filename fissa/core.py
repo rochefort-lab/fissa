@@ -635,8 +635,8 @@ class Experiment():
         Parameters
         ----------
         destination : str, optional
-            Path to output file. The default destination is ``"separated.npz"``
-            within the cache directory ``self.folder``.
+            Path to output file. The default destination is
+            ``"preparation.npz"`` within the cache directory ``self.folder``.
         """
         fields = ["means", "nCell", "raw", "roi_polys"]
         if destination is None:
