@@ -1,4 +1,4 @@
-numpydoc
+numpydoc>=0.7.0
 pydata-sphinx-theme; python_version>='3.6'
 readthedocs-sphinx-search; python_version>='3.6'
 sphinx; python_version<'3.6'
