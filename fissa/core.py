@@ -285,11 +285,11 @@ class Experiment():
         option reduces the memory load, and may be necessary for very
         large inputs. Default is ``False``.
 
-    datahandler : :class:`extraction.DataHandlerAbstract`, optional
+    datahandler : :class:`fissa.extraction.DataHandlerAbstract`, optional
         A custom datahandler object for handling ROIs and calcium data can
         be given here. See :mod:`fissa.extraction` for example datahandler
         classes. The default datahandler is
-        :class:`~extraction.DataHandlerTifffile`.
+        :class:`~fissa.extraction.DataHandlerTifffile`.
         If `datahandler` is set, the `lowmemory_mode` parameter is
         ignored.
 
