@@ -534,14 +534,18 @@ class Experiment():
         - Using neuropil and original ROI regions, extract traces from data.
 
         After running this you can access the raw data (i.e. pre-separation)
-        as ``self.raw`` and ``self.rois``. self.raw is a list of arrays.
-        ``self.raw[cell][trial]`` gives you the traces of a specific cell and
-        trial, across cell and neuropil regions. ``self.roi_polys`` is a list of
-        lists of arrays. ``self.roi_polys[cell][trial][region][0]`` gives you the
-        polygon for the region for a specific cell, trial and region. ``region=0``
-        is the cell, and ``region>0`` gives the different neuropil regions.
-        For separateable masks, it is possible multiple outlines are found,
-        which can be accessed as ``self.roi_polys[cell][trial][region][i]``,
+        as ``experiment.raw`` and ``experiment.rois``.
+        ``experiment.raw`` is a list of arrays.
+        ``experiment.raw[cell][trial]`` gives you the traces of a specific cell
+        and trial, across cell and neuropil regions.
+        ``experiment.roi_polys`` is a list of lists of arrays.
+        ``experiment.roi_polys[cell][trial][region][0]`` gives you the
+        polygon for the region for a specific cell, trial and region.
+        ``region=0`` is the cell, and ``region>0`` gives the different neuropil
+        regions.
+        For separable masks, it is possible multiple outlines are
+        found, which can be accessed as
+        ``experiment.roi_polys[cell][trial][region][i]``,
         where ``i`` is the outline index.
 
         Parameters
@@ -636,7 +640,8 @@ class Experiment():
         ----------
         destination : str, optional
             Path to output file. The default destination is
-            ``"preparation.npz"`` within the cache directory ``self.folder``.
+            ``"preparation.npz"`` within the cache directory
+            ``experiment.folder``.
         """
         fields = ["means", "nCell", "raw", "roi_polys"]
         if destination is None:
@@ -799,7 +804,7 @@ class Experiment():
         ----------
         destination : str, optional
             Path to output file. The default destination is ``"separated.npz"``
-            within the cache directory ``self.folder``.
+            within the cache directory ``experiment.folder``.
         """
         fields = ["deltaf_raw", "deltaf_result", "info", "mixmat", "sep", "result"]
         if destination is None:
