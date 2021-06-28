@@ -31,7 +31,7 @@ def _parse_roi_file_py2(roi_obj):
     This is based on the Java implementation:
     http://rsbweb.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
 
-    This code can is not guaranteed to work for all C compilers on Windows.
+    This method is not guaranteed to work for all C compilers on Windows.
 
     Parameters
     ----------
@@ -285,9 +285,6 @@ def _parse_roi_file_py3(roi_source):
     """
     Parse an individual ImageJ ROI.
 
-    This implementation utilises the read_roi package, which is more robust
-    but only supports Python 3+ and not Python 2.7.
-
     Parameters
     ----------
     roi_source : str or file object
@@ -306,6 +303,9 @@ def _parse_roi_file_py3(roi_source):
     ValueError
         If unable to parse ROI.
     """
+    # This implementation utilises the read_roi package, which is more robust
+    # but only supports Python 3+ and not Python 2.7.
+
     # Use read_roi package to load up the roi as a dictionary
     roi = read_roi.read_roi_file(roi_source)
     # This is a dictionary with a single entry, whose key is the label
