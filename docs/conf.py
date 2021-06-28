@@ -225,7 +225,7 @@ latex_elements = {
     #
     # Additional stuff for the LaTeX preamble.
     # Need to manually declare what the delta symbol (Δ) corresponds to.
-    "preamble": """
+    "preamble": r"""
 \DeclareUnicodeCharacter{394}{$\Delta$}
 """,
 }

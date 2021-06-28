@@ -1,6 +1,7 @@
 """
-Provides a general testing class which inherits from unittest.TestCase
-and also provides the numpy testing functions.
+Provides a base test class for other test classes to inherit from.
+
+Includes the numpy testing functions as methods.
 """
 
 import contextlib
@@ -66,7 +67,7 @@ def assert_starts_with(actual, desired):
     """
     try:
         assert len(actual) >= len(desired)
-    except BaseException as err:
+    except BaseException:
         print(
             "Actual string too short ({} < {} characters)".format(
                 len(actual), len(desired)
@@ -91,9 +92,8 @@ def assert_starts_with(actual, desired):
 
 
 class BaseTestCase(unittest.TestCase):
-
     """
-    Superclass for all the FISSA test cases
+    Superclass for all the FISSA test cases.
     """
 
     # Have the test directory as an attribute to the class as well as
@@ -101,9 +101,12 @@ class BaseTestCase(unittest.TestCase):
     test_directory = TEST_DIRECTORY
 
     def __init__(self, *args, **kwargs):
-        """Add test for numpy type"""
+        """Instance initialisation."""
+        # First do the __init__ associated with parent class
         # super(self).__init__(*args, **kw)  # Only works on Python3
         super(BaseTestCase, self).__init__(*args, **kwargs)  # Works on Python2
+        # Add a test to automatically use when comparing objects of
+        # type numpy ndarray. This will be used for self.assertEqual().
         self.addTypeEqualityFunc(np.ndarray, self.assert_allclose)
         self.tempdir = os.path.join(
             tempfile.gettempdir(),
@@ -176,7 +179,7 @@ class BaseTestCase(unittest.TestCase):
     def assert_allclose(self, actual, desired, *args, **kwargs):
         # Handle msg argument, which is passed from assertEqual, established
         # with addTypeEqualityFunc in __init__
-        msg = kwargs.pop("msg", None)
+        kwargs.pop("msg", None)
         return assert_allclose(actual, desired, *args, **kwargs)
 
     def assert_equal(self, actual, desired, *args, **kwargs):

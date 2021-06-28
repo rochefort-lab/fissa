@@ -18,10 +18,10 @@ class NeuropilMixin:
     def setUp(self):
         """Set up the basic variables."""
         # length of arrays in tests
-        self.l = 100
-        self.shape_desired = (2, self.l)
+        self.n_obs = 100
+        self.shape_desired = (2, self.n_obs)
         # setup basic x values for fake data
-        self.x = np.linspace(0, np.pi * 2, self.l)
+        self.x = np.linspace(0, np.pi * 2, self.n_obs)
         # Generate simple source data
         self.data = np.array([np.sin(self.x), np.cos(3 * self.x)]) + 1
         # Mix to make test data

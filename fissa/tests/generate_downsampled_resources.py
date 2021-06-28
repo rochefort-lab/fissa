@@ -32,10 +32,11 @@ def maybe_make_dir(dirname):
             raise
 
 
-def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
+def downscale_roi(source_file, dest_file, downsamp=None, offsets=None):
     """
-    Downscale a ROI appearing in an ImageJ ROI file. The co-ordinates of
-    the ROI are adjusted, and all metadata remains the same.
+    Downscale a ROI appearing in an ImageJ ROI file.
+
+    The co-ordinates of the ROI are adjusted, and all metadata remains the same.
 
     Parameters
     ----------
@@ -59,6 +60,10 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
     `read_roi` was written by Luis Pedro Coelho, released under the MIT
     License.
     """
+    if downsamp is None:
+        downsamp = [1, 1]
+    if offsets is None:
+        offsets = [0, 0]
     with open(source_file, "rb") as inhand, open(dest_file, "wb") as outhand:
 
         sub_pixel_resolution = 128
@@ -76,7 +81,7 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
         pos = [4]
 
         def _get8():
-            """Read 1 byte from the roi file object"""
+            """Read 1 byte from the roi file object."""
             pos[0] += 1
             s = inhand.read(1)
             if not s:
@@ -84,26 +89,26 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             return ord(s)
 
         def _write8(s):
-            """Write 1 byte to a roi file object"""
+            """Write 1 byte to a roi file object."""
             # outhand.write(chr(s))  # When opened with text mode, Py2.7
             # outhand.write(bytes([s]))  # When opened with b mode, Py3
             outhand.write(bytes(bytearray([s])))  # b mode Py2/3
 
         def _get16():
-            """Read 2 bytes from the roi file object"""
+            """Read 2 bytes from the roi file object."""
             b0 = _get8()
             b1 = _get8()
             return (b0 << 8) | b1
 
         def _write16(s):
-            """Write 2 byte to a roi file object"""
+            """Write 2 byte to a roi file object."""
             b0 = (s >> 8) & 0xFF
             _write8(b0)
             b1 = s & 0xFF
             _write8(b1)
 
         def _get16signed():
-            """Read a signed 16 bit integer from 2 bytes from roi file object"""
+            """Read a signed 16 bit integer from 2 bytes from roi file object."""
             b0 = _get8()
             b1 = _get8()
             out = (b0 << 8) | b1
@@ -114,37 +119,37 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             return out
 
         def _write16signed(s):
-            """Write a signed 16 bit integer to 2 bytes in a roi file object"""
+            """Write a signed 16 bit integer to 2 bytes in a roi file object."""
             if s < 0:
                 s += 65536
             _write16(s)
 
         def _get32():
-            """Read 4 bytes from the roi file object"""
+            """Read 4 bytes from the roi file object."""
             s0 = _get16()
             s1 = _get16()
             return (s0 << 16) | s1
 
         def _write32(s):
-            """Write 4 bytes to the roi file object"""
+            """Write 4 bytes to the roi file object."""
             s0 = (s >> 16) & 0xFFFF
             _write16(s0)
             s1 = s & 0xFFFF
             _write16(s1)
 
         def _getfloat():
-            """Read a float from the roi file object"""
+            """Read a float from the roi file object."""
             v = np.int32(_get32())
             return v.view(np.float32)
 
         def _writefloat(f):
-            """Write a float from the roi file object"""
+            """Write a float from the roi file object."""
             f = f.astype(np.float32)
             s = int(f.view(np.int32))
             _write32(s)
 
         def _getcoords(z=0):
-            """Get the next coordinate of an roi polygon"""
+            """Get the next coordinate of an roi polygon."""
             if options & sub_pixel_resolution:
                 getc = _getfloat
                 points = np.empty((n_coordinates, 3), dtype=np.float32)
@@ -159,14 +164,14 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             return points
 
         def _writecoords(points):
-            """Write the coordinate of an roi polygon"""
+            """Write the coordinate of an roi polygon."""
             if options & sub_pixel_resolution:
                 writec = _writefloat
-                convert = lambda x: x.astype(np.float32)
+                convert = lambda x: x.astype(np.float32)  # noqa: E731
                 # points = np.empty((n_coordinates, 3), dtype=np.float32)
             else:
                 writec = _write16signed
-                convert = lambda x: np.round(x).astype(np.int16)
+                convert = lambda x: np.round(x).astype(np.int16)  # noqa: E731
                 # points = np.empty((n_coordinates, 3), dtype=np.int16)
             x = (points[:, 0] - left) / downsamp[0]
             y = (points[:, 1] - top) / downsamp[1]
@@ -361,7 +366,7 @@ def main(name=None, roi_ids=None, x_down=4, y_down=None, t_down=10):
     datahandler = extraction.DataHandlerTifffile
 
     # Extract the rois from the zip file
-    print("Extracting rois from {} into {}" "".format(rois_location, roi_extract_dir))
+    print("Extracting rois from {} into {}".format(rois_location, roi_extract_dir))
     with zipfile.ZipFile(rois_location, "r") as zr:
         zr.extractall(roi_extract_dir)
 

@@ -79,7 +79,7 @@ def _parse_roi_file_py2(roi_obj):
     pos = [4]
 
     def _get8():
-        """Read 1 byte from the roi file object"""
+        """Read 1 byte from the roi file object."""
         pos[0] += 1
         s = roi_obj.read(1)
         if not s:
@@ -87,13 +87,13 @@ def _parse_roi_file_py2(roi_obj):
         return ord(s)
 
     def _get16():
-        """Read 2 bytes from the roi file object"""
+        """Read 2 bytes from the roi file object."""
         b0 = _get8()
         b1 = _get8()
         return (b0 << 8) | b1
 
     def _get16signed():
-        """Read a signed 16 bit integer from 2 bytes from roi file object"""
+        """Read a signed 16 bit integer from 2 bytes from roi file object."""
         b0 = _get8()
         b1 = _get8()
         out = (b0 << 8) | b1
@@ -104,18 +104,18 @@ def _parse_roi_file_py2(roi_obj):
         return out
 
     def _get32():
-        """Read 4 bytes from the roi file object"""
+        """Read 4 bytes from the roi file object."""
         s0 = _get16()
         s1 = _get16()
         return (s0 << 16) | s1
 
     def _getfloat():
-        """Read a float from the roi file object"""
+        """Read a float from the roi file object."""
         v = np.int32(_get32())
         return v.view(np.float32)
 
     def _getcoords(z=0):
-        """Get the next coordinate of an roi polygon"""
+        """Get the next coordinate of an roi polygon."""
         if options & sub_pixel_resolution:
             getc = _getfloat
             points = np.empty((n_coordinates, 3), dtype=np.float32)
@@ -131,7 +131,7 @@ def _parse_roi_file_py2(roi_obj):
 
     magic = roi_obj.read(4)
     if magic != b"Iout":
-        raise IOError("read_imagej_roi: Magic number not found")
+        raise IOError("read_imagej_roi: Magic number not found.")
 
     _get16()  # version
 
@@ -282,7 +282,8 @@ def _parse_roi_file_py2(roi_obj):
 
 
 def _parse_roi_file_py3(roi_source):
-    """Parses an individual ImageJ ROI
+    """
+    Parse an individual ImageJ ROI.
 
     This implementation utilises the read_roi package, which is more robust
     but only supports Python 3+ and not Python 2.7.
@@ -305,7 +306,6 @@ def _parse_roi_file_py3(roi_source):
     ValueError
         If unable to parse ROI.
     """
-
     # Use read_roi package to load up the roi as a dictionary
     roi = read_roi.read_roi_file(roi_source)
     # This is a dictionary with a single entry, whose key is the label

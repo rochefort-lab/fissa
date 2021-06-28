@@ -1,6 +1,5 @@
 """
-Functions for computing correcting fluorescence signals for changes in
-baseline activity.
+Compute changes in fluorescence signals relative to baseline activity.
 
 Authors:
     - Scott C Lowe <scott.code.lowe@gmail.com>
