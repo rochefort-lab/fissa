@@ -21,7 +21,7 @@ def image2array(image):
     """Take the object 'image' and returns an array.
 
     Parameters
-    ---------
+    ----------
     image : unknown
         The data. Should be either a tif location, or a list
         of already loaded in data.

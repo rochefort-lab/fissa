@@ -388,7 +388,7 @@ class ExperimentTestMixin:
 
     def test_lowmemorymode_datahandler(self):
         with self.assertRaises(ValueError):
-            exp = core.Experiment(
+            core.Experiment(
                 self.images_dir,
                 self.roi_zip_path,
                 lowmemory_mode=True,
@@ -435,7 +435,7 @@ class ExperimentTestMixin:
         exp.separate()
 
     def test_cache_pwd_explict(self):
-        """Check we can use pwd as the cache folder"""
+        """Check we can use pwd as the cache folder."""
         prevdir = os.getcwd()
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -447,7 +447,7 @@ class ExperimentTestMixin:
             os.chdir(prevdir)
 
     def test_cache_pwd_implicit(self):
-        """Check we can use pwd as the cache folder"""
+        """Check we can use pwd as the cache folder."""
         prevdir = os.getcwd()
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -459,20 +459,20 @@ class ExperimentTestMixin:
             os.chdir(prevdir)
 
     def test_subfolder(self):
-        """Check we can write to a subfolder"""
+        """Check we can write to a subfolder."""
         output_dir = os.path.join(self.output_dir, "a", "b", "c")
         exp = core.Experiment(self.images_dir, self.roi_zip_path, output_dir)
         exp.separate()
 
     def test_folder_deleted_before_call(self):
-        """Check we can write to a folder that is deleted in the middle"""
+        """Check we can write to a folder that is deleted in the middle."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Delete the folder between instantiating Experiment and separate()
         self.tearDown()
         exp.separate()
 
     def test_folder_deleted_between_prep_sep(self):
-        """Check we can write to a folder that is deleted in the middle"""
+        """Check we can write to a folder that is deleted in the middle."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Delete the folder between separation_prep() and separate()
         exp.separation_prep()
@@ -1015,10 +1015,10 @@ class TestSeparateTrials(BaseTestCase):
     @unittest.skipIf(sys.version_info < (3, 2), "assertWarnsRegex only on Python>=3.3")
     def test_separate_trials_negative(self):
         with self.assertWarnsRegex(UserWarning, ".*values below zero.*"):
-            outputs = core.separate_trials(self.raw - 1e6)
+            core.separate_trials(self.raw - 1e6)
 
     @unittest.skipIf(sys.version_info < (3, 2), "assertWarnsRegex only on Python>=3.3")
     def test_separate_trials_negative_labelled(self):
         label = "awesome_roi"
         with self.assertWarnsRegex(UserWarning, ".*values below zero.*" + label + ".*"):
-            outputs = core.separate_trials(self.raw - 1e6, roi_label=label)
+            core.separate_trials(self.raw - 1e6, roi_label=label)

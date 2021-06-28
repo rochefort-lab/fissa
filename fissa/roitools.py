@@ -141,8 +141,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
 
 def shift_2d_array(a, shift=1, axis=0):
     """
-    Shifts an entire array in the direction of axis by the amount shift,
-    without refilling the array.
+    Shift array values, without wrap around.
 
     Parameters
     ----------
@@ -176,7 +175,7 @@ def shift_2d_array(a, shift=1, axis=0):
         elif shift < 0:
             out[:, shift:] = 0
     else:
-        raise ValueError("Axis must be 0 or 1, but {} was given." "".format(axis))
+        raise ValueError("Axis must be 0 or 1, but {} was given.".format(axis))
 
     # return shifted array
     return out

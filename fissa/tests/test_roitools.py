@@ -11,7 +11,6 @@ from .base_test import BaseTestCase
 
 
 class TestGetMaskCom(BaseTestCase):
-
     """Tests for get_mask_com."""
 
     def test_trivial_list(self):
@@ -88,7 +87,6 @@ class TestGetMaskCom(BaseTestCase):
 
 
 class TestShift2dArray(BaseTestCase):
-
     """Tests for shift_2d_array."""
 
     def test_noop(self):
@@ -174,7 +172,6 @@ class TestShift2dArray(BaseTestCase):
 
 
 class TestSplitNpil(BaseTestCase):
-
     """Tests for split_npil."""
 
     def test_2x2(self):
@@ -219,7 +216,6 @@ class TestSplitNpil(BaseTestCase):
 
 
 class TestGetNpilMask(BaseTestCase):
-
     """Tests for get_npil_mask."""
 
     def test_empty(self):

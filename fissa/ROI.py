@@ -1,4 +1,6 @@
 """
+Polygon tools.
+
 The functions below were adapted from the sima package
 http://www.losonczylab.org/sima version 1.3.0.
 
