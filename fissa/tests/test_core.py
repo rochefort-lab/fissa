@@ -974,3 +974,68 @@ class TestExperimentB(BaseTestCase, ExperimentTestMixin):
             ),
             allow_pickle=True,
         )
+
+
+class TestSeparateTrials(BaseTestCase):
+    """Tests for the separate_trials helper function."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestSeparateTrials, self).__init__(*args, **kwargs)
+
+        # Load cached data
+        self.resources_dir = os.path.join(self.test_directory, "resources", "b")
+        cache = np.load(
+            os.path.join(
+                self.resources_dir,
+                "expected_py{}.npz".format(sys.version_info.major),
+            ),
+            allow_pickle=True,
+        )
+        # Test against saved data for the first ROI
+        self.raw = cache["raw"][0]
+        self.expected_sep = list(cache["sep"][0])
+        self.expected_match = list(cache["result"][0])
+        self.expected_mixmat = cache["mixmat"][0][0]
+        self.expected_convergence = cache["info"][0][0]
+        # We can't require the number of iterations to be the same across
+        # all versions of sklearn.
+        self.expected_convergence.pop("iterations")
+
+    def compare_outputs(self, outputs):
+        Xsep, Xmatch, Xmixmat, convergence = outputs
+        self.assert_allclose_ragged(Xsep, self.expected_sep)
+        self.assert_allclose_ragged(Xmatch, self.expected_match)
+        self.assert_allclose(Xmixmat, self.expected_mixmat)
+        convergence.pop("iterations")
+        self.assert_equal(convergence, self.expected_convergence)
+
+    def test_separate_trials(self):
+        outputs = core.separate_trials(self.raw)
+        self.compare_outputs(outputs)
+
+    def test_separate_trials_label_int(self):
+        label = 239457
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        outputs = core.separate_trials(self.raw, roi_label=label)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assertTrue(str(label) in capture_post.out)
+        self.compare_outputs(outputs)
+
+    def test_separate_trials_label_str(self):
+        label = "awesome_roi"
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        outputs = core.separate_trials(self.raw, roi_label=label)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assertTrue(label in capture_post.out)
+        self.compare_outputs(outputs)
+
+    @unittest.skipIf(sys.version_info < (3, 2), "assertWarnsRegex only on Python>=3.3")
+    def test_separate_trials_negative(self):
+        with self.assertWarnsRegex(UserWarning, ".*values below zero.*"):
+            outputs = core.separate_trials(self.raw - 1e6)
+
+    @unittest.skipIf(sys.version_info < (3, 2), "assertWarnsRegex only on Python>=3.3")
+    def test_separate_trials_negative_labelled(self):
+        label = "awesome_roi"
+        with self.assertWarnsRegex(UserWarning, ".*values below zero.*" + label + ".*"):
+            outputs = core.separate_trials(self.raw - 1e6, roi_label=label)
