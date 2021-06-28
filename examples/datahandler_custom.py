@@ -10,10 +10,10 @@ Authors:
 
 """
 
-from past.builtins import basestring
-
 import numpy as np
 import tifffile
+from past.builtins import basestring
+
 from fissa import roitools
 
 
@@ -88,8 +88,7 @@ def rois2masks(rois, data):
             return rois
 
     else:
-        raise ValueError('Wrong rois input format')
-
+        raise ValueError("Wrong rois input format")
 
 
 def extracttraces(data, masks):

@@ -8,7 +8,6 @@ Authors:
 """
 
 from __future__ import print_function
-from past.builtins import basestring
 
 import collections
 import functools
@@ -18,6 +17,9 @@ import multiprocessing
 import os.path
 import sys
 import warnings
+
+from past.builtins import basestring
+
 try:
     from collections import abc
 except ImportError:
@@ -26,8 +28,7 @@ except ImportError:
 import numpy as np
 from scipy.io import savemat
 
-from . import deltaf
-from . import extraction
+from . import deltaf, extraction
 from . import neuropil as npil
 from . import roitools
 
@@ -198,7 +199,7 @@ if sys.version_info < (3, 0):
         return separate_trials(*args)
 
 
-class Experiment():
+class Experiment:
     r"""
     FISSA Experiment.
 
@@ -416,32 +417,43 @@ class Experiment():
         This field is only populated after :meth:`calc_deltaf` has been run;
         until then, it is set to ``None``.
     """
-    def __init__(self, images, rois, folder=None, nRegions=4,
-                 expansion=1, alpha=0.1, ncores_preparation=None,
-                 ncores_separation=None, method='nmf',
-                 lowmemory_mode=False, datahandler=None):
+
+    def __init__(
+        self,
+        images,
+        rois,
+        folder=None,
+        nRegions=4,
+        expansion=1,
+        alpha=0.1,
+        ncores_preparation=None,
+        ncores_separation=None,
+        method="nmf",
+        lowmemory_mode=False,
+        datahandler=None,
+    ):
 
         # Initialise internal variables
         self.clear()
 
         if isinstance(images, basestring):
-            self.images = sorted(glob.glob(os.path.join(images, '*.tif*')))
+            self.images = sorted(glob.glob(os.path.join(images, "*.tif*")))
         elif isinstance(images, abc.Sequence):
             self.images = images
         else:
-            raise ValueError('images should either be string or list')
+            raise ValueError("images should either be string or list")
 
         if isinstance(rois, basestring):
-            if rois[-3:] == 'zip':
+            if rois[-3:] == "zip":
                 self.rois = [rois] * len(self.images)
             else:
-                self.rois = sorted(glob.glob(os.path.join(rois, '*.zip')))
+                self.rois = sorted(glob.glob(os.path.join(rois, "*.zip")))
         elif isinstance(rois, abc.Sequence):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
                 self.rois *= len(self.images)
         else:
-            raise ValueError('rois should either be string or list')
+            raise ValueError("rois should either be string or list")
 
         if datahandler is not None and lowmemory_mode:
             raise ValueError(
@@ -653,7 +665,7 @@ class Experiment():
         # Wipe outputs
         self.clear()
         # Extract signals
-        print('Doing region growing and data extraction....')
+        print("Doing region growing and data extraction....")
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
@@ -665,7 +677,7 @@ class Experiment():
 
         # Check whether we should use multiprocessing
         use_multiprocessing = (
-            (self.ncores_preparation is None or self.ncores_preparation > 1)
+            self.ncores_preparation is None or self.ncores_preparation > 1
         )
         # Do the extraction
         if use_multiprocessing and sys.version_info < (3, 0):
@@ -734,7 +746,7 @@ class Experiment():
                     "The folder attribute must be declared in order to save"
                     " preparation outputs the cache."
                 )
-            destination = os.path.join(self.folder, 'preparation.npz')
+            destination = os.path.join(self.folder, "preparation.npz")
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
@@ -810,7 +822,7 @@ class Experiment():
         # Wipe outputs
         self.clear_separated()
         # Separate data
-        print('Doing signal separation....')
+        print("Doing signal separation....")
 
         # Check size of the input arrays
         n_roi = len(self.raw)
@@ -825,7 +837,7 @@ class Experiment():
 
         # Check whether we should use multiprocessing
         use_multiprocessing = (
-            (self.ncores_separation is None or self.ncores_separation > 1)
+            self.ncores_separation is None or self.ncores_separation > 1
         )
         # Do the extraction
         if use_multiprocessing and sys.version_info < (3, 0):
@@ -941,9 +953,7 @@ class Experiment():
                 # calculate deltaf/f0
                 raw_f0 = deltaf.findBaselineF0(raw_conc, freq)
                 raw_conc = (raw_conc - raw_f0) / raw_f0
-                result_f0 = deltaf.findBaselineF0(
-                    result_conc, freq, 1
-                ).T[:, None]
+                result_f0 = deltaf.findBaselineF0(result_conc, freq, 1).T[:, None]
                 if use_raw_f0:
                     result_conc = (result_conc - result_f0) / raw_f0
                 else:
@@ -967,9 +977,7 @@ class Experiment():
 
                     # calculate deltaf/fo
                     raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
-                    result_f0 = deltaf.findBaselineF0(
-                        result_sig, freq, 1
-                    ).T[:, None]
+                    result_f0 = deltaf.findBaselineF0(result_sig, freq, 1).T[:, None]
                     result_f0[result_f0 < 0] = 0
                     raw_sig = (raw_sig - raw_f0) / raw_f0
                     if use_raw_f0:
@@ -1025,9 +1033,9 @@ class Experiment():
         if fname is None:
             if self.folder is None:
                 raise ValueError(
-                    'fname must be provided if experiment folder is undefined'
+                    "fname must be provided if experiment folder is undefined"
                 )
-            fname = os.path.join(self.folder, 'matlab.mat')
+            fname = os.path.join(self.folder, "matlab.mat")
 
         # initialize dictionary to save
         M = collections.OrderedDict()
@@ -1037,23 +1045,23 @@ class Experiment():
             # loop over cells and trial
             for cell in range(self.nCell):
                 # get current cell label
-                c_lab = 'cell' + str(cell)
+                c_lab = "cell" + str(cell)
                 # update dictionary
                 new_dict[c_lab] = collections.OrderedDict()
                 for trial in range(self.nTrials):
                     # get current trial label
-                    t_lab = 'trial' + str(trial)
+                    t_lab = "trial" + str(trial)
                     # update dictionary
                     new_dict[c_lab][t_lab] = orig_dict[cell][trial]
             return new_dict
 
-        M['ROIs'] = reformat_dict_for_matlab(self.roi_polys)
-        M['raw'] = reformat_dict_for_matlab(self.raw)
-        M['result'] = reformat_dict_for_matlab(self.result)
-        if getattr(self, 'deltaf_raw', None) is not None:
-            M['df_raw'] = reformat_dict_for_matlab(self.deltaf_raw)
-        if getattr(self, 'deltaf_result', None) is not None:
-            M['df_result'] = reformat_dict_for_matlab(self.deltaf_result)
+        M["ROIs"] = reformat_dict_for_matlab(self.roi_polys)
+        M["raw"] = reformat_dict_for_matlab(self.raw)
+        M["result"] = reformat_dict_for_matlab(self.result)
+        if getattr(self, "deltaf_raw", None) is not None:
+            M["df_raw"] = reformat_dict_for_matlab(self.deltaf_raw)
+        if getattr(self, "deltaf_result", None) is not None:
+            M["df_result"] = reformat_dict_for_matlab(self.deltaf_result)
 
         savemat(fname, M)
 

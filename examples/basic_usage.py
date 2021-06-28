@@ -12,13 +12,12 @@ https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
 
 import fissa
 
-
 # Define the data to extract
-rois = 'exampleData/20150429.zip'
-images = 'exampleData/20150529'
+rois = "exampleData/20150429.zip"
+images = "exampleData/20150529"
 
 # Define the name of the experiment extraction location
-output_dir = 'fissa_example'
+output_dir = "fissa_example"
 # Make sure you use a different output path for each experiment you run.
 
 # Instantiate a fissa experiment object

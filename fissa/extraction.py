@@ -21,7 +21,7 @@ from PIL import Image, ImageSequence
 from . import roitools
 
 
-class DataHandlerAbstract():
+class DataHandlerAbstract:
     """
     Abstract class for a data handler.
 
@@ -37,6 +37,7 @@ class DataHandlerAbstract():
     --------
     DataHandlerTifffile, DataHandlerPillow
     """
+
     def __repr__(self):
         return "{}.{}()".format(__name__, self.__class__.__name__)
 
@@ -145,6 +146,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
     """
     Extract data from TIFF images using tifffile.
     """
+
     @staticmethod
     def image2array(image):
         """
@@ -177,18 +179,16 @@ class DataHandlerTifffile(DataHandlerAbstract):
                         )
                     )
                 if (
-                    n_pages > 1 and
-                    page.ndim > 2 and
-                    (np.array(page.shape[:-2]) > 1).sum() > 0
+                    n_pages > 1
+                    and page.ndim > 2
+                    and (np.array(page.shape[:-2]) > 1).sum() > 0
                 ):
                     warnings.warn(
                         "Multipage TIFF {} with {} pages has at least one page"
                         " with {} dimensions (page shaped {})."
                         " All dimensions before the final two (height and"
                         " width) will be treated as time-like and flattened."
-                        "".format(
-                            image, n_pages, page.ndim, page.shape
-                        )
+                        "".format(image, n_pages, page.ndim, page.shape)
                     )
                 elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
                     warnings.warn(
@@ -196,9 +196,7 @@ class DataHandlerTifffile(DataHandlerAbstract):
                         " (page shaped {})."
                         " All dimensions before the final two (height and"
                         " width) will be treated as time-like and flattened."
-                        "".format(
-                            image, page.ndim, page.shape
-                        )
+                        "".format(image, page.ndim, page.shape)
                     )
                 shp = [-1] + list(page.shape[-2:])
                 frames.append(page.reshape(shp))
@@ -317,18 +315,16 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
         for page in data.pages:
             page = page.asarray()
             if (
-                n_pages > 1 and
-                page.ndim > 2 and
-                (np.array(page.shape[:-2]) > 1).sum() > 0
+                n_pages > 1
+                and page.ndim > 2
+                and (np.array(page.shape[:-2]) > 1).sum() > 0
             ):
                 warnings.warn(
                     "Multipage TIFF {} with {} pages has at least one page"
                     " with {} dimensions (page shaped {})."
                     " All dimensions before the final two (height and"
                     " width) will be treated as time-like and flattened."
-                    "".format(
-                        "", n_pages, page.ndim, page.shape
-                    )
+                    "".format("", n_pages, page.ndim, page.shape)
                 )
             elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
                 warnings.warn(
@@ -336,9 +332,7 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
                     " (page shaped {})."
                     " All dimensions before the final two (height and"
                     " width) will be treated as time-like and flattened."
-                    "".format(
-                        "", page.ndim, page.shape
-                    )
+                    "".format("", page.ndim, page.shape)
                 )
             shp = [-1] + list(page.shape[-2:])
             page = page.reshape(shp)
@@ -418,6 +412,7 @@ class DataHandlerPillow(DataHandlerAbstract):
 
     Slower, but less memory-intensive than :class:`DataHandlerTifffile`.
     """
+
     @staticmethod
     def image2array(image):
         """

@@ -26,10 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Tests follow conventions for NumPy/SciPy available at
 # https://github.com/numpy/numpy/blob/master/doc/TESTS.rst.txt
 
+import numpy as np
+
 # use assert_() and related functions over the built in assert to ensure tests
 # run properly, regardless of how python is started.
 from numpy.testing import assert_equal
-import numpy as np
 
 from .. import ROI
 

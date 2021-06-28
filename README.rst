@@ -1,21 +1,23 @@
 FISSA
 =====
 
-+------------------+----------------------------------------------------------+
-| Latest Release   | |PyPI badge| |Py Versions|                               |
-+------------------+----------------------------------------------------------+
-| License          | |License|                                                |
-+------------------+----------------------------------------------------------+
-| Documentation    | |readthedocs|                                            |
-+------------------+----------------------------------------------------------+
-| Build Status     | |Documentation| |GHA tests| |AppVeyor| |Codecov|         |
-+------------------+----------------------------------------------------------+
-| Interactive Demo | |Binder|                                                 |
-+------------------+----------------------------------------------------------+
-| Support          | |Gitter|                                                 |
-+------------------+----------------------------------------------------------+
-| Citation         | |DOI badge|                                              |
-+------------------+----------------------------------------------------------+
++------------------+----------------------------------------------------------------------+
+| Latest Release   | |PyPI badge| |Py Versions|                                           |
++------------------+----------------------------------------------------------------------+
+| License          | |License|                                                            |
++------------------+----------------------------------------------------------------------+
+| Documentation    | |readthedocs|                                                        |
++------------------+----------------------------------------------------------------------+
+| Build Status     | |Documentation| |GHA tests| |AppVeyor| |Codecov| |pre-commit-status| |
++------------------+----------------------------------------------------------------------+
+| Code style       | |black| |pre-commit|                                                 |
++------------------+----------------------------------------------------------------------+
+| Interactive Demo | |Binder|                                                             |
++------------------+----------------------------------------------------------------------+
+| Support          | |Gitter|                                                             |
++------------------+----------------------------------------------------------------------+
+| Citation         | |DOI badge|                                                          |
++------------------+----------------------------------------------------------------------+
 
 FISSA (Fast Image Signal Separation Analysis) is a Python package for
 decontaminating somatic signals from two-photon calcium imaging data.
@@ -389,3 +391,12 @@ with this program. If not, see http://www.gnu.org/licenses/.
 .. |License| image:: https://img.shields.io/pypi/l/fissa
    :target: https://raw.githubusercontent.com/rochefort-lab/fissa/master/LICENSE
    :alt: GPLv3 License
+.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit enabled
+.. |pre-commit-status| image:: https://results.pre-commit.ci/badge/github/rochefort-lab/fissa/master.svg
+   :target: https://results.pre-commit.ci/latest/github/rochefort-lab/fissa/master
+   :alt: pre-commit.ci status
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: black

@@ -41,8 +41,8 @@ def get_mask_com(mask):
 
     if mask.ndim != 2:
         raise ValueError(
-            'Mask must be two-dimensional. Received input with {} dimensions'
-            ''.format(mask.ndim)
+            "Mask must be two-dimensional. Received input with {} dimensions"
+            "".format(mask.ndim)
         )
 
     # TODO: make this work for non-boolean masks too
@@ -74,7 +74,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
         A list with `num_slices` many masks, each of which is a 2d
         boolean numpy array.
     """
-    #TODO: This should yield an iterable instead.
+    # TODO: This should yield an iterable instead.
 
     # Ensure array_like input is a numpy.ndarray
     mask = np.asarray(mask)
@@ -82,7 +82,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     # Get the (x,y) co-ordinates of the pixels in the mask
     x, y = mask.nonzero()
     if x.size == 0 or y.size == 0:
-        raise ValueError('ROI mask must be not be empty')
+        raise ValueError("ROI mask must be not be empty")
 
     # Find the angle of the vector from the mask centre to each pixel
     theta = np.arctan2(x - centre[0], y - centre[1])
@@ -106,7 +106,7 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     # Ensure num_slices is an integer number
     num_slices = int(num_slices)
     if num_slices < 1:
-        raise ValueError('Number of slices must be positive')
+        raise ValueError("Number of slices must be positive")
 
     # Change theta so it is the angle relative to a new zero-point,
     # the middle of the bin which is least populated by mask pixels.
@@ -114,8 +114,9 @@ def split_npil(mask, centre, num_slices, adaptive_num=False):
     theta = (theta - theta_offset) % (2 * np.pi) - np.pi
 
     # get the boundaries
-    bounds = [np.percentile(theta, 100.0 * (i + 1) / num_slices)
-              for i in range(num_slices)]
+    bounds = [
+        np.percentile(theta, 100.0 * (i + 1) / num_slices) for i in range(num_slices)
+    ]
 
     # predefine the masks
     masks = []
@@ -175,10 +176,7 @@ def shift_2d_array(a, shift=1, axis=0):
         elif shift < 0:
             out[:, shift:] = 0
     else:
-        raise ValueError(
-            'Axis must be 0 or 1, but {} was given.'
-            ''.format(axis)
-        )
+        raise ValueError("Axis must be 0 or 1, but {} was given." "".format(axis))
 
     # return shifted array
     return out
@@ -231,8 +229,10 @@ def get_npil_mask(mask, totalexpansion=4):
     count = 0
 
     # for count in range(iterations):
-    while area_current < totalexpansion * area_orig \
-            and area_current < area_total - area_orig:
+    while (
+        area_current < totalexpansion * area_orig
+        and area_current < area_total - area_orig
+    ):
         # Check which case to use. In current version, we alternate
         # between case 0 (cardinals) and case 1 (diagonals).
         case = count % 2
@@ -338,28 +338,28 @@ def readrois(roiset):
     # set frame number to 0 for every roi
     for i in range(len(rois)):
 
-        if 'polygons' in rois[i]:
-            rois[i] = rois[i]['polygons'][:, :2]
+        if "polygons" in rois[i]:
+            rois[i] = rois[i]["polygons"][:, :2]
 
         # check if we are looking at an oval roi
-        elif 'mask' in rois[i]:
+        elif "mask" in rois[i]:
             # this is an oval roi, which gets imported as a 3D mask.
             # First get the frame that has the mask in it by finding the
             # nonzero frame
-            mask_frame = np.nonzero(rois[i]['mask'])[0][0]
+            mask_frame = np.nonzero(rois[i]["mask"])[0][0]
 
             # get the mask
-            mask = rois[i]['mask'][mask_frame, :, :]
+            mask = rois[i]["mask"][mask_frame, :, :]
 
             # finally, get the outline coordinates
             rois[i] = find_roi_edge(mask)[0]
 
         else:
             raise ValueError(
-                'ROI #{} contains neither a polygon nor mask representation'
-                ' of the region of interest.'
-                ''.format(i))
-
+                "ROI #{} contains neither a polygon nor mask representation"
+                " of the region of interest."
+                "".format(i)
+            )
 
     return rois
 

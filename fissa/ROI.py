@@ -22,11 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from itertools import product
-# from warnings import warn
 
 import numpy as np
 from scipy.sparse import lil_matrix
-from shapely.geometry import MultiPolygon, Polygon, Point
+from shapely.geometry import MultiPolygon, Point, Polygon
 
 
 def poly2mask(polygons, im_size):
@@ -68,19 +67,18 @@ def poly2mask(polygons, im_size):
     for poly in polygons:
         # assuming all points in the polygon share a z-coordinate
         z = int(np.array(poly.exterior.coords)[0][2])
-        # @swkeemink: Commented out to remove a warning message for FISSA.
-#        if z > im_size[0]:
-#            warn('Polygon with zero-coordinate {} '.format(z) +
-#                 'cropped using im_size = {}'.format(im_size))
-#            continue
         x_min, y_min, x_max, y_max = poly.bounds
 
         # Shift all points by 0.5 to move coordinates to corner of pixel
         shifted_poly = Polygon(np.array(poly.exterior.coords)[:, :2] - 0.5)
 
-        points = [Point(x, y) for x, y in
-                  product(np.arange(int(x_min), np.ceil(x_max)),
-                          np.arange(int(y_min), np.ceil(y_max)))]
+        points = [
+            Point(x, y)
+            for x, y in product(
+                np.arange(int(x_min), np.ceil(x_max)),
+                np.arange(int(y_min), np.ceil(y_max)),
+            )
+        ]
         points_in_poly = list(filter(shifted_poly.contains, points))
         for point in points_in_poly:
             xx, yy = point.xy
@@ -142,6 +140,5 @@ def _reformat_polygons(polygons):
         else:
             # warn('Polygon initialized without z-coordinate. ' +
             #    'Assigning to zeroth plane (z = 0)')
-            z_polygons.append(
-                Polygon([point + (0,) for point in poly.exterior.coords]))
+            z_polygons.append(Polygon([point + (0,) for point in poly.exterior.coords]))
     return MultiPolygon(z_polygons)

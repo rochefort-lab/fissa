@@ -6,7 +6,6 @@ import imageio
 import numpy as np
 import tifffile
 
-
 TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 

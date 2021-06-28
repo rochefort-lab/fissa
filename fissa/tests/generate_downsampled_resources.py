@@ -1,28 +1,26 @@
 #!/usr/bin/env python
 
-from __future__ import division
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 
 import glob
 import os
-from itertools import product
-import sys
 import shutil
+import sys
+import zipfile
+from itertools import product
 
 import numpy as np
 import scipy.ndimage
-from skimage.draw import ellipse
 import tifffile
-import zipfile
+from skimage.draw import ellipse
 
-from fissa import readimagejrois
-from fissa import extraction
+from fissa import extraction, readimagejrois
 
 
 def maybe_make_dir(dirname):
-    '''
+    """
     If it doesn't exist, make a directory. Compatible with Python 2 and 3.
-    '''
+    """
     if sys.version_info[0] >= 3:
         os.makedirs(dirname, exist_ok=True)
     elif os.path.isdir(dirname):
@@ -33,8 +31,9 @@ def maybe_make_dir(dirname):
         if err.errno != 17:
             raise
 
+
 def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
-    '''
+    """
     Downscale a ROI appearing in an ImageJ ROI file. The co-ordinates of
     the ROI are adjusted, and all metadata remains the same.
 
@@ -59,8 +58,8 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
     Based on `fissa.readimagejrois.read_roi`. The original version of
     `read_roi` was written by Luis Pedro Coelho, released under the MIT
     License.
-    '''
-    with open(source_file, 'rb') as inhand, open(dest_file, 'wb') as outhand:
+    """
+    with open(source_file, "rb") as inhand, open(dest_file, "wb") as outhand:
 
         sub_pixel_resolution = 128
 
@@ -81,7 +80,7 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             pos[0] += 1
             s = inhand.read(1)
             if not s:
-                raise IOError('read_imagej_roi: Unexpected EOF')
+                raise IOError("read_imagej_roi: Unexpected EOF")
             return ord(s)
 
         def _write8(s):
@@ -98,9 +97,9 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
 
         def _write16(s):
             """Write 2 byte to a roi file object"""
-            b0 = (s >> 8) & 0xff
+            b0 = (s >> 8) & 0xFF
             _write8(b0)
-            b1 = s & 0xff
+            b1 = s & 0xFF
             _write8(b1)
 
         def _get16signed():
@@ -128,9 +127,9 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
 
         def _write32(s):
             """Write 4 bytes to the roi file object"""
-            s0 = (s >> 16) & 0xffff
+            s0 = (s >> 16) & 0xFFFF
             _write16(s0)
-            s1 = s & 0xffff
+            s1 = s & 0xFFFF
             _write16(s1)
 
         def _getfloat():
@@ -164,11 +163,11 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             if options & sub_pixel_resolution:
                 writec = _writefloat
                 convert = lambda x: x.astype(np.float32)
-                #points = np.empty((n_coordinates, 3), dtype=np.float32)
+                # points = np.empty((n_coordinates, 3), dtype=np.float32)
             else:
                 writec = _write16signed
                 convert = lambda x: np.round(x).astype(np.int16)
-                #points = np.empty((n_coordinates, 3), dtype=np.int16)
+                # points = np.empty((n_coordinates, 3), dtype=np.int16)
             x = (points[:, 0] - left) / downsamp[0]
             y = (points[:, 1] - top) / downsamp[1]
             for xi in x:
@@ -177,11 +176,11 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
                 writec(convert(yi))
 
         magic = inhand.read(4)
-        if magic != b'Iout':
+        if magic != b"Iout":
             raise IOError(
-                'read_imagej_roi: Magic number not found.'
-                ' Expected: {}. Detected: {}.'
-                ''.format(b'Iout', magic)
+                "read_imagej_roi: Magic number not found."
+                " Expected: {}. Detected: {}."
+                "".format(b"Iout", magic)
             )
         outhand.write(magic)
 
@@ -195,8 +194,12 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
         _write8(b)
 
         if not (0 <= roi_type < 11):
-            raise ValueError('read_imagej_roi: \
-                              ROI type {} not supported'.format(roi_type))
+            raise ValueError(
+                "read_imagej_roi: \
+                              ROI type {} not supported".format(
+                    roi_type
+                )
+            )
 
         top = _get16signed()
         _write16signed(int(np.round((top + offsets[1]) / downsamp[1])))
@@ -228,8 +231,12 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
         subtype = _get16()
         _write16(subtype)
         if subtype != 0 and subtype != 3:
-            raise ValueError('read_imagej_roi: \
-                              ROI subtype {} not supported (!= 0)'.format(subtype))
+            raise ValueError(
+                "read_imagej_roi: \
+                              ROI subtype {} not supported (!= 0)".format(
+                    subtype
+                )
+            )
         options = _get16()
         _write16(options)
         if subtype == 3 and roi_type == 7:
@@ -254,14 +261,18 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             # Polygon
             coords = _getcoords(z)
             _writecoords(coords)
-            coords = coords.astype('float')
-            #return {'polygons': coords}
+            coords = coords.astype("float")
+            # return {'polygons': coords}
         elif roi_type == 1:
             # Rectangle
-            coords = [[left, top, z], [right, top, z], [right, bottom, z],
-                      [left, bottom, z]]
-            coords = np.array(coords).astype('float')
-            #return {'polygons': coords}
+            coords = [
+                [left, top, z],
+                [right, top, z],
+                [right, bottom, z],
+                [left, bottom, z],
+            ]
+            coords = np.array(coords).astype("float")
+            # return {'polygons': coords}
         elif roi_type == 2:
             # Oval
             width = right - left
@@ -272,38 +283,40 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
             y_mid = (top + bottom) / 2.0 - 0.5
             mask = np.zeros((z + 1, right, bottom), dtype=bool)
             for y, x in product(np.arange(top, bottom), np.arange(left, right)):
-                mask[z, x, y] = ((x - x_mid) ** 2 / (width / 2.0) ** 2 +
-                                 (y - y_mid) ** 2 / (height / 2.0) ** 2 <= 1)
+                mask[z, x, y] = (x - x_mid) ** 2 / (width / 2.0) ** 2 + (
+                    y - y_mid
+                ) ** 2 / (height / 2.0) ** 2 <= 1
             # return {'mask': mask}
         elif roi_type == 7:
             if subtype == 3:
                 # ellipse
-                mask = np.zeros((1, right+10, bottom+10), dtype=bool)
-                r_radius = np.sqrt((x2-x1)**2+(y2-y1)**2)/2.0
-                c_radius = r_radius*aspect_ratio
-                r = (x1+x2)/2-0.5
-                c = (y1+y2)/2-0.5
+                mask = np.zeros((1, right + 10, bottom + 10), dtype=bool)
+                r_radius = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2.0
+                c_radius = r_radius * aspect_ratio
+                r = (x1 + x2) / 2 - 0.5
+                c = (y1 + y2) / 2 - 0.5
                 shpe = mask.shape
-                orientation = np.arctan2(y2-y1, x2-x1)
+                orientation = np.arctan2(y2 - y1, x2 - x1)
                 X, Y = ellipse(r, c, r_radius, c_radius, shpe[1:], orientation)
                 mask[0, X, Y] = True
-                #return {'mask': mask}
+                # return {'mask': mask}
             else:
                 # Freehand
                 coords = _getcoords(z)
                 _writecoords(coords)
-                coords = coords.astype('float')
-                #return {'polygons': coords}
+                coords = coords.astype("float")
+                # return {'polygons': coords}
 
         else:
             try:
                 coords = _getcoords(z)
                 _writecoords(coords)
-                coords = coords.astype('float')
-                #return {'polygons': coords}
+                coords = coords.astype("float")
+                # return {'polygons': coords}
             except BaseException:
                 raise ValueError(
-                    'read_imagej_roi: ROI type {} not supported'.format(roi_type))
+                    "read_imagej_roi: ROI type {} not supported".format(roi_type)
+                )
 
         # Copy the rest of the file, line by line
         for line in inhand:
@@ -311,9 +324,9 @@ def downscale_roi(source_file, dest_file, downsamp=[1, 1], offsets=[0, 0]):
 
 
 def main(name=None, roi_ids=None, x_down=4, y_down=None, t_down=10):
-    '''
+    """
     Convert example data into downsampled test data.
-    '''
+    """
     # Default arguments
     if y_down is None:
         y_down = x_down
@@ -327,26 +340,29 @@ def main(name=None, roi_ids=None, x_down=4, y_down=None, t_down=10):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     repo_dir = os.path.dirname(os.path.dirname(this_dir))
     rois_location = os.path.join(
-        repo_dir, 'examples', 'exampleData', '20150429.zip',
+        repo_dir,
+        "examples",
+        "exampleData",
+        "20150429.zip",
     )
     images_location = os.path.join(
-        repo_dir, 'examples', 'exampleData', '20150529',
+        repo_dir,
+        "examples",
+        "exampleData",
+        "20150529",
     )
 
     # Output configuration
-    output_folder_base = os.path.join(this_dir, 'resources')
-    roi_extract_dir = os.path.join(output_folder_base, '_build_rois')
+    output_folder_base = os.path.join(this_dir, "resources")
+    roi_extract_dir = os.path.join(output_folder_base, "_build_rois")
 
     output_folder = os.path.join(output_folder_base, name)
 
     datahandler = extraction.DataHandlerTifffile
 
     # Extract the rois from the zip file
-    print(
-        'Extracting rois from {} into {}'
-        ''.format(rois_location, roi_extract_dir)
-    )
-    with zipfile.ZipFile(rois_location, 'r') as zr:
+    print("Extracting rois from {} into {}" "".format(rois_location, roi_extract_dir))
+    with zipfile.ZipFile(rois_location, "r") as zr:
         zr.extractall(roi_extract_dir)
 
     # Read in rois
@@ -387,7 +403,8 @@ def main(name=None, roi_ids=None, x_down=4, y_down=None, t_down=10):
     # Downscale roi(s)
     for roi_id in roi_ids:
         roi_raw_pth = os.path.join(
-            roi_extract_dir, "{:02d}.roi".format(roi_id + 1),
+            roi_extract_dir,
+            "{:02d}.roi".format(roi_id + 1),
         )
         roi_dwn_pth = os.path.join(
             output_folder, "rois", "{:02d}.roi".format(roi_id + 1)
@@ -400,10 +417,10 @@ def main(name=None, roi_ids=None, x_down=4, y_down=None, t_down=10):
         downscale_roi(roi_raw_pth, roi_dwn_pth, [x_down, y_down], [-off_x, -off_y])
 
     # Turn rois into a zip file
-    roi_zip_pth = os.path.join(output_folder, 'rois.zip')
+    roi_zip_pth = os.path.join(output_folder, "rois.zip")
     print("Zipping rois {} as {}".format(os.path.dirname(roi_dwn_pth), roi_zip_pth))
     maybe_make_dir(os.path.dirname(roi_dwn_pth))
-    with zipfile.ZipFile(roi_zip_pth, 'w') as zr:
+    with zipfile.ZipFile(roi_zip_pth, "w") as zr:
         for roi_id in roi_ids:
             roi_dwn_pth = os.path.join(
                 output_folder, "rois", "{:02d}.roi".format(roi_id + 1)
@@ -435,7 +452,10 @@ def get_parser():
     )
 
     parser.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit.",
+        "-h",
+        "--help",
+        action="help",
+        help="Show this help message and exit.",
     )
 
     parser.add_argument(
@@ -475,8 +495,8 @@ def get_parser():
     return parser
 
 
-if __name__ == '__main__':
-    __package__ = 'fissa.tests.generate_downsampled_resources'
+if __name__ == "__main__":
+    __package__ = "fissa.tests.generate_downsampled_resources"
     parser = get_parser()
     kwargs = vars(parser.parse_args())
     roi_ids = kwargs.pop("roi_id")
