@@ -303,7 +303,7 @@ def _parse_roi_file_py3(roi_source):
         # ROI types "freehand", "freeline", "multipoint", "point", "polygon",
         # "polyline", and "trace" are loaded and returned as a set of polygon
         # co-ordinates.
-        coords = np.empty((roi['n'], 3), dtype=np.float)
+        coords = np.empty((roi['n'], 3), dtype=np.float64)
         coords[:, 0] = roi['x']
         coords[:, 1] = roi['y']
         coords[:, 2] = roi.get('z', 0)
