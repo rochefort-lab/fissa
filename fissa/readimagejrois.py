@@ -31,7 +31,7 @@ def _parse_roi_file_py2(roi_obj):
     This is based on the Java implementation:
     http://rsbweb.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
 
-    This code can is not guaranteed to work for all C compilers on Windows.
+    This method is not guaranteed to work for all C compilers on Windows.
 
     Parameters
     ----------
