@@ -1,5 +1,5 @@
 [flake8]
-max-line-length = 88
+max-line-length = 96
 # E203: whitespace before ":". Sometimes violated by black.
 # E402: Module level import not at top of file. Violated by lazy imports.
 # F401: Module imported but unused.
