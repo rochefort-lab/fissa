@@ -647,7 +647,7 @@ class Experiment():
             # define pool
             pool = multiprocessing.Pool(self.ncores_preparation)
             # run extraction
-            results = pool.map(
+            outputs = pool.map(
                 _extract_wrapper,
                 zip(
                     self.images,
@@ -663,13 +663,13 @@ class Experiment():
         elif use_multiprocessing:
             with multiprocessing.Pool(self.ncores_preparation) as pool:
                 # run extraction
-                results = pool.starmap(_extract_cfg, zip(self.images, self.rois))
+                outputs = pool.starmap(_extract_cfg, zip(self.images, self.rois))
 
         else:
-            results = [_extract_cfg(*args) for args in zip(self.images, self.rois)]
+            outputs = [_extract_cfg(*args) for args in zip(self.images, self.rois)]
 
         # get number of cells
-        nCell = len(results[0][1])
+        nCell = len(outputs[0][1])
 
         # predefine data structures
         raw = [[None for t in range(self.nTrials)] for c in range(nCell)]
@@ -678,10 +678,10 @@ class Experiment():
 
         # Set outputs
         for trial in range(self.nTrials):
-            self.means.append(results[trial][2])
+            self.means.append(outputs[trial][2])
             for cell in range(nCell):
-                raw[cell][trial] = results[trial][0][cell]
-                roi_polys[cell][trial] = results[trial][1][cell]
+                raw[cell][trial] = outputs[trial][0][cell]
+                roi_polys[cell][trial] = outputs[trial][1][cell]
 
         self.nCell = nCell  # number of cells
         self.raw = raw
@@ -823,7 +823,7 @@ class Experiment():
             # define pool
             pool = multiprocessing.Pool(self.ncores_separation)
             # run separation
-            results = pool.map(
+            outputs = pool.map(
                 _separate_wrapper,
                 zip(
                     raw_vectors,
@@ -838,19 +838,19 @@ class Experiment():
         elif use_multiprocessing:
             with multiprocessing.Pool(self.ncores_separation) as pool:
                 # run separation
-                results = pool.starmap(
+                outputs = pool.starmap(
                     _separate_cfg,
                     zip(raw_vectors, range(len(raw_vectors))),
                 )
         else:
-            results = [
+            outputs = [
                 _separate_cfg(X, roi_label=i) for i, X in enumerate(raw_vectors)
             ]
 
-        # read results
+        # read outputs
         for cell in range(self.nCell):
             curTrial = 0
-            Xsep, Xmatch, Xmixmat, convergence = results[cell]
+            Xsep, Xmatch, Xmixmat, convergence = outputs[cell]
             for trial in range(self.nTrials):
                 nextTrial = curTrial + self.raw[cell][trial].shape[1]
                 sep[cell][trial] = Xsep[:, curTrial:nextTrial]
