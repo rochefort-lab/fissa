@@ -693,9 +693,8 @@ class Experiment():
         nCell = len(outputs[0][1])
 
         # predefine data structures
-        raw = [[None for t in range(self.nTrials)] for c in range(nCell)]
-        raw = np.asarray(raw)
-        roi_polys = np.copy(raw)
+        raw = np.empty((nCell, self.nTrials), dtype=object)
+        roi_polys = np.empty_like(raw)
 
         # Set outputs
         for trial in range(self.nTrials):
@@ -848,11 +847,10 @@ class Experiment():
             outputs = [_separate_cfg(X, roi_label=i) for i, X in enumerate(self.raw)]
 
         # Define output shape as an array of objects shaped (n_roi, n_trial)
-        sep = [[None for t in range(n_trial)] for c in range(n_roi)]
-        sep = np.array(sep, dtype=object)
-        result = np.copy(sep)
-        mixmat = np.copy(sep)
-        info = np.copy(sep)
+        sep = np.empty((n_roi, n_trial), dtype=object)
+        result = np.empty_like(sep)
+        mixmat = np.empty_like(sep)
+        info = np.empty_like(sep)
 
         # Place our outputs into the initialised arrays
         for i_roi, (sep_i, match_i, mixmat_i, conv_i) in enumerate(outputs):
@@ -924,10 +922,8 @@ class Experiment():
             and Δf/f\ :sub:`0` value will be relative to the trial-specific f0.
             Default is ``True``.
         """
-        deltaf_raw = [[None for t in range(self.nTrials)]
-                      for c in range(self.nCell)]
-        deltaf_raw = np.asarray(deltaf_raw)
-        deltaf_result = np.copy(deltaf_raw)
+        deltaf_raw = np.empty_like(self.raw)
+        deltaf_result = np.empty_like(self.result)
 
         # loop over cells
         for cell in range(self.nCell):
