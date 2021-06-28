@@ -100,19 +100,19 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
 
 def separate(raw, roi_label=None, alpha=0.1, method="nmf"):
     r"""
-    Separate signals in a 2d array.
+    Separate signals within a set of 2d arrays.
 
     .. versionadded:: 1.0.0
 
     Parameters
     ----------
-    raw : :term:`array_like` shaped (regions, observations)
-        Raw signals. A 2d array containing mixed input signals.
-        Each column of `raw` should be a different signal, and each row an
-        observation of the signals. For ``raw[i, j]``, ``j`` is the signal
-        index, and ``i`` is the observation index.
-        The first column, ``j = 0``, should be the signal from the ROI,
-        for which a matching output signal will be identified.
+    raw : list of n_trials :term:`array_like`, each shaped (nRegions, observations)
+        Raw signals.
+        A list of 2-d arrays, each of which contains observations of mixed
+        signals, mixed in the same way across all trials.
+        The `nRegions` signals must be the same for each trial, and the 0-th
+        region, ``raw[trial][0]``, should be from the region of interest for
+        which a matching source signal should be identified.
 
     roi_label : str or int, optional
         Label/name or index of the ROI currently being processed.
@@ -130,14 +130,14 @@ def separate(raw, roi_label=None, alpha=0.1, method="nmf"):
 
     Returns
     -------
-    Xsep : :class:`numpy.ndarray`, shaped (signals, observations)
+    Xsep : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
         The separated signals, unordered.
 
-    Xmatch : :class:`numpy.ndarray`, shaped (signals, observations)
+    Xmatch : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
         The separated traces, ordered by matching score against the raw ROI
         signal.
 
-    Xmixmat : :class:`numpy.ndarray`, shaped (signals, signals)
+    Xmixmat : :class:`numpy.ndarray`, shaped (nRegions, nRegions)
         Mixing matrix.
 
     convergence : dict
@@ -156,9 +156,30 @@ def separate(raw, roi_label=None, alpha=0.1, method="nmf"):
         random_state : int or None
             Random seed used to initialise the separation model.
     """
+    # Join together the raw data across trials, collapsing down the trials
+    X = np.concatenate(raw, axis=1)
+
+    # Check for values below 0
+    if X.min() < 0:
+        message_extra = ""
+        if roi_label is not None:
+            message_extra = " for ROI {}".format(roi_label)
+        warnings.warn(
+            "Found values below zero in raw signal{}. Offsetting so minimum is 0."
+            "".format(message_extra)
+        )
+        X -= X.min()
+
+    # Separate the signals
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-        raw, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
+        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
     )
+    # Unravel observations from multiple trials into a list of arrays
+    trial_lengths = [r.shape[1] for r in raw]
+    indices = np.cumsum(trial_lengths[:-1])
+    Xsep = np.split(Xsep, indices, axis=1)
+    Xmatch = np.split(Xmatch, indices, axis=1)
+    # Report status
     message = "Finished separating ROI"
     if roi_label is not None:
         message += " number {}".format(roi_label)
@@ -786,13 +807,10 @@ class Experiment():
         self.clear_separated()
         # Separate data
         print('Doing signal separation....')
-        # predefine data structures
-        sep = [[None for t in range(self.nTrials)]
-               for c in range(self.nCell)]
-        sep = np.asarray(sep)
-        result = np.copy(sep)
-        mixmat = np.copy(sep)
-        info = np.copy(sep)
+
+        # Check size of the input arrays
+        n_roi = len(self.raw)
+        n_trial = len(self.raw[0])
 
         # Make a handle to the separation function with parameters configured
         _separate_cfg = functools.partial(
@@ -800,19 +818,6 @@ class Experiment():
             alpha=self.alpha,
             method=self.method,
         )
-
-        # Join together the raw data across trials, collapsing down the trials
-        def _vectorise(raw_cell):
-            X = np.concatenate(raw_cell, axis=1)
-            # Check for values below 0
-            if X.min() < 0:
-                warnings.warn(
-                    "Found values below zero in signal. Offsetting so minimum is 0."
-                )
-                X -= X.min()
-            return X
-
-        raw_vectors = [_vectorise(self.raw[cell]) for cell in range(self.nCell)]
 
         # Check whether we should use multiprocessing
         use_multiprocessing = (
@@ -826,10 +831,10 @@ class Experiment():
             outputs = pool.map(
                 _separate_wrapper,
                 zip(
-                    raw_vectors,
-                    range(len(raw_vectors)),
-                    itertools.repeat(self.alpha, len(raw_vectors)),
-                    itertools.repeat(self.method, len(raw_vectors)),
+                    self.raw,
+                    range(n_roi),
+                    itertools.repeat(self.alpha, n_roi),
+                    itertools.repeat(self.method, n_roi),
                 ),
             )
             pool.close()
@@ -838,28 +843,23 @@ class Experiment():
         elif use_multiprocessing:
             with multiprocessing.Pool(self.ncores_separation) as pool:
                 # run separation
-                outputs = pool.starmap(
-                    _separate_cfg,
-                    zip(raw_vectors, range(len(raw_vectors))),
-                )
+                outputs = pool.starmap(_separate_cfg, zip(self.raw, range(n_roi)))
         else:
-            outputs = [
-                _separate_cfg(X, roi_label=i) for i, X in enumerate(raw_vectors)
-            ]
+            outputs = [_separate_cfg(X, roi_label=i) for i, X in enumerate(self.raw)]
 
-        # read outputs
-        for cell in range(self.nCell):
-            curTrial = 0
-            Xsep, Xmatch, Xmixmat, convergence = outputs[cell]
-            for trial in range(self.nTrials):
-                nextTrial = curTrial + self.raw[cell][trial].shape[1]
-                sep[cell][trial] = Xsep[:, curTrial:nextTrial]
-                result[cell][trial] = Xmatch[:, curTrial:nextTrial]
-                curTrial = nextTrial
+        # Define output shape as an array of objects shaped (n_roi, n_trial)
+        sep = [[None for t in range(n_trial)] for c in range(n_roi)]
+        sep = np.array(sep, dtype=object)
+        result = np.copy(sep)
+        mixmat = np.copy(sep)
+        info = np.copy(sep)
 
-                # store other info
-                mixmat[cell][trial] = Xmixmat
-                info[cell][trial] = convergence
+        # Place our outputs into the initialised arrays
+        for i_roi, (sep_i, match_i, mixmat_i, conv_i) in enumerate(outputs):
+            sep[i_roi, :] = sep_i
+            result[i_roi, :] = match_i
+            mixmat[i_roi, :] = [mixmat_i] * n_trial
+            info[i_roi, :] = conv_i
 
         # Set outputs
         self.info = info
