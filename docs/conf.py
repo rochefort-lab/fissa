@@ -220,12 +220,10 @@ latex_elements = {
     # The font size ("10pt", "11pt" or "12pt").
     # "pointsize": "10pt",
     #
-    # Additional stuff for the LaTeX preamble.
-    # "preamble": "",
-    #
     # Latex figure (float) alignment
     # 'figure_align': 'htbp',
     #
+    # Additional stuff for the LaTeX preamble.
     # Need to manually declare what the delta symbol (Δ) corresponds to.
     "preamble": """
 \DeclareUnicodeCharacter{394}{$\Delta$}
