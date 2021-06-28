@@ -1,6 +1,9 @@
 """
 Polygon tools.
 
+.. versionchanged:: 1.0.0
+    Module renamed from ``fissa.ROI`` to ``fissa.polygons``.
+
 The functions below were adapted from the sima package
 http://www.losonczylab.org/sima version 1.3.0.
 
