@@ -18,7 +18,7 @@ Testing
 
 External Code
 -------------
-* `ROI.py <https://github.com/rochefort-lab/fissa/blob/master/fissa/ROI.py>`_
+* `polygons.py <https://github.com/rochefort-lab/fissa/blob/master/fissa/polygons.py>`_
   was adapted from code contained in the `SIMA <http://www.losonczylab.org/sima/>`_ package
   under the `GNU GPL v2 License <https://www.gnu.org/licenses/gpl-2.0.html>`_.
 * `NIH ImageJ ROI parsing <https://github.com/rochefort-lab/fissa/blob/master/fissa/readimagejrois.py>`_

@@ -5,10 +5,11 @@ Polygon tools.
     Module renamed from ``fissa.ROI`` to ``fissa.polygons``.
 
 The functions below were adapted from the sima package
-http://www.losonczylab.org/sima version 1.3.0.
+http://www.losonczylab.org/sima, version 1.3.0.
+https://github.com/losonczylab/sima/blob/1.3.0/sima/ROI.py
 
-License
--------
+**License**
+
 This file is Copyright (C) 2014 The Trustees of Columbia University in the
 City of New York.
 

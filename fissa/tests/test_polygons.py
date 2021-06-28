@@ -2,8 +2,7 @@
 Tests for the polygons module.
 
 This test was taken from the sima package
-http://www.losonczylab.org/sima
-version 1.3.0
+http://www.losonczylab.org/sima, v1.3.0:
 https://github.com/losonczylab/sima/blob/6d2cd4f071e4/sima/tests/test_ROI.py
 
 License
