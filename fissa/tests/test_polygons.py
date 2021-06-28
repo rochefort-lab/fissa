@@ -1,5 +1,5 @@
 """
-Tests for the ROI module.
+Tests for the polygons module.
 
 This test was taken from the sima package
 http://www.losonczylab.org/sima
@@ -34,13 +34,13 @@ import numpy as np
 # run properly, regardless of how python is started.
 from numpy.testing import assert_equal
 
-from .. import ROI
+from .. import polygons
 
 
 def test_poly2mask():
     poly1 = [[0, 0], [0, 1], [1, 1], [1, 0]]
     poly2 = [[0, 1], [0, 2], [2, 2], [2, 1]]
-    masks = ROI.poly2mask([poly1, poly2], (3, 3))
+    masks = polygons.poly2mask([poly1, poly2], (3, 3))
     assert_equal(
         masks[0].todense(),
         np.array(

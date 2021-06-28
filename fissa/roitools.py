@@ -16,8 +16,8 @@ try:
 except ImportError:
     import collections as abc
 
+from .polygons import poly2mask
 from .readimagejrois import read_imagej_roi_zip
-from .ROI import poly2mask
 
 
 def get_mask_com(mask):
