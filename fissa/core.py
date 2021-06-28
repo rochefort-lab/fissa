@@ -98,7 +98,7 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     return data, roi_polys, mean
 
 
-def separate(raw, roi_label=None, alpha=0.1, method="nmf"):
+def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf"):
     r"""
     Separate signals within a set of 2d arrays.
 
@@ -195,7 +195,7 @@ if sys.version_info < (3, 0):
         return extract(*args)
 
     def _separate_wrapper(args):
-        return separate(*args)
+        return separate_trials(*args)
 
 
 class Experiment():
@@ -814,7 +814,7 @@ class Experiment():
 
         # Make a handle to the separation function with parameters configured
         _separate_cfg = functools.partial(
-            separate,
+            separate_trials,
             alpha=self.alpha,
             method=self.method,
         )
