@@ -395,13 +395,17 @@ class Experiment:
 
     deltaf_raw : :class:`numpy.ndarray`
         A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
-        of which is itself a :class:`numpy.ndarray` shaped ``(n_timepoint, )``.
+        of which is itself a :class:`numpy.ndarray` shaped ``(1, n_timepoint)``.
 
         The amount of change in fluorence relative to the baseline fluorence
         (Δf/f\ :sub:`0`).
 
         This field is only populated after :meth:`calc_deltaf` has been run;
         until then, it is set to ``None``.
+
+        .. versionchanged:: 1.0.0
+            The shape of the interior arrays changed from ``(n_timepoint, )``
+            to ``(1, n_timepoint)``.
 
     deltaf_result : :class:`numpy.ndarray`
         A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
@@ -964,7 +968,7 @@ class Experiment:
                 for trial in range(self.nTrials):
                     nextTrial = curTrial + self.raw[cell][trial].shape[1]
                     signal = raw_conc[curTrial:nextTrial]
-                    deltaf_raw[cell][trial] = signal
+                    deltaf_raw[cell][trial] = np.expand_dims(signal, axis=0)
                     signal = result_conc[:, curTrial:nextTrial]
                     deltaf_result[cell][trial] = signal
                     curTrial = nextTrial
@@ -986,7 +990,7 @@ class Experiment:
                         result_sig = (result_sig - result_f0) / result_f0
 
                     # store deltaf/f0s
-                    deltaf_raw[cell][trial] = raw_sig
+                    deltaf_raw[cell][trial] = np.expand_dims(raw_sig, axis=0)
                     deltaf_result[cell][trial] = result_sig
 
         self.deltaf_raw = deltaf_raw
