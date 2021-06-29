@@ -68,7 +68,9 @@ workflows where FISSA needs to interact with the outputs of other two-photon
 calcium imaging toolboxes which can be used to automatically detect cells.
 
 You can try out each of the example notebooks interactively in your browser on
-Binder_ (note that it may take 10 minutes for Binder to boot up).
+Binder_ (note that it may take 10 minutes for Binder to boot up). Our binder
+environment runs in Python 3.9, which to our knowledge is not supported by SIMA.
+As such, the SIMA notebook can be viewed but not run on Binder.
 
 +---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
 | Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
@@ -79,7 +81,7 @@ Binder_ (note that it may take 10 minutes for Binder to boot up).
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 | With suite2p_             | `NBViewer <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With SIMA_                | `NBViewer <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
+| With SIMA_                | `NBViewer <sima_html_>`_ |                               | `Download <sima_down_>`_ |                                |                              |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 | With `CNMF (MATLAB)`_     | `NBViewer <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
