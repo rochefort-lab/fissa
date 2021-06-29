@@ -343,8 +343,8 @@ class ExperimentTestMixin:
             self.roi_zip_path,
             ncores_preparation=1,
         )
-        exp.separate()
-        self.compare_output(exp)
+        exp.separation_prep()
+        self.compare_output(exp, separated=False)
 
     def test_ncores_preparation_2(self):
         exp = core.Experiment(
@@ -352,8 +352,8 @@ class ExperimentTestMixin:
             self.roi_zip_path,
             ncores_preparation=2,
         )
-        exp.separate()
-        self.compare_output(exp)
+        exp.separation_prep()
+        self.compare_output(exp, separated=False)
 
     def test_ncores_separate_1(self):
         exp = core.Experiment(
