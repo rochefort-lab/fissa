@@ -1,11 +1,15 @@
 """
 Polygon tools.
 
-The functions below were adapted from the sima package
-http://www.losonczylab.org/sima version 1.3.0.
+.. versionchanged:: 1.0.0
+    Module renamed from ``fissa.ROI`` to ``fissa.polygons``.
 
-License
--------
+The functions below were adapted from the sima package
+http://www.losonczylab.org/sima, version 1.3.0.
+https://github.com/losonczylab/sima/blob/1.3.0/sima/ROI.py
+
+**License**
+
 This file is Copyright (C) 2014 The Trustees of Columbia University in the
 City of New York.
 
@@ -34,7 +38,7 @@ def poly2mask(polygons, im_size):
     """
     Convert polygons to a sparse binary mask.
 
-    >>> from fissa.ROI import poly2mask
+    >>> from fissa.polygons import poly2mask
     >>> poly1 = [[0, 0], [0, 1], [1, 1], [1, 0]]
     >>> poly2 = [[0, 1], [0, 2], [2, 2], [2, 1]]
     >>> mask = poly2mask([poly1, poly2], (3, 3))
