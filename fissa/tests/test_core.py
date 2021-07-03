@@ -337,6 +337,15 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
+    def test_ncores_preparation_None(self):
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            ncores_preparation=None,
+        )
+        exp.separation_prep()
+        self.compare_output(exp, separated=False)
+
     def test_ncores_preparation_1(self):
         exp = core.Experiment(
             self.images_dir,
@@ -354,6 +363,15 @@ class ExperimentTestMixin:
         )
         exp.separation_prep()
         self.compare_output(exp, separated=False)
+
+    def test_ncores_separate_None(self):
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            ncores_separation=None,
+        )
+        exp.separate()
+        self.compare_output(exp)
 
     def test_ncores_separate_1(self):
         exp = core.Experiment(
