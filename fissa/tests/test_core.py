@@ -80,8 +80,8 @@ class ExperimentTestMixin:
         self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
         # Check parameters match
         self.assert_equal(actual.expansion, self.expected["expansion"])
-        self.assert_equal(actual.nCell, self.expected["nCell"])
         self.assert_equal(actual.nRegions, self.expected["nRegions"])
+        self.assert_equal(actual.nCell, len(actual.raw))
         if separated:
             # Check sizes are correct
             self.assert_equal(np.shape(actual.sep), expected_shape)
