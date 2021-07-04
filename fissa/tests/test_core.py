@@ -78,6 +78,10 @@ class ExperimentTestMixin:
         # Check contents are correct
         self.assert_equal(actual.means, self.expected["means"])
         self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
+        # Check parameters match
+        self.assert_equal(actual.expansion, self.expected["expansion"])
+        self.assert_equal(actual.nCell, self.expected["nCell"])
+        self.assert_equal(actual.nRegions, self.expected["nRegions"])
         if separated:
             # Check sizes are correct
             self.assert_equal(np.shape(actual.sep), expected_shape)
@@ -86,6 +90,12 @@ class ExperimentTestMixin:
             # Check contents are correct
             self.assert_allclose_ragged(actual.sep, self.expected["sep"])
             self.assert_allclose_ragged(actual.mixmat, self.expected["mixmat"])
+            # Check parameters match
+            self.assert_equal(actual.alpha, self.expected["alpha"])
+            self.assert_equal(actual.max_iter, self.expected["max_iter"])
+            self.assert_equal(actual.max_tries, self.expected["max_tries"])
+            self.assert_equal(actual.method, self.expected["method"])
+            self.assert_equal(actual.tol, self.expected["tol"])
         if compare_deltaf:
             self.assert_allclose_ragged(actual.deltaf_raw, self.expected["deltaf_raw"])
         if compare_deltaf and separated:
