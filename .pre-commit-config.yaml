@@ -1,5 +1,5 @@
 repos:
-  - repo: https://github.com/timothycrosley/isort
+  - repo: https://github.com/PyCQA/isort
     rev: 5.9.1
     hooks:
       - id: isort
@@ -24,13 +24,13 @@ repos:
         types: [python]
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: v1.8.0
+    rev: v1.10.0
     hooks:
       - id: blacken-docs
         additional_dependencies: [black==21.6b0]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.4.0
+    rev: 0.5.0
     hooks:
       - id: nbstripout
 
@@ -71,7 +71,7 @@ repos:
         args: [--markdown-linebreak-ext=md]
         exclude: \.(html|svg)$
 
-  - repo: https://gitlab.com/pycqa/flake8
+  - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
       - id: flake8
