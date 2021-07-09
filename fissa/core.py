@@ -147,17 +147,17 @@ def separate_trials(
 
         .. versionadded:: 1.0.0
 
-    max_iter : int, optional
+    max_iter : int, default=20000
         Number of maximally allowed iterations.
 
         .. versionadded:: 1.0.0
 
-    tol : float, optional
+    tol : float, default=1e-4
         Error tolerance for termination.
 
         .. versionadded:: 1.0.0
 
-    max_tries : int, optional
+    max_tries : int, default=1
         Maximum number of tries before algorithm should terminate.
 
         .. versionadded:: 1.0.0
@@ -292,17 +292,17 @@ class Experiment:
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
 
-    max_iter : int, optional
+    max_iter : int, default=20000
         Number of maximally allowed iterations of separation algorithm.
 
         .. versionadded:: 1.0.0
 
-    tol : float, optional
+    tol : float, default=1e-4
         Error tolerance for termination of separation algorithm.
 
         .. versionadded:: 1.0.0
 
-    max_tries : int, optional
+    max_tries : int, default=1
         Maximum number of tries before separation algorithm should terminate.
 
         .. versionadded:: 1.0.0
