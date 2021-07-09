@@ -149,14 +149,17 @@ def separate_trials(
 
     maxiter : int, optional
         Number of maximally allowed iterations.
+
         .. versionadded:: 1.0.0
 
     tol : float, optional
         Error tolerance for termination.
+
         .. versionadded:: 1.0.0
 
     maxtries : int, optional
         Maximum number of tries before algorithm should terminate.
+
         .. versionadded:: 1.0.0
 
     Returns
@@ -291,14 +294,17 @@ class Experiment:
 
     maxiter : int, optional
         Number of maximally allowed iterations of separation algorithm.
+
         .. versionadded:: 1.0.0
 
     tol : float, optional
         Error tolerance for termination of separation algorithm.
+
         .. versionadded:: 1.0.0
 
     maxtries : int, optional
         Maximum number of tries before separation algorithm should terminate.
+
         .. versionadded:: 1.0.0
 
     ncores_preparation : int or None, default=None
@@ -618,6 +624,7 @@ class Experiment:
         Clear prepared data, and all data downstream of prepared data.
 
         .. versionadded:: 1.0.0
+
         """
         # Wipe outputs
         self.means = []
@@ -634,6 +641,7 @@ class Experiment:
         Clear separated data, and all data downstream of separated data.
 
         .. versionadded:: 1.0.0
+
         """
         # Wipe outputs
         self.info = None
@@ -648,6 +656,7 @@ class Experiment:
         Load data from cache file in npz format.
 
         .. versionadded:: 1.0.0
+
 
         Parameters
         ----------
