@@ -760,7 +760,7 @@ class Experiment:
 
         if use_multiprocessing:
             # run extraction
-            outputs = Parallel(n_jobs=self.ncores_separation)(
+            outputs = Parallel(n_jobs=self.ncores_separation, backend="threading")(
                 delayed(_extract_cfg)(self.images[i], self.rois[i])
                 for i in tqdm.tqdm(
                     range(self.nTrials),
@@ -926,7 +926,7 @@ class Experiment:
 
         # Do the extraction
         if use_multiprocessing:
-            outputs = Parallel(n_jobs=self.ncores_separation)(
+            outputs = Parallel(n_jobs=self.ncores_separation, backend="threading")(
                 delayed(_separate_cfg)(self.raw[i], i)
                 for i in tqdm.tqdm(
                     range(self.nCell),
