@@ -320,10 +320,24 @@ class ExperimentTestMixin:
         self.compare_output(exp)
 
     def test_verbosity_0(self):
+        # Test with no data to load
         capture_pre = self.capsys.readouterr()  # Clear stdout
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=0)
+            exp = core.Experiment(
+                self.images_dir, self.roi_zip_path, self.output_dir, verbosity=0
+            )
+            exp.separate()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_equal(capture_post.out, "")
+        self.compare_output(exp)
+        # Test with data to load
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            exp = core.Experiment(
+                self.images_dir, self.roi_zip_path, self.output_dir, verbosity=0
+            )
             exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_equal(capture_post.out, "")
