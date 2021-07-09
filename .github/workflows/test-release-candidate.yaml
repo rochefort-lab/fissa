@@ -100,7 +100,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest --cov=fissa --cov-report term --cov-report xml --junitxml=testresults.xml
+        python -m pytest --timeout=300 --cov=fissa --cov-report term --cov-report xml --junitxml=testresults.xml
 
     - name: Upload unittest coverage to Codecov
       uses: codecov/codecov-action@v1
@@ -126,10 +126,10 @@ jobs:
         python -m pip install --editable .[plotting]
 
     - name: "Notebooks: Lint check"
-      run: python -m pytest --nbsmoke-lint ./examples/
+      run: python -m pytest --timeout=300 --nbsmoke-lint ./examples/
 
     - name: "Notebooks: Smoke test"
-      run: python -m pytest --nbsmoke-run ./examples/ --cov=fissa --cov-report term --cov-report xml --junitxml=nbsmoke.xml
+      run: python -m pytest --timeout=300 --nbsmoke-run ./examples/ --cov=fissa --cov-report term --cov-report xml --junitxml=nbsmoke.xml
 
     - name: "Notebooks: Upload coverage to Codecov"
       uses: codecov/codecov-action@v1
