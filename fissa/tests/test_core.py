@@ -313,25 +313,6 @@ class ExperimentTestMixin:
         self.compare_str_repr_contents(str(exp))
         self.compare_str_repr_contents(repr(exp))
 
-    @unittest.expectedFailure
-    def test_imagedir_roilistpath(self):
-        roi_paths = [os.path.join(self.resources_dir, r) for r in self.roi_paths]
-        exp = core.Experiment(self.images_dir, roi_paths)
-        exp.separate()
-        self.compare_output(exp)
-        self.compare_str_repr_contents(str(exp))
-        self.compare_str_repr_contents(repr(exp))
-
-    @unittest.expectedFailure
-    def test_imagelist_roilistpath(self):
-        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
-        roi_paths = [os.path.join(self.resources_dir, r) for r in self.roi_paths]
-        exp = core.Experiment(image_paths, roi_paths)
-        exp.separate()
-        self.compare_output(exp)
-        self.compare_str_repr_contents(str(exp))
-        self.compare_str_repr_contents(repr(exp))
-
     def test_nocache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
