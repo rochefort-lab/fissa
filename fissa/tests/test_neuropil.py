@@ -59,7 +59,7 @@ class NeuropilMixin:
     def test_retry(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self.run_method(self.method, maxiter=1, maxtries=3)
+            self.run_method(self.method, max_iter=1, maxtries=3)
 
 
 class TestNeuropilNMF(BaseTestCase, NeuropilMixin):

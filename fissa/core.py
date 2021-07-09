@@ -104,7 +104,7 @@ def separate_trials(
     raw,
     roi_label=None,
     alpha=0.1,
-    maxiter=20000,
+    max_iter=20000,
     tol=1e-4,
     maxtries=1,
     method="nmf",
@@ -147,7 +147,7 @@ def separate_trials(
 
             .. versionadded:: 1.0.0
 
-    maxiter : int, optional
+    max_iter : int, optional
         Number of maximally allowed iterations.
 
         .. versionadded:: 1.0.0
@@ -208,7 +208,7 @@ def separate_trials(
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
         X,
         method,
-        maxiter=maxiter,
+        max_iter=max_iter,
         tol=tol,
         maxtries=maxtries,
         alpha=alpha,
@@ -292,7 +292,7 @@ class Experiment:
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
 
-    maxiter : int, optional
+    max_iter : int, optional
         Number of maximally allowed iterations of separation algorithm.
 
         .. versionadded:: 1.0.0
@@ -495,7 +495,7 @@ class Experiment:
         nRegions=4,
         expansion=1,
         alpha=0.1,
-        maxiter=20000,
+        max_iter=20000,
         tol=1e-4,
         maxtries=1,
         ncores_preparation=None,
@@ -542,7 +542,7 @@ class Experiment:
         self.nRegions = nRegions
         self.expansion = expansion
         self.alpha = alpha
-        self.maxiter = maxiter
+        self.max_iter = max_iter
         self.tol = tol
         self.maxtries = maxtries
         self.nTrials = len(self.images)  # number of trials
@@ -583,7 +583,7 @@ class Experiment:
             "nRegions",
             "expansion",
             "alpha",
-            "maxiter",
+            "max_iter",
             "tol",
             "maxtries",
             "ncores_preparation",
@@ -611,7 +611,7 @@ class Experiment:
             "nRegions",
             "expansion",
             "alpha",
-            "maxiter",
+            "max_iter",
             "tol",
             "maxtries",
             "ncores_preparation",
@@ -953,7 +953,7 @@ class Experiment:
         _separate_cfg = functools.partial(
             separate_trials,
             alpha=self.alpha,
-            maxiter=self.maxiter,
+            max_iter=self.max_iter,
             tol=self.tol,
             maxtries=self.maxtries,
             method=self.method,
@@ -982,7 +982,7 @@ class Experiment:
                             self.raw,
                             range(n_roi),
                             itertools.repeat(self.alpha, n_roi),
-                            itertools.repeat(self.maxiter, n_roi),
+                            itertools.repeat(self.max_iter, n_roi),
                             itertools.repeat(self.tol, n_roi),
                             itertools.repeat(self.maxtries, n_roi),
                             itertools.repeat(self.method, n_roi),
