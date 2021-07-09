@@ -580,11 +580,11 @@ class ExperimentTestMixin:
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         # Run an experiment to generate the cache
-        exp1 = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir)
         exp1.separation_prep()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_starts_with(capture_post.out, "Reloading data")
         # Ensure previous cache is loaded again when we run separation_prep
