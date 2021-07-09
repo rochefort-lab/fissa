@@ -585,6 +585,28 @@ class ExperimentTestMixin:
         # Cache should be loaded without calling separate
         self.compare_output(exp)
 
+    def test_load_cache_redo_prep(self):
+        """Test redoing preparation after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Redo separation_prep
+        exp.separation_prep(redo=True)
+        self.compare_output(exp, separated=False)
+
+    def test_load_cache_redo_sep(self):
+        """Test redo separation after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Redo separation
+        exp.separate(redo_sep=True)
+        self.compare_output(exp)
+
     def test_load_cache_piecemeal(self):
         """
         Test whether cached output is loaded during individual method calls.
