@@ -977,8 +977,8 @@ class Experiment:
             if len(non_converged_cells) > 0:
                 print(
                     "The following ROI numbers did not fully converge: {}."
-                    "Consider changing FISSA parameters if this happens often and/or "
-                    "to a lot of cells.".format(non_converged_cells)
+                    " Consider changing FISSA parameters if this happens often and/or"
+                    " to a lot of cells.".format(non_converged_cells)
                 )
 
         # Set outputs
