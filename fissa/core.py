@@ -145,22 +145,12 @@ def separate_trials(
         - ``0``: No outputs.
         - ``1``: Print separation progress.
 
-        .. versionadded:: 1.0.0
-
     max_iter : int, default=20000
         Number of maximally allowed iterations.
-
-        .. versionadded:: 1.0.0
-
     tol : float, default=1e-4
         Error tolerance for termination.
-
-        .. versionadded:: 1.0.0
-
     max_tries : int, default=1
         Maximum number of tries before algorithm should terminate.
-
-        .. versionadded:: 1.0.0
 
     Returns
     -------
