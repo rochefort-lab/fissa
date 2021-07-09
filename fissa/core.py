@@ -972,7 +972,7 @@ class Experiment:
             cell for cell, info_i in enumerate(info) if not info_i[0]["converged"]
         ]
 
-        if self.verbosity > 0:
+        if self.verbosity >= 1:
             print("Finished separating all the ROI signals.")
             if len(non_converged_cells) > 0:
                 print(
