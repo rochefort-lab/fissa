@@ -17,10 +17,10 @@ def separate(
     S,
     sep_method="nmf",
     n=None,
-    maxiter=10000,
+    max_iter=10000,
     tol=1e-4,
     random_state=892,
-    maxtries=10,
+    max_tries=10,
     W0=None,
     H0=None,
     alpha=0.1,
@@ -50,16 +50,24 @@ def separate(
         method, ``n`` is the number of input signals; for the ICA method,
         we use PCA to estimate how many components would explain at least 99%
         of the variance and adopt this value for ``n``.
-    maxiter : int, optional
+    max_iter : int, optional
         Number of maximally allowed iterations. Default is ``10000``.
+
+        .. versionchanged:: 1.0.0
+            Argument `maxiter` renamed to `max_iter`.
+
     tol : float, optional
         Error tolerance for termination. Default is ``1e-4``.
     random_state : int or None, optional
         Initial state for the random number generator. Set to ``None`` to use
         the numpy.random default. Default seed is ``892``.
-    maxtries : int, optional
+    max_tries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is ``10``.
+
+        .. versionchanged:: 1.0.0
+            Argument `maxtries` renamed to `max_tries`.
+
     W0 : :term:`array_like`, optional
         Optional starting condition for ``W`` in NMF algorithm.
         (Ignored when using the ICA method.)
@@ -136,7 +144,7 @@ def separate(
         else:
             n = S.shape[0]
 
-    for i_try in range(maxtries):
+    for i_try in range(max_tries):
 
         if sep_method.lower() in {"ica", "fastica"}:
             # Use sklearn's implementation of ICA.
@@ -146,7 +154,7 @@ def separate(
             estimator = sklearn.decomposition.FastICA(
                 n_components=n,
                 whiten=True,
-                max_iter=maxiter,
+                max_iter=max_iter,
                 tol=tol,
                 random_state=random_state,
             )
@@ -163,7 +171,7 @@ def separate(
                 alpha=alpha,
                 l1_ratio=0.5,
                 tol=tol,
-                max_iter=maxiter,
+                max_iter=max_iter,
                 random_state=random_state,
             )
 
@@ -182,7 +190,7 @@ def separate(
             estimator = getattr(sklearn.decomposition, sep_method)(
                 n_components=n,
                 tol=tol,
-                max_iter=maxiter,
+                max_iter=max_iter,
                 random_state=random_state,
             )
             S_sep = estimator.fit_transform(S.T)
@@ -191,7 +199,7 @@ def separate(
             raise ValueError('Unknown separation method "{}".'.format(sep_method))
 
         # check if max number of iterations was reached
-        if estimator.n_iter_ < maxiter:
+        if estimator.n_iter_ < max_iter:
             if verbosity >= 1:
                 print(
                     "{} converged after {} iterations.".format(
@@ -205,14 +213,14 @@ def separate(
                     i_try + 1, estimator.n_iter_
                 )
             )
-        if i_try + 1 < maxtries:
+        if i_try + 1 < max_tries:
             if verbosity >= 1:
                 print("Trying a new random state.")
             # Change to a new random_state
             if random_state is not None:
                 random_state = (random_state + 1) % 2 ** 32
 
-    if estimator.n_iter_ == maxiter:
+    if estimator.n_iter_ == max_iter:
         if verbosity >= 1:
             print(
                 "Warning: maximum number of allowed tries reached at {} iterations"
@@ -256,10 +264,10 @@ def separate(
 
     # save the algorithm convergence info
     convergence = {}
-    convergence["max_iterations"] = maxiter
+    convergence["max_iterations"] = max_iter
     convergence["random_state"] = random_state
     convergence["iterations"] = estimator.n_iter_
-    convergence["converged"] = estimator.n_iter_ != maxiter
+    convergence["converged"] = estimator.n_iter_ != max_iter
 
     # scale back to raw magnitudes
     S_matched *= median
