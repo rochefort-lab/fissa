@@ -20,7 +20,7 @@ def separate(
     max_iter=10000,
     tol=1e-4,
     random_state=892,
-    maxtries=10,
+    max_tries=10,
     W0=None,
     H0=None,
     alpha=0.1,
@@ -61,9 +61,13 @@ def separate(
     random_state : int or None, optional
         Initial state for the random number generator. Set to ``None`` to use
         the numpy.random default. Default seed is ``892``.
-    maxtries : int, optional
+    max_tries : int, optional
         Maximum number of tries before algorithm should terminate.
         Default is ``10``.
+
+        .. versionchanged:: 1.0.0
+            Argument `maxtries` renamed to `max_tries`.
+
     W0 : :term:`array_like`, optional
         Optional starting condition for ``W`` in NMF algorithm.
         (Ignored when using the ICA method.)
@@ -141,7 +145,7 @@ def separate(
         else:
             n = S.shape[0]
 
-    for i_try in range(maxtries):
+    for i_try in range(max_tries):
 
         if sep_method.lower() in {"ica", "fastica"}:
             # Use sklearn's implementation of ICA.
@@ -210,7 +214,7 @@ def separate(
                     i_try + 1, estimator.n_iter_
                 )
             )
-        if i_try + 1 < maxtries:
+        if i_try + 1 < max_tries:
             if verbosity >= 1:
                 print("Trying a new random state.")
             # Change to a new random_state

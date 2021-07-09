@@ -43,23 +43,23 @@ class NeuropilMixin:
             self.assert_equal(convergence["converged"], expected_converged)
 
     def test_method(self):
-        self.run_method(self.method, expected_converged=True, maxtries=1)
+        self.run_method(self.method, expected_converged=True, max_tries=1)
 
     def test_reduce_dim(self):
-        self.run_method(self.method, expected_converged=True, maxtries=1, n=2)
+        self.run_method(self.method, expected_converged=True, max_tries=1, n=2)
 
     def test_manual_seed(self):
         self.run_method(
             self.method,
             expected_converged=True,
-            maxtries=1,
+            max_tries=1,
             random_state=0,
         )
 
     def test_retry(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self.run_method(self.method, max_iter=1, maxtries=3)
+            self.run_method(self.method, max_iter=1, max_tries=3)
 
 
 class TestNeuropilNMF(BaseTestCase, NeuropilMixin):
