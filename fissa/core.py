@@ -733,7 +733,6 @@ class Experiment:
                     ),
                 )
             )
-
             pool.close()
             pool.join()
 
