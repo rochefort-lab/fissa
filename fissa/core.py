@@ -13,12 +13,12 @@ import collections
 import functools
 import glob
 import itertools
-import multiprocessing
 import os.path
 import sys
 import warnings
 
 import tqdm
+from joblib import Parallel, delayed
 from past.builtins import basestring
 
 try:
@@ -219,17 +219,6 @@ def separate_trials(
             message += " number {}".format(roi_label)
         print(message)
     return Xsep, Xmatch, Xmixmat, convergence
-
-
-if sys.version_info < (3, 0):
-    # Define helper functions which are needed on Python 2.7, which does not
-    # have multiprocessing.Pool.starmap.
-
-    def _extract_wrapper(args):
-        return extract(*args)
-
-    def _separate_wrapper(args):
-        return separate_trials(*args)
 
 
 class Experiment:
@@ -769,45 +758,17 @@ class Experiment:
         # check whether we should show progress bars
         disable_progressbars = self.verbosity != 1
 
-        # Do the extraction
-        if use_multiprocessing and sys.version_info < (3, 0):
-            # define pool
-            pool = multiprocessing.Pool(self.ncores_preparation)
+        if use_multiprocessing:
             # run extraction
-            outputs = list(
-                pool.map(
-                    _extract_wrapper,
-                    tqdm.tqdm(
-                        zip(
-                            self.images,
-                            self.rois,
-                            itertools.repeat(self.nRegions, len(self.images)),
-                            itertools.repeat(self.expansion, len(self.images)),
-                            itertools.repeat(self.datahandler, len(self.images)),
-                        ),
-                        total=self.nTrials,
-                        desc="Extracting traces",
-                        disable=disable_progressbars,
-                    ),
+            outputs = Parallel(n_jobs=self.ncores_separation)(
+                delayed(_extract_cfg)(self.images[i], self.rois[i])
+                for i in tqdm.tqdm(
+                    range(self.nTrials),
+                    total=self.nTrials,
+                    desc="Extracting traces",
+                    disable=disable_progressbars,
                 )
             )
-            pool.close()
-            pool.join()
-
-        elif use_multiprocessing:
-            with multiprocessing.Pool(self.ncores_preparation) as pool:
-                # run extraction
-                outputs = list(
-                    pool.starmap(
-                        _extract_cfg,
-                        tqdm.tqdm(
-                            zip(self.images, self.rois),
-                            total=self.nTrials,
-                            desc="Extracting traces",
-                            disable=disable_progressbars,
-                        ),
-                    )
-                )
 
         else:
             outputs = [
@@ -964,48 +925,16 @@ class Experiment:
         disable_progressbars = self.verbosity != 1
 
         # Do the extraction
-        if use_multiprocessing and sys.version_info < (3, 0):
-            # define pool
-            pool = multiprocessing.Pool(self.ncores_separation)
-
-            # run separation
-            outputs = list(
-                pool.map(
-                    _separate_wrapper,
-                    tqdm.tqdm(
-                        zip(
-                            self.raw,
-                            range(n_roi),
-                            itertools.repeat(self.alpha, n_roi),
-                            itertools.repeat(self.max_iter, n_roi),
-                            itertools.repeat(self.tol, n_roi),
-                            itertools.repeat(self.max_tries, n_roi),
-                            itertools.repeat(self.method, n_roi),
-                            itertools.repeat(self.verbosity, n_roi),
-                        ),
-                        total=self.nCell,
-                        desc="Separating data",
-                        disable=disable_progressbars,
-                    ),
+        if use_multiprocessing:
+            outputs = Parallel(n_jobs=self.ncores_separation)(
+                delayed(_separate_cfg)(self.raw[i], i)
+                for i in tqdm.tqdm(
+                    range(self.nCell),
+                    total=self.nCell,
+                    desc="Separating data",
+                    disable=disable_progressbars,
                 )
             )
-            pool.close()
-            pool.join()
-
-        elif use_multiprocessing:
-            with multiprocessing.Pool(self.ncores_separation) as pool:
-                # run separation
-                outputs = list(
-                    pool.starmap(
-                        _separate_cfg,
-                        tqdm.tqdm(
-                            zip(self.raw, range(n_roi)),
-                            total=self.nCell,
-                            desc="Separating data",
-                            disable=disable_progressbars,
-                        ),
-                    )
-                )
         else:
             outputs = [
                 _separate_cfg(X, roi_label=i)
