@@ -583,10 +583,14 @@ class Experiment:
             "nRegions",
             "expansion",
             "alpha",
+            "maxiter",
+            "tol",
+            "maxtries",
             "ncores_preparation",
             "ncores_separation",
             "method",
             "datahandler",
+            "verbosity",
         ]
         str_parts = [
             "{}={}".format(field, repr(getattr(self, field))) for field in fields
@@ -607,10 +611,14 @@ class Experiment:
             "nRegions",
             "expansion",
             "alpha",
+            "maxiter",
+            "tol",
+            "maxtries",
             "ncores_preparation",
             "ncores_separation",
             "method",
             "datahandler",
+            "verbosity",
         ]
         repr_parts = [
             "{}={}".format(field, repr(getattr(self, field))) for field in fields
