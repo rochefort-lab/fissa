@@ -1035,7 +1035,7 @@ class TestSeparateTrials(BaseTestCase):
     def test_separate_trials_label_int(self):
         label = 239457
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        outputs = core.separate_trials(self.raw, roi_label=label)
+        outputs = core.separate_trials(self.raw, roi_label=label, verbosity=1)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue(str(label) in capture_post.out)
         self.compare_outputs(outputs)
@@ -1043,7 +1043,7 @@ class TestSeparateTrials(BaseTestCase):
     def test_separate_trials_label_str(self):
         label = "awesome_roi"
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        outputs = core.separate_trials(self.raw, roi_label=label)
+        outputs = core.separate_trials(self.raw, roi_label=label, verbosity=1)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue(label in capture_post.out)
         self.compare_outputs(outputs)
