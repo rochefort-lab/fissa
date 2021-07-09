@@ -304,7 +304,7 @@ class Experiment:
         If `datahandler` is set, the `lowmemory_mode` parameter is
         ignored.
 
-    verbosity : int, optional (default=1)
+    verbosity : int, default=1
         How verbose the processing will be. The options are:
 
         - ``0``: No outputs.
