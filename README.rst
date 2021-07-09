@@ -68,8 +68,8 @@ workflows where FISSA needs to interact with the outputs of other two-photon
 calcium imaging toolboxes which can be used to automatically detect cells.
 
 You can try out each of the example notebooks interactively in your browser on
-Binder_ (note that it may take 10 minutes for Binder to boot up). Our binder
-environment runs in Python 3.9, which to our knowledge is not supported by SIMA.
+Binder_ (note that it may take 10 minutes for Binder to boot up).
+Note that our binder environment runs in Python 3.9, which is not supported by SIMA.
 As such, the SIMA notebook can be viewed but not run on Binder.
 
 +---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
