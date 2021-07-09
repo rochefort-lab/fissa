@@ -414,7 +414,6 @@ class ExperimentTestMixin:
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             datahandler=extraction.DataHandlerTifffile(),
         )
         exp.separate()
@@ -424,7 +423,6 @@ class ExperimentTestMixin:
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             datahandler=extraction.DataHandlerTifffileLazy(),
         )
         exp.separate()
@@ -434,7 +432,6 @@ class ExperimentTestMixin:
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            self.output_dir,
             datahandler=extraction.DataHandlerPillow(),
         )
         exp.separate()
