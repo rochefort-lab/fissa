@@ -190,7 +190,7 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf", verbosity=1):
     Xsep = np.split(Xsep, indices, axis=1)
     Xmatch = np.split(Xmatch, indices, axis=1)
     # Report status
-    if verbosity >= 2:
+    if verbosity >= 1:
         message = "Finished separating ROI"
         if roi_label is not None:
             message += " number {}".format(roi_label)
