@@ -313,27 +313,28 @@ class ExperimentTestMixin:
         self.compare_str_repr_contents(str(exp))
         self.compare_str_repr_contents(repr(exp))
 
-    @unittest.expectedFailure
-    def test_imagedir_roilistpath(self):
-        roi_paths = [os.path.join(self.resources_dir, r) for r in self.roi_paths]
-        exp = core.Experiment(self.images_dir, roi_paths)
-        exp.separate()
-        self.compare_output(exp)
-        self.compare_str_repr_contents(str(exp))
-        self.compare_str_repr_contents(repr(exp))
-
-    @unittest.expectedFailure
-    def test_imagelist_roilistpath(self):
-        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
-        roi_paths = [os.path.join(self.resources_dir, r) for r in self.roi_paths]
-        exp = core.Experiment(image_paths, roi_paths)
-        exp.separate()
-        self.compare_output(exp)
-        self.compare_str_repr_contents(str(exp))
-        self.compare_str_repr_contents(repr(exp))
-
     def test_nocache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        self.compare_output(exp)
+
+    def test_verbosity_0(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=0)
+        exp.separate()
+        self.compare_output(exp)
+
+    def test_verbosity_1(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=1)
+        exp.separate()
+        self.compare_output(exp)
+
+    def test_verbosity_2(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=2)
+        exp.separate()
+        self.compare_output(exp)
+
+    def test_verbosity_3(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=3)
         exp.separate()
         self.compare_output(exp)
 
@@ -501,7 +502,9 @@ class ExperimentTestMixin:
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(
+            self.images_dir, self.roi_zip_path, self.output_dir, verbosity=2
+        )
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
@@ -531,7 +534,7 @@ class ExperimentTestMixin:
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         # Run an experiment to generate the cache
-        exp1 = core.Experiment(image_path, roi_path, self.output_dir)
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         exp1.separate()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -562,7 +565,7 @@ class ExperimentTestMixin:
         exp1.separation_prep()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_starts_with(capture_post.out, "Reloading data")
         # Ensure previous cache is loaded again when we run separation_prep
@@ -724,7 +727,7 @@ class ExperimentTestMixin:
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         # Make a bad cache
         with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
@@ -1013,7 +1016,7 @@ class TestSeparateTrials(BaseTestCase):
     def test_separate_trials_label_int(self):
         label = 239457
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        outputs = core.separate_trials(self.raw, roi_label=label)
+        outputs = core.separate_trials(self.raw, roi_label=label, verbosity=1)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue(str(label) in capture_post.out)
         self.compare_outputs(outputs)
@@ -1021,7 +1024,7 @@ class TestSeparateTrials(BaseTestCase):
     def test_separate_trials_label_str(self):
         label = "awesome_roi"
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        outputs = core.separate_trials(self.raw, roi_label=label)
+        outputs = core.separate_trials(self.raw, roi_label=label, verbosity=1)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue(label in capture_post.out)
         self.compare_outputs(outputs)

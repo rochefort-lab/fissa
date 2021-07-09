@@ -24,6 +24,7 @@ def separate(
     W0=None,
     H0=None,
     alpha=0.1,
+    verbosity=1,
 ):
     """
     Find independent signals, sorted by matching score against the first input signal.
@@ -69,6 +70,14 @@ def separate(
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
         (Ignored when using the ICA method.)
+    verbosity : int, default=1
+            Indicates the level of verbosity. The levels are:
+
+            - ``0``: No outputs
+            - ``1``: Print per-cell progress
+
+            .. versionadded:: 1.0.0
+
 
     Returns
     -------
@@ -163,12 +172,12 @@ def separate(
             S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
 
         elif hasattr(sklearn.decomposition, sep_method):
-
-            print(
-                "Using ad hoc signal decomposition method"
-                " sklearn.decomposition.{}. Only NMF and ICA are officially"
-                " supported.".format(sep_method)
-            )
+            if verbosity >= 1:
+                print(
+                    "Using ad hoc signal decomposition method"
+                    " sklearn.decomposition.{}. Only NMF and ICA are officially"
+                    " supported.".format(sep_method)
+                )
 
             # Load up arbitrary decomposition algorithm from sklearn
             estimator = getattr(sklearn.decomposition, sep_method)(
@@ -184,31 +193,34 @@ def separate(
 
         # check if max number of iterations was reached
         if estimator.n_iter_ < maxiter:
+            if verbosity >= 1:
+                print(
+                    "{} converged after {} iterations.".format(
+                        repr(estimator).split("(")[0], estimator.n_iter_
+                    )
+                )
+            break
+        if verbosity >= 1:
             print(
-                "{} converged after {} iterations.".format(
-                    repr(estimator).split("(")[0], estimator.n_iter_
+                "Attempt {} failed to converge at {} iterations.".format(
+                    i_try + 1, estimator.n_iter_
                 )
             )
-            break
-
-        print(
-            "Attempt {} failed to converge at {} iterations.".format(
-                i_try + 1, estimator.n_iter_
-            )
-        )
         if i_try + 1 < maxtries:
-            print("Trying a new random state.")
+            if verbosity >= 1:
+                print("Trying a new random state.")
             # Change to a new random_state
             if random_state is not None:
                 random_state = (random_state + 1) % 2 ** 32
 
     if estimator.n_iter_ == maxiter:
-        print(
-            "Warning: maximum number of allowed tries reached at {} iterations"
-            " for {} tries of different random seed states.".format(
-                estimator.n_iter_, i_try + 1
+        if verbosity >= 1:
+            print(
+                "Warning: maximum number of allowed tries reached at {} iterations"
+                " for {} tries of different random seed states.".format(
+                    estimator.n_iter_, i_try + 1
+                )
             )
-        )
 
     if hasattr(estimator, "mixing_"):
         A_sep = estimator.mixing_
