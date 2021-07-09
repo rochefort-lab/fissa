@@ -147,9 +147,9 @@ def shift_2d_array(a, shift=1, axis=0):
     ----------
     a : :term:`array_like`
         Input array.
-    shift : int, optional
+    shift : int, default=1
         How much to shift array by. Default is ``1``.
-    axis : int, optional
+    axis : int, default=0
         The axis along which elements are shifted. Default is ``0``.
 
     Returns
@@ -200,7 +200,7 @@ def get_npil_mask(mask, totalexpansion=4):
     mask : :term:`array_like`
         The reference ROI mask to expand the neuropil from. The array
         should contain only boolean values.
-    totalexpansion : float, optional
+    totalexpansion : float, default=4
         How much larger to make the neuropil total area than mask area.
         Default is ``4``.
 
@@ -288,9 +288,9 @@ def getmasks_npil(cellMask, nNpil=4, expansion=1):
     ----------
     cellMask : :term:`array_like`
         The cell mask (boolean 2d arrays).
-    nNpil : int, optional
+    nNpil : int, default=4
         Number of neuropil subregions. Default is ``4``.
-    expansion : float, optional
+    expansion : float, default=1
         Area of each neuropil region, relative to the area of `cellMask`.
         Default is ``1``.
 
