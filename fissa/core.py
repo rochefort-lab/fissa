@@ -140,12 +140,12 @@ def separate_trials(
         independent component analysis. Default is ``"nmf"``.
 
     verbosity : int, default=1
-            Indicates the level of verbosity. The levels are:
+        Level of verbosity. The options are:
 
-            - ``0``: No outputs
-            - ``1``: Print per-cell progress
+        - ``0``: No outputs.
+        - ``1``: Print separation progress.
 
-            .. versionadded:: 1.0.0
+        .. versionadded:: 1.0.0
 
     maxiter : int, optional
         Number of maximally allowed iterations.
@@ -349,13 +349,13 @@ class Experiment:
         If `datahandler` is set, the `lowmemory_mode` parameter is
         ignored.
 
-    verbosity : int, optional (default=1)
-        Indicates the level of verbosity. The levels are:
+    verbosity : int, default=1
+        How verbose the processing will be. The options are:
 
-            - ``0``: No outputs
-            - ``1``: Progress bars and high level summary
-            - ``2``: Print intermediate progress steps
-            - ``3``: Print per-cell progress
+        - ``0``: No outputs.
+        - ``1``: Progress bars and high level summary.
+        - ``2``: Print intermediate progress steps.
+        - ``3``: Print per-cell progress.
 
         .. versionadded:: 1.0.0
 
@@ -795,7 +795,6 @@ class Experiment:
                     ),
                 )
             )
-
             pool.close()
             pool.join()
 
@@ -1036,19 +1035,19 @@ class Experiment:
             info[i_roi, :] = conv_i
 
         # list non-converged cells
-        non_converged_cells = []
-        for cell in range(self.nCell):
-            convergence = info[cell, 0]
-            if not convergence["converged"]:
-                non_converged_cells.append(cell)
+        non_converged_cells = [
+            cell for cell, info_i in enumerate(info) if not info_i[0]["converged"]
+        ]
 
-        if self.verbosity > 0:
+        if self.verbosity >= 1:
             print("Finished separating all the ROI signals.")
             if len(non_converged_cells) > 0:
                 print(
-                    "The following ROI numbers did not fully converge: {}."
-                    "Consider changing FISSA parameters if this happens often and/or "
-                    "to a lot of cells.".format(non_converged_cells)
+                    "The following {} ROIs did not fully converge: {}."
+                    " Consider changing FISSA parameters if this happens often"
+                    " and/or to a lot of cells.".format(
+                        len(non_converged_cells), non_converged_cells
+                    )
                 )
 
         # Set outputs
