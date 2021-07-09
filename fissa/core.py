@@ -18,6 +18,7 @@ import os.path
 import sys
 import warnings
 
+import tqdm
 from past.builtins import basestring
 
 try:
@@ -99,7 +100,7 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     return data, roi_polys, mean
 
 
-def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf"):
+def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf", verbosity=1):
     r"""
     Separate signals within a set of 2d arrays.
 
@@ -128,6 +129,14 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf"):
         Which blind source-separation method to use. Either ``"nmf"``
         for non-negative matrix factorization, or ``"ica"`` for
         independent component analysis. Default is ``"nmf"``.
+
+    verbosity : int, default=1
+            Indicates the level of verbosity. The levels are:
+
+            - ``0``: No outputs
+            - ``1``: Print per-cell progress
+
+            .. versionadded:: 1.0.0
 
     Returns
     -------
@@ -173,7 +182,7 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf"):
 
     # Separate the signals
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha
+        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha, verbosity=verbosity
     )
     # Unravel observations from multiple trials into a list of arrays
     trial_lengths = [r.shape[1] for r in raw]
@@ -181,10 +190,11 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf"):
     Xsep = np.split(Xsep, indices, axis=1)
     Xmatch = np.split(Xmatch, indices, axis=1)
     # Report status
-    message = "Finished separating ROI"
-    if roi_label is not None:
-        message += " number {}".format(roi_label)
-    print(message)
+    if verbosity >= 2:
+        message = "Finished separating ROI"
+        if roi_label is not None:
+            message += " number {}".format(roi_label)
+        print(message)
     return Xsep, Xmatch, Xmixmat, convergence
 
 
@@ -293,6 +303,16 @@ class Experiment:
         :class:`~fissa.extraction.DataHandlerTifffile`.
         If `datahandler` is set, the `lowmemory_mode` parameter is
         ignored.
+
+    verbosity : int, optional (default=1)
+        Indicates the level of verbosity. The levels are:
+
+            - ``0``: No outputs
+            - ``1``: Progress bars and high level summary
+            - ``2``: Print intermediate progress steps
+            - ``3``: Print per-cell progress
+
+        .. versionadded:: 1.0.0
 
     Attributes
     ----------
@@ -435,6 +455,7 @@ class Experiment:
         method="nmf",
         lowmemory_mode=False,
         datahandler=None,
+        verbosity=1,
     ):
 
         # Initialise internal variables
@@ -477,6 +498,7 @@ class Experiment:
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
         self.method = method
+        self.verbosity = verbosity
 
         # check if any data already exists
         if folder is None:
@@ -604,7 +626,8 @@ class Experiment:
                     continue
                 self.load(fullfname)
             return
-        print("Reloading data from cache {}...".format(path))
+        if self.verbosity >= 1:
+            print("Reloading data from cache {}...".format(path))
         cache = np.load(path, allow_pickle=True)
         for field in cache.files:
             value = cache[field]
@@ -669,7 +692,8 @@ class Experiment:
         # Wipe outputs
         self.clear()
         # Extract signals
-        print("Doing region growing and data extraction....")
+        if self.verbosity >= 2:
+            print("Doing region growing and data extraction....")
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
@@ -683,31 +707,61 @@ class Experiment:
         use_multiprocessing = (
             self.ncores_preparation is None or self.ncores_preparation > 1
         )
+
+        # check whether we should show progress bars
+        disable_progressbars = self.verbosity != 1
+
         # Do the extraction
         if use_multiprocessing and sys.version_info < (3, 0):
             # define pool
             pool = multiprocessing.Pool(self.ncores_preparation)
             # run extraction
-            outputs = pool.map(
-                _extract_wrapper,
-                zip(
-                    self.images,
-                    self.rois,
-                    itertools.repeat(self.nRegions, len(self.images)),
-                    itertools.repeat(self.expansion, len(self.images)),
-                    itertools.repeat(self.datahandler, len(self.images)),
-                ),
+            outputs = list(
+                pool.map(
+                    _extract_wrapper,
+                    tqdm.tqdm(
+                        zip(
+                            self.images,
+                            self.rois,
+                            itertools.repeat(self.nRegions, len(self.images)),
+                            itertools.repeat(self.expansion, len(self.images)),
+                            itertools.repeat(self.datahandler, len(self.images)),
+                        ),
+                        total=self.nTrials,
+                        desc="Extracting traces",
+                        disable=disable_progressbars,
+                    ),
+                )
             )
+
             pool.close()
             pool.join()
 
         elif use_multiprocessing:
             with multiprocessing.Pool(self.ncores_preparation) as pool:
                 # run extraction
-                outputs = pool.starmap(_extract_cfg, zip(self.images, self.rois))
+                outputs = list(
+                    pool.starmap(
+                        _extract_cfg,
+                        tqdm.tqdm(
+                            zip(self.images, self.rois),
+                            total=self.nTrials,
+                            desc="Extracting traces",
+                            disable=disable_progressbars,
+                        ),
+                    )
+                )
 
         else:
-            outputs = [_extract_cfg(*args) for args in zip(self.images, self.rois)]
+            outputs = [
+                _extract_cfg(*args)
+                for args in tqdm.tqdm(
+                    zip(self.images, self.rois),
+                    total=self.nTrials,
+                    desc="Extracting traces",
+                    disable=disable_progressbars,
+                )
+            ]
 
         # get number of cells
         nCell = len(outputs[0][1])
@@ -826,7 +880,8 @@ class Experiment:
         # Wipe outputs
         self.clear_separated()
         # Separate data
-        print("Doing signal separation....")
+        if self.verbosity >= 2:
+            print("Doing signal separation....")
 
         # Check size of the input arrays
         n_roi = len(self.raw)
@@ -837,25 +892,38 @@ class Experiment:
             separate_trials,
             alpha=self.alpha,
             method=self.method,
+            verbosity=self.verbosity - 2,
         )
 
         # Check whether we should use multiprocessing
         use_multiprocessing = (
             self.ncores_separation is None or self.ncores_separation > 1
         )
+
+        # check whether we should show progress bars
+        disable_progressbars = self.verbosity != 1
+
         # Do the extraction
         if use_multiprocessing and sys.version_info < (3, 0):
             # define pool
             pool = multiprocessing.Pool(self.ncores_separation)
+
             # run separation
-            outputs = pool.map(
-                _separate_wrapper,
-                zip(
-                    self.raw,
-                    range(n_roi),
-                    itertools.repeat(self.alpha, n_roi),
-                    itertools.repeat(self.method, n_roi),
-                ),
+            outputs = list(
+                pool.map(
+                    _separate_wrapper,
+                    tqdm.tqdm(
+                        zip(
+                            self.raw,
+                            range(n_roi),
+                            itertools.repeat(self.alpha, n_roi),
+                            itertools.repeat(self.method, n_roi),
+                        ),
+                        total=self.nCell,
+                        desc="Separating data",
+                        disable=disable_progressbars,
+                    ),
+                )
             )
             pool.close()
             pool.join()
@@ -863,9 +931,27 @@ class Experiment:
         elif use_multiprocessing:
             with multiprocessing.Pool(self.ncores_separation) as pool:
                 # run separation
-                outputs = pool.starmap(_separate_cfg, zip(self.raw, range(n_roi)))
+                outputs = list(
+                    pool.starmap(
+                        _separate_cfg,
+                        tqdm.tqdm(
+                            zip(self.raw, range(n_roi)),
+                            total=self.nCell,
+                            desc="Separating data",
+                            disable=disable_progressbars,
+                        ),
+                    )
+                )
         else:
-            outputs = [_separate_cfg(X, roi_label=i) for i, X in enumerate(self.raw)]
+            outputs = [
+                _separate_cfg(X, roi_label=i)
+                for i, X in tqdm.tqdm(
+                    enumerate(self.raw),
+                    total=self.nCell,
+                    desc="Separating data",
+                    disable=disable_progressbars,
+                )
+            ]
 
         # Define output shape as an array of objects shaped (n_roi, n_trial)
         sep = np.empty((n_roi, n_trial), dtype=object)
@@ -879,6 +965,22 @@ class Experiment:
             result[i_roi, :] = match_i
             mixmat[i_roi, :] = [mixmat_i] * n_trial
             info[i_roi, :] = conv_i
+
+        # list non-converged cells
+        non_converged_cells = []
+        for cell in range(self.nCell):
+            convergence = info[cell, 0]
+            if not convergence["converged"]:
+                non_converged_cells.append(cell)
+
+        if self.verbosity > 0:
+            print("Finished separating all the ROI signals.")
+            if len(non_converged_cells) > 0:
+                print(
+                    "The following ROI numbers did not fully converge: {}."
+                    "Consider changing FISSA parameters if this happens often and/or "
+                    "to a lot of cells.".format(non_converged_cells)
+                )
 
         # Set outputs
         self.info = info
