@@ -968,11 +968,9 @@ class Experiment:
             info[i_roi, :] = conv_i
 
         # list non-converged cells
-        non_converged_cells = []
-        for cell in range(self.nCell):
-            convergence = info[cell, 0]
-            if not convergence["converged"]:
-                non_converged_cells.append(cell)
+        non_converged_cells = [
+            cell for cell, info_i in enumerate(info) if not info_i[0]["converged"]
+        ]
 
         if self.verbosity > 0:
             print("Finished separating all the ROI signals.")
