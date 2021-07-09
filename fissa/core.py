@@ -131,12 +131,12 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf", verbosity=1):
         independent component analysis. Default is ``"nmf"``.
 
     verbosity : int, default=1
-            Indicates the level of verbosity. The levels are:
+        Level of verbosity. The options are:
 
-            - ``0``: No outputs
-            - ``1``: Print per-cell progress
+        - ``0``: No outputs.
+        - ``1``: Print separation progress.
 
-            .. versionadded:: 1.0.0
+        .. versionadded:: 1.0.0
 
     Returns
     -------
@@ -305,12 +305,12 @@ class Experiment:
         ignored.
 
     verbosity : int, optional (default=1)
-        Indicates the level of verbosity. The levels are:
+        How verbose the processing will be. The options are:
 
-            - ``0``: No outputs
-            - ``1``: Progress bars and high level summary
-            - ``2``: Print intermediate progress steps
-            - ``3``: Print per-cell progress
+        - ``0``: No outputs.
+        - ``1``: Progress bars and high level summary.
+        - ``2``: Print intermediate progress steps.
+        - ``3``: Print per-cell progress.
 
         .. versionadded:: 1.0.0
 

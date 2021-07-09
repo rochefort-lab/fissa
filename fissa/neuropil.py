@@ -71,13 +71,12 @@ def separate(
         remove regularization. Default is ``0.1``.
         (Ignored when using the ICA method.)
     verbosity : int, default=1
-            Indicates the level of verbosity. The levels are:
+        Level of verbosity. The options are:
 
-            - ``0``: No outputs
-            - ``1``: Print per-cell progress
+        - ``0``: No outputs.
+        - ``1``: Print separation progress.
 
-            .. versionadded:: 1.0.0
-
+        .. versionadded:: 1.0.0
 
     Returns
     -------
