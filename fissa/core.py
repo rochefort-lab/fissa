@@ -918,6 +918,7 @@ class Experiment:
                             range(n_roi),
                             itertools.repeat(self.alpha, n_roi),
                             itertools.repeat(self.method, n_roi),
+                            itertools.repeat(self.verbosity, n_roi),
                         ),
                         total=self.nCell,
                         desc="Separating data",
