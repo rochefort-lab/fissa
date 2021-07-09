@@ -100,7 +100,16 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     return data, roi_polys, mean
 
 
-def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf", verbosity=1):
+def separate_trials(
+    raw,
+    roi_label=None,
+    alpha=0.1,
+    maxiter=20000,
+    tol=1e-4,
+    maxtries=1,
+    method="nmf",
+    verbosity=1,
+):
     r"""
     Separate signals within a set of 2d arrays.
 
@@ -137,6 +146,21 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf", verbosity=1):
             - ``1``: Print per-cell progress
 
             .. versionadded:: 1.0.0
+
+    maxiter : int, optional
+        Number of maximally allowed iterations.
+
+        .. versionadded:: 1.0.0
+
+    tol : float, optional
+        Error tolerance for termination.
+
+        .. versionadded:: 1.0.0
+
+    maxtries : int, optional
+        Maximum number of tries before algorithm should terminate.
+
+        .. versionadded:: 1.0.0
 
     Returns
     -------
@@ -182,7 +206,13 @@ def separate_trials(raw, roi_label=None, alpha=0.1, method="nmf", verbosity=1):
 
     # Separate the signals
     Xsep, Xmatch, Xmixmat, convergence = npil.separate(
-        X, method, maxiter=20000, tol=1e-4, maxtries=1, alpha=alpha, verbosity=verbosity
+        X,
+        method,
+        maxiter=maxiter,
+        tol=tol,
+        maxtries=maxtries,
+        alpha=alpha,
+        verbosity=verbosity,
     )
     # Unravel observations from multiple trials into a list of arrays
     trial_lengths = [r.shape[1] for r in raw]
@@ -261,6 +291,21 @@ class Experiment:
     alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
+
+    maxiter : int, optional
+        Number of maximally allowed iterations of separation algorithm.
+
+        .. versionadded:: 1.0.0
+
+    tol : float, optional
+        Error tolerance for termination of separation algorithm.
+
+        .. versionadded:: 1.0.0
+
+    maxtries : int, optional
+        Maximum number of tries before separation algorithm should terminate.
+
+        .. versionadded:: 1.0.0
 
     ncores_preparation : int or None, default=None
         The number of parallel subprocesses to use during the data
@@ -450,6 +495,9 @@ class Experiment:
         nRegions=4,
         expansion=1,
         alpha=0.1,
+        maxiter=20000,
+        tol=1e-4,
+        maxtries=1,
         ncores_preparation=None,
         ncores_separation=None,
         method="nmf",
@@ -494,6 +542,9 @@ class Experiment:
         self.nRegions = nRegions
         self.expansion = expansion
         self.alpha = alpha
+        self.maxiter = maxiter
+        self.tol = tol
+        self.maxtries = maxtries
         self.nTrials = len(self.images)  # number of trials
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
@@ -573,6 +624,7 @@ class Experiment:
         Clear prepared data, and all data downstream of prepared data.
 
         .. versionadded:: 1.0.0
+
         """
         # Wipe outputs
         self.means = []
@@ -589,6 +641,7 @@ class Experiment:
         Clear separated data, and all data downstream of separated data.
 
         .. versionadded:: 1.0.0
+
         """
         # Wipe outputs
         self.info = None
@@ -603,6 +656,7 @@ class Experiment:
         Load data from cache file in npz format.
 
         .. versionadded:: 1.0.0
+
 
         Parameters
         ----------
@@ -891,6 +945,9 @@ class Experiment:
         _separate_cfg = functools.partial(
             separate_trials,
             alpha=self.alpha,
+            maxiter=self.maxiter,
+            tol=self.tol,
+            maxtries=self.maxtries,
             method=self.method,
             verbosity=self.verbosity - 2,
         )
@@ -917,6 +974,9 @@ class Experiment:
                             self.raw,
                             range(n_roi),
                             itertools.repeat(self.alpha, n_roi),
+                            itertools.repeat(self.maxiter, n_roi),
+                            itertools.repeat(self.tol, n_roi),
+                            itertools.repeat(self.maxtries, n_roi),
                             itertools.repeat(self.method, n_roi),
                             itertools.repeat(self.verbosity, n_roi),
                         ),
