@@ -84,8 +84,6 @@ def separate(
         - ``0``: No outputs.
         - ``1``: Print separation progress.
 
-        .. versionadded:: 1.0.0
-
     Returns
     -------
     S_sep : :class:`numpy.ndarray` shaped (signals, observations)
