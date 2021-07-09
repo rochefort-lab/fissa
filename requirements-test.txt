@@ -3,3 +3,4 @@ nbsmoke>=0.2.0
 pytest>=3.5.0
 pytest-cov>=2.3.0
 pytest-flake8>=0.7.0
+pytest-timeout>=1.4.2
