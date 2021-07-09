@@ -338,69 +338,24 @@ class ExperimentTestMixin:
         self.compare_output(exp)
 
     def test_verbosity_0(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            self.output_dir,
-            verbosity=0,
-        )
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=0)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_verbosity_1(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            self.output_dir,
-            verbosity=1,
-        )
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=1)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_verbosity_2(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            self.output_dir,
-            verbosity=2,
-        )
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=2)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_verbosity_3(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            self.output_dir,
-            verbosity=3,
-        )
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=3)
         exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
-
-    def test_verbosity_4(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            self.output_dir,
-            verbosity=4,
-        )
-        exp.separate()
-        actual = exp.result
-        self.assert_equal(len(actual), 1)
-        self.assert_equal(len(actual[0]), 1)
-        self.assert_allclose(actual[0][0], self.expected_00)
+        self.compare_output(exp)
 
     def test_ncores_preparation_None(self):
         exp = core.Experiment(
@@ -566,7 +521,9 @@ class ExperimentTestMixin:
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(
+            self.images_dir, self.roi_zip_path, self.output_dir, verbosity=2
+        )
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
@@ -596,7 +553,7 @@ class ExperimentTestMixin:
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         # Run an experiment to generate the cache
-        exp1 = core.Experiment(image_path, roi_path, self.output_dir)
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         exp1.separate()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -623,7 +580,7 @@ class ExperimentTestMixin:
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         # Run an experiment to generate the cache
-        exp1 = core.Experiment(image_path, roi_path, self.output_dir)
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         exp1.separation_prep()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -789,7 +746,7 @@ class ExperimentTestMixin:
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        exp = core.Experiment(image_path, roi_path, self.output_dir)
+        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         # Make a bad cache
         with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")
