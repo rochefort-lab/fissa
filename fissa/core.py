@@ -147,8 +147,10 @@ def separate_trials(
 
     max_iter : int, default=20000
         Number of maximally allowed iterations.
+
     tol : float, default=1e-4
         Error tolerance for termination.
+
     max_tries : int, default=1
         Maximum number of tries before algorithm should terminate.
 
