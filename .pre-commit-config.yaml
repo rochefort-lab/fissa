@@ -4,11 +4,11 @@ repos:
     hooks:
       - id: isort
         name: isort
-        args: ["--profile", "black"]
+        args: ["--profile=black"]
       - id: isort
         name: isort (cython)
         types: [cython]
-        args: ["--profile", "black"]
+        args: ["--profile=black"]
 
   - repo: https://github.com/psf/black
     rev: 21.6b0
@@ -34,15 +34,19 @@ repos:
     hooks:
       - id: nbstripout
 
-  - repo: https://github.com/dfm/black_nbconvert
-    rev: dcd7789
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 0.13.1
     hooks:
-      - id: black_nbconvert
+       - id: nbqa-black
+         args: [--nbqa-mutate]
+         additional_dependencies: [black==21.6b0]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.9.0
     hooks:
       - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+      - id: python-check-mock-methods
       - id: python-no-log-warn
       - id: rst-backticks
       - id: rst-directive-colons
@@ -54,18 +58,24 @@ repos:
     rev: v4.0.1
     hooks:
       - id: check-added-large-files
+      - id: check-ast
       - id: check-builtin-literals
       - id: check-case-conflict
       - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
       - id: check-merge-conflict
       - id: check-json
       - id: check-toml
+      - id: check-xml
       - id: check-yaml
       - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
       - id: end-of-file-fixer
         exclude: ^LICENSE|\.(html|csv|txt|svg|py)$
       - id: pretty-format-json
-        args: ["--autofix", "--no-sort-keys"]
+        args: ["--autofix", "--no-ensure-ascii", "--no-sort-keys"]
       - id: requirements-txt-fixer
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
