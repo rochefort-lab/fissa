@@ -52,21 +52,21 @@ def separate(
         of the variance and adopt this value for ``n``.
 
     max_iter : int, default=10000
-        Number of maximally allowed iterations. Default is ``10000``.
+        Maximum number of iterations before timing out on an attempt.
 
         .. versionchanged:: 1.0.0
             Argument `maxiter` renamed to `max_iter`.
 
     tol : float, default=1e-4
-        Error tolerance for termination. Default is ``1e-4``.
+        Tolerance of the stopping condition.
 
     random_state : int or None, default=892
         Initial state for the random number generator. Set to ``None`` to use
-        the numpy.random default. Default seed is ``892``.
+        the :mod:`numpy.random` default. Default seed is ``892``.
 
     max_tries : int, default=10
-        Maximum number of tries before algorithm should terminate.
-        Default is ``10``.
+        Maximum number of random initial states to try. Each random state will
+        be optimized for `max_iter` iterations before timing out.
 
         .. versionchanged:: 1.0.0
             Argument `maxtries` renamed to `max_tries`.
