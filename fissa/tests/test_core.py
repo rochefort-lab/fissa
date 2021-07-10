@@ -78,6 +78,10 @@ class ExperimentTestMixin:
         # Check contents are correct
         self.assert_equal(actual.means, self.expected["means"])
         self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
+        # Check parameters match
+        self.assert_equal(actual.expansion, self.expected["expansion"])
+        self.assert_equal(actual.nRegions, self.expected["nRegions"])
+        self.assert_equal(actual.nCell, len(actual.raw))
         if separated:
             # Check sizes are correct
             self.assert_equal(np.shape(actual.sep), expected_shape)
@@ -86,6 +90,12 @@ class ExperimentTestMixin:
             # Check contents are correct
             self.assert_allclose_ragged(actual.sep, self.expected["sep"])
             self.assert_allclose_ragged(actual.mixmat, self.expected["mixmat"])
+            # Check parameters match
+            self.assert_equal(actual.alpha, self.expected["alpha"])
+            self.assert_equal(actual.max_iter, self.expected["max_iter"])
+            self.assert_equal(actual.max_tries, self.expected["max_tries"])
+            self.assert_equal(actual.method, self.expected["method"])
+            self.assert_equal(actual.tol, self.expected["tol"])
         if compare_deltaf:
             self.assert_allclose_ragged(actual.deltaf_raw, self.expected["deltaf_raw"])
         if compare_deltaf and separated:
@@ -573,6 +583,28 @@ class ExperimentTestMixin:
         # Make a new experiment we will test
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         # Cache should be loaded without calling separate
+        self.compare_output(exp)
+
+    def test_load_cache_redo_prep(self):
+        """Test redoing preparation after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Redo separation_prep
+        exp.separation_prep(redo=True)
+        self.compare_output(exp, separated=False)
+
+    def test_load_cache_redo_sep(self):
+        """Test redo separation after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Redo separation
+        exp.separate(redo_sep=True)
         self.compare_output(exp)
 
     def test_load_cache_piecemeal(self):
