@@ -382,7 +382,7 @@ class Experiment:
         and the :attr:`nRegions` neuropil regions by
         ``experiment.roi_polys[i_roi][i_trial][1 + i_region][0]``.
 
-    means : list of n_trials :class:`numpy.ndarray`s, each shaped ``(height, width)``
+    means : list of `n_trials` :class:`numpy.ndarray`, each shaped ``(height, width)``
         The temporal-mean image for each trial (i.e. for each TIFF file,
         the average image over all of its frames).
 
