@@ -133,6 +133,16 @@ def separate_trials(
         remove regularization. Default is ``0.1``.
         (Only used for ``method="nmf"``.)
 
+    max_iter : int, default=20000
+        Maximum number of iterations before timing out on an attempt.
+
+    tol : float, default=1e-4
+        Tolerance of the stopping condition.
+
+    max_tries : int, default=1
+        Maximum number of random initial states to try. Each random state will
+        be optimized for `max_iter` iterations before timing out.
+
     method : {"nmf", "ica"}, default="nmf"
         Which blind source-separation method to use. Either ``"nmf"``
         for non-negative matrix factorization, or ``"ica"`` for
@@ -143,16 +153,6 @@ def separate_trials(
 
         - ``0``: No outputs.
         - ``1``: Print separation progress.
-
-    max_iter : int, default=20000
-        Maximum number of iterations before timing out on an attempt.
-
-    tol : float, default=1e-4
-        Tolerance of the stopping condition.
-
-    max_tries : int, default=1
-        Maximum number of random initial states to try. Each random state will
-        be optimized for `max_iter` iterations before timing out.
 
     Returns
     -------
