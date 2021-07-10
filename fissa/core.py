@@ -604,7 +604,7 @@ class Experiment:
     ):
 
         # Initialise internal variables
-        self.clear()
+        self.clear(verbosity=0)
 
         if isinstance(images, basestring):
             self.images = sorted(glob.glob(os.path.join(images, "*.tif*")))
@@ -724,13 +724,22 @@ class Experiment:
             __name__, self.__class__.__name__, ", ".join(repr_parts)
         )
 
-    def clear(self):
+    def clear(self, verbosity=None):
         r"""
         Clear prepared data, and all data downstream of prepared data.
 
         .. versionadded:: 1.0.0
 
+        Parameters
+        ----------
+        verbosity : int, optional
+            Whether to show the data fields which were cleared.
+            By default, the object's :attr:`verbosity` attribute is used.
         """
+        if verbosity is None:
+            verbosity = self.verbosity
+        if verbosity >= 2:
+            print("Clearing extracted data")
         # Wipe outputs
         self.means = []
         self.nCell = None
@@ -739,15 +748,24 @@ class Experiment:
         # Wipe outputs of calc_deltaf(), as it no longer matches self.result
         self.deltaf_raw = None
         # Wipe outputs of separate(), as they no longer match self.raw
-        self.clear_separated()
+        self.clear_separated(verbosity=verbosity)
 
-    def clear_separated(self):
+    def clear_separated(self, verbosity=None):
         r"""
         Clear separated data, and all data downstream of separated data.
 
         .. versionadded:: 1.0.0
 
+        Parameters
+        ----------
+        verbosity : int, optional
+            Whether to show the data fields which were cleared.
+            By default, the object's :attr:`verbosity` attribute is used.
         """
+        if verbosity is None:
+            verbosity = self.verbosity
+        if verbosity >= 2:
+            print("Clearing results")
         # Wipe outputs
         self.info = None
         self.mixmat = None
