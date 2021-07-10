@@ -50,6 +50,7 @@ def separate(
         method, ``n`` is the number of input signals; for the ICA method,
         we use PCA to estimate how many components would explain at least 99%
         of the variance and adopt this value for ``n``.
+
     max_iter : int, default=10000
         Number of maximally allowed iterations. Default is ``10000``.
 
@@ -58,9 +59,11 @@ def separate(
 
     tol : float, default=1e-4
         Error tolerance for termination. Default is ``1e-4``.
+
     random_state : int or None, default=892
         Initial state for the random number generator. Set to ``None`` to use
         the numpy.random default. Default seed is ``892``.
+
     max_tries : int, default=10
         Maximum number of tries before algorithm should terminate.
         Default is ``10``.
@@ -71,13 +74,16 @@ def separate(
     W0 : :term:`array_like`, optional
         Optional starting condition for ``W`` in NMF algorithm.
         (Ignored when using the ICA method.)
+
     H0 : :term:`array_like`, optional
         Optional starting condition for ``H`` in NMF algorithm.
         (Ignored when using the ICA method.)
+
     alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
         (Ignored when using the ICA method.)
+
     verbosity : int, default=1
         Level of verbosity. The options are:
 
@@ -88,11 +94,14 @@ def separate(
     -------
     S_sep : :class:`numpy.ndarray` shaped (signals, observations)
         The raw separated traces.
+
     S_matched : :class:`numpy.ndarray` shaped (signals, observations)
         The separated traces matched to the primary signal, in order
         of matching quality (see Notes below).
+
     A_sep : :class:`numpy.ndarray` shaped (signals, signals)
         Mixing matrix.
+
     convergence : dict
         Metadata for the convergence result, with the following keys and
         values:
