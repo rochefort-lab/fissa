@@ -25,10 +25,10 @@ except ImportError:
     import collections as abc
 
 import numpy as np
-import tqdm
 from joblib import Parallel, delayed
 from past.builtins import basestring
 from scipy.io import savemat
+from tqdm.auto import tqdm
 
 from . import deltaf, extraction
 from . import neuropil as npil
@@ -884,7 +884,7 @@ class Experiment:
             # Don't use multiprocessing
             outputs = [
                 _extract_cfg(*args)
-                for args in tqdm.tqdm(
+                for args in tqdm(
                     zip(self.images, self.rois, range(n_trial)),
                     total=self.nTrials,
                     desc="Extracting traces",
@@ -895,7 +895,7 @@ class Experiment:
             # Use multiprocessing
             outputs = Parallel(n_jobs=n_jobs, backend="threading")(
                 delayed(_extract_cfg)(*args)
-                for args in tqdm.tqdm(
+                for args in tqdm(
                     zip(self.images, self.rois, range(n_trial)),
                     total=self.nTrials,
                     desc="Extracting traces",
@@ -1067,7 +1067,7 @@ class Experiment:
             # Don't use multiprocessing
             outputs = [
                 _separate_cfg(X, label=i)
-                for i, X in tqdm.tqdm(
+                for i, X in tqdm(
                     enumerate(self.raw),
                     total=self.nCell,
                     desc="Separating data",
@@ -1078,7 +1078,7 @@ class Experiment:
             # Use multiprocessing
             outputs = Parallel(n_jobs=n_jobs, backend="threading")(
                 delayed(_separate_cfg)(X, i)
-                for i, X in tqdm.tqdm(
+                for i, X in tqdm(
                     enumerate(self.raw),
                     total=self.nCell,
                     desc="Separating data",
