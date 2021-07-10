@@ -406,7 +406,9 @@ class ExperimentTestMixin:
             warnings.simplefilter("ignore")
             exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-outputs
-        self.assertTrue("ROIs did not fully converge" in capture_post.out)
+        any_non_converged = np.any([not info_i[0]["converged"] for info_i in exp.info])
+        if any_non_converged:
+            self.assertTrue("ROIs did not fully converge" in capture_post.out)
 
     def test_ncores_preparation_None(self):
         exp = core.Experiment(
