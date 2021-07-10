@@ -41,6 +41,7 @@ class NeuropilMixin:
         # If specified, assert that the result is as expected
         if expected_converged is not None:
             self.assert_equal(convergence["converged"], expected_converged)
+        return convergence["converged"]
 
     def test_method(self):
         self.run_method(self.method, expected_converged=True, max_tries=1)
@@ -72,11 +73,16 @@ class NeuropilMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self.run_method(self.method, max_iter=1, max_tries=3, verbosity=1)
+            converged = self.run_method(
+                self.method, max_iter=1, max_tries=3, verbosity=1
+            )
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assertTrue("Attempt 1 failed to converge at " in capture_post.out)
-        self.assertTrue("Trying a new random state." in capture_post.out)
-        self.assertTrue("aximum number of allowed tries reached" in capture_post.out)
+        if not converged:
+            self.assertTrue("Attempt 1 failed to converge at " in capture_post.out)
+            self.assertTrue("Trying a new random state." in capture_post.out)
+            self.assertTrue(
+                "aximum number of allowed tries reached" in capture_post.out
+            )
 
     def test_retry_quiet(self):
         capture_pre = self.capsys.readouterr()  # Clear stdout
