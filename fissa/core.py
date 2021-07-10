@@ -250,6 +250,7 @@ def separate_trials(
     # Get the timestamp for program start
     t0 = time.time()
 
+    header = ""
     if verbosity >= 1:
         # Set up message header
         # Use the label, if this was provided
@@ -304,6 +305,7 @@ def separate_trials(
         max_tries=max_tries,
         alpha=alpha,
         verbosity=verbosity - 1,
+        prefix=" " * max(4, len(header) - 1) + header,
     )
     # Unravel observations from multiple trials into a list of arrays
     trial_lengths = [r.shape[1] for r in raw]
