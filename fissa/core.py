@@ -35,7 +35,16 @@ from . import neuropil as npil
 from . import roitools
 
 
-def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
+def extract(
+    image,
+    rois,
+    label=None,
+    nRegions=4,
+    expansion=1,
+    datahandler=None,
+    verbosity=1,
+    total=None,
+):
     r"""
     Extract data for all ROIs in a single 3d array or TIFF file.
 
@@ -49,6 +58,8 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
         Either a string containing a path to an ImageJ roi zip file,
         or a list of arrays encoding polygons, or list of binary arrays
         representing masks.
+    label : str or int, optional
+        The label for the current trial. Only used for reporting progress.
     nRegions : int, default=4
         Number of neuropil regions to draw. Use a higher number for
         densely labelled tissue. Default is ``4``.
@@ -59,6 +70,14 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     datahandler : fissa.extraction.DataHandlerAbstract, optional
         A datahandler object for handling ROIs and calcium data.
         The default is :class:`~fissa.extraction.DataHandlerTifffile`.
+    verbosity : int, default=1
+        Level of verbosity. The options are:
+
+        - ``0``: No outputs.
+        - ``1``: Print separation progress.
+
+    total : int, optional
+        Total number of trials. Only used for reporting progress.
 
     Returns
     -------
@@ -69,6 +88,40 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     mean : :class:`numpy.ndarray` shaped (height, width)
         Mean image.
     """
+    # Get the timestamp for program start
+    t0 = time.time()
+
+    if verbosity >= 1:
+        # Set up message header
+        # Use the label, if this was provided
+        if label is None:
+            header = ""
+        elif isinstance(label, int) and isinstance(total, int):
+            # Pad left based on the total number of jobs, so it is [ 1/10] etc
+            fmtstr = "{:" + str(int(np.maximum(1, np.ceil(np.log10(total))))) + "d}"
+            header = fmtstr.format(label + 1)
+        else:
+            header = str(label)
+        # Try to label with [1/5] to indicate progess, if possible
+        if header and total is not None:
+            header += "/{}".format(total)
+        if header:
+            header = "[" + header + "] "
+        # Try to include the path to the image as a footer
+        footer = ""
+        if isinstance(image, basestring) and (not header or verbosity >= 3):
+            # If we don't have job labels or verbosity is high, include the
+            # image path as a footer
+            footer = " ({})".format(image)
+        # Done with header and footer
+
+        # Build intro message
+        message = header + "Extraction starting" + footer
+        # Wait briefly to prevent messages colliding when using multiprocessing
+        if isinstance(label, int) and label < 12:
+            time.sleep(label / 50.0)
+        print(message, flush=True)
+
     if datahandler is None:
         datahandler = extraction.DataHandlerTifffile()
 
@@ -98,18 +151,25 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
         # store ROI outlines
         roi_polys[cell] = [roitools.find_roi_edge(mask) for mask in masks]
 
+    if verbosity >= 2:
+        # Build end message
+        message = header + "Extraction finished" + footer
+        message += " in {}".format(datetime.timedelta(seconds=time.time() - t0))
+        print(message, flush=True)
+
     return data, roi_polys, mean
 
 
 def separate_trials(
     raw,
-    roi_label=None,
+    label=None,
     alpha=0.1,
     max_iter=20000,
     tol=1e-4,
     max_tries=1,
     method="nmf",
     verbosity=1,
+    total=None,
 ):
     r"""
     Separate signals within a set of 2d arrays.
@@ -126,7 +186,7 @@ def separate_trials(
         region, ``raw[trial][0]``, should be from the region of interest for
         which a matching source signal should be identified.
 
-    roi_label : str or int, optional
+    label : str or int, optional
         Label/name or index of the ROI currently being processed.
         Only used for progress messages.
 
@@ -156,6 +216,9 @@ def separate_trials(
         - ``0``: No outputs.
         - ``1``: Print separation progress.
 
+    total : int, optional
+        Total number of ROIs. Only used for reporting progress.
+
     Returns
     -------
     Xsep : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
@@ -184,17 +247,51 @@ def separate_trials(
         random_state : int or None
             Random seed used to initialise the separation model.
     """
+    # Get the timestamp for program start
+    t0 = time.time()
+
+    if verbosity >= 1:
+        # Set up message header
+        # Use the label, if this was provided
+        if label is None:
+            header = ""
+        elif isinstance(label, int) and isinstance(total, int):
+            # Pad left based on the total number of jobs, so it is [ 1/10] etc
+            fmtstr = "{:" + str(int(np.maximum(1, np.ceil(np.log10(total))))) + "d}"
+            header = fmtstr.format(label + 1)
+        else:
+            header = str(label)
+        # Try to label with [1/5] to indicate progess, if possible
+        if header and total is not None:
+            header += "/{}".format(total)
+        if header:
+            header = "[" + header + "] "
+        # Include the ROI label as a footer
+        footer = ""
+        if isinstance(label, int) and isinstance(total, int) and (verbosity >= 3):
+            # If we don't have job labels or verbosity is high, include the
+            # image path as a footer
+            footer = " (ROI {})".format(label)
+        # Done with header and footer
+
+        # Build intro message
+        message = header + "Signal separation starting" + footer
+        # Wait briefly to prevent messages colliding when using multiprocessing
+        if isinstance(label, int) and label < 12:
+            time.sleep(label / 50.0)
+        print(message, flush=True)
+
     # Join together the raw data across trials, collapsing down the trials
     X = np.concatenate(raw, axis=1)
 
     # Check for values below 0
     if X.min() < 0:
         message_extra = ""
-        if roi_label is not None:
-            message_extra = " for ROI {}".format(roi_label)
+        if label is not None:
+            message_extra = " for ROI {}".format(label)
         warnings.warn(
-            "Found values below zero in raw signal{}. Offsetting so minimum is 0."
-            "".format(message_extra)
+            "{}Found values below zero in raw signal{}. Offsetting so minimum is 0."
+            "".format(header, message_extra)
         )
         X -= X.min()
 
@@ -206,19 +303,21 @@ def separate_trials(
         tol=tol,
         max_tries=max_tries,
         alpha=alpha,
-        verbosity=verbosity,
+        verbosity=verbosity - 1,
     )
     # Unravel observations from multiple trials into a list of arrays
     trial_lengths = [r.shape[1] for r in raw]
     indices = np.cumsum(trial_lengths[:-1])
     Xsep = np.split(Xsep, indices, axis=1)
     Xmatch = np.split(Xmatch, indices, axis=1)
+
     # Report status
-    if verbosity >= 1:
-        message = "Finished separating ROI"
-        if roi_label is not None:
-            message += " number {}".format(roi_label)
-        print(message)
+    if verbosity >= 2:
+        # Build end message
+        message = header + "Signal separation finished" + footer
+        message += " in {}".format(datetime.timedelta(seconds=time.time() - t0))
+        print(message, flush=True)
+
     return Xsep, Xmatch, Xmixmat, convergence
 
 
@@ -748,12 +847,16 @@ class Experiment:
         if self.verbosity >= 2:
             print("Doing region growing and data extraction...")
 
+        n_trial = len(self.images)
+
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
             extract,
             nRegions=self.nRegions,
             expansion=self.expansion,
             datahandler=self.datahandler,
+            verbosity=self.verbosity - 1,
+            total=n_trial,
         )
 
         # check whether we should show progress bars
@@ -770,7 +873,7 @@ class Experiment:
             outputs = [
                 _extract_cfg(*args)
                 for args in tqdm.tqdm(
-                    zip(self.images, self.rois),
+                    zip(self.images, self.rois, range(n_trial)),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -779,9 +882,9 @@ class Experiment:
         else:
             # Use multiprocessing
             outputs = Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(_extract_cfg)(image, roi_stack)
-                for image, roi_stack in tqdm.tqdm(
-                    zip(self.images, self.rois),
+                delayed(_extract_cfg)(*args)
+                for args in tqdm.tqdm(
+                    zip(self.images, self.rois, range(n_trial)),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -934,7 +1037,8 @@ class Experiment:
             tol=self.tol,
             max_tries=self.max_tries,
             method=self.method,
-            verbosity=self.verbosity - 2,
+            verbosity=self.verbosity - 1,
+            total=n_roi,
         )
 
         # check whether we should show progress bars
@@ -950,7 +1054,7 @@ class Experiment:
         if 0 <= n_jobs <= 1:
             # Don't use multiprocessing
             outputs = [
-                _separate_cfg(X, roi_label=i)
+                _separate_cfg(X, label=i)
                 for i, X in tqdm.tqdm(
                     enumerate(self.raw),
                     total=self.nCell,
