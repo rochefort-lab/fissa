@@ -657,7 +657,6 @@ class Experiment:
 
         .. versionadded:: 1.0.0
 
-
         Parameters
         ----------
         path : str, optional
