@@ -685,9 +685,9 @@ class Experiment:
             value = cache[field]
             if np.array_equal(value, None):
                 value = None
-            elif value.size == 1 and str(value) == value:
-                # Handle loading string parameters
-                value = str(value)
+            elif value.ndim == 0:
+                # Handle loading scalars
+                value = value.item()
             setattr(self, field, value)
 
     def separation_prep(self, redo=False):
