@@ -10,11 +10,13 @@ Authors:
 from __future__ import print_function
 
 import collections
+import datetime
 import functools
 import glob
 import itertools
 import os.path
 import sys
+import time
 import warnings
 
 try:
@@ -716,6 +718,9 @@ class Experiment:
             If ``True``, we re-run the preparation, even if it has previously
             been run. Default is ``False``.
         """
+        # Get the timestamp for program start
+        t0 = time.time()
+
         # define filename where data will be present
         if self.folder is None:
             fname = None
@@ -800,6 +805,17 @@ class Experiment:
         self.nCell = nCell  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
+
+        if self.verbosity >= 1:
+            print(
+                "Finished extracting raw signals from {} ROIs across {} trials in {}.".format(
+                    nCell,
+                    n_trial,
+                    datetime.timedelta(seconds=time.time() - t0),
+                ),
+                flush=True,
+            )
+
         # Maybe save to cache file
         if self.folder is not None:
             self.save_prep()
@@ -869,6 +885,9 @@ class Experiment:
             Whether to redo the separation. Default is ``False``. Note that
             this parameter is ignored if `redo_prep` is set to ``True``.
         """
+        # Get the timestamp for program start
+        t0 = time.time()
+
         # Do data preparation
         if redo_prep or self.raw is None:
             self.separation_prep(redo_prep)
@@ -970,9 +989,14 @@ class Experiment:
         ]
 
         if self.verbosity >= 1:
-            print("Finished separating all the ROI signals.")
+            message = "Finished separating signals from {} ROIs across {} trials in {}".format(
+                n_roi,
+                n_trial,
+                datetime.timedelta(seconds=time.time() - t0),
+            )
             if len(non_converged_cells) > 0:
-                print(
+                message += (
+                    "\n"
                     "The following {} ROIs did not fully converge: {}."
                     " Consider increasing max_iter (currently set to {})"
                     " or other FISSA parameters if this happens often and/or"
@@ -980,6 +1004,7 @@ class Experiment:
                         len(non_converged_cells), non_converged_cells, self.max_iter
                     )
                 )
+            print(message, flush=True)
 
         # Set outputs
         self.info = info

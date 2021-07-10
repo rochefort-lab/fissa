@@ -367,9 +367,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=1)
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with(
-            capture_post.out, "Finished separating all the ROI signals."
-        )
+        self.assert_starts_with(capture_post.out, "Finished separating")
         self.assertTrue("Extracting traces: 100%" in capture_post.err)
         self.assertTrue("3/3" in capture_post.err)
         self.assertTrue("Separating data: 100%" in capture_post.err)
