@@ -741,7 +741,7 @@ class Experiment:
         self.clear()
         # Extract signals
         if self.verbosity >= 2:
-            print("Doing region growing and data extraction....")
+            print("Doing region growing and data extraction...")
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
@@ -901,7 +901,7 @@ class Experiment:
         self.clear_separated()
         # Separate data
         if self.verbosity >= 2:
-            print("Doing signal separation....")
+            print("Doing signal separation...")
 
         # Check size of the input arrays
         n_roi = len(self.raw)
