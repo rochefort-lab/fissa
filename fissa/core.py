@@ -146,11 +146,14 @@ def separate_trials(
         - ``1``: Print separation progress.
 
     max_iter : int, default=20000
-        Number of maximally allowed iterations.
+        Maximum number of iterations before timing out on an attempt.
+
     tol : float, default=1e-4
-        Error tolerance for termination.
+        Tolerance of the stopping condition.
+
     max_tries : int, default=1
-        Maximum number of tries before algorithm should terminate.
+        Maximum number of random initial states to try. Each random state will
+        be optimized for `max_iter` iterations before timing out.
 
     Returns
     -------
@@ -283,17 +286,18 @@ class Experiment:
         remove regularization. Default is ``0.1``.
 
     max_iter : int, default=20000
-        Number of maximally allowed iterations of separation algorithm.
+        Maximum number of iterations before timing out on an attempt.
 
         .. versionadded:: 1.0.0
 
     tol : float, default=1e-4
-        Error tolerance for termination of separation algorithm.
+        Tolerance of the stopping condition.
 
         .. versionadded:: 1.0.0
 
     max_tries : int, default=1
-        Maximum number of tries before separation algorithm should terminate.
+        Maximum number of random initial states to try. Each random state will
+        be optimized for `max_iter` iterations before timing out.
 
         .. versionadded:: 1.0.0
 
@@ -380,7 +384,7 @@ class Experiment:
         and the :attr:`nRegions` neuropil regions by
         ``experiment.roi_polys[i_roi][i_trial][1 + i_region][0]``.
 
-    means : list of n_trials :class:`numpy.ndarray`s, each shaped ``(height, width)``
+    means : list of `n_trials` :class:`numpy.ndarray`, each shaped ``(height, width)``
         The temporal-mean image for each trial (i.e. for each TIFF file,
         the average image over all of its frames).
 
@@ -654,7 +658,6 @@ class Experiment:
         Load data from cache file in npz format.
 
         .. versionadded:: 1.0.0
-
 
         Parameters
         ----------
