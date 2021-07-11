@@ -109,9 +109,8 @@ def extract(
             header = "[Extraction " + header + "] "
         # Try to include the path to the image as a footer
         footer = ""
-        if isinstance(image, basestring) and (not header or verbosity >= 3):
-            # If we don't have job labels or verbosity is high, include the
-            # image path as a footer
+        if isinstance(image, basestring):
+            # Include the image path as a footer
             footer = " ({})".format(image)
         # Done with header and footer
 
@@ -269,9 +268,8 @@ def separate_trials(
             header = "[Separation " + header + "] "
         # Include the ROI label as a footer
         footer = ""
-        if isinstance(label, int) and isinstance(total, int) and (verbosity >= 3):
-            # If we don't have job labels or verbosity is high, include the
-            # image path as a footer
+        if isinstance(label, int) and isinstance(total, int):
+            # Include the ROI label as a footer
             footer = " (ROI {})".format(label)
         # Done with header and footer
 
