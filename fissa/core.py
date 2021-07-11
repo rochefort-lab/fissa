@@ -775,9 +775,9 @@ class Experiment:
         else:
             # Use multiprocessing
             outputs = Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(_extract_cfg)(self.images[i], self.rois[i])
-                for i in tqdm.tqdm(
-                    range(self.nTrials),
+                delayed(_extract_cfg)(image, roi_stack)
+                for image, roi_stack in tqdm.tqdm(
+                    zip(self.images, self.rois),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -943,9 +943,9 @@ class Experiment:
         else:
             # Use multiprocessing
             outputs = Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(_separate_cfg)(self.raw[i], i)
-                for i in tqdm.tqdm(
-                    range(self.nCell),
+                delayed(_separate_cfg)(X, i)
+                for i, X in tqdm.tqdm(
+                    enumerate(self.raw),
                     total=self.nCell,
                     desc="Separating data",
                     disable=disable_progressbars,
