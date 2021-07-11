@@ -91,6 +91,7 @@ def extract(
     # Get the timestamp for program start
     t0 = time.time()
 
+    mheader = ""
     if verbosity >= 1:
         # Set up message header
         # Use the label, if this was provided
@@ -113,6 +114,8 @@ def extract(
             # Include the image path as a footer
             footer = " ({})".format(image)
         # Done with header and footer
+        # Inner header is indented further
+        mheader = "    " + header
 
         # Build intro message
         message = header + "Extraction starting" + footer
@@ -125,7 +128,11 @@ def extract(
         datahandler = extraction.DataHandlerTifffile()
 
     # get data as arrays and rois as masks
+    if verbosity >= 3:
+        print("{}Loading imagery".format(mheader))
     curdata = datahandler.image2array(image)
+    if verbosity >= 3:
+        print("{}Converting ROIs to masks".format(mheader))
     base_masks = datahandler.rois2masks(rois, curdata)
 
     # get the mean image
@@ -136,7 +143,12 @@ def extract(
     roi_polys = collections.OrderedDict()
 
     # get neuropil masks and extract signals
-    for cell in range(len(base_masks)):
+    for cell in tqdm(
+        range(len(base_masks)),
+        total=len(base_masks),
+        desc="{}Neuropil extraction".format(mheader),
+        disable=verbosity < 3,
+    ):
         # neuropil masks
         npil_masks = roitools.getmasks_npil(
             base_masks[cell], nNpil=nRegions, expansion=expansion
