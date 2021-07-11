@@ -106,7 +106,7 @@ def extract(
         if header and total is not None:
             header += "/{}".format(total)
         if header:
-            header = "[" + header + "] "
+            header = "[Extraction " + header + "] "
         # Try to include the path to the image as a footer
         footer = ""
         if isinstance(image, basestring) and (not header or verbosity >= 3):
@@ -266,7 +266,7 @@ def separate_trials(
         if header and total is not None:
             header += "/{}".format(total)
         if header:
-            header = "[" + header + "] "
+            header = "[Separation " + header + "] "
         # Include the ROI label as a footer
         footer = ""
         if isinstance(label, int) and isinstance(total, int) and (verbosity >= 3):
@@ -305,7 +305,7 @@ def separate_trials(
         max_tries=max_tries,
         alpha=alpha,
         verbosity=verbosity - 1,
-        prefix=" " * max(4, len(header) - 1) + header,
+        prefix="    " + header,
     )
     # Unravel observations from multiple trials into a list of arrays
     trial_lengths = [r.shape[1] for r in raw]
