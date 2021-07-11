@@ -737,16 +737,19 @@ class Experiment:
             By default, the object's :attr:`verbosity` attribute is used.
         """
         if verbosity is None:
-            verbosity = self.verbosity
-        if verbosity >= 2:
-            print("Clearing extracted data")
+            verbosity = self.verbosity - 1
+
+        keys = ["means", "nCell", "raw", "roi_polys", "deltaf_raw"]
         # Wipe outputs
-        self.means = []
-        self.nCell = None
-        self.raw = None
-        self.roi_polys = None
-        # Wipe outputs of calc_deltaf(), as it no longer matches self.result
-        self.deltaf_raw = None
+        keys_cleared = []
+        for key in keys:
+            if getattr(self, key, None) is not None:
+                keys_cleared.append(key)
+            setattr(self, key, None)
+
+        if verbosity >= 1 and keys_cleared:
+            print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
+
         # Wipe outputs of separate(), as they no longer match self.raw
         self.clear_separated(verbosity=verbosity)
 
@@ -763,16 +766,18 @@ class Experiment:
             By default, the object's :attr:`verbosity` attribute is used.
         """
         if verbosity is None:
-            verbosity = self.verbosity
-        if verbosity >= 2:
-            print("Clearing results")
+            verbosity = self.verbosity - 1
+
+        keys = ["info", "mixmat", "sep", "result", "deltaf_result"]
         # Wipe outputs
-        self.info = None
-        self.mixmat = None
-        self.sep = None
-        self.result = None
-        # Wipe deltaf_result, as it no longer matches self.result
-        self.deltaf_result = None
+        keys_cleared = []
+        for key in keys:
+            if getattr(self, key, None) is not None:
+                keys_cleared.append(key)
+            setattr(self, key, None)
+
+        if verbosity >= 1 and keys_cleared:
+            print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
 
     def load(self, path=None):
         r"""
@@ -929,6 +934,8 @@ class Experiment:
         roi_polys = np.empty_like(raw)
 
         # Set outputs
+        if self.means is None:
+            self.means = []
         for trial in range(self.nTrials):
             self.means.append(outputs[trial][2])
             for cell in range(nCell):
