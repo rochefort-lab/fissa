@@ -1222,11 +1222,24 @@ class Experiment:
             and Δf/f\ :sub:`0` value will be relative to the trial-specific f0.
             Default is ``True``.
         """
+        # Get the timestamp for program start
+        t0 = time.time()
+
+        if self.verbosity >= 2:
+            print("Calculating Δf/f0 for raw and result signals", flush=True)
+
+        # Initialise output arrays
         deltaf_raw = np.empty_like(self.raw)
         deltaf_result = np.empty_like(self.result)
 
         # loop over cells
-        for cell in range(self.nCell):
+        disable_progressbars = self.verbosity < 1
+        for cell in tqdm(
+            range(self.nCell),
+            total=self.nCell,
+            desc="Calculating Δf/f0",
+            disable=disable_progressbars,
+        ):
             # if deltaf should be calculated across all trials
             if across_trials:
                 # get concatenated traces
@@ -1274,6 +1287,14 @@ class Experiment:
 
         self.deltaf_raw = deltaf_raw
         self.deltaf_result = deltaf_result
+
+        if self.verbosity >= 1:
+            print(
+                "Finished calculating Δf/f0 for raw and result signals in {}".format(
+                    datetime.timedelta(seconds=time.time() - t0)
+                ),
+                flush=True,
+            )
 
         # Maybe save to cache file
         if self.folder is not None:
