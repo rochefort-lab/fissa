@@ -296,9 +296,11 @@ class Experiment:
         These are ROI and neuropil subregion definitions, and extracting
         raw signals from TIFFs.
 
-        If set to ``None`` (default), the number of processes used will
-        equal the number of threads on the machine. Note that this
-        behaviour can, especially for the data preparation step,
+        If set to ``None`` or ``-1`` (default), the number of processes used
+        will equal the number of threads on the machine.
+        If this is set to ``-2``, the number of processes used will be one less
+        than the number of threads on the machine; etc.
+        Note that this behaviour can, especially for the data preparation step,
         be very memory-intensive.
 
     ncores_separation : int or None, default=None
@@ -308,10 +310,10 @@ class Experiment:
         the preparation steps, and so can be often be set higher than
         `ncores_preparation`.
 
-        If set to ``None`` (default), the number of processes used will
-        equal the number of threads on the machine. Note that this
-        behaviour can, especially for the data preparation step,
-        be very memory-intensive.
+        If set to ``None`` or ``-1`` (default), the number of processes used
+        will equal the number of threads on the machine.
+        If this is set to ``-2``, the number of processes used will be one less
+        than the number of threads on the machine; etc.
 
     method : "nmf" or "ica", default="nmf"
         Which blind source-separation method to use. Either ``"nmf"``
@@ -750,27 +752,17 @@ class Experiment:
             datahandler=self.datahandler,
         )
 
-        # Check whether we should use multiprocessing
-        use_multiprocessing = (
-            self.ncores_preparation is None or self.ncores_preparation > 1
-        )
-
         # check whether we should show progress bars
         disable_progressbars = self.verbosity != 1
 
-        if use_multiprocessing:
-            # run extraction
-            outputs = Parallel(n_jobs=self.ncores_preparation, backend="threading")(
-                delayed(_extract_cfg)(self.images[i], self.rois[i])
-                for i in tqdm.tqdm(
-                    range(self.nTrials),
-                    total=self.nTrials,
-                    desc="Extracting traces",
-                    disable=disable_progressbars,
-                )
-            )
+        # Check how many workers to spawn.
+        # Map the behaviour of ncores=None to one job per CPU core, like for
+        # multiprocessing.Pool(processes=None). With joblib, this is
+        # joblib.Parallel(n_jobs=-1) instead.
+        n_jobs = -1 if self.ncores_preparation is None else self.ncores_preparation
 
-        else:
+        if 0 <= n_jobs <= 1:
+            # Don't use multiprocessing
             outputs = [
                 _extract_cfg(*args)
                 for args in tqdm.tqdm(
@@ -780,6 +772,17 @@ class Experiment:
                     disable=disable_progressbars,
                 )
             ]
+        else:
+            # Use multiprocessing
+            outputs = Parallel(n_jobs=n_jobs, backend="threading")(
+                delayed(_extract_cfg)(self.images[i], self.rois[i])
+                for i in tqdm.tqdm(
+                    range(self.nTrials),
+                    total=self.nTrials,
+                    desc="Extracting traces",
+                    disable=disable_progressbars,
+                )
+            )
 
         # get number of cells
         nCell = len(outputs[0][1])
@@ -916,26 +919,18 @@ class Experiment:
             verbosity=self.verbosity - 2,
         )
 
-        # Check whether we should use multiprocessing
-        use_multiprocessing = (
-            self.ncores_separation is None or self.ncores_separation > 1
-        )
-
         # check whether we should show progress bars
         disable_progressbars = self.verbosity != 1
 
+        # Check how many workers to spawn.
+        # Map the behaviour of ncores=None to one job per CPU core, like for
+        # multiprocessing.Pool(processes=None). With joblib, this is
+        # joblib.Parallel(n_jobs=-1) instead.
+        n_jobs = -1 if self.ncores_separation is None else self.ncores_separation
+
         # Do the extraction
-        if use_multiprocessing:
-            outputs = Parallel(n_jobs=self.ncores_separation, backend="threading")(
-                delayed(_separate_cfg)(self.raw[i], i)
-                for i in tqdm.tqdm(
-                    range(self.nCell),
-                    total=self.nCell,
-                    desc="Separating data",
-                    disable=disable_progressbars,
-                )
-            )
-        else:
+        if 0 <= n_jobs <= 1:
+            # Don't use multiprocessing
             outputs = [
                 _separate_cfg(X, roi_label=i)
                 for i, X in tqdm.tqdm(
@@ -945,6 +940,17 @@ class Experiment:
                     disable=disable_progressbars,
                 )
             ]
+        else:
+            # Use multiprocessing
+            outputs = Parallel(n_jobs=n_jobs, backend="threading")(
+                delayed(_separate_cfg)(self.raw[i], i)
+                for i in tqdm.tqdm(
+                    range(self.nCell),
+                    total=self.nCell,
+                    desc="Separating data",
+                    disable=disable_progressbars,
+                )
+            )
 
         # Define output shape as an array of objects shaped (n_roi, n_trial)
         sep = np.empty((n_roi, n_trial), dtype=object)
