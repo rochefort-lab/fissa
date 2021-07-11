@@ -916,7 +916,9 @@ class Experiment:
             ]
         else:
             # Use multiprocessing
-            outputs = Parallel(n_jobs=n_jobs, backend="threading")(
+            outputs = Parallel(
+                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
+            )(
                 delayed(_extract_cfg)(*args)
                 for args in tqdm(
                     zip(self.images, self.rois, range(n_trial)),
@@ -1101,7 +1103,9 @@ class Experiment:
             ]
         else:
             # Use multiprocessing
-            outputs = Parallel(n_jobs=n_jobs, backend="threading")(
+            outputs = Parallel(
+                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
+            )(
                 delayed(_separate_cfg)(X, i)
                 for i, X in tqdm(
                     enumerate(self.raw),
