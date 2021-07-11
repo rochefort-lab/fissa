@@ -290,7 +290,7 @@ class Experiment:
 
         .. versionadded:: 1.0.0
 
-    ncores_preparation : int or None, default=None
+    ncores_preparation : int or None, default=-1
         The number of parallel subprocesses to use during the data
         preparation steps of :meth:`separation_prep`.
         These are ROI and neuropil subregion definitions, and extracting
@@ -303,7 +303,7 @@ class Experiment:
         Note that this behaviour can, especially for the data preparation step,
         be very memory-intensive.
 
-    ncores_separation : int or None, default=None
+    ncores_separation : int or None, default=-1
         The number of parallel subprocesses to use during the signal
         separation steps of :meth:`separate`.
         The separation steps requires less memory per subprocess than
@@ -483,8 +483,8 @@ class Experiment:
         max_iter=20000,
         tol=1e-4,
         max_tries=1,
-        ncores_preparation=None,
-        ncores_separation=None,
+        ncores_preparation=-1,
+        ncores_separation=-1,
         method="nmf",
         lowmemory_mode=False,
         datahandler=None,
