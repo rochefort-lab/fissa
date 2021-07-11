@@ -17,16 +17,15 @@ import os.path
 import sys
 import warnings
 
-import tqdm
-from joblib import Parallel, delayed
-from past.builtins import basestring
-
 try:
     from collections import abc
 except ImportError:
     import collections as abc
 
 import numpy as np
+import tqdm
+from joblib import Parallel, delayed
+from past.builtins import basestring
 from scipy.io import savemat
 
 from . import deltaf, extraction
