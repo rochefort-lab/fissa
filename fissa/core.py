@@ -878,11 +878,17 @@ class Experiment:
 
         # Wipe outputs
         self.clear()
-        # Extract signals
-        if self.verbosity >= 2:
-            print("Doing region growing and data extraction...")
 
+        # Extract signals
         n_trial = len(self.images)
+        if self.verbosity >= 2:
+            msg = "Doing region growing and data extraction for {} trials...".format(
+                n_trial
+            )
+            if self.verbosity >= 3:
+                msg += "\n  Images:\n    {}".format("\n    ".join(self.images))
+                msg += "\n  ROI sets:\n    {}".format("\n    ".join(self.rois))
+            print(msg, flush=True)
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
@@ -1060,13 +1066,17 @@ class Experiment:
 
         # Wipe outputs
         self.clear_separated()
-        # Separate data
-        if self.verbosity >= 2:
-            print("Doing signal separation...")
 
         # Check size of the input arrays
         n_roi = len(self.raw)
         n_trial = len(self.raw[0])
+        # Print what data will be analysed
+        if self.verbosity >= 2:
+            print(
+                "Doing signal separation for {} ROIs over {} trials...".format(
+                    n_roi, n_trial
+                )
+            )
 
         # Make a handle to the separation function with parameters configured
         _separate_cfg = functools.partial(
