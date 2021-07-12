@@ -980,6 +980,28 @@ class ExperimentTestMixin:
         exp.calc_deltaf(self.fs)
         self.compare_output(exp, compare_deltaf=True)
 
+    def test_calcdeltaf_quiet(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=0)
+        exp.separate()
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            exp.calc_deltaf(self.fs)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_equal(capture_post.out, "")
+        self.compare_output(exp, compare_deltaf=True)
+
+    def test_calcdeltaf_loud(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=4)
+        exp.separate()
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            exp.calc_deltaf(self.fs)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assertTrue("f/f0" in capture_post.out)
+        self.compare_output(exp, compare_deltaf=True)
+
     def test_calcdeltaf_cache(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
@@ -987,7 +1009,7 @@ class ExperimentTestMixin:
         self.compare_output(exp, compare_deltaf=True)
 
     def test_calcdeltaf_notrawf0(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=4)
         exp.separate()
         exp.calc_deltaf(self.fs, use_raw_f0=False)
         # We did not use this setting to generate the expected values, so can't
@@ -998,7 +1020,7 @@ class ExperimentTestMixin:
         self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
     def test_calcdeltaf_notacrosstrials(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=4)
         exp.separate()
         exp.calc_deltaf(self.fs, across_trials=False)
         # We did not use this setting to generate the expected values, so can't
@@ -1009,7 +1031,7 @@ class ExperimentTestMixin:
         self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=4)
         exp.separate()
         exp.calc_deltaf(self.fs, use_raw_f0=False, across_trials=False)
         # We did not use this setting to generate the expected values, so can't
