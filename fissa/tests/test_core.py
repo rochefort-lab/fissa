@@ -972,6 +972,23 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
+    def test_load_npz(self):
+        """Test whether npz file is loaded by load method."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.array([[1, 2], [3, 4]])}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Set the fields to be something other than `None`
+        for key in fields:
+            setattr(exp, key, 42.24)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data appears correctly
+        exp.load(fname)
+        for key, value in fields.items():
+            self.assertEqual(getattr(exp, key), value)
+
     def test_load_none_force(self):
         """Behaviour when forcibly loading a cache containing None."""
         fields = ["raw", "result", "deltaf_result"]
@@ -990,53 +1007,101 @@ class ExperimentTestMixin:
 
     def test_load_none(self):
         """Behaviour when loading a cache containing None."""
-        kwargs = {"expansion": 0.213, "nRegions": 2}
+        kwargs = {"expansion": 0.213, "nRegions": 3}
         fields = {"raw": None}
         exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
         # Set the fields to be something other than `None`
-        for field in fields:
-            setattr(exp, field, 42)
+        for key in fields:
+            setattr(exp, key, 42)
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
         np.savez_compressed(fname, **kwargs, **fields)
         # Load the file and check the data appears as None, not np.array(None)
         exp.load(fname)
-        for field in fields:
-            self.assertIs(getattr(exp, field), None)
+        for key, value in fields.items():
+            self.assertIs(getattr(exp, key), value)
 
     def test_load_scalar_force(self):
         """Behaviour when forcibly loading a cache containing scalar values."""
         fields = ["raw", "result", "deltaf_result"]
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
-        # Set the fields to be something other than `None`
-        for field in fields:
-            setattr(exp, field, 42)
-        # Make a save file which contains values set to `None`
+        # Make a save file which contains values set to a scalar
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
         np.savez_compressed(fname, **{field: 1337 for field in fields})
-        # Load the file and check the data appears as None, not np.array(None)
+        # Load the file and check the data appears correctly
         exp.load(fname, force=True)
         for field in fields:
             self.assertEqual(getattr(exp, field), 1337)
 
     def test_load_scalar(self):
         """Behaviour when loading a cache containing None."""
-        kwargs = {"expansion": 0.213, "nRegions": 2}
+        kwargs = {"expansion": 0.213, "nRegions": 3}
         fields = {"raw": 1337}
         exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
-        # Set the fields to be something other than `None`
-        for field in fields:
-            setattr(exp, field, 42)
-        # Make a save file which contains values set to `None`
+        # Make a save file which contains values set to a scalar`
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
         np.savez_compressed(fname, **kwargs, **fields)
-        # Load the file and check the data appears as None, not np.array(None)
+        # Load the file and check the data appears correctly
         exp.load(fname)
-        for field in fields:
-            self.assertEqual(getattr(exp, field), 1337)
+        for key, value in fields.items():
+            self.assertEqual(getattr(exp, key), value)
+
+    def test_load_wrong_nRegions(self):
+        """Test load doesn't load analysis from wrong nRegions param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.array([[1, 2], [3, 4]])}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["expansion"] + 1,
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_wrong_in_init(self):
+        """Test load doesn't load analysis from wrong nRegions param during init."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.array([[1, 2], [3, 4]])}
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "preparation.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            core.Experiment(
+                self.images_dir,
+                self.roi_zip_path,
+                self.output_dir,
+                expansion=kwargs["expansion"],
+                nRegions=kwargs["nRegions"] + 1,
+            )
+
+    def test_load_wrong_expansion(self):
+        """Test load doesn't load analysis from wrong expansion param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.array([[1, 2], [3, 4]])}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"] + 1,
+            nRegions=kwargs["nRegions"],
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
 
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
