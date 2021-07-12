@@ -367,7 +367,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=1)
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with(capture_post.out, "Finished separating")
+        self.assertTrue("Finished separating" in capture_post.out)
         self.assertTrue("Extracting traces: 100%" in capture_post.err)
         self.assertTrue("3/3" in capture_post.err)
         self.assertTrue("Separating data: 100%" in capture_post.err)
@@ -575,11 +575,11 @@ class ExperimentTestMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with(capture_post.out, "Doing")
+        self.assertTrue("Doing" in capture_post.out)
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate(redo_prep=True, redo_sep=True)
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with(capture_post.out, "Doing")
+        self.assertTrue("Doing" in capture_post.out)
         self.compare_output(exp)
 
     def test_load_cache(self):
@@ -656,12 +656,12 @@ class ExperimentTestMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("Reloading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("Reloading data" in capture_post.out)
         # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
