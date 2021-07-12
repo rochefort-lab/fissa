@@ -437,6 +437,48 @@ class ExperimentTestMixin:
         self.assertTrue("NMF converged after" in capture_post.out)
         self.compare_output(exp)
 
+    def test_verbosity_2_imagesloaded(self):
+        # Load images as np.ndarrays
+        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
+        datahandler = extraction.DataHandlerTifffile()
+        images = [datahandler.image2array(pth) for pth in image_paths]
+        # Run FISSA on pre-loaded images with verbosity=2
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp = core.Experiment(
+            images,
+            self.roi_zip_path,
+            ncores_preparation=1,
+            ncores_separation=1,
+            verbosity=2,
+        )
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        # Check FISSA lists the arguments are arrays
+        self.assertTrue("numpy.ndarray" in capture_post.out)
+        self.compare_output(exp, separated=False)
+
+    def test_verbosity_3_imagesloaded(self):
+        # Load images as np.ndarrays
+        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
+        datahandler = extraction.DataHandlerTifffile()
+        images = [datahandler.image2array(pth) for pth in image_paths]
+        # Run FISSA on pre-loaded images with verbosity=2
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp = core.Experiment(
+            images,
+            self.roi_zip_path,
+            ncores_preparation=1,
+            ncores_separation=1,
+            verbosity=3,
+        )
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        # Check FISSA prints the arrays
+        self.assertTrue("[[[" in capture_post.out)
+        self.assertTrue("..." in capture_post.out)
+        self.assertTrue("]]]" in capture_post.out)
+        self.compare_output(exp, separated=False)
+
     def test_not_converged(self):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(self.images_dir, self.roi_zip_path, max_iter=1)
