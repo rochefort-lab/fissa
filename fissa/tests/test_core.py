@@ -987,6 +987,21 @@ class ExperimentTestMixin:
         for field in fields:
             self.assertIs(getattr(exp, field), None)
 
+    def test_load_scalar(self):
+        """Behaviour when loading a cache containing scalar values."""
+        fields = ["raw", "result", "deltaf_result"]
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Set the fields to be something other than `None`
+        for field in fields:
+            setattr(exp, field, 42)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        np.savez_compressed(fname, **{field: 1337 for field in fields})
+        # Load the file and check the data appears as None, not np.array(None)
+        exp.load(fname, force=True)
+        for field in fields:
+            self.assertEqual(getattr(exp, field), 1337)
+
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
         """
