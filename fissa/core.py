@@ -946,6 +946,8 @@ class Experiment:
                     msg += "\n    {}".format(roiset)
                 else:
                     msg += "\n    {}".format(roiset.__class__)
+            for key in ["nRegions", "expansion"]:
+                msg += "\n  {}: {}".format(key, repr(getattr(self, key)))
             print(msg)
             sys.stdout.flush()
 
@@ -1133,11 +1135,16 @@ class Experiment:
         n_trial = len(self.raw[0])
         # Print what data will be analysed
         if self.verbosity >= 2:
-            print(
-                "Doing signal separation for {} ROIs over {} trials...".format(
-                    n_roi, n_trial
-                )
+            msg = "Doing signal separation for {} ROIs over {} trials...".format(
+                n_roi, n_trial
             )
+            msg += "\n  method: {}".format(repr(self.method))
+            if "ica" not in self.method.lower():
+                msg += "\n  alpha: {}".format(repr(self.alpha))
+            for key in ["max_iter", "max_tries", "tol"]:
+                msg += "\n  {}: {}".format(key, repr(getattr(self, key)))
+            print(msg)
+            sys.stdout.flush()
 
         # Make a handle to the separation function with parameters configured
         _separate_cfg = functools.partial(
