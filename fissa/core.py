@@ -1034,6 +1034,8 @@ class Experiment:
                     " preparation outputs the cache."
                 )
             destination = os.path.join(self.folder, "preparation.npz")
+        if self.verbosity >= 1:
+            print("Saving extracted traces to {}".format(destination), flush=True)
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
@@ -1247,6 +1249,8 @@ class Experiment:
                     " separation outputs to the cache."
                 )
             destination = os.path.join(self.folder, "separated.npz")
+        if self.verbosity >= 1:
+            print("Saving results to {}".format(destination), flush=True)
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
