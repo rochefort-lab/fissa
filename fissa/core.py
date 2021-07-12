@@ -1208,8 +1208,8 @@ class Experiment:
             if len(non_converged_rois) > 0:
                 message += (
                     "\n"
-                    "The following {} ROIs did not fully converge: {}."
-                    " Consider increasing max_iter (currently set to {})"
+                    "Separation did not converge for the following {} ROIs: {}."
+                    "\nConsider increasing max_iter (currently set to {})"
                     " or other FISSA parameters if this happens often and/or"
                     " to a lot of cells.".format(
                         len(non_converged_rois), non_converged_rois, self.max_iter
