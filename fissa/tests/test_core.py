@@ -1179,6 +1179,61 @@ class TestExperimentB(BaseTestCase, ExperimentTestMixin):
         )
 
 
+class TestExtract(BaseTestCase):
+    """Tests for the extract helper function."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestExtract, self).__init__(*args, **kwargs)
+
+        # Load cached data
+        self.resources_dir = os.path.join(self.test_directory, "resources", "b")
+        self.images_dir = os.path.join(self.resources_dir, "images")
+        self.image_name = "AVG_A01.tif"
+        self.image_path = os.path.join(self.images_dir, self.image_name)
+        self.image_shape = (29, 21)
+        self.roi_zip_path = os.path.join(self.resources_dir, "rois.zip")
+        self.roi_paths = [os.path.join("rois", "{:02d}.roi") for r in range(3, 5)]
+
+        cache = np.load(
+            os.path.join(
+                self.resources_dir,
+                "expected_py{}.npz".format(sys.version_info.major),
+            ),
+            allow_pickle=True,
+        )
+        # Test against saved data for the first image only
+        self.expected_raw = {i: x for i, x in enumerate(cache["raw"][:, 0])}
+        self.expected_roi_polys = {i: x for i, x in enumerate(cache["roi_polys"][:, 0])}
+        self.expected_mean = cache["means"][0]
+
+    def compare_outputs(self, outputs):
+        data, roi_polys, mean = outputs
+        # Check contents are correct
+        self.assert_equal_dict_of_array(data, self.expected_raw)
+        self.assert_equal_dict_of_array(roi_polys, self.expected_roi_polys)
+        self.assert_equal(mean, self.expected_mean)
+
+    def test_vanilla(self):
+        outputs = core.extract(self.image_path, self.roi_zip_path)
+        self.compare_outputs(outputs)
+
+    def test_separate_trials_label_int(self):
+        label = 239457
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        outputs = core.extract(self.image_path, self.roi_zip_path, label=label)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assertTrue(str(label) in capture_post.out)
+        self.compare_outputs(outputs)
+
+    def test_separate_trials_label_str(self):
+        label = "awesome_roi"
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        outputs = core.extract(self.image_path, self.roi_zip_path, label=label)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assertTrue(label in capture_post.out)
+        self.compare_outputs(outputs)
+
+
 class TestSeparateTrials(BaseTestCase):
     """Tests for the separate_trials helper function."""
 
