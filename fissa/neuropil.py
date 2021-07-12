@@ -25,6 +25,7 @@ def separate(
     H0=None,
     alpha=0.1,
     verbosity=1,
+    prefix="",
 ):
     """
     Find independent signals, sorted by matching score against the first input signal.
@@ -90,6 +91,9 @@ def separate(
         - ``0``: No outputs.
         - ``1``: Print separation progress.
 
+    prefix : str, optional
+        String to include before any progress statements.
+
     Returns
     -------
     S_sep : :class:`numpy.ndarray` shaped (signals, observations)
@@ -131,6 +135,10 @@ def separate(
     # TODO for edge cases, reduce the number of npil regions according to
     #      possible orientations
     # TODO split into several functions. Maybe turn into a class.
+
+    # Include a space as a separator between prefix and output.
+    if prefix and prefix[-1] != " ":
+        prefix += " "
 
     # Ensure array_like input is a numpy.ndarray
     S = np.asarray(S)
@@ -188,9 +196,9 @@ def separate(
         elif hasattr(sklearn.decomposition, sep_method):
             if verbosity >= 1:
                 print(
-                    "Using ad hoc signal decomposition method"
+                    "{}Using ad hoc signal decomposition method"
                     " sklearn.decomposition.{}. Only NMF and ICA are officially"
-                    " supported.".format(sep_method)
+                    " supported.".format(prefix, sep_method)
                 )
 
             # Load up arbitrary decomposition algorithm from sklearn
@@ -209,20 +217,20 @@ def separate(
         if estimator.n_iter_ < max_iter:
             if verbosity >= 1:
                 print(
-                    "{} converged after {} iterations.".format(
-                        repr(estimator).split("(")[0], estimator.n_iter_
+                    "{}{} converged after {} iterations.".format(
+                        prefix, repr(estimator).split("(")[0], estimator.n_iter_
                     )
                 )
             break
         if verbosity >= 1:
             print(
-                "Attempt {} failed to converge at {} iterations.".format(
-                    i_try + 1, estimator.n_iter_
+                "{}Attempt {} failed to converge at {} iterations.".format(
+                    prefix, i_try + 1, estimator.n_iter_
                 )
             )
         if i_try + 1 < max_tries:
             if verbosity >= 1:
-                print("Trying a new random state.")
+                print("{}Trying a new random state.".format(prefix))
             # Change to a new random_state
             if random_state is not None:
                 random_state = (random_state + 1) % 2 ** 32
@@ -230,9 +238,9 @@ def separate(
     if estimator.n_iter_ == max_iter:
         if verbosity >= 1:
             print(
-                "Warning: maximum number of allowed tries reached at {} iterations"
+                "{}Warning: maximum number of allowed tries reached at {} iterations"
                 " for {} tries of different random seed states.".format(
-                    estimator.n_iter_, i_try + 1
+                    prefix, estimator.n_iter_, i_try + 1
                 )
             )
 

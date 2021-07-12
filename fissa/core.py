@@ -10,11 +10,13 @@ Authors:
 from __future__ import print_function
 
 import collections
+import datetime
 import functools
 import glob
 import itertools
 import os.path
 import sys
+import time
 import warnings
 
 try:
@@ -23,17 +25,69 @@ except ImportError:
     import collections as abc
 
 import numpy as np
-import tqdm
 from joblib import Parallel, delayed
 from past.builtins import basestring
 from scipy.io import savemat
+from tqdm.auto import tqdm
 
 from . import deltaf, extraction
 from . import neuropil as npil
 from . import roitools
 
 
-def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
+def _pretty_timedelta(td=None, **kwargs):
+    """
+    Represent a difference in time as a human-readable string.
+
+    Parameters
+    ----------
+    td : datetime.timedelta, optional
+        The amount of time elapsed.
+    **kwargs
+        Additional arguments as per :class:`datetime.timedelta` constructor.
+
+    Returns
+    -------
+    str
+        Representation of the amount of time elapsed.
+    """
+    if td is None:
+        td = datetime.timedelta(**kwargs)
+    elif not isinstance(td, datetime.timedelta):
+        raise ValueError(
+            "First argument should be a datetime.timedelta instance,"
+            " but {} was given.".format(type(td))
+        )
+    elif kwargs:
+        raise ValueError(
+            "Either a timedelta object or its arguments should be given, not both."
+        )
+    if td.total_seconds() < 2:
+        return "{:.3f} seconds".format(td.total_seconds())
+    if td.total_seconds() < 10:
+        return "{:.2f} seconds".format(td.total_seconds())
+    if td.total_seconds() < 60:
+        return "{:.1f} seconds".format(td.total_seconds())
+    if td.total_seconds() < 3600:
+        s = td.total_seconds()
+        m = int(s // 60)
+        s -= m * 60
+        return "{:d} min, {:.0f} sec".format(m, s)
+    # For durations longer than one hour, we use the default string
+    # representation for a datetime.timedelta, H:MM:SS.microseconds
+    return str(td)
+
+
+def extract(
+    image,
+    rois,
+    nRegions=4,
+    expansion=1,
+    datahandler=None,
+    verbosity=1,
+    label=None,
+    total=None,
+):
     r"""
     Extract data for all ROIs in a single 3d array or TIFF file.
 
@@ -57,6 +111,18 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     datahandler : fissa.extraction.DataHandlerAbstract, optional
         A datahandler object for handling ROIs and calcium data.
         The default is :class:`~fissa.extraction.DataHandlerTifffile`.
+    verbosity : int, default=1
+        Level of verbosity. The options are:
+
+        - ``0``: No outputs.
+        - ``1``: Print extraction start.
+        - ``2``: Print extraction end.
+        - ``3``: Print start of each step within the extraction process.
+
+    label : str or int, optional
+        The label for the current trial. Only used for reporting progress.
+    total : int, optional
+        Total number of trials. Only used for reporting progress.
 
     Returns
     -------
@@ -67,11 +133,52 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     mean : :class:`numpy.ndarray` shaped (height, width)
         Mean image.
     """
+    # Get the timestamp for program start
+    t0 = time.time()
+
+    mheader = ""
+    if verbosity >= 1:
+        # Set up message header
+        # Use the label, if this was provided
+        if label is None:
+            header = ""
+        elif isinstance(label, int) and isinstance(total, int):
+            # Pad left based on the total number of jobs, so it is [ 1/10] etc
+            fmtstr = "{:" + str(int(np.maximum(1, np.ceil(np.log10(total))))) + "d}"
+            header = fmtstr.format(label + 1)
+        else:
+            header = str(label)
+        # Try to label with [1/5] to indicate progess, if possible
+        if header and total is not None:
+            header += "/{}".format(total)
+        if header:
+            header = "[Extraction " + header + "] "
+        # Try to include the path to the image as a footer
+        footer = ""
+        if isinstance(image, basestring):
+            # Include the image path as a footer
+            footer = " ({})".format(image)
+        # Done with header and footer
+        # Inner header is indented further
+        mheader = "    " + header
+
+        # Build intro message
+        message = header + "Extraction starting" + footer
+        # Wait briefly to prevent messages colliding when using multiprocessing
+        if isinstance(label, int) and label < 12:
+            time.sleep(label / 50.0)
+        print(message)
+        sys.stdout.flush()
+
     if datahandler is None:
         datahandler = extraction.DataHandlerTifffile()
 
     # get data as arrays and rois as masks
+    if verbosity >= 3:
+        print("{}Loading imagery".format(mheader))
     curdata = datahandler.image2array(image)
+    if verbosity >= 3:
+        print("{}Converting ROIs to masks".format(mheader))
     base_masks = datahandler.rois2masks(rois, curdata)
 
     # get the mean image
@@ -81,8 +188,15 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
     data = collections.OrderedDict()
     roi_polys = collections.OrderedDict()
 
+    if verbosity == 3:
+        print("{}Growing neuropil regions and extracting traces".format(mheader))
     # get neuropil masks and extract signals
-    for cell in range(len(base_masks)):
+    for cell in tqdm(
+        range(len(base_masks)),
+        total=len(base_masks),
+        desc="{}Neuropil extraction".format(mheader),
+        disable=verbosity < 4,
+    ):
         # neuropil masks
         npil_masks = roitools.getmasks_npil(
             base_masks[cell], nNpil=nRegions, expansion=expansion
@@ -96,18 +210,26 @@ def extract(image, rois, nRegions=4, expansion=1, datahandler=None):
         # store ROI outlines
         roi_polys[cell] = [roitools.find_roi_edge(mask) for mask in masks]
 
+    if verbosity >= 2:
+        # Build end message
+        message = header + "Extraction finished" + footer
+        message += " in {}".format(_pretty_timedelta(seconds=time.time() - t0))
+        print(message)
+        sys.stdout.flush()
+
     return data, roi_polys, mean
 
 
 def separate_trials(
     raw,
-    roi_label=None,
     alpha=0.1,
     max_iter=20000,
     tol=1e-4,
     max_tries=1,
     method="nmf",
     verbosity=1,
+    label=None,
+    total=None,
 ):
     r"""
     Separate signals within a set of 2d arrays.
@@ -124,25 +246,10 @@ def separate_trials(
         region, ``raw[trial][0]``, should be from the region of interest for
         which a matching source signal should be identified.
 
-    roi_label : str or int, optional
-        Label/name or index of the ROI currently being processed.
-        Only used for progress messages.
-
     alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
         (Only used for ``method="nmf"``.)
-
-    method : {"nmf", "ica"}, default="nmf"
-        Which blind source-separation method to use. Either ``"nmf"``
-        for non-negative matrix factorization, or ``"ica"`` for
-        independent component analysis. Default is ``"nmf"``.
-
-    verbosity : int, default=1
-        Level of verbosity. The options are:
-
-        - ``0``: No outputs.
-        - ``1``: Print separation progress.
 
     max_iter : int, default=20000
         Maximum number of iterations before timing out on an attempt.
@@ -153,6 +260,26 @@ def separate_trials(
     max_tries : int, default=1
         Maximum number of random initial states to try. Each random state will
         be optimized for `max_iter` iterations before timing out.
+
+    method : {"nmf", "ica"}, default="nmf"
+        Which blind source-separation method to use. Either ``"nmf"``
+        for non-negative matrix factorization, or ``"ica"`` for
+        independent component analysis. Default is ``"nmf"``.
+
+    verbosity : int, default=1
+        Level of verbosity. The options are:
+
+        - ``0``: No outputs.
+        - ``1``: Print separation start.
+        - ``2``: Print separation end.
+        - ``3``: Print progress details during separation.
+
+    label : str or int, optional
+        Label/name or index of the ROI currently being processed.
+        Only used for progress messages.
+
+    total : int, optional
+        Total number of ROIs. Only used for reporting progress.
 
     Returns
     -------
@@ -182,17 +309,52 @@ def separate_trials(
         random_state : int or None
             Random seed used to initialise the separation model.
     """
+    # Get the timestamp for program start
+    t0 = time.time()
+
+    header = ""
+    if verbosity >= 1:
+        # Set up message header
+        # Use the label, if this was provided
+        if label is None:
+            header = ""
+        elif isinstance(label, int) and isinstance(total, int):
+            # Pad left based on the total number of jobs, so it is [ 1/10] etc
+            fmtstr = "{:" + str(int(np.maximum(1, np.ceil(np.log10(total))))) + "d}"
+            header = fmtstr.format(label + 1)
+        else:
+            header = str(label)
+        # Try to label with [1/5] to indicate progess, if possible
+        if header and total is not None:
+            header += "/{}".format(total)
+        if header:
+            header = "[Separation " + header + "] "
+        # Include the ROI label as a footer
+        footer = ""
+        if isinstance(label, int) and isinstance(total, int):
+            # Include the ROI label as a footer
+            footer = " (ROI {})".format(label)
+        # Done with header and footer
+
+        # Build intro message
+        message = header + "Signal separation starting" + footer
+        # Wait briefly to prevent messages colliding when using multiprocessing
+        if isinstance(label, int) and label < 12:
+            time.sleep(label / 50.0)
+        print(message)
+        sys.stdout.flush()
+
     # Join together the raw data across trials, collapsing down the trials
     X = np.concatenate(raw, axis=1)
 
     # Check for values below 0
     if X.min() < 0:
         message_extra = ""
-        if roi_label is not None:
-            message_extra = " for ROI {}".format(roi_label)
+        if label is not None:
+            message_extra = " for ROI {}".format(label)
         warnings.warn(
-            "Found values below zero in raw signal{}. Offsetting so minimum is 0."
-            "".format(message_extra)
+            "{}Found values below zero in raw signal{}. Offsetting so minimum is 0."
+            "".format(header, message_extra)
         )
         X -= X.min()
 
@@ -204,19 +366,23 @@ def separate_trials(
         tol=tol,
         max_tries=max_tries,
         alpha=alpha,
-        verbosity=verbosity,
+        verbosity=verbosity - 2,
+        prefix="    " + header,
     )
     # Unravel observations from multiple trials into a list of arrays
     trial_lengths = [r.shape[1] for r in raw]
     indices = np.cumsum(trial_lengths[:-1])
     Xsep = np.split(Xsep, indices, axis=1)
     Xmatch = np.split(Xmatch, indices, axis=1)
+
     # Report status
-    if verbosity >= 1:
-        message = "Finished separating ROI"
-        if roi_label is not None:
-            message += " number {}".format(roi_label)
+    if verbosity >= 2:
+        # Build end message
+        message = header + "Signal separation finished" + footer
+        message += " in {}".format(_pretty_timedelta(seconds=time.time() - t0))
         print(message)
+        sys.stdout.flush()
+
     return Xsep, Xmatch, Xmixmat, convergence
 
 
@@ -334,12 +500,8 @@ class Experiment:
         ignored.
 
     verbosity : int, default=1
-        How verbose the processing will be. The options are:
-
-        - ``0``: No outputs.
-        - ``1``: Progress bars and high level summary.
-        - ``2``: Print intermediate progress steps.
-        - ``3``: Print per-cell progress.
+        How verbose the processing will be. Increase for more output messages.
+        Processing is silent if ``verbosity=0``.
 
         .. versionadded:: 1.0.0
 
@@ -491,7 +653,7 @@ class Experiment:
     ):
 
         # Initialise internal variables
-        self.clear()
+        self.clear(verbosity=0)
 
         if isinstance(images, basestring):
             self.images = sorted(glob.glob(os.path.join(images, "*.tif*")))
@@ -611,37 +773,60 @@ class Experiment:
             __name__, self.__class__.__name__, ", ".join(repr_parts)
         )
 
-    def clear(self):
+    def clear(self, verbosity=None):
         r"""
         Clear prepared data, and all data downstream of prepared data.
 
         .. versionadded:: 1.0.0
 
+        Parameters
+        ----------
+        verbosity : int, optional
+            Whether to show the data fields which were cleared.
+            By default, the object's :attr:`verbosity` attribute is used.
         """
-        # Wipe outputs
-        self.means = []
-        self.nCell = None
-        self.raw = None
-        self.roi_polys = None
-        # Wipe outputs of calc_deltaf(), as it no longer matches self.result
-        self.deltaf_raw = None
-        # Wipe outputs of separate(), as they no longer match self.raw
-        self.clear_separated()
+        if verbosity is None:
+            verbosity = self.verbosity - 1
 
-    def clear_separated(self):
+        keys = ["means", "nCell", "raw", "roi_polys", "deltaf_raw"]
+        # Wipe outputs
+        keys_cleared = []
+        for key in keys:
+            if getattr(self, key, None) is not None:
+                keys_cleared.append(key)
+            setattr(self, key, None)
+
+        if verbosity >= 1 and keys_cleared:
+            print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
+
+        # Wipe outputs of separate(), as they no longer match self.raw
+        self.clear_separated(verbosity=verbosity)
+
+    def clear_separated(self, verbosity=None):
         r"""
         Clear separated data, and all data downstream of separated data.
 
         .. versionadded:: 1.0.0
 
+        Parameters
+        ----------
+        verbosity : int, optional
+            Whether to show the data fields which were cleared.
+            By default, the object's :attr:`verbosity` attribute is used.
         """
+        if verbosity is None:
+            verbosity = self.verbosity - 1
+
+        keys = ["info", "mixmat", "sep", "result", "deltaf_result"]
         # Wipe outputs
-        self.info = None
-        self.mixmat = None
-        self.sep = None
-        self.result = None
-        # Wipe deltaf_result, as it no longer matches self.result
-        self.deltaf_result = None
+        keys_cleared = []
+        for key in keys:
+            if getattr(self, key, None) is not None:
+                keys_cleared.append(key)
+            setattr(self, key, None)
+
+        if verbosity >= 1 and keys_cleared:
+            print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
 
     def load(self, path=None):
         r"""
@@ -672,7 +857,7 @@ class Experiment:
                 self.load(fullfname)
             return
         if self.verbosity >= 1:
-            print("Reloading data from cache {}...".format(path))
+            print("Reloading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
         for field in cache.files:
             value = cache[field]
@@ -716,6 +901,9 @@ class Experiment:
             If ``True``, we re-run the preparation, even if it has previously
             been run. Default is ``False``.
         """
+        # Get the timestamp for program start
+        t0 = time.time()
+
         # define filename where data will be present
         if self.folder is None:
             fname = None
@@ -739,9 +927,29 @@ class Experiment:
 
         # Wipe outputs
         self.clear()
+
         # Extract signals
+        n_trial = len(self.images)
         if self.verbosity >= 2:
-            print("Doing region growing and data extraction....")
+            msg = "Doing region growing and data extraction for {} trials...".format(
+                n_trial
+            )
+            msg += "\n  Images:"
+            for image in self.images:
+                if self.verbosity >= 3 or isinstance(image, basestring):
+                    msg += "\n    {}".format(image)
+                else:
+                    msg += "\n    {}".format(image.__class__)
+            msg += "\n  ROI sets:"
+            for roiset in self.rois:
+                if self.verbosity >= 3 or isinstance(roiset, basestring):
+                    msg += "\n    {}".format(roiset)
+                else:
+                    msg += "\n    {}".format(roiset.__class__)
+            for key in ["nRegions", "expansion"]:
+                msg += "\n  {}: {}".format(key, repr(getattr(self, key)))
+            print(msg)
+            sys.stdout.flush()
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
@@ -749,6 +957,8 @@ class Experiment:
             nRegions=self.nRegions,
             expansion=self.expansion,
             datahandler=self.datahandler,
+            verbosity=self.verbosity - 1,
+            total=n_trial,
         )
 
         # check whether we should show progress bars
@@ -763,9 +973,9 @@ class Experiment:
         if 0 <= n_jobs <= 1:
             # Don't use multiprocessing
             outputs = [
-                _extract_cfg(*args)
-                for args in tqdm.tqdm(
-                    zip(self.images, self.rois),
+                _extract_cfg(image, rois, label=i)
+                for i, (image, rois) in tqdm(
+                    enumerate(zip(self.images, self.rois)),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -773,10 +983,12 @@ class Experiment:
             ]
         else:
             # Use multiprocessing
-            outputs = Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(_extract_cfg)(image, roi_stack)
-                for image, roi_stack in tqdm.tqdm(
-                    zip(self.images, self.rois),
+            outputs = Parallel(
+                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
+            )(
+                delayed(_extract_cfg)(image, rois, label=i)
+                for i, (image, rois) in tqdm(
+                    enumerate(zip(self.images, self.rois)),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -791,6 +1003,7 @@ class Experiment:
         roi_polys = np.empty_like(raw)
 
         # Set outputs
+        self.means = []
         for trial in range(self.nTrials):
             self.means.append(outputs[trial][2])
             for cell in range(nCell):
@@ -800,6 +1013,17 @@ class Experiment:
         self.nCell = nCell  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
+
+        if self.verbosity >= 1:
+            print(
+                "Finished extracting raw signals from {} ROIs across {} trials in {}.".format(
+                    nCell,
+                    n_trial,
+                    _pretty_timedelta(seconds=time.time() - t0),
+                )
+            )
+            sys.stdout.flush()
+
         # Maybe save to cache file
         if self.folder is not None:
             self.save_prep()
@@ -825,6 +1049,9 @@ class Experiment:
                     " preparation outputs the cache."
                 )
             destination = os.path.join(self.folder, "preparation.npz")
+        if self.verbosity >= 1:
+            print("Saving extracted traces to {}".format(destination))
+            sys.stdout.flush()
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
@@ -869,6 +1096,9 @@ class Experiment:
             Whether to redo the separation. Default is ``False``. Note that
             this parameter is ignored if `redo_prep` is set to ``True``.
         """
+        # Get the timestamp for program start
+        t0 = time.time()
+
         # Do data preparation
         if redo_prep or self.raw is None:
             self.separation_prep(redo_prep)
@@ -899,13 +1129,22 @@ class Experiment:
 
         # Wipe outputs
         self.clear_separated()
-        # Separate data
-        if self.verbosity >= 2:
-            print("Doing signal separation....")
 
         # Check size of the input arrays
         n_roi = len(self.raw)
         n_trial = len(self.raw[0])
+        # Print what data will be analysed
+        if self.verbosity >= 2:
+            msg = "Doing signal separation for {} ROIs over {} trials...".format(
+                n_roi, n_trial
+            )
+            msg += "\n  method: {}".format(repr(self.method))
+            if "ica" not in self.method.lower():
+                msg += "\n  alpha: {}".format(repr(self.alpha))
+            for key in ["max_iter", "max_tries", "tol"]:
+                msg += "\n  {}: {}".format(key, repr(getattr(self, key)))
+            print(msg)
+            sys.stdout.flush()
 
         # Make a handle to the separation function with parameters configured
         _separate_cfg = functools.partial(
@@ -915,7 +1154,8 @@ class Experiment:
             tol=self.tol,
             max_tries=self.max_tries,
             method=self.method,
-            verbosity=self.verbosity - 2,
+            verbosity=self.verbosity - 1,
+            total=n_roi,
         )
 
         # check whether we should show progress bars
@@ -931,8 +1171,8 @@ class Experiment:
         if 0 <= n_jobs <= 1:
             # Don't use multiprocessing
             outputs = [
-                _separate_cfg(X, roi_label=i)
-                for i, X in tqdm.tqdm(
+                _separate_cfg(X, label=i)
+                for i, X in tqdm(
                     enumerate(self.raw),
                     total=self.nCell,
                     desc="Separating data",
@@ -941,9 +1181,11 @@ class Experiment:
             ]
         else:
             # Use multiprocessing
-            outputs = Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(_separate_cfg)(X, i)
-                for i, X in tqdm.tqdm(
+            outputs = Parallel(
+                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
+            )(
+                delayed(_separate_cfg)(X, label=i)
+                for i, X in tqdm(
                     enumerate(self.raw),
                     total=self.nCell,
                     desc="Separating data",
@@ -965,20 +1207,28 @@ class Experiment:
             info[i_roi, :] = conv_i
 
         # list non-converged cells
-        non_converged_cells = [
-            cell for cell, info_i in enumerate(info) if not info_i[0]["converged"]
+        non_converged_rois = [
+            i_roi for i_roi, info_i in enumerate(info) if not info_i[0]["converged"]
         ]
 
         if self.verbosity >= 1:
-            print("Finished separating all the ROI signals.")
-            if len(non_converged_cells) > 0:
-                print(
-                    "The following {} ROIs did not fully converge: {}."
-                    " Consider changing FISSA parameters if this happens often"
-                    " and/or to a lot of cells.".format(
-                        len(non_converged_cells), non_converged_cells
+            message = "Finished separating signals from {} ROIs across {} trials in {}".format(
+                n_roi,
+                n_trial,
+                _pretty_timedelta(seconds=time.time() - t0),
+            )
+            if len(non_converged_rois) > 0:
+                message += (
+                    "\n"
+                    "Separation did not converge for the following {} ROIs: {}."
+                    "\nConsider increasing max_iter (currently set to {})"
+                    " or other FISSA parameters if this happens often and/or"
+                    " to a lot of cells.".format(
+                        len(non_converged_rois), non_converged_rois, self.max_iter
                     )
                 )
+            print(message)
+            sys.stdout.flush()
 
         # Set outputs
         self.info = info
@@ -1021,6 +1271,9 @@ class Experiment:
                     " separation outputs to the cache."
                 )
             destination = os.path.join(self.folder, "separated.npz")
+        if self.verbosity >= 1:
+            print("Saving results to {}".format(destination))
+            sys.stdout.flush()
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
@@ -1035,7 +1288,7 @@ class Experiment:
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
         r"""
-        Calculate deltaf/f0 for raw and result traces.
+        Calculate Δf/f0 for raw and result traces.
 
         The outputs are found in the :attr:`deltaf_raw` and
         :attr:`deltaf_result` attributes, which can be accessed at
@@ -1055,18 +1308,51 @@ class Experiment:
             and Δf/f\ :sub:`0` value will be relative to the trial-specific f0.
             Default is ``True``.
         """
+        # Get the timestamp for program start
+        t0 = time.time()
+
+        if self.verbosity >= 2:
+            msg = "Calculating Δf/f0 for raw and result signals"
+            if self.verbosity < 3:
+                pass
+            elif across_trials:
+                msg += " (same f0 across all trials"
+            else:
+                msg += " (different f0 baseline for each trial"
+            if self.verbosity < 3:
+                pass
+            elif use_raw_f0:
+                msg += ", using f0 in raw data for result)"
+            else:
+                msg += ")"
+                msg += (
+                    "\nCaution: Measuring baseline f0 from result may result"
+                    " in division by zero."
+                )
+            print(msg)
+            sys.stdout.flush()
+
+        # Initialise output arrays
         deltaf_raw = np.empty_like(self.raw)
         deltaf_result = np.empty_like(self.result)
 
-        # loop over cells
-        for cell in range(self.nCell):
+        # Can't include Δ in the tqdm description on Python2
+        desc = "Calculating {}f/f0".format("d" if sys.version_info < (3, 0) else "Δ")
+
+        # Loop over cells
+        for cell in tqdm(
+            range(self.nCell),
+            total=self.nCell,
+            desc=desc,
+            disable=self.verbosity < 1,
+        ):
             # if deltaf should be calculated across all trials
             if across_trials:
                 # get concatenated traces
                 raw_conc = np.concatenate(self.raw[cell], axis=1)[0, :]
                 result_conc = np.concatenate(self.result[cell], axis=1)
 
-                # calculate deltaf/f0
+                # calculate Δf/f0
                 raw_f0 = deltaf.findBaselineF0(raw_conc, freq)
                 raw_conc = (raw_conc - raw_f0) / raw_f0
                 result_f0 = deltaf.findBaselineF0(result_conc, freq, 1).T[:, None]
@@ -1075,7 +1361,7 @@ class Experiment:
                 else:
                     result_conc = (result_conc - result_f0) / result_f0
 
-                # store deltaf/f0s
+                # store Δf/f0
                 curTrial = 0
                 for trial in range(self.nTrials):
                     nextTrial = curTrial + self.raw[cell][trial].shape[1]
@@ -1091,7 +1377,7 @@ class Experiment:
                     raw_sig = self.raw[cell][trial][0, :]
                     result_sig = self.result[cell][trial]
 
-                    # calculate deltaf/fo
+                    # calculate Δf/fo
                     raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
                     result_f0 = deltaf.findBaselineF0(result_sig, freq, 1).T[:, None]
                     result_f0[result_f0 < 0] = 0
@@ -1101,12 +1387,20 @@ class Experiment:
                     else:
                         result_sig = (result_sig - result_f0) / result_f0
 
-                    # store deltaf/f0s
+                    # store Δf/f0
                     deltaf_raw[cell][trial] = np.expand_dims(raw_sig, axis=0)
                     deltaf_result[cell][trial] = result_sig
 
         self.deltaf_raw = deltaf_raw
         self.deltaf_result = deltaf_result
+
+        if self.verbosity >= 1:
+            print(
+                "Finished calculating Δf/f0 for raw and result signals in {}".format(
+                    _pretty_timedelta(seconds=time.time() - t0)
+                )
+            )
+            sys.stdout.flush()
 
         # Maybe save to cache file
         if self.folder is not None:
@@ -1152,6 +1446,10 @@ class Experiment:
                     "fname must be provided if experiment folder is undefined"
                 )
             fname = os.path.join(self.folder, "matlab.mat")
+
+        if self.verbosity >= 1:
+            print("Exporting results to matfile {}".format(fname))
+            sys.stdout.flush()
 
         # initialize dictionary to save
         M = collections.OrderedDict()
@@ -1275,7 +1573,7 @@ def run_fissa(
     experiment = Experiment(images, rois, folder=folder, **kwargs)
     # Run separation
     experiment.separate()
-    # Calculate df/f0
+    # Calculate Δf/f0
     if return_deltaf or (export_to_matlab and freq is not None):
         experiment.calc_deltaf(freq=freq, across_trials=deltaf_across_trials)
     # Save to matfile
