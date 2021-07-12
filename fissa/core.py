@@ -95,7 +95,7 @@ def extract(
 
     Parameters
     ----------
-    image : str or :term:`array_like` shaped (time, height, width)
+    image : str or :term:`array_like` shaped ``(time, height, width)``
         Either a path to a multipage TIFF file, or 3d :term:`array_like` data.
     rois : str or :term:`list` of :term:`array_like`
         Either a string containing a path to an ImageJ roi zip file,
