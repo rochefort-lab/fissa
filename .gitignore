@@ -4,6 +4,13 @@
 # Ignore backup files
 *.bak
 
+# Ignore Untitled notebooks
+*Untitled*.ipynb
+
+# Ignore output from running example notebooks
+examples/fissa-example*
+examples/fissa_*_example
+
 
 ##---------------------------------------------------
 # Continuous Integration .gitignore files
