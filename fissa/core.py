@@ -1404,6 +1404,9 @@ class Experiment:
                 )
             fname = os.path.join(self.folder, "matlab.mat")
 
+        if self.verbosity >= 1:
+            print("Exporting results to matfile {}".format(fname), flush=True)
+
         # initialize dictionary to save
         M = collections.OrderedDict()
 
