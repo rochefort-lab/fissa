@@ -1330,9 +1330,7 @@ class Experiment:
         deltaf_result = np.empty_like(self.result)
 
         # Can't include Δ in the tqdm description on Python2
-        desc = "Calculating {}f/f0".format(
-            "delta" if sys.version_info < (3, 0) else "Δ"
-        )
+        desc = "Calculating {}f/f0".format("d" if sys.version_info < (3, 0) else "Δ")
 
         # Loop over cells
         for cell in tqdm(
