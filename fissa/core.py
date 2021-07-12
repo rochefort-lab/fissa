@@ -167,7 +167,8 @@ def extract(
         # Wait briefly to prevent messages colliding when using multiprocessing
         if isinstance(label, int) and label < 12:
             time.sleep(label / 50.0)
-        print(message, flush=True)
+        print(message)
+        sys.stdout.flush()
 
     if datahandler is None:
         datahandler = extraction.DataHandlerTifffile()
@@ -213,7 +214,8 @@ def extract(
         # Build end message
         message = header + "Extraction finished" + footer
         message += " in {}".format(_pretty_timedelta(seconds=time.time() - t0))
-        print(message, flush=True)
+        print(message)
+        sys.stdout.flush()
 
     return data, roi_polys, mean
 
@@ -339,7 +341,8 @@ def separate_trials(
         # Wait briefly to prevent messages colliding when using multiprocessing
         if isinstance(label, int) and label < 12:
             time.sleep(label / 50.0)
-        print(message, flush=True)
+        print(message)
+        sys.stdout.flush()
 
     # Join together the raw data across trials, collapsing down the trials
     X = np.concatenate(raw, axis=1)
@@ -377,7 +380,8 @@ def separate_trials(
         # Build end message
         message = header + "Signal separation finished" + footer
         message += " in {}".format(_pretty_timedelta(seconds=time.time() - t0))
-        print(message, flush=True)
+        print(message)
+        sys.stdout.flush()
 
     return Xsep, Xmatch, Xmixmat, convergence
 
@@ -942,7 +946,8 @@ class Experiment:
                     msg += "\n    {}".format(roiset)
                 else:
                     msg += "\n    {}".format(roiset.__class__)
-            print(msg, flush=True)
+            print(msg)
+            sys.stdout.flush()
 
         # Make a handle to the extraction function with parameters configured
         _extract_cfg = functools.partial(
@@ -1014,9 +1019,9 @@ class Experiment:
                     nCell,
                     n_trial,
                     _pretty_timedelta(seconds=time.time() - t0),
-                ),
-                flush=True,
+                )
             )
+            sys.stdout.flush()
 
         # Maybe save to cache file
         if self.folder is not None:
@@ -1044,7 +1049,8 @@ class Experiment:
                 )
             destination = os.path.join(self.folder, "preparation.npz")
         if self.verbosity >= 1:
-            print("Saving extracted traces to {}".format(destination), flush=True)
+            print("Saving extracted traces to {}".format(destination))
+            sys.stdout.flush()
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
@@ -1215,7 +1221,8 @@ class Experiment:
                         len(non_converged_rois), non_converged_rois, self.max_iter
                     )
                 )
-            print(message, flush=True)
+            print(message)
+            sys.stdout.flush()
 
         # Set outputs
         self.info = info
@@ -1259,7 +1266,8 @@ class Experiment:
                 )
             destination = os.path.join(self.folder, "separated.npz")
         if self.verbosity >= 1:
-            print("Saving results to {}".format(destination), flush=True)
+            print("Saving results to {}".format(destination))
+            sys.stdout.flush()
         destdir = os.path.dirname(destination)
         if destdir and not os.path.isdir(destdir):
             os.makedirs(destdir)
@@ -1298,7 +1306,8 @@ class Experiment:
         t0 = time.time()
 
         if self.verbosity >= 2:
-            print("Calculating Δf/f0 for raw and result signals", flush=True)
+            print("Calculating Δf/f0 for raw and result signals")
+            sys.stdout.flush()
 
         # Initialise output arrays
         deltaf_raw = np.empty_like(self.raw)
@@ -1364,9 +1373,9 @@ class Experiment:
             print(
                 "Finished calculating Δf/f0 for raw and result signals in {}".format(
                     _pretty_timedelta(seconds=time.time() - t0)
-                ),
-                flush=True,
+                )
             )
+            sys.stdout.flush()
 
         # Maybe save to cache file
         if self.folder is not None:
@@ -1414,7 +1423,8 @@ class Experiment:
             fname = os.path.join(self.folder, "matlab.mat")
 
         if self.verbosity >= 1:
-            print("Exporting results to matfile {}".format(fname), flush=True)
+            print("Exporting results to matfile {}".format(fname))
+            sys.stdout.flush()
 
         # initialize dictionary to save
         M = collections.OrderedDict()
