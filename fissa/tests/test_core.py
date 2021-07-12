@@ -1049,6 +1049,16 @@ class ExperimentTestMixin:
         # Check contents of the .mat file
         self.compare_matlab(fname, exp)
 
+    def test_matlab_quiet(self):
+        exp = core.Experiment(
+            self.images_dir, self.roi_zip_path, self.output_dir, verbosity=0
+        )
+        exp.separate()
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.save_to_matlab()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_equal(capture_post.out, "")
+
     def test_matlab_custom_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
