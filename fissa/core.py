@@ -1333,14 +1333,13 @@ class Experiment:
         desc = "Calculating {}f/f0".format(
             "delta" if sys.version_info < (3, 0) else "Δ"
         )
-        disable_progressbars = self.verbosity < 1
 
         # Loop over cells
         for cell in tqdm(
             range(self.nCell),
             total=self.nCell,
             desc=desc,
-            disable=disable_progressbars,
+            disable=self.verbosity < 1,
         ):
             # if deltaf should be calculated across all trials
             if across_trials:
