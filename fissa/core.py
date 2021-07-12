@@ -211,19 +211,18 @@ def extract(
     polys = []
 
     # get neuropil masks and extract signals
-    for cell in tqdm(
-        range(len(base_masks)),
+    for base_mask in tqdm(
+        base_masks,
         total=len(base_masks),
         desc="{}Neuropil extraction".format(mheader),
         disable=verbosity < 4,
     ):
         # neuropil masks
         npil_masks = roitools.getmasks_npil(
-            base_masks[cell], nNpil=nRegions, expansion=expansion
+            base_mask, nNpil=nRegions, expansion=expansion
         )
         # add all current masks together
-        masks = [base_masks[cell]] + npil_masks
-
+        masks = [base_mask] + npil_masks
         # extract traces
         traces.append(datahandler.extracttraces(curdata, masks))
         # store ROI outlines
