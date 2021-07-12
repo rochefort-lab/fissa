@@ -1001,7 +1001,12 @@ class Experiment:
                     # Handle loading scalars
                     value = value.item()
                 if getattr(self, validator, None) is None:
-                    print("Adopting value {}={} from {}".format(validator, value, path))
+                    if self.verbosity >= 2:
+                        print(
+                            "Adopting value {}={} from {}".format(
+                                validator, value, path
+                            )
+                        )
                 setattr(self, validator, value)
                 set_fields.add(validator)
             for field in fields:
@@ -1015,7 +1020,8 @@ class Experiment:
                     value = value.item()
                 setattr(self, field, value)
                 set_fields.add(field)
-            print("Loaded {} data from {}".format(category, path))
+            if self.verbosity >= 2:
+                print("Loaded {} data from {}".format(category, path))
 
         # Check there weren't any left over fields in the cache which
         # were left unloaded
@@ -1023,7 +1029,7 @@ class Experiment:
         for field in cache.files:
             if field not in set_fields:
                 unset_fields.append(field)
-        if len(unset_fields) > 0:
+        if len(unset_fields) > 0 and self.verbosity >= 1:
             print(
                 "Warning: field(s) {} in {} were not loaded.".format(unset_fields, path)
             )
