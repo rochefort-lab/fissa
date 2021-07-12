@@ -126,10 +126,29 @@ def extract(
 
     Returns
     -------
-    data : dict
-        Data across cells.
-    roi_polys : dict
-        Polygons for each ROI.
+    traces : :class:`numpy.ndarray` shaped ``(n_rois, nRegions + 1, n_frames)``
+        The raw signal, determined as the average fluorence trace extracted
+        from each ROI and neuropil region.
+
+        Each vector ``traces[i_roi, 0, :]`` contains the traces for the
+        ``i_roi``-th ROI.
+        The following `nRegions` arrays in ``traces[i_roi, 1 : nRegions + 1, :]``
+        contain the traces from the `nRegions` grown neuropil regions
+        surrounding the ``i_roi``-th ROI.
+
+    polys : list of list of list of :class:`numpy.ndarray` shaped ``(n_nodes, 2)``
+        Polygon contours describing the outline of each region.
+
+        For contiguous ROIs, the outline of the ``i_roi``-th ROI is described
+        by the array at ``polys[i_roi][0][0]``. This array is ``n_nodes``
+        rows, each representing the coordinate of a node in ``(y, x)`` format.
+        For non-contiguous ROIs, a contour is needed for each disconnected
+        polygon making up the total aggregate ROI. These contours are found at
+        ``polys[i_roi][0][i_contour]``.
+
+        Similarly, the `nRegions` neuropil regions are each described by the
+        polygons ``polys[i_roi][i_neurpil + 1][i_contour]`` respectively.
+
     mean : :class:`numpy.ndarray` shaped (height, width)
         Mean image.
     """
@@ -184,12 +203,13 @@ def extract(
     # get the mean image
     mean = datahandler.getmean(curdata)
 
-    # predefine dictionaries
-    data = collections.OrderedDict()
-    roi_polys = collections.OrderedDict()
-
     if verbosity == 3:
         print("{}Growing neuropil regions and extracting traces".format(mheader))
+
+    # Initialise output variables
+    traces = []
+    polys = []
+
     # get neuropil masks and extract signals
     for cell in tqdm(
         range(len(base_masks)),
@@ -205,10 +225,12 @@ def extract(
         masks = [base_masks[cell]] + npil_masks
 
         # extract traces
-        data[cell] = datahandler.extracttraces(curdata, masks)
-
+        traces.append(datahandler.extracttraces(curdata, masks))
         # store ROI outlines
-        roi_polys[cell] = [roitools.find_roi_edge(mask) for mask in masks]
+        polys.append([roitools.find_roi_edge(mask) for mask in masks])
+
+    # Convert traces from a list to a single numpy array
+    traces = np.stack(traces, axis=0)
 
     if verbosity >= 2:
         # Build end message
@@ -217,7 +239,7 @@ def extract(
         print(message)
         sys.stdout.flush()
 
-    return data, roi_polys, mean
+    return traces, polys, mean
 
 
 def separate_trials(
