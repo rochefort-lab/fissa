@@ -851,17 +851,17 @@ class ExperimentTestMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("oading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("oading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separate
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("oading data" in capture_post.out)
         # Check the contents loaded from cache
         self.compare_output(exp)
 
@@ -878,12 +878,12 @@ class ExperimentTestMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=3)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assertTrue("Reloading data" in capture_post.out)
+        self.assertTrue("oading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assertTrue("Reloading data" in capture_post.out)
+        self.assertTrue("oading data" in capture_post.out)
         # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
