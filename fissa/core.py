@@ -97,20 +97,25 @@ def extract(
     ----------
     image : str or :term:`array_like` shaped ``(time, height, width)``
         Either a path to a multipage TIFF file, or 3d :term:`array_like` data.
+
     rois : str or :term:`list` of :term:`array_like`
         Either a string containing a path to an ImageJ roi zip file,
         or a list of arrays encoding polygons, or list of binary arrays
         representing masks.
+
     nRegions : int, default=4
         Number of neuropil regions to draw. Use a higher number for
         densely labelled tissue. Default is ``4``.
+
     expansion : float, default=1
         Expansion factor for the neuropil region, relative to the
         ROI area. Default is ``1``. The total neuropil area will be
         ``nRegions * expansion * area(ROI)``.
+
     datahandler : fissa.extraction.DataHandlerAbstract, optional
         A datahandler object for handling ROIs and calcium data.
         The default is :class:`~fissa.extraction.DataHandlerTifffile`.
+
     verbosity : int, default=1
         Level of verbosity. The options are:
 
@@ -121,6 +126,7 @@ def extract(
 
     label : str or int, optional
         The label for the current trial. Only used for reporting progress.
+
     total : int, optional
         Total number of trials. Only used for reporting progress.
 
