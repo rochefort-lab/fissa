@@ -1103,6 +1103,45 @@ class ExperimentTestMixin:
         with self.assertRaises(ValueError):
             exp.load(fname)
 
+    def test_load_wrong_alpha_only_sep_results(self):
+        """Test load doesn't load analysis from wrong alpha param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3, "alpha": 5.23}
+        fields = {"result": np.array([[3, 4]])}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+            alpha=kwargs["alpha"] + 1,
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_wrong_alpha_mixed_prep_sep(self):
+        """Test load doesn't load analysis from wrong alpha param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3, "alpha": 5.23}
+        fields = {"raw": np.array([[1, 2]]), "result": np.array([[3, 4]])}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+            alpha=kwargs["alpha"] + 1,
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data appears correctly
+        exp.load(fname)
+        self.assert_equal(exp.raw, fields["raw"])
+        self.assertIs(exp.result, None)
+
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
         """
