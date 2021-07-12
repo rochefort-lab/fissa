@@ -949,7 +949,13 @@ class Experiment:
             for field in cache.files:
                 if field in dynamic_properties:
                     continue
-                setattr(self, field, cache[field])
+                value = cache[field]
+                if np.array_equal(value, None):
+                    value = None
+                elif value.ndim == 0:
+                    # Handle loading scalars
+                    value = value.item()
+                setattr(self, field, value)
             return
         set_fields = set()
         for category, validators, fields, clearif, clearfn in validation_groups:
@@ -988,13 +994,15 @@ class Experiment:
             # All the validators were valid, so we are okay to load the fields
             for validator in validators:
                 # Load all the validators, overwriting our local values if None
+                value = cache[validator]
+                if np.array_equal(value, None):
+                    value = None
+                elif value.ndim == 0:
+                    # Handle loading scalars
+                    value = value.item()
                 if getattr(self, validator, None) is None:
-                    print(
-                        "Adopting value {}={} from {}".format(
-                            validator, cache[validator], path
-                        )
-                    )
-                setattr(self, validator, cache[validator])
+                    print("Adopting value {}={} from {}".format(validator, value, path))
+                setattr(self, validator, value)
                 set_fields.add(validator)
             for field in fields:
                 if field not in cache or field in dynamic_properties:
