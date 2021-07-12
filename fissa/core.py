@@ -943,7 +943,7 @@ class Experiment:
                 self.load(fullfname)
             return
         if self.verbosity >= 1:
-            print("Reloading data from cache {}".format(path))
+            print("Loading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
         if force:
             for field in cache.files:
