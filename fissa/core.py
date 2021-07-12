@@ -38,11 +38,11 @@ from . import roitools
 def extract(
     image,
     rois,
-    label=None,
     nRegions=4,
     expansion=1,
     datahandler=None,
     verbosity=1,
+    label=None,
     total=None,
 ):
     r"""
@@ -58,8 +58,6 @@ def extract(
         Either a string containing a path to an ImageJ roi zip file,
         or a list of arrays encoding polygons, or list of binary arrays
         representing masks.
-    label : str or int, optional
-        The label for the current trial. Only used for reporting progress.
     nRegions : int, default=4
         Number of neuropil regions to draw. Use a higher number for
         densely labelled tissue. Default is ``4``.
@@ -76,6 +74,8 @@ def extract(
         - ``0``: No outputs.
         - ``1``: Print separation progress.
 
+    label : str or int, optional
+        The label for the current trial. Only used for reporting progress.
     total : int, optional
         Total number of trials. Only used for reporting progress.
 
@@ -173,13 +173,13 @@ def extract(
 
 def separate_trials(
     raw,
-    label=None,
     alpha=0.1,
     max_iter=20000,
     tol=1e-4,
     max_tries=1,
     method="nmf",
     verbosity=1,
+    label=None,
     total=None,
 ):
     r"""
@@ -196,10 +196,6 @@ def separate_trials(
         The `nRegions` signals must be the same for each trial, and the 0-th
         region, ``raw[trial][0]``, should be from the region of interest for
         which a matching source signal should be identified.
-
-    label : str or int, optional
-        Label/name or index of the ROI currently being processed.
-        Only used for progress messages.
 
     alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
@@ -226,6 +222,10 @@ def separate_trials(
 
         - ``0``: No outputs.
         - ``1``: Print separation progress.
+
+    label : str or int, optional
+        Label/name or index of the ROI currently being processed.
+        Only used for progress messages.
 
     total : int, optional
         Total number of ROIs. Only used for reporting progress.
