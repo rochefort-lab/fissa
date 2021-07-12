@@ -48,6 +48,16 @@ class ExperimentTestMixin:
         # Check contents are correct
         self.assert_allclose_ragged(actual, self.expected["result"])
 
+    def compare_raw(self, actual):
+        """
+        Compare experiment result against self.expected["raw"].
+        """
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(actual), expected_shape)
+        # Check contents are correct
+        self.assert_allclose_ragged(actual, self.expected["raw"])
+
     def compare_deltaf_result(self, actual):
         """
         Compare experiment result against self.expected["deltaf_result"].
@@ -56,6 +66,15 @@ class ExperimentTestMixin:
         expected_shape = len(self.roi_paths), len(self.image_names)
         self.assert_equal(np.shape(actual), expected_shape)
         self.assert_allclose_ragged(actual, self.expected["deltaf_result"])
+
+    def compare_deltaf_raw(self, actual):
+        """
+        Compare experiment result against self.expected["deltaf_raw"].
+        """
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(actual), expected_shape)
+        self.assert_allclose_ragged(actual, self.expected["deltaf_raw"])
 
     def compare_output(
         self, actual, prepared=True, separated=True, compare_deltaf=None
@@ -1893,10 +1912,11 @@ class ExperimentTestMixin:
     def test_func(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        actual = core.run_fissa(
+        actual_result, actual_raw = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=None
         )
-        self.compare_result(actual)
+        self.compare_result(actual_result)
+        self.compare_raw(actual_raw)
         # Check contents of the .mat file
         expected_file = os.path.join(self.output_dir, "separated.mat")
         self.compare_matlab_expected(expected_file, compare_deltaf=False)
@@ -1904,20 +1924,22 @@ class ExperimentTestMixin:
     def test_func_explict_matlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        actual = core.run_fissa(
+        actual_result, actual_raw = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=True
         )
-        self.compare_result(actual)
+        self.compare_result(actual_result)
+        self.compare_raw(actual_raw)
         expected_file = os.path.join(self.output_dir, "separated.mat")
         self.compare_matlab_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_nomatlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        actual = core.run_fissa(
+        actual_result, actual_raw = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=False
         )
-        self.compare_result(actual)
+        self.compare_result(actual_result)
+        self.compare_raw(actual_raw)
         expected_file = os.path.join(self.output_dir, "separated.mat")
         self.assertFalse(os.path.isfile(expected_file))
 
@@ -1925,25 +1947,28 @@ class ExperimentTestMixin:
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         fname = os.path.join(self.output_dir, "test_output.mat")
-        actual = core.run_fissa(
+        actual_result, actual_raw = core.run_fissa(
             image_path, roi_path, self.output_dir, export_to_matlab=fname
         )
-        self.compare_result(actual)
+        self.compare_result(actual_result)
+        self.compare_raw(actual_raw)
         self.compare_matlab_expected(fname, compare_deltaf=False)
 
     def test_func_nocache(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        actual = core.run_fissa(image_path, roi_path)
-        self.compare_result(actual)
+        actual_result, actual_raw = core.run_fissa(image_path, roi_path)
+        self.compare_result(actual_result)
+        self.compare_raw(actual_raw)
 
     def test_func_deltaf(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
-        actual = core.run_fissa(
+        actual_result, actual_raw = core.run_fissa(
             image_path, roi_path, self.output_dir, freq=self.fs, return_deltaf=True
         )
-        self.compare_deltaf_result(actual)
+        self.compare_deltaf_result(actual_result)
+        self.compare_deltaf_raw(actual_raw)
 
     def test_func_deltaf_nofreq(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
