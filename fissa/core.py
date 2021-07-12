@@ -930,9 +930,18 @@ class Experiment:
             msg = "Doing region growing and data extraction for {} trials...".format(
                 n_trial
             )
-            if self.verbosity >= 3:
-                msg += "\n  Images:\n    {}".format("\n    ".join(self.images))
-                msg += "\n  ROI sets:\n    {}".format("\n    ".join(self.rois))
+            msg += "\n  Images:"
+            for image in self.images:
+                if self.verbosity >= 3 or isinstance(image, basestring):
+                    msg += "\n    {}".format(image)
+                else:
+                    msg += "\n    {}".format(image.__class__)
+            msg += "\n  ROI sets:"
+            for roiset in self.rois:
+                if self.verbosity >= 3 or isinstance(roiset, basestring):
+                    msg += "\n    {}".format(roiset)
+                else:
+                    msg += "\n    {}".format(roiset.__class__)
             print(msg, flush=True)
 
         # Make a handle to the extraction function with parameters configured
