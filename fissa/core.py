@@ -142,12 +142,14 @@ def extract(
     data = collections.OrderedDict()
     roi_polys = collections.OrderedDict()
 
+    if verbosity == 3:
+        print("{}Growing neuropil regions and extracting traces".format(mheader))
     # get neuropil masks and extract signals
     for cell in tqdm(
         range(len(base_masks)),
         total=len(base_masks),
         desc="{}Neuropil extraction".format(mheader),
-        disable=verbosity < 3,
+        disable=verbosity < 4,
     ):
         # neuropil masks
         npil_masks = roitools.getmasks_npil(
@@ -314,7 +316,7 @@ def separate_trials(
         tol=tol,
         max_tries=max_tries,
         alpha=alpha,
-        verbosity=verbosity - 1,
+        verbosity=verbosity - 2,
         prefix="    " + header,
     )
     # Unravel observations from multiple trials into a list of arrays
