@@ -1001,8 +1001,7 @@ class Experiment:
         roi_polys = np.empty_like(raw)
 
         # Set outputs
-        if self.means is None:
-            self.means = []
+        self.means = []
         for trial in range(self.nTrials):
             self.means.append(outputs[trial][2])
             for cell in range(nCell):
