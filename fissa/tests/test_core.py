@@ -983,7 +983,7 @@ class ExperimentTestMixin:
         fname = os.path.join(self.output_dir, "dummy.npz")
         np.savez_compressed(fname, **{field: None for field in fields})
         # Load the file and check the data appears as None, not np.array(None)
-        exp.load(fname)
+        exp.load(fname, force=True)
         for field in fields:
             self.assertIs(getattr(exp, field), None)
 
