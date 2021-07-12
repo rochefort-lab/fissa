@@ -1129,8 +1129,8 @@ class Experiment:
             info[i_roi, :] = conv_i
 
         # list non-converged cells
-        non_converged_cells = [
-            cell for cell, info_i in enumerate(info) if not info_i[0]["converged"]
+        non_converged_rois = [
+            i_roi for i_roi, info_i in enumerate(info) if not info_i[0]["converged"]
         ]
 
         if self.verbosity >= 1:
@@ -1139,14 +1139,14 @@ class Experiment:
                 n_trial,
                 datetime.timedelta(seconds=time.time() - t0),
             )
-            if len(non_converged_cells) > 0:
+            if len(non_converged_rois) > 0:
                 message += (
                     "\n"
                     "The following {} ROIs did not fully converge: {}."
                     " Consider increasing max_iter (currently set to {})"
                     " or other FISSA parameters if this happens often and/or"
                     " to a lot of cells.".format(
-                        len(non_converged_cells), non_converged_cells, self.max_iter
+                        len(non_converged_rois), non_converged_rois, self.max_iter
                     )
                 )
             print(message, flush=True)
