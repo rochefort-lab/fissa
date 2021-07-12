@@ -238,7 +238,7 @@ def separate_trials(
 
     Parameters
     ----------
-    raw : list of n_trials :term:`array_like`, each shaped (nRegions, observations)
+    raw : list of n_trials :term:`array_like`, each shaped ``(nRegions + 1, observations)``
         Raw signals.
         A list of 2-d arrays, each of which contains observations of mixed
         signals, mixed in the same way across all trials.
@@ -283,14 +283,14 @@ def separate_trials(
 
     Returns
     -------
-    Xsep : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
+    Xsep : list of n_trials :class:`numpy.ndarray`, each shaped ``(nRegions + 1, observations)``
         The separated signals, unordered.
 
-    Xmatch : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
+    Xmatch : list of n_trials :class:`numpy.ndarray`, each shaped ``(nRegions + 1, observations)``
         The separated traces, ordered by matching score against the raw ROI
         signal.
 
-    Xmixmat : :class:`numpy.ndarray`, shaped (nRegions, nRegions)
+    Xmixmat : :class:`numpy.ndarray`, shaped ``(nRegions + 1, nRegions + 1)``
         Mixing matrix.
 
     convergence : dict
