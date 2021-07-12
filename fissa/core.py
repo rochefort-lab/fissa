@@ -95,22 +95,27 @@ def extract(
 
     Parameters
     ----------
-    image : str or :term:`array_like` shaped (time, height, width)
+    image : str or :term:`array_like` shaped ``(time, height, width)``
         Either a path to a multipage TIFF file, or 3d :term:`array_like` data.
+
     rois : str or :term:`list` of :term:`array_like`
         Either a string containing a path to an ImageJ roi zip file,
         or a list of arrays encoding polygons, or list of binary arrays
         representing masks.
+
     nRegions : int, default=4
         Number of neuropil regions to draw. Use a higher number for
         densely labelled tissue. Default is ``4``.
+
     expansion : float, default=1
         Expansion factor for the neuropil region, relative to the
         ROI area. Default is ``1``. The total neuropil area will be
         ``nRegions * expansion * area(ROI)``.
+
     datahandler : fissa.extraction.DataHandlerAbstract, optional
         A datahandler object for handling ROIs and calcium data.
         The default is :class:`~fissa.extraction.DataHandlerTifffile`.
+
     verbosity : int, default=1
         Level of verbosity. The options are:
 
@@ -121,15 +126,35 @@ def extract(
 
     label : str or int, optional
         The label for the current trial. Only used for reporting progress.
+
     total : int, optional
         Total number of trials. Only used for reporting progress.
 
     Returns
     -------
-    data : dict
-        Data across cells.
-    roi_polys : dict
-        Polygons for each ROI.
+    traces : :class:`numpy.ndarray` shaped ``(n_rois, nRegions + 1, n_frames)``
+        The raw signal, determined as the average fluorence trace extracted
+        from each ROI and neuropil region.
+
+        Each vector ``traces[i_roi, 0, :]`` contains the traces for the
+        ``i_roi``-th ROI.
+        The following `nRegions` arrays in ``traces[i_roi, 1 : nRegions + 1, :]``
+        contain the traces from the `nRegions` grown neuropil regions
+        surrounding the ``i_roi``-th ROI.
+
+    polys : list of list of list of :class:`numpy.ndarray` shaped ``(n_nodes, 2)``
+        Polygon contours describing the outline of each region.
+
+        For contiguous ROIs, the outline of the ``i_roi``-th ROI is described
+        by the array at ``polys[i_roi][0][0]``. This array is ``n_nodes``
+        rows, each representing the coordinate of a node in ``(y, x)`` format.
+        For non-contiguous ROIs, a contour is needed for each disconnected
+        polygon making up the total aggregate ROI. These contours are found at
+        ``polys[i_roi][0][i_contour]``.
+
+        Similarly, the `nRegions` neuropil regions are each described by the
+        polygons ``polys[i_roi][i_neurpil + 1][i_contour]`` respectively.
+
     mean : :class:`numpy.ndarray` shaped (height, width)
         Mean image.
     """
@@ -184,31 +209,33 @@ def extract(
     # get the mean image
     mean = datahandler.getmean(curdata)
 
-    # predefine dictionaries
-    data = collections.OrderedDict()
-    roi_polys = collections.OrderedDict()
-
     if verbosity == 3:
         print("{}Growing neuropil regions and extracting traces".format(mheader))
+
+    # Initialise output variables
+    traces = []
+    polys = []
+
     # get neuropil masks and extract signals
-    for cell in tqdm(
-        range(len(base_masks)),
+    for base_mask in tqdm(
+        base_masks,
         total=len(base_masks),
         desc="{}Neuropil extraction".format(mheader),
         disable=verbosity < 4,
     ):
         # neuropil masks
         npil_masks = roitools.getmasks_npil(
-            base_masks[cell], nNpil=nRegions, expansion=expansion
+            base_mask, nNpil=nRegions, expansion=expansion
         )
         # add all current masks together
-        masks = [base_masks[cell]] + npil_masks
-
+        masks = [base_mask] + npil_masks
         # extract traces
-        data[cell] = datahandler.extracttraces(curdata, masks)
-
+        traces.append(datahandler.extracttraces(curdata, masks))
         # store ROI outlines
-        roi_polys[cell] = [roitools.find_roi_edge(mask) for mask in masks]
+        polys.append([roitools.find_roi_edge(mask) for mask in masks])
+
+    # Convert traces from a list to a single numpy array
+    traces = np.stack(traces, axis=0)
 
     if verbosity >= 2:
         # Build end message
@@ -217,7 +244,7 @@ def extract(
         print(message)
         sys.stdout.flush()
 
-    return data, roi_polys, mean
+    return traces, polys, mean
 
 
 def separate_trials(
@@ -238,7 +265,7 @@ def separate_trials(
 
     Parameters
     ----------
-    raw : list of n_trials :term:`array_like`, each shaped (nRegions, observations)
+    raw : list of n_trials :term:`array_like`, each shaped ``(nRegions + 1, observations)``
         Raw signals.
         A list of 2-d arrays, each of which contains observations of mixed
         signals, mixed in the same way across all trials.
@@ -283,14 +310,14 @@ def separate_trials(
 
     Returns
     -------
-    Xsep : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
+    Xsep : list of n_trials :class:`numpy.ndarray`, each shaped ``(nRegions + 1, observations)``
         The separated signals, unordered.
 
-    Xmatch : list of n_trials :class:`numpy.ndarray`, each shaped (nRegions, observations)
+    Xmatch : list of n_trials :class:`numpy.ndarray`, each shaped ``(nRegions + 1, observations)``
         The separated traces, ordered by matching score against the raw ROI
         signal.
 
-    Xmixmat : :class:`numpy.ndarray`, shaped (nRegions, nRegions)
+    Xmixmat : :class:`numpy.ndarray`, shaped ``(nRegions + 1, nRegions + 1)``
         Mixing matrix.
 
     convergence : dict
@@ -526,15 +553,24 @@ class Experiment:
     roi_polys : :class:`numpy.ndarray`
         A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
         of which is itself a list of length ``nRegions + 1``, each element of
-        which is a list of length ``1``, containing a :class:`numpy.ndarray`
+        which is a list of length ``n_contour`` containing a :class:`numpy.ndarray`
         of shape ``(n_nodes, 2)``.
 
-        The nodes describe the polygon outline of each region as ``(y, x)``
-        points.
-        The outline of a ROI is given by
-        ``experiment.roi_polys[i_roi][i_trial][0][0]``,
-        and the :attr:`nRegions` neuropil regions by
-        ``experiment.roi_polys[i_roi][i_trial][1 + i_region][0]``.
+        Polygon contours describing the outline of each region.
+
+        For contiguous ROIs, the outline of the ``i_roi``-th ROI used in the
+        ``i_trial``-th trial is described by the array at
+        ``experiment.roi_polys[i_roi, i_trial][0][0]``.
+        This array consists of ``n_nodes`` rows, each representing the
+        coordinate of a node in ``(y, x)`` format.
+        For non-contiguous ROIs, a contour is needed for each disconnected
+        polygon making up the total aggregate ROI. These contours are found at
+        ``experiment.roi_polys[i_roi, i_trial][0][i_contour]``.
+
+        Similarly, the `nRegions` neuropil regions are each described by the
+        polygons
+        ``experiment.roi_polys[i_roi, i_trial][i_neurpil + 1][i_contour]``,
+        respectively.
 
     means : list of `n_trials` :class:`numpy.ndarray`, each shaped ``(height, width)``
         The temporal-mean image for each trial (i.e. for each TIFF file,

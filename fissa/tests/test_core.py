@@ -1231,15 +1231,15 @@ class TestExtract(BaseTestCase):
             allow_pickle=True,
         )
         # Test against saved data for the first image only
-        self.expected_raw = {i: x for i, x in enumerate(cache["raw"][:, 0])}
-        self.expected_roi_polys = {i: x for i, x in enumerate(cache["roi_polys"][:, 0])}
+        self.expected_raw = np.stack(cache["raw"][:, 0], axis=0)
+        self.expected_roi_polys = list(cache["roi_polys"][:, 0])
         self.expected_mean = cache["means"][0]
 
     def compare_outputs(self, outputs):
         data, roi_polys, mean = outputs
         # Check contents are correct
-        self.assert_equal_dict_of_array(data, self.expected_raw)
-        self.assert_equal_dict_of_array(roi_polys, self.expected_roi_polys)
+        self.assert_allclose(data, self.expected_raw)
+        self.assert_allclose_ragged(roi_polys, self.expected_roi_polys)
         self.assert_equal(mean, self.expected_mean)
 
     def test_vanilla(self):
