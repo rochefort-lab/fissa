@@ -1309,7 +1309,7 @@ class Experiment:
                 raw_conc = np.concatenate(self.raw[cell], axis=1)[0, :]
                 result_conc = np.concatenate(self.result[cell], axis=1)
 
-                # calculate deltaf/f0
+                # calculate Δf/f0
                 raw_f0 = deltaf.findBaselineF0(raw_conc, freq)
                 raw_conc = (raw_conc - raw_f0) / raw_f0
                 result_f0 = deltaf.findBaselineF0(result_conc, freq, 1).T[:, None]
@@ -1318,7 +1318,7 @@ class Experiment:
                 else:
                     result_conc = (result_conc - result_f0) / result_f0
 
-                # store deltaf/f0s
+                # store Δf/f0
                 curTrial = 0
                 for trial in range(self.nTrials):
                     nextTrial = curTrial + self.raw[cell][trial].shape[1]
@@ -1334,7 +1334,7 @@ class Experiment:
                     raw_sig = self.raw[cell][trial][0, :]
                     result_sig = self.result[cell][trial]
 
-                    # calculate deltaf/fo
+                    # calculate Δf/fo
                     raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
                     result_f0 = deltaf.findBaselineF0(result_sig, freq, 1).T[:, None]
                     result_f0[result_f0 < 0] = 0
@@ -1344,7 +1344,7 @@ class Experiment:
                     else:
                         result_sig = (result_sig - result_f0) / result_f0
 
-                    # store deltaf/f0s
+                    # store Δf/f0
                     deltaf_raw[cell][trial] = np.expand_dims(raw_sig, axis=0)
                     deltaf_result[cell][trial] = result_sig
 
@@ -1526,7 +1526,7 @@ def run_fissa(
     experiment = Experiment(images, rois, folder=folder, **kwargs)
     # Run separation
     experiment.separate()
-    # Calculate df/f0
+    # Calculate Δf/f0
     if return_deltaf or (export_to_matlab and freq is not None):
         experiment.calc_deltaf(freq=freq, across_trials=deltaf_across_trials)
     # Save to matfile
