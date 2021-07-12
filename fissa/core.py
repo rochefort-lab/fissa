@@ -906,9 +906,9 @@ class Experiment:
         if 0 <= n_jobs <= 1:
             # Don't use multiprocessing
             outputs = [
-                _extract_cfg(*args)
-                for args in tqdm(
-                    zip(self.images, self.rois, range(n_trial)),
+                _extract_cfg(image, rois, label=i)
+                for i, (image, rois) in tqdm(
+                    enumerate(zip(self.images, self.rois)),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -919,9 +919,9 @@ class Experiment:
             outputs = Parallel(
                 n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
             )(
-                delayed(_extract_cfg)(*args)
-                for args in tqdm(
-                    zip(self.images, self.rois, range(n_trial)),
+                delayed(_extract_cfg)(image, rois, label=i)
+                for i, (image, rois) in tqdm(
+                    enumerate(zip(self.images, self.rois)),
                     total=self.nTrials,
                     desc="Extracting traces",
                     disable=disable_progressbars,
@@ -1106,7 +1106,7 @@ class Experiment:
             outputs = Parallel(
                 n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
             )(
-                delayed(_separate_cfg)(X, i)
+                delayed(_separate_cfg)(X, label=i)
                 for i, X in tqdm(
                     enumerate(self.raw),
                     total=self.nCell,
