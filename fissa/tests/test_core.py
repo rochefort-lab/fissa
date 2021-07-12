@@ -2,6 +2,7 @@
 
 from __future__ import division
 
+import datetime
 import os
 import shutil
 import sys
@@ -1128,3 +1129,91 @@ class TestSeparateTrials(BaseTestCase):
         label = "awesome_roi"
         with self.assertWarnsRegex(UserWarning, ".*values below zero.*" + label + ".*"):
             core.separate_trials(self.raw - 1e6, label=label)
+
+
+class TestPrettyTimedelta(BaseTestCase):
+    """Tests for the _pretty_timedelta helper function."""
+
+    def test_less_than_1s(self):
+        actual = core._pretty_timedelta(seconds=0.12)
+        self.assert_equal(actual, "0.120 seconds")
+        actual = core._pretty_timedelta(seconds=0.1234)
+        self.assert_equal(actual, "0.123 seconds")
+
+    def test_less_than_1s_td(self):
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=0.12))
+        self.assert_equal(actual, "0.120 seconds")
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=0.1234))
+        self.assert_equal(actual, "0.123 seconds")
+
+    def test_less_than_10s(self):
+        actual = core._pretty_timedelta(seconds=7.3)
+        self.assert_equal(actual, "7.30 seconds")
+        actual = core._pretty_timedelta(seconds=7.123)
+        self.assert_equal(actual, "7.12 seconds")
+
+    def test_less_than_10s_td(self):
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=7.3))
+        self.assert_equal(actual, "7.30 seconds")
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=7.123))
+        self.assert_equal(actual, "7.12 seconds")
+
+    def test_less_than_60s(self):
+        actual = core._pretty_timedelta(seconds=30)
+        self.assert_equal(actual, "30.0 seconds")
+        actual = core._pretty_timedelta(seconds=30.123)
+        self.assert_equal(actual, "30.1 seconds")
+
+    def test_less_than_60s_td(self):
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=30))
+        self.assert_equal(actual, "30.0 seconds")
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=30.123))
+        self.assert_equal(actual, "30.1 seconds")
+
+    def test_less_than_1h(self):
+        actual = core._pretty_timedelta(seconds=120)
+        self.assert_equal(actual, "2 min, 0 sec")
+        actual = core._pretty_timedelta(seconds=123.4)
+        self.assert_equal(actual, "2 min, 3 sec")
+
+    def test_less_than_1h_td(self):
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=120))
+        self.assert_equal(actual, "2 min, 0 sec")
+        actual = core._pretty_timedelta(datetime.timedelta(seconds=123.4))
+        self.assert_equal(actual, "2 min, 3 sec")
+
+    def test_arbitrary_td(self):
+        kwargs = {
+            "days": 1,
+            "seconds": 2,
+            "microseconds": 3,
+            "milliseconds": 4,
+            "minutes": 5,
+            "hours": 6,
+            "weeks": 7,
+        }
+        td = datetime.timedelta(**kwargs)
+        actual = core._pretty_timedelta(td)
+        self.assert_equal(actual, str(td))
+
+    def test_arbitrary_args(self):
+        kwargs = {
+            "days": 7,
+            "seconds": 6,
+            "microseconds": 5,
+            "milliseconds": 4,
+            "minutes": 3,
+            "hours": 2,
+            "weeks": 1,
+        }
+        td = datetime.timedelta(**kwargs)
+        actual = core._pretty_timedelta(**kwargs)
+        self.assert_equal(actual, str(td))
+
+    def test_double_arg_spec(self):
+        with self.assertRaises(ValueError):
+            core._pretty_timedelta(datetime.timedelta(minutes=1), seconds=5)
+
+    def test_first_arg_not_timedelta(self):
+        with self.assertRaises(ValueError):
+            core._pretty_timedelta(5)
