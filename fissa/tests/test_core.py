@@ -375,6 +375,23 @@ class ExperimentTestMixin:
         self.assertTrue("{0}/{0}".format(len(self.image_names)) in capture_post.err)
         self.assertTrue("{0}/{0}".format(len(self.roi_paths)) in capture_post.err)
         self.assertFalse("Doing region growing and data extraction" in capture_post.out)
+        self.assertFalse("nRegions: " in capture_post.out)
+        self.assertFalse("method: " in capture_post.out)
+        self.compare_output(exp)
+
+    def test_verbosity_2(self):
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=2)
+        exp.separate()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assertTrue("Finished separating" in capture_post.out)
+        self.assertTrue("Extracting traces: 100%" in capture_post.err)
+        self.assertTrue("Separating data: 100%" in capture_post.err)
+        self.assertTrue("{0}/{0}".format(len(self.image_names)) in capture_post.err)
+        self.assertTrue("{0}/{0}".format(len(self.roi_paths)) in capture_post.err)
+        self.assertTrue("Doing region growing and data extraction" in capture_post.out)
+        self.assertTrue("nRegions: " in capture_post.out)
+        self.assertTrue("method: " in capture_post.out)
         self.assertFalse(
             "[Extraction 1/{}]".format(len(self.image_names)) in capture_post.out
         )
@@ -383,14 +400,14 @@ class ExperimentTestMixin:
         )
         self.compare_output(exp)
 
-    def test_verbosity_2(self):
+    def test_verbosity_3(self):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
             ncores_preparation=1,
             ncores_separation=1,
-            verbosity=2,
+            verbosity=3,
         )
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
@@ -405,23 +422,6 @@ class ExperimentTestMixin:
         self.assertFalse("] Signal separation finished" in capture_post.out)
         self.compare_output(exp)
 
-    def test_verbosity_3(self):
-        capture_pre = self.capsys.readouterr()  # Clear stdout
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            ncores_preparation=1,
-            ncores_separation=1,
-            verbosity=3,
-        )
-        exp.separate()
-        capture_post = self.recapsys(capture_pre)  # Capture and then re-outputs
-        self.assertTrue("] Extraction finished" in capture_post.out)
-        self.assertTrue("] Signal separation finished" in capture_post.out)
-        self.assertFalse("Loading image" in capture_post.out)
-        self.assertFalse("NMF converged after" in capture_post.out)
-        self.compare_output(exp)
-
     def test_verbosity_4(self):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(
@@ -433,36 +433,33 @@ class ExperimentTestMixin:
         )
         exp.separate()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-outputs
-        self.assertTrue("Loading image" in capture_post.out)
-        self.assertTrue("NMF converged after" in capture_post.out)
+        self.assertTrue("] Extraction finished" in capture_post.out)
+        self.assertTrue("] Signal separation finished" in capture_post.out)
+        self.assertFalse("Loading image" in capture_post.out)
+        self.assertFalse("NMF converged after" in capture_post.out)
         self.compare_output(exp)
 
-    def test_verbosity_2_imagesloaded(self):
-        # Load images as np.ndarrays
-        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
-        datahandler = extraction.DataHandlerTifffile()
-        images = [datahandler.image2array(pth) for pth in image_paths]
-        # Run FISSA on pre-loaded images with verbosity=2
+    def test_verbosity_5(self):
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(
-            images,
+            self.images_dir,
             self.roi_zip_path,
             ncores_preparation=1,
             ncores_separation=1,
-            verbosity=2,
+            verbosity=5,
         )
-        exp.separation_prep()
-        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        # Check FISSA lists the arguments are arrays
-        self.assertTrue("numpy.ndarray" in capture_post.out)
-        self.compare_output(exp, separated=False)
+        exp.separate()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-outputs
+        self.assertTrue("Loading image" in capture_post.out)
+        self.assertTrue("NMF converged after" in capture_post.out)
+        self.compare_output(exp)
 
     def test_verbosity_3_imagesloaded(self):
         # Load images as np.ndarrays
         image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
         datahandler = extraction.DataHandlerTifffile()
         images = [datahandler.image2array(pth) for pth in image_paths]
-        # Run FISSA on pre-loaded images with verbosity=2
+        # Run FISSA on pre-loaded images
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(
             images,
@@ -470,6 +467,26 @@ class ExperimentTestMixin:
             ncores_preparation=1,
             ncores_separation=1,
             verbosity=3,
+        )
+        exp.separation_prep()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        # Check FISSA lists the arguments are arrays
+        self.assertTrue("numpy.ndarray" in capture_post.out)
+        self.compare_output(exp, separated=False)
+
+    def test_verbosity_4_imagesloaded(self):
+        # Load images as np.ndarrays
+        image_paths = [os.path.join(self.images_dir, img) for img in self.image_names]
+        datahandler = extraction.DataHandlerTifffile()
+        images = [datahandler.image2array(pth) for pth in image_paths]
+        # Run FISSA on pre-loaded images
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp = core.Experiment(
+            images,
+            self.roi_zip_path,
+            ncores_preparation=1,
+            ncores_separation=1,
+            verbosity=4,
         )
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
@@ -652,7 +669,7 @@ class ExperimentTestMixin:
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
         exp = core.Experiment(
-            self.images_dir, self.roi_zip_path, self.output_dir, verbosity=2
+            self.images_dir, self.roi_zip_path, self.output_dir, verbosity=3
         )
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
@@ -705,7 +722,7 @@ class ExperimentTestMixin:
         image_path = self.images_dir
         roi_path = self.roi_zip_path
         # Run an experiment to generate the cache
-        exp1 = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
+        exp1 = core.Experiment(image_path, roi_path, self.output_dir, verbosity=3)
         exp1.separate()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -736,7 +753,7 @@ class ExperimentTestMixin:
         exp1.separation_prep()
         # Make a new experiment we will test; this should load the cache
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
+        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=3)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue("Reloading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separation_prep
@@ -898,7 +915,7 @@ class ExperimentTestMixin:
         roi_path = self.roi_zip_path
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=2)
+        exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=3)
         # Make a bad cache
         with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
             f.write("badfilecontents")

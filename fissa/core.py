@@ -936,13 +936,13 @@ class Experiment:
             )
             msg += "\n  Images:"
             for image in self.images:
-                if self.verbosity >= 3 or isinstance(image, basestring):
+                if self.verbosity >= 4 or isinstance(image, basestring):
                     msg += "\n    {}".format(image)
                 else:
                     msg += "\n    {}".format(image.__class__)
             msg += "\n  ROI sets:"
             for roiset in self.rois:
-                if self.verbosity >= 3 or isinstance(roiset, basestring):
+                if self.verbosity >= 4 or isinstance(roiset, basestring):
                     msg += "\n    {}".format(roiset)
                 else:
                     msg += "\n    {}".format(roiset.__class__)
@@ -957,12 +957,12 @@ class Experiment:
             nRegions=self.nRegions,
             expansion=self.expansion,
             datahandler=self.datahandler,
-            verbosity=self.verbosity - 1,
+            verbosity=self.verbosity - 2,
             total=n_trial,
         )
 
         # check whether we should show progress bars
-        disable_progressbars = self.verbosity != 1
+        disable_progressbars = self.verbosity <= 0 or 3 <= self.verbosity
 
         # Check how many workers to spawn.
         # Map the behaviour of ncores=None to one job per CPU core, like for
@@ -984,7 +984,7 @@ class Experiment:
         else:
             # Use multiprocessing
             outputs = Parallel(
-                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
+                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 5)
             )(
                 delayed(_extract_cfg)(image, rois, label=i)
                 for i, (image, rois) in tqdm(
@@ -1154,12 +1154,12 @@ class Experiment:
             tol=self.tol,
             max_tries=self.max_tries,
             method=self.method,
-            verbosity=self.verbosity - 1,
+            verbosity=self.verbosity - 2,
             total=n_roi,
         )
 
         # check whether we should show progress bars
-        disable_progressbars = self.verbosity != 1
+        disable_progressbars = self.verbosity <= 0 or 3 <= self.verbosity
 
         # Check how many workers to spawn.
         # Map the behaviour of ncores=None to one job per CPU core, like for
@@ -1182,7 +1182,7 @@ class Experiment:
         else:
             # Use multiprocessing
             outputs = Parallel(
-                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 4)
+                n_jobs=n_jobs, backend="threading", verbose=max(0, self.verbosity - 5)
             )(
                 delayed(_separate_cfg)(X, label=i)
                 for i, X in tqdm(
