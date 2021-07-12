@@ -526,15 +526,24 @@ class Experiment:
     roi_polys : :class:`numpy.ndarray`
         A :class:`numpy.ndarray` of shape ``(n_rois, n_trials)``, each element
         of which is itself a list of length ``nRegions + 1``, each element of
-        which is a list of length ``1``, containing a :class:`numpy.ndarray`
+        which is a list of length ``n_contour`` containing a :class:`numpy.ndarray`
         of shape ``(n_nodes, 2)``.
 
-        The nodes describe the polygon outline of each region as ``(y, x)``
-        points.
-        The outline of a ROI is given by
-        ``experiment.roi_polys[i_roi][i_trial][0][0]``,
-        and the :attr:`nRegions` neuropil regions by
-        ``experiment.roi_polys[i_roi][i_trial][1 + i_region][0]``.
+        Polygon contours describing the outline of each region.
+
+        For contiguous ROIs, the outline of the ``i_roi``-th ROI used in the
+        ``i_trial``-th trial is described by the array at
+        ``experiment.roi_polys[i_roi, i_trial][0][0]``.
+        This array consists of ``n_nodes`` rows, each representing the
+        coordinate of a node in ``(y, x)`` format.
+        For non-contiguous ROIs, a contour is needed for each disconnected
+        polygon making up the total aggregate ROI. These contours are found at
+        ``experiment.roi_polys[i_roi, i_trial][0][i_contour]``.
+
+        Similarly, the `nRegions` neuropil regions are each described by the
+        polygons
+        ``experiment.roi_polys[i_roi, i_trial][i_neurpil + 1][i_contour]``,
+        respectively.
 
     means : list of `n_trials` :class:`numpy.ndarray`, each shaped ``(height, width)``
         The temporal-mean image for each trial (i.e. for each TIFF file,
