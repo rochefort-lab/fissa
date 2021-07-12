@@ -1313,12 +1313,17 @@ class Experiment:
         deltaf_raw = np.empty_like(self.raw)
         deltaf_result = np.empty_like(self.result)
 
-        # loop over cells
+        # Can't include Δ in the tqdm description on Python2
+        desc = "Calculating {}f/f0".format(
+            "delta" if sys.version_info < (3, 0) else "Δ"
+        )
         disable_progressbars = self.verbosity < 1
+
+        # Loop over cells
         for cell in tqdm(
             range(self.nCell),
             total=self.nCell,
-            desc="Calculating Δf/f0",
+            desc=desc,
             disable=disable_progressbars,
         ):
             # if deltaf should be calculated across all trials
