@@ -35,6 +35,49 @@ from . import neuropil as npil
 from . import roitools
 
 
+def _pretty_timedelta(td=None, **kwargs):
+    """
+    Represent a difference in time as a human-readable string.
+
+    Parameters
+    ----------
+    td : datetime.timedelta, optional
+        The amount of time elapsed.
+    **kwargs
+        Additional arguments as per :class:`datetime.timedelta` constructor.
+
+    Returns
+    -------
+    str
+        Representation of the amount of time elapsed.
+    """
+    if td is None:
+        td = datetime.timedelta(**kwargs)
+    elif not isinstance(td, datetime.timedelta):
+        raise ValueError(
+            "First argument should be a datetime.timedelta instance,"
+            " but {} was given.".format(type(td))
+        )
+    elif kwargs:
+        raise ValueError(
+            "Either a timedelta object or its arguments should be given, not both."
+        )
+    if td.total_seconds() < 2:
+        return "{:.3f} seconds".format(td.total_seconds())
+    if td.total_seconds() < 10:
+        return "{:.2f} seconds".format(td.total_seconds())
+    if td.total_seconds() < 60:
+        return "{:.1f} seconds".format(td.total_seconds())
+    if td.total_seconds() < 3600:
+        s = td.total_seconds()
+        m = int(s // 60)
+        s -= m * 60
+        return "{:d} min, {:.0f} sec".format(m, s)
+    # For durations longer than one hour, we use the default string
+    # representation for a datetime.timedelta, H:MM:SS.microseconds
+    return str(td)
+
+
 def extract(
     image,
     rois,
@@ -167,7 +210,7 @@ def extract(
     if verbosity >= 2:
         # Build end message
         message = header + "Extraction finished" + footer
-        message += " in {}".format(datetime.timedelta(seconds=time.time() - t0))
+        message += " in {}".format(_pretty_timedelta(seconds=time.time() - t0))
         print(message, flush=True)
 
     return data, roi_polys, mean
@@ -329,7 +372,7 @@ def separate_trials(
     if verbosity >= 2:
         # Build end message
         message = header + "Signal separation finished" + footer
-        message += " in {}".format(datetime.timedelta(seconds=time.time() - t0))
+        message += " in {}".format(_pretty_timedelta(seconds=time.time() - t0))
         print(message, flush=True)
 
     return Xsep, Xmatch, Xmixmat, convergence
@@ -961,7 +1004,7 @@ class Experiment:
                 "Finished extracting raw signals from {} ROIs across {} trials in {}.".format(
                     nCell,
                     n_trial,
-                    datetime.timedelta(seconds=time.time() - t0),
+                    _pretty_timedelta(seconds=time.time() - t0),
                 ),
                 flush=True,
             )
@@ -1149,7 +1192,7 @@ class Experiment:
             message = "Finished separating signals from {} ROIs across {} trials in {}".format(
                 n_roi,
                 n_trial,
-                datetime.timedelta(seconds=time.time() - t0),
+                _pretty_timedelta(seconds=time.time() - t0),
             )
             if len(non_converged_rois) > 0:
                 message += (
@@ -1307,7 +1350,7 @@ class Experiment:
         if self.verbosity >= 1:
             print(
                 "Finished calculating Δf/f0 for raw and result signals in {}".format(
-                    datetime.timedelta(seconds=time.time() - t0)
+                    _pretty_timedelta(seconds=time.time() - t0)
                 ),
                 flush=True,
             )
