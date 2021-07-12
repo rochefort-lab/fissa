@@ -972,33 +972,69 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
-    def test_load_none(self):
-        """Behaviour when loading a cache containing None."""
+    def test_load_none_force(self):
+        """Behaviour when forcibly loading a cache containing None."""
         fields = ["raw", "result", "deltaf_result"]
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         # Set the fields to be something other than `None`
         for field in fields:
             setattr(exp, field, 42)
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
         np.savez_compressed(fname, **{field: None for field in fields})
         # Load the file and check the data appears as None, not np.array(None)
         exp.load(fname, force=True)
         for field in fields:
             self.assertIs(getattr(exp, field), None)
 
-    def test_load_scalar(self):
-        """Behaviour when loading a cache containing scalar values."""
-        fields = ["raw", "result", "deltaf_result"]
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+    def test_load_none(self):
+        """Behaviour when loading a cache containing None."""
+        kwargs = {"expansion": 0.213, "nRegions": 2}
+        fields = {"raw": None}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
         # Set the fields to be something other than `None`
         for field in fields:
             setattr(exp, field, 42)
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data appears as None, not np.array(None)
+        exp.load(fname)
+        for field in fields:
+            self.assertIs(getattr(exp, field), None)
+
+    def test_load_scalar_force(self):
+        """Behaviour when forcibly loading a cache containing scalar values."""
+        fields = ["raw", "result", "deltaf_result"]
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Set the fields to be something other than `None`
+        for field in fields:
+            setattr(exp, field, 42)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
         np.savez_compressed(fname, **{field: 1337 for field in fields})
         # Load the file and check the data appears as None, not np.array(None)
         exp.load(fname, force=True)
+        for field in fields:
+            self.assertEqual(getattr(exp, field), 1337)
+
+    def test_load_scalar(self):
+        """Behaviour when loading a cache containing None."""
+        kwargs = {"expansion": 0.213, "nRegions": 2}
+        fields = {"raw": 1337}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Set the fields to be something other than `None`
+        for field in fields:
+            setattr(exp, field, 42)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **kwargs, **fields)
+        # Load the file and check the data appears as None, not np.array(None)
+        exp.load(fname)
         for field in fields:
             self.assertEqual(getattr(exp, field), 1337)
 
