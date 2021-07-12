@@ -77,6 +77,7 @@ class ExperimentTestMixin:
         self.assert_equal(np.shape(actual.raw), expected_shape)
         self.assert_equal(len(actual.means), len(self.image_names))
         # Check contents are correct
+        self.assert_allclose_ragged(actual.raw, self.expected["raw"])
         self.assert_equal(actual.means, self.expected["means"])
         self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
         # Check parameters match
