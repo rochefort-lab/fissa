@@ -1265,7 +1265,7 @@ class Experiment:
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
         r"""
-        Calculate deltaf/f0 for raw and result traces.
+        Calculate Δf/f0 for raw and result traces.
 
         The outputs are found in the :attr:`deltaf_raw` and
         :attr:`deltaf_result` attributes, which can be accessed at
