@@ -13,8 +13,7 @@ def findBaselineF0(rawF, fs, axis=0, keepdims=False):
     """
     Find the baseline for a fluorescence imaging trace line.
 
-    The baseline, F0, is the 5th-percentile of the 1Hz
-    lowpass filtered signal.
+    The baseline, F0, is the 5th-percentile of the 1Hz lowpass filtered signal.
 
     Parameters
     ----------
