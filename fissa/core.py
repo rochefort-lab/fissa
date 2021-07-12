@@ -115,7 +115,9 @@ def extract(
         Level of verbosity. The options are:
 
         - ``0``: No outputs.
-        - ``1``: Print separation progress.
+        - ``1``: Print extraction start.
+        - ``2``: Print extraction end.
+        - ``3``: Print start of each step within the extraction process.
 
     label : str or int, optional
         The label for the current trial. Only used for reporting progress.
@@ -266,7 +268,9 @@ def separate_trials(
         Level of verbosity. The options are:
 
         - ``0``: No outputs.
-        - ``1``: Print separation progress.
+        - ``1``: Print separation start.
+        - ``2``: Print separation end.
+        - ``3``: Print progress details during separation.
 
     label : str or int, optional
         Label/name or index of the ROI currently being processed.
@@ -492,12 +496,8 @@ class Experiment:
         ignored.
 
     verbosity : int, default=1
-        How verbose the processing will be. The options are:
-
-        - ``0``: No outputs.
-        - ``1``: Progress bars and high level summary.
-        - ``2``: Print intermediate progress steps.
-        - ``3``: Print per-cell progress.
+        How verbose the processing will be. Increase for more output messages.
+        Processing is silent if ``verbosity=0``.
 
         .. versionadded:: 1.0.0
 
