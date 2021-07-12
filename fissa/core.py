@@ -1305,7 +1305,24 @@ class Experiment:
         t0 = time.time()
 
         if self.verbosity >= 2:
-            print("Calculating Δf/f0 for raw and result signals")
+            msg = "Calculating Δf/f0 for raw and result signals"
+            if self.verbosity < 3:
+                pass
+            elif across_trials:
+                msg += " (same f0 across all trials"
+            else:
+                msg += " (different f0 baseline for each trial"
+            if self.verbosity < 3:
+                pass
+            elif use_raw_f0:
+                msg += ", using f0 in raw data for result)"
+            else:
+                msg += ")"
+                msg += (
+                    "\nCaution: Measuring baseline f0 from result may result"
+                    " in division by zero."
+                )
+            print(msg)
             sys.stdout.flush()
 
         # Initialise output arrays
