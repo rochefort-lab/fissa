@@ -1003,7 +1003,7 @@ class Experiment:
                 if getattr(self, validator, None) is None:
                     if self.verbosity >= 2:
                         print(
-                            "Adopting value {}={} from {}".format(
+                            "    Adopting value {}={} from {}".format(
                                 validator, value, path
                             )
                         )
