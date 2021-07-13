@@ -1094,7 +1094,9 @@ class ExperimentTestMixin:
     def test_matlab(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
-        exp.save_to_matlab()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
         self.compare_matlab(fname, exp)
@@ -1105,7 +1107,9 @@ class ExperimentTestMixin:
         )
         exp.separate()
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        exp.save_to_matlab()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            exp.save_to_matlab()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_equal(capture_post.out, "")
 
@@ -1113,14 +1117,18 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         fname = os.path.join(self.output_dir, "test_output.mat")
-        exp.save_to_matlab(fname)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            exp.save_to_matlab(fname)
         # Check contents of the .mat file
         self.compare_matlab(fname, exp)
 
     def test_matlab_no_cache_no_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
-        self.assertRaises(ValueError, exp.save_to_matlab)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            self.assertRaises(ValueError, exp.save_to_matlab)
 
     def test_matlab_from_cache(self):
         """Save to matfile after loading from cache."""
@@ -1130,7 +1138,9 @@ class ExperimentTestMixin:
         # Make a new experiment we will test
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Cache should be loaded without calling separate
-        exp.save_to_matlab()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
         self.compare_matlab(fname, exp)
 
@@ -1138,7 +1148,9 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(self.fs)
-        exp.save_to_matlab()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
         self.compare_matlab(fname, exp, compare_deltaf=True)

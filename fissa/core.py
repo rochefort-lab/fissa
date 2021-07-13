@@ -1624,6 +1624,9 @@ class Experiment:
         r"""
         Save the results to a MATLAB file.
 
+        .. deprecated:: 1.0.0
+            Use ``experiment.to_matfile(legacy=True)`` instead.
+
         This will generate a .mat file which can be loaded into MATLAB to
         provide structs: ROIs, result, raw.
 
@@ -1657,6 +1660,11 @@ class Experiment:
         --------
         Experiment.to_matfile
         """
+        warnings.warn(
+            "The experiment.save_to_matlab() method is deprecated."
+            " Please use experiment.to_matfile(legacy=True) instead.",
+            DeprecationWarning,
+        )
         return self.to_matfile(fname=fname, legacy=True)
 
 
