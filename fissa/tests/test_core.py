@@ -76,6 +76,8 @@ class ExperimentTestMixin:
         expected_shape = len(self.roi_paths), len(self.image_names)
         self.assert_equal(np.shape(actual.raw), expected_shape)
         self.assert_equal(len(actual.means), len(self.image_names))
+        self.assert_equal(actual.nCell, len(actual.raw))
+        self.assert_equal(actual.nTrials, len(actual.raw[0]))
         # Check contents are correct
         self.assert_allclose_ragged(actual.raw, self.expected["raw"])
         self.assert_equal(actual.means, self.expected["means"])
@@ -83,7 +85,6 @@ class ExperimentTestMixin:
         # Check parameters match
         self.assert_equal(actual.expansion, self.expected["expansion"])
         self.assert_equal(actual.nRegions, self.expected["nRegions"])
-        self.assert_equal(actual.nCell, len(actual.raw))
         if separated:
             # Check sizes are correct
             self.assert_equal(np.shape(actual.sep), expected_shape)
