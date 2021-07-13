@@ -159,6 +159,122 @@ class ExperimentTestMixin:
             self.assert_allclose_ragged(actual.mixmat, expected.mixmat)
             self.assert_equal(actual.info, expected.info)
 
+    def compare_matlab(
+        self,
+        fname,
+        expected,
+        prepared=True,
+        separated=True,
+        compare_deltaf=None,
+    ):
+        """
+        Compare matfile contents against an experiment.
+
+        Parameters
+        ----------
+        fname : str
+            Path to .mat file to test.
+        expected : fissa.Experiment
+            Experiment with expected values to compare against.
+        prepared : bool
+            Whether to compare results of :meth:`fissa.Experiment.separation_prep`.
+            Default is ``True``.
+        separated : bool
+            Whether to compare results of :meth:`fissa.Experiment.separate`.
+            Default is ``True``.
+        compare_deltaf : bool or None
+            Whether to compare ``deltaf_raw`` and ``deltaf_result`` against
+            their targets.
+            If ``None`` (default), this is automatically determined based on
+            whether ``experiment.deltaf_result`` is not ``None``.
+
+        See Also
+        --------
+        compare_matlab_legacy, compare_experiments
+        """
+        if compare_deltaf is None:
+            compare_deltaf = expected.deltaf_result is not None
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        self.assert_allclose_ragged(M["raw"], expected.raw)
+
+        # Check the parameters are the same
+        self.assert_equal(M["nRegions"], expected.nRegions)
+        self.assert_equal(M["expansion"], expected.expansion)
+        self.assert_equal(M["alpha"], expected.alpha)
+        self.assert_equal(M["max_iter"], expected.max_iter)
+        self.assert_equal(M["max_tries"], expected.max_tries)
+        self.assert_equal(M["tol"], expected.tol)
+        self.assert_equal(M["method"], expected.method)
+
+        if prepared:
+            if expected.raw is None:
+                self.assertIs(M["raw"], expected.raw)
+            else:
+                self.assert_allclose_ragged(M["raw"], expected.raw)
+            self.assert_allclose_ragged(M["means"], expected.means)
+            # self.assert_allclose_ragged(M["roi_polys"], expected.roi_polys)
+        if separated:
+            self.assert_allclose_ragged(M["result"], expected.result)
+            self.assert_allclose_ragged(M["sep"], expected.sep)
+            self.assert_allclose_ragged(M["mixmat"], expected.mixmat)
+            # self.assert_equal(M["info"], expected.info)
+
+    def compare_matlab_expected(self, fname, separated=True, compare_deltaf=True):
+        """
+        Compare matfile contents against expected from test attributes.
+
+        Parameters
+        ----------
+        fname : str
+            Path to .mat file to test.
+        separated : bool
+            Whether to compare results of :meth:`fissa.Experiment.separate`.
+            Default is ``True``.
+        compare_deltaf : bool or None
+            Whether to compare ``deltaf_raw`` and ``deltaf_result``.
+            Default is ``True``.
+
+        See Also
+        --------
+        compare_matlab_legacy_expected, compare_output
+        """
+        self.assertTrue(os.path.isfile(fname))
+        # Check contents of the .mat file
+        M = loadmat(fname)
+        # Check sizes are correct
+        expected_shape = len(self.roi_paths), len(self.image_names)
+        self.assert_equal(np.shape(M["raw"]), expected_shape)
+        self.assert_equal(len(M["means"]), len(self.image_names))
+        self.assert_equal(M["nCell"], len(M["raw"]))
+        # self.assert_equal(M["nTrials"], len(M["raw[0]"]))
+        # Check contents are correct
+        self.assert_allclose_ragged(M["raw"], self.expected["raw"])
+        self.assert_equal(M["means"], self.expected["means"])
+        # self.assert_allclose_ragged(M["roi_polys"], self.expected["roi_polys"])
+        # Check parameters match
+        self.assert_equal(M["expansion"], self.expected["expansion"])
+        self.assert_equal(M["nRegions"], self.expected["nRegions"])
+        if separated:
+            # Check sizes are correct
+            self.assert_equal(np.shape(M["sep"]), expected_shape)
+            # Check result is correct
+            self.compare_result(M["result"])
+            # Check contents are correct
+            self.assert_allclose_ragged(M["sep"], self.expected["sep"])
+            self.assert_allclose_ragged(M["mixmat"], self.expected["mixmat"])
+            # Check parameters match
+            self.assert_equal(M["alpha"], self.expected["alpha"])
+            self.assert_equal(M["max_iter"], self.expected["max_iter"])
+            self.assert_equal(M["max_tries"], self.expected["max_tries"])
+            self.assert_equal(M["method"], self.expected["method"])
+            self.assert_equal(M["tol"], self.expected["tol"])
+        if compare_deltaf:
+            self.assert_allclose_ragged(M["deltaf_raw"], self.expected["deltaf_raw"])
+        if compare_deltaf and separated:
+            self.compare_deltaf_result(M["deltaf_result"])
+
     def compare_matlab_legacy(self, fname, experiment, compare_deltaf=None):
         """
         Compare legacy matfile contents against an experiment.
@@ -1091,6 +1207,58 @@ class ExperimentTestMixin:
         expected_shape = len(self.roi_paths), len(self.image_names)
         self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
+    def test_matlab(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp.separate()
+        exp.to_matfile()
+        fname = os.path.join(self.output_dir, "separated.mat")
+        # Check contents of the .mat file
+        self.compare_matlab(fname, exp)
+
+    def test_matlab_quiet(self):
+        exp = core.Experiment(
+            self.images_dir, self.roi_zip_path, self.output_dir, verbosity=0
+        )
+        exp.separate()
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.to_matfile()
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        self.assert_equal(capture_post.out, "")
+
+    def test_matlab_custom_fname(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp.separate()
+        fname = os.path.join(self.output_dir, "test_output.mat")
+        exp.to_matfile(fname)
+        # Check contents of the .mat file
+        self.compare_matlab(fname, exp)
+
+    def test_matlab_no_cache_no_fname(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        self.assertRaises(ValueError, exp.to_matfile)
+
+    def test_matlab_from_cache(self):
+        """Save to matfile after loading from cache."""
+        # Run an experiment to generate the cache
+        exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp1.separate()
+        # Make a new experiment we will test
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        # Cache should be loaded without calling separate
+        exp.to_matfile()
+        fname = os.path.join(self.output_dir, "separated.mat")
+        self.compare_matlab(fname, exp)
+
+    def test_matlab_deltaf(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp.separate()
+        exp.calc_deltaf(self.fs)
+        exp.to_matfile()
+        fname = os.path.join(self.output_dir, "separated.mat")
+        # Check contents of the .mat file
+        self.compare_matlab(fname, exp, compare_deltaf=True)
+
     def test_matlab_legacy(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
@@ -1153,7 +1321,7 @@ class ExperimentTestMixin:
             exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
-        self.compare_matlab(fname, exp, compare_deltaf=True)
+        self.compare_matlab_legacy(fname, exp, compare_deltaf=True)
 
     def test_func(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
