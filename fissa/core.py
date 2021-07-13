@@ -874,7 +874,7 @@ class Experiment:
         ----------
         path : str, optional
             Path to cache file (.npz format) or a directory containing
-            ``"preparation.npz"`` and/or ``"separated.npz"`` files.
+            ``"prepared.npz"`` and/or ``"separated.npz"`` files.
             Default behaviour is to use the :attr:`folder` parameter which was
             provided when the object was initialised is used
             (``experiment.folder``).
@@ -886,7 +886,7 @@ class Experiment:
                 )
             path = self.folder
         if os.path.isdir(path) or path == "":
-            for fname in ("preparation.npz", "separated.npz"):
+            for fname in ("prepared.npz", "separated.npz"):
                 fullfname = os.path.join(path, fname)
                 if not os.path.exists(fullfname):
                     continue
@@ -945,7 +945,7 @@ class Experiment:
             fname = None
             redo = True
         else:
-            fname = os.path.join(self.folder, "preparation.npz")
+            fname = os.path.join(self.folder, "prepared.npz")
 
         # try to load data from filename
         if fname is None or not os.path.isfile(fname):
@@ -1074,7 +1074,7 @@ class Experiment:
         ----------
         destination : str, optional
             Path to output file. The default destination is
-            ``"preparation.npz"`` within the cache directory
+            ``"prepared.npz"`` within the cache directory
             ``experiment.folder``.
         """
         fields = ["expansion", "means", "nCell", "nRegions", "raw", "roi_polys"]
@@ -1084,7 +1084,7 @@ class Experiment:
                     "The folder attribute must be declared in order to save"
                     " preparation outputs the cache."
                 )
-            destination = os.path.join(self.folder, "preparation.npz")
+            destination = os.path.join(self.folder, "prepared.npz")
         if self.verbosity >= 1:
             print("Saving extracted traces to {}".format(destination))
             sys.stdout.flush()
