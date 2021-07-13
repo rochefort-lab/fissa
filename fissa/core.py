@@ -727,7 +727,6 @@ class Experiment:
         self.max_iter = max_iter
         self.tol = tol
         self.max_tries = max_tries
-        self.nTrials = len(self.images)  # number of trials
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
         self.method = method
@@ -740,6 +739,18 @@ class Experiment:
             os.makedirs(folder)
         else:
             self.load()
+
+    @property
+    def nCell(self):
+        if getattr(self, "result", None) is not None:
+            return self.result.shape[0]
+        if getattr(self, "raw", None) is not None:
+            return self.raw.shape[0]
+        return None
+
+    @property
+    def nTrials(self):
+        return len(self.images)
 
     def __str__(self):
         if isinstance(self.images, basestring):
@@ -824,7 +835,7 @@ class Experiment:
         if verbosity is None:
             verbosity = self.verbosity - 1
 
-        keys = ["means", "nCell", "raw", "roi_polys", "deltaf_raw"]
+        keys = ["means", "raw", "roi_polys", "deltaf_raw"]
         # Wipe outputs
         keys_cleared = []
         for key in keys:
@@ -1046,7 +1057,6 @@ class Experiment:
                 raw[cell][trial] = outputs[trial][0][cell]
                 roi_polys[cell][trial] = outputs[trial][1][cell]
 
-        self.nCell = n_roi  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
 
