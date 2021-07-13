@@ -787,7 +787,7 @@ class ExperimentTestMixin:
         # Make a new experiment we will test
         new_folder = os.path.join(self.output_dir, "b")
         exp = core.Experiment(image_path, roi_path, new_folder)
-        exp.load(os.path.join(prev_folder, "preparation.npz"))
+        exp.load(os.path.join(prev_folder, "prepared.npz"))
         # Cached prep should now be loaded correctly
         self.compare_experiments(exp, exp1, folder=False)
 
@@ -844,7 +844,7 @@ class ExperimentTestMixin:
         """Behaviour when loading a prep cache that is empty."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Make an empty prep save file
-        np.savez_compressed(os.path.join(self.output_dir, "preparation.npz"))
+        np.savez_compressed(os.path.join(self.output_dir, "prepared.npz"))
         exp.separation_prep()
         self.compare_output(exp, separated=False)
 
@@ -881,7 +881,7 @@ class ExperimentTestMixin:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         # Make a bad cache
-        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
+        with open(os.path.join(self.output_dir, "prepared.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -901,7 +901,7 @@ class ExperimentTestMixin:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         # Make a bad cache
-        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
+        with open(os.path.join(self.output_dir, "prepared.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -924,7 +924,7 @@ class ExperimentTestMixin:
             os.makedirs(self.output_dir)
         exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=3)
         # Make a bad cache
-        with open(os.path.join(self.output_dir, "preparation.npz"), "w") as f:
+        with open(os.path.join(self.output_dir, "prepared.npz"), "w") as f:
             f.write("badfilecontents")
 
         capture_pre = self.capsys.readouterr()  # Clear stdout
