@@ -674,18 +674,28 @@ class Experiment:
         until then, it is set to ``None``.
     """
 
+    _defaults = {
+        "nRegions": 4,
+        "expansion": 1,
+        "method": "nmf",
+        "alpha": 0.1,
+        "max_iter": 20000,
+        "tol": 1e-4,
+        "max_tries": 1,
+    }
+
     def __init__(
         self,
         images,
         rois,
         folder=None,
-        nRegions=4,
-        expansion=1,
-        method="nmf",
-        alpha=0.1,
-        max_iter=20000,
-        tol=1e-4,
-        max_tries=1,
+        nRegions=None,
+        expansion=None,
+        method=None,
+        alpha=None,
+        max_iter=None,
+        tol=None,
+        max_tries=None,
         ncores_preparation=-1,
         ncores_separation=-1,
         lowmemory_mode=False,
@@ -879,6 +889,41 @@ class Experiment:
 
         if verbosity >= 1 and keys_cleared:
             print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
+
+    def _adopt_default_parameters(self, only_preparation=False, force=False):
+        r"""
+        Adopt default values for unset analysis parameters.
+
+        .. versionadded:: 1.0.0
+
+        Parameters
+        ----------
+        only_preparation : bool, optional
+            Whether to restrict the parameters to only those used for data
+            extraction during the preparation step. Default is ``False``.
+        force : bool, optional
+            If `True`, all parameters will be overridden with default values
+            even if they had already been set. Default is ``False``.
+        """
+        defaults = self._defaults
+        if only_preparation:
+            # Prune down to only the preparation parameters
+            preparation_fields = ["expansion", "nRegions"]
+            defaults = {k: v for k, v in defaults.items() if k in preparation_fields}
+        # Check through each parameter and set unset values from defaults
+        keys_adopted = []
+        for key, value in defaults.items():
+            if getattr(self, key, None) is not None and not force:
+                continue
+            setattr(self, key, value)
+            keys_adopted.append(key)
+
+        if self.verbosity >= 5 and keys_adopted:
+            print(
+                "Adopted default values for {}".format(
+                    ", ".join(repr(k) for k in keys_adopted)
+                )
+            )
 
     def load(self, path=None, force=False, skip_clear=False):
         r"""
@@ -1094,6 +1139,9 @@ class Experiment:
         # Wipe outputs
         self.clear()
 
+        # Adopt default values
+        self._adopt_default_parameters(only_preparation=True)
+
         # Extract signals
         n_trial = len(self.images)
         if self.verbosity >= 2:
@@ -1295,6 +1343,9 @@ class Experiment:
 
         # Wipe outputs
         self.clear_separated()
+
+        # Adopt default values
+        self._adopt_default_parameters()
 
         # Check size of the input arrays
         n_roi = len(self.raw)
