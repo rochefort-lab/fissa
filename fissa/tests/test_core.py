@@ -1331,8 +1331,8 @@ class ExperimentTestMixin:
         )
         self.compare_result(actual)
         # Check contents of the .mat file
-        expected_file = os.path.join(self.output_dir, "matlab.mat")
-        self.compare_matlab_legacy_expected(expected_file, compare_deltaf=False)
+        expected_file = os.path.join(self.output_dir, "separated.mat")
+        self.compare_matlab_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_matlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
@@ -1341,8 +1341,8 @@ class ExperimentTestMixin:
             image_path, roi_path, self.output_dir, export_to_matlab=True
         )
         self.compare_result(actual)
-        expected_file = os.path.join(self.output_dir, "matlab.mat")
-        self.compare_matlab_legacy_expected(expected_file, compare_deltaf=False)
+        expected_file = os.path.join(self.output_dir, "separated.mat")
+        self.compare_matlab_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_nomatlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
@@ -1351,7 +1351,7 @@ class ExperimentTestMixin:
             image_path, roi_path, self.output_dir, export_to_matlab=False
         )
         self.compare_result(actual)
-        expected_file = os.path.join(self.output_dir, "matlab.mat")
+        expected_file = os.path.join(self.output_dir, "separated.mat")
         self.assertFalse(os.path.isfile(expected_file))
 
     def test_func_manual_matlab(self):
@@ -1362,7 +1362,7 @@ class ExperimentTestMixin:
             image_path, roi_path, self.output_dir, export_to_matlab=fname
         )
         self.compare_result(actual)
-        self.compare_matlab_legacy_expected(fname, compare_deltaf=False)
+        self.compare_matlab_expected(fname, compare_deltaf=False)
 
     def test_func_nocache(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)

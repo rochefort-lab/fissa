@@ -1732,7 +1732,7 @@ def run_fissa(
         Whether to export the data to a MATLAB-compatible .mat file.
         If `export_to_matlab` is a string, it is used as the path to the output
         file. If ``export_to_matlab=True``, the matfile is saved to the
-        default path of ``"matlab.mat"`` within the `folder` directory, and
+        default path of ``"separated.mat"`` within the `folder` directory, and
         `folder` must be set. If this is ``None``, the matfile is exported to
         the default path if `folder` is set, and otherwise is not exported.
         Default is ``False``.
@@ -1767,7 +1767,7 @@ def run_fissa(
     # Save to matfile
     if export_to_matlab:
         matlab_fname = None if isinstance(export_to_matlab, bool) else export_to_matlab
-        experiment.save_to_matlab(matlab_fname)
+        experiment.to_matfile(matlab_fname)
     # Return appropriate data
     if return_deltaf:
         return experiment.deltaf_result
