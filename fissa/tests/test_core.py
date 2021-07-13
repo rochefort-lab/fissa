@@ -1262,6 +1262,14 @@ class ExperimentTestMixin:
     def test_matlab_legacy(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
+        exp.to_matfile(legacy=True)
+        fname = os.path.join(self.output_dir, "matlab.mat")
+        # Check contents of the .mat file
+        self.compare_matlab_legacy(fname, exp)
+
+    def test_matlab_legacy_deprecated(self):
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+        exp.separate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             exp.save_to_matlab()
@@ -1275,9 +1283,7 @@ class ExperimentTestMixin:
         )
         exp.separate()
         capture_pre = self.capsys.readouterr()  # Clear stdout
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            exp.save_to_matlab()
+        exp.to_matfile(legacy=True)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_equal(capture_post.out, "")
 
@@ -1285,9 +1291,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         fname = os.path.join(self.output_dir, "test_output.mat")
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            exp.save_to_matlab(fname)
+        exp.to_matfile(fname, legacy=True)
         # Check contents of the .mat file
         self.compare_matlab_legacy(fname, exp)
 
@@ -1306,9 +1310,7 @@ class ExperimentTestMixin:
         # Make a new experiment we will test
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Cache should be loaded without calling separate
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            exp.save_to_matlab()
+        exp.to_matfile(legacy=True)
         fname = os.path.join(self.output_dir, "matlab.mat")
         self.compare_matlab_legacy(fname, exp)
 
@@ -1316,9 +1318,7 @@ class ExperimentTestMixin:
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(self.fs)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            exp.save_to_matlab()
+        exp.to_matfile(legacy=True)
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
         self.compare_matlab_legacy(fname, exp, compare_deltaf=True)
