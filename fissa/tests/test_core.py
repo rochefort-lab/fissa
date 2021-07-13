@@ -17,6 +17,14 @@ from .. import core, extraction
 from .base_test import BaseTestCase
 
 
+def merge_dicts(x, *args):
+    """Merge multiple dictionaries together."""
+    z = x.copy()
+    for arg in args:
+        z.update(arg)
+    return z
+
+
 class ExperimentTestMixin:
     """Base tests for Experiment class."""
 
@@ -983,7 +991,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data appears correctly
         exp.load(fname)
         for key, value in fields.items():
@@ -1016,7 +1024,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data appears as None, not np.array(None)
         exp.load(fname)
         for key, value in fields.items():
@@ -1043,7 +1051,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set to a scalar`
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data appears correctly
         exp.load(fname)
         for key, value in fields.items():
@@ -1062,7 +1070,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set badly
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data is not loaded
         with self.assertRaises(ValueError):
             exp.load(fname)
@@ -1074,7 +1082,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set badly
         fname = os.path.join(self.output_dir, "preparation.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data is not loaded
         with self.assertRaises(ValueError):
             core.Experiment(
@@ -1098,7 +1106,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set badly
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data is not loaded
         with self.assertRaises(ValueError):
             exp.load(fname)
@@ -1117,7 +1125,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set badly
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data is not loaded
         with self.assertRaises(ValueError):
             exp.load(fname)
@@ -1136,7 +1144,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set badly
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **kwargs, **fields)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data appears correctly
         exp.load(fname)
         self.assert_equal(exp.raw, fields["raw"])
