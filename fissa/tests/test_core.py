@@ -311,6 +311,12 @@ class ExperimentTestMixin:
         exp2 = eval(actual)
         self.compare_experiments(exp, exp2)
 
+    def test_initial_shapes(self):
+        """Check nCell and nTrials are correct after init, before extracting data."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        self.assert_equal(exp.nCell, None)
+        self.assert_equal(exp.nTrials, len(self.image_names))
+
     def test_imagedir_roizip(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
