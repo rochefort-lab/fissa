@@ -954,7 +954,7 @@ class Experiment:
             ValGroup(
                 "prepared",
                 ["expansion", "nRegions"],
-                ["deltaf_raw", "means", "nCell", "raw", "roi_polys"],
+                ["deltaf_raw", "means", "raw", "roi_polys"],
                 ["raw"],
                 self.clear,
             ),
