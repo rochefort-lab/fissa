@@ -1145,10 +1145,9 @@ class ExperimentTestMixin:
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
         np.savez_compressed(fname, **merge_dicts(kwargs, fields))
-        # Load the file and check the data appears correctly
-        exp.load(fname)
-        self.assert_equal(exp.raw, fields["raw"])
-        self.assertIs(exp.result, None)
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
 
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
