@@ -1039,8 +1039,25 @@ class Experiment:
             if not skip_clear and clearif in cache.files:
                 clearfn()
             # All the validators were valid, so we are okay to load the fields
+            any_field_loaded = False
+            for field in fields:
+                if field not in cache or field in dynamic_properties:
+                    continue
+                value = cache[field]
+                if np.array_equal(value, None):
+                    value = None
+                elif value.ndim == 0:
+                    # Handle loading scalars
+                    value = value.item()
+                setattr(self, field, value)
+                set_fields.add(field)
+                any_field_loaded = True
+            # If we didn't load any output data, no need to set the validators
+            # or print that we loaded something.
+            if not any_field_loaded:
+                continue
+            # Load all the validators, overwriting our local values if None
             for validator in validators:
-                # Load all the validators, overwriting our local values if None
                 value = cache[validator]
                 if np.array_equal(value, None):
                     value = None
@@ -1056,17 +1073,6 @@ class Experiment:
                         )
                 setattr(self, validator, value)
                 set_fields.add(validator)
-            for field in fields:
-                if field not in cache or field in dynamic_properties:
-                    continue
-                value = cache[field]
-                if np.array_equal(value, None):
-                    value = None
-                elif value.ndim == 0:
-                    # Handle loading scalars
-                    value = value.item()
-                setattr(self, field, value)
-                set_fields.add(field)
             if self.verbosity >= 2:
                 print("Loaded {} data from {}".format(category, path))
 
