@@ -1040,7 +1040,11 @@ class ExperimentTestMixin:
     def test_calcdeltaf_notrawf0(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=4)
         exp.separate()
-        exp.calc_deltaf(self.fs, use_raw_f0=False)
+        # Ignore division by zero, which is likely to occur now and something
+        # we want to alert the user to.
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="divide by zero")
+            exp.calc_deltaf(self.fs, use_raw_f0=False)
         # We did not use this setting to generate the expected values, so can't
         # compare the output against the target.
         self.compare_output(exp, compare_deltaf=False)
@@ -1062,7 +1066,11 @@ class ExperimentTestMixin:
     def test_calcdeltaf_notrawf0_notacrosstrials(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, verbosity=4)
         exp.separate()
-        exp.calc_deltaf(self.fs, use_raw_f0=False, across_trials=False)
+        # Ignore division by zero, which is likely to occur now and something
+        # we want to alert the user to.
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="divide by zero")
+            exp.calc_deltaf(self.fs, use_raw_f0=False, across_trials=False)
         # We did not use this setting to generate the expected values, so can't
         # compare the output against the target.
         self.compare_output(exp, compare_deltaf=False)

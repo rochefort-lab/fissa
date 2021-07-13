@@ -1513,7 +1513,12 @@ class Experiment:
         if getattr(self, "deltaf_result", None) is not None:
             M["df_result"] = reformat_dict_for_matlab(self.deltaf_result)
 
-        savemat(fname, M)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="Creating an ndarray from ragged nested sequences",
+            )
+            savemat(fname, M)
 
 
 def run_fissa(

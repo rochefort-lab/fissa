@@ -15,6 +15,11 @@ import tempfile
 import unittest
 from inspect import getsourcefile
 
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
+
 import numpy as np
 import pytest
 from numpy.testing import (
@@ -30,9 +35,15 @@ TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
 def assert_allclose_ragged(actual, desired):
-    assert_equal(np.shape(actual), np.shape(desired))
+    assert_equal(
+        np.array(actual, dtype=object).shape,
+        np.array(desired, dtype=object).shape,
+    )
     for desired_i, actual_i in zip(desired, actual):
-        if np.asarray(desired).dtype == object:
+        if (
+            getattr(desired, "dtype", None) == object
+            or np.asarray(desired).dtype == object
+        ):
             assert_allclose_ragged(actual_i, desired_i)
         else:
             assert_allclose(actual_i, desired_i)
