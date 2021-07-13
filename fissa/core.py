@@ -1012,7 +1012,7 @@ class Experiment:
                 _extract_cfg(image, rois, label=i)
                 for i, (image, rois) in tqdm(
                     enumerate(zip(self.images, self.rois)),
-                    total=self.nTrials,
+                    total=n_trial,
                     desc="Extracting traces",
                     disable=disable_progressbars,
                 )
@@ -1025,35 +1025,35 @@ class Experiment:
                 delayed(_extract_cfg)(image, rois, label=i)
                 for i, (image, rois) in tqdm(
                     enumerate(zip(self.images, self.rois)),
-                    total=self.nTrials,
+                    total=n_trial,
                     desc="Extracting traces",
                     disable=disable_progressbars,
                 )
             )
 
         # get number of cells
-        nCell = len(outputs[0][1])
+        n_roi = len(outputs[0][1])
 
         # predefine data structures
-        raw = np.empty((nCell, self.nTrials), dtype=object)
+        raw = np.empty((n_roi, n_trial), dtype=object)
         roi_polys = np.empty_like(raw)
 
         # Set outputs
         self.means = []
-        for trial in range(self.nTrials):
+        for trial in range(n_trial):
             self.means.append(outputs[trial][2])
-            for cell in range(nCell):
+            for cell in range(n_roi):
                 raw[cell][trial] = outputs[trial][0][cell]
                 roi_polys[cell][trial] = outputs[trial][1][cell]
 
-        self.nCell = nCell  # number of cells
+        self.nCell = n_roi  # number of cells
         self.raw = raw
         self.roi_polys = roi_polys
 
         if self.verbosity >= 1:
             print(
                 "Finished extracting raw signals from {} ROIs across {} trials in {}.".format(
-                    nCell,
+                    n_roi,
                     n_trial,
                     _pretty_timedelta(seconds=time.time() - t0),
                 )
@@ -1210,7 +1210,7 @@ class Experiment:
                 _separate_cfg(X, label=i)
                 for i, X in tqdm(
                     enumerate(self.raw),
-                    total=self.nCell,
+                    total=len(self.raw),
                     desc="Separating data",
                     disable=disable_progressbars,
                 )
@@ -1223,7 +1223,7 @@ class Experiment:
                 delayed(_separate_cfg)(X, label=i)
                 for i, X in tqdm(
                     enumerate(self.raw),
-                    total=self.nCell,
+                    total=len(self.raw),
                     desc="Separating data",
                     disable=disable_progressbars,
                 )
@@ -1375,10 +1375,14 @@ class Experiment:
         # Can't include Δ in the tqdm description on Python2
         desc = "Calculating {}f/f0".format("d" if sys.version_info < (3, 0) else "Δ")
 
+        # Check size of the input arrays
+        n_roi = len(self.result)
+        n_trial = len(self.result[0])
+
         # Loop over cells
         for cell in tqdm(
-            range(self.nCell),
-            total=self.nCell,
+            range(n_roi),
+            total=n_roi,
             desc=desc,
             disable=self.verbosity < 1,
         ):
@@ -1399,7 +1403,7 @@ class Experiment:
 
                 # store Δf/f0
                 curTrial = 0
-                for trial in range(self.nTrials):
+                for trial in range(n_trial):
                     nextTrial = curTrial + self.raw[cell][trial].shape[1]
                     signal = raw_conc[curTrial:nextTrial]
                     deltaf_raw[cell][trial] = np.expand_dims(signal, axis=0)
@@ -1408,7 +1412,7 @@ class Experiment:
                     curTrial = nextTrial
             else:
                 # loop across trials
-                for trial in range(self.nTrials):
+                for trial in range(n_trial):
                     # get current signals
                     raw_sig = self.raw[cell][trial][0, :]
                     result_sig = self.result[cell][trial]
@@ -1493,12 +1497,12 @@ class Experiment:
         def reformat_dict_for_matlab(orig_dict):
             new_dict = collections.OrderedDict()
             # loop over cells and trial
-            for cell in range(self.nCell):
+            for cell in range(len(self.result)):
                 # get current cell label
                 c_lab = "cell" + str(cell)
                 # update dictionary
                 new_dict[c_lab] = collections.OrderedDict()
-                for trial in range(self.nTrials):
+                for trial in range(len(self.result[0])):
                     # get current trial label
                     t_lab = "trial" + str(trial)
                     # update dictionary
