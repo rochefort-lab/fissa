@@ -1035,6 +1035,23 @@ class Experiment:
                 )
             if not valid:
                 continue
+            # Check the image and roi size is appropriate
+            for k in ["raw", "result"]:
+                if k not in cache.files:
+                    continue
+                if cache[k].shape[1] != self.nTrials:
+                    raise ValueError(
+                        "Data mismatch between {} and our images."
+                        " Cached {} has {} trials, but our Experiment has {}"
+                        " trials.".format(path, k, cache[k].shape[1], self.nTrials)
+                    )
+                if self.nCell is not None and cache[k].shape[0] != self.nCell:
+                    raise ValueError(
+                        "Data mismatch between {} and our roisets."
+                        " Cached {} has {} ROIs, but our Experiment has {}"
+                        " ROIs.".format(path, k, cache[k].shape[1], self.nCell)
+                    )
+
             # Wipe the values currently held before setting new values
             if not skip_clear and clearif in cache.files:
                 clearfn()
