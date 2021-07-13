@@ -13,6 +13,7 @@ import string
 import sys
 import tempfile
 import unittest
+import warnings
 from inspect import getsourcefile
 
 try:
@@ -35,18 +36,23 @@ TEST_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
 def assert_allclose_ragged(actual, desired):
-    assert_equal(
-        np.array(actual, dtype=object).shape,
-        np.array(desired, dtype=object).shape,
-    )
-    for desired_i, actual_i in zip(desired, actual):
-        if (
-            getattr(desired, "dtype", None) == object
-            or np.asarray(desired).dtype == object
-        ):
-            assert_allclose_ragged(actual_i, desired_i)
-        else:
-            assert_allclose(actual_i, desired_i)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message="Creating an ndarray from ragged nested sequences",
+        )
+        assert_equal(
+            np.array(actual, dtype=object).shape,
+            np.array(desired, dtype=object).shape,
+        )
+        for desired_i, actual_i in zip(desired, actual):
+            if (
+                getattr(desired, "dtype", None) == object
+                or np.asarray(desired).dtype == object
+            ):
+                assert_allclose_ragged(actual_i, desired_i)
+            else:
+                assert_allclose(actual_i, desired_i)
 
 
 def assert_equal_list_of_array_perm_inv(actual, desired):

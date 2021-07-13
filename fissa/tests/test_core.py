@@ -1051,6 +1051,9 @@ class ExperimentTestMixin:
         # we want to alert the user to.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="divide by zero")
+            warnings.filterwarnings(
+                "ignore", message="invalid value encountered in true_divide"
+            )
             exp.calc_deltaf(self.fs, use_raw_f0=False)
         # We did not use this setting to generate the expected values, so can't
         # compare the output against the target.
@@ -1077,6 +1080,9 @@ class ExperimentTestMixin:
         # we want to alert the user to.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="divide by zero")
+            warnings.filterwarnings(
+                "ignore", message="invalid value encountered in true_divide"
+            )
             exp.calc_deltaf(self.fs, use_raw_f0=False, across_trials=False)
         # We did not use this setting to generate the expected values, so can't
         # compare the output against the target.
