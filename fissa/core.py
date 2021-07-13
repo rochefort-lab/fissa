@@ -990,17 +990,20 @@ class Experiment:
         if self.verbosity >= 1:
             print("Loading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
+
+        def _unpack_scalar(x):
+            if np.array_equal(x, None):
+                return None
+            if x.ndim == 0:
+                # Handle loading scalars
+                return x.item()
+            return x
+
         if force:
             for field in cache.files:
                 if field in dynamic_properties:
                     continue
-                value = cache[field]
-                if np.array_equal(value, None):
-                    value = None
-                elif value.ndim == 0:
-                    # Handle loading scalars
-                    value = value.item()
-                setattr(self, field, value)
+                setattr(self, field, _unpack_scalar(cache[field]))
             return
         set_fields = set()
         for category, validators, fields, clearif, clearfn in validation_groups:
@@ -1060,13 +1063,7 @@ class Experiment:
             for field in fields:
                 if field not in cache or field in dynamic_properties:
                     continue
-                value = cache[field]
-                if np.array_equal(value, None):
-                    value = None
-                elif value.ndim == 0:
-                    # Handle loading scalars
-                    value = value.item()
-                setattr(self, field, value)
+                setattr(self, field, _unpack_scalar(cache[field]))
                 set_fields.add(field)
                 any_field_loaded = True
             # If we didn't load any output data, no need to set the validators
@@ -1075,12 +1072,7 @@ class Experiment:
                 continue
             # Load all the validators, overwriting our local values if None
             for validator in validators:
-                value = cache[validator]
-                if np.array_equal(value, None):
-                    value = None
-                elif value.ndim == 0:
-                    # Handle loading scalars
-                    value = value.item()
+                value = _unpack_scalar(cache[validator])
                 if getattr(self, validator, None) is None:
                     if self.verbosity >= 2:
                         print(
