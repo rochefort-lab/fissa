@@ -1010,23 +1010,27 @@ class Experiment:
             valid = True
             validation_errors = []
             for validator in validators:
-                if validator not in cache or cache[validator] is None:
+                if validator not in cache:
                     # If the validator is not set in the cache, we can't
                     # verify that the cached data is compatible.
+                    valid = False
+                    break
+                value = _unpack_scalar(cache[validator])
+                if value is None:
                     valid = False
                     break
                 if getattr(self, validator, None) is None:
                     # If the validator is not yet set locally, it is fine to
                     # overwrite it.
                     continue
-                if getattr(self, validator) != cache[validator]:
+                if not np.array_equal(getattr(self, validator), value):
                     # If the validator is set and doesn't match the value in
                     # the cache, we will raise an error.
                     validation_errors.append(
                         "    {}: Experiment (ours) {}, Cache (theirs) {}".format(
                             validator,
                             getattr(self, validator),
-                            cache[validator],
+                            value,
                         )
                     )
             if len(validation_errors) > 0:
