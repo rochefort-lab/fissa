@@ -1074,6 +1074,8 @@ class Experiment:
         # were left unloaded
         unset_fields = []
         for field in cache.files:
+            if field in dynamic_properties:
+                continue
             if field not in set_fields:
                 unset_fields.append(field)
         if len(unset_fields) > 0 and self.verbosity >= 1:
