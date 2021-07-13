@@ -890,6 +890,7 @@ class Experiment:
             provided when the object was initialised is used
             (``experiment.folder``).
         """
+        dynamic_properties = ["nCell", "nTrials"]
         if path is None:
             if self.folder is None:
                 raise ValueError(
@@ -907,6 +908,8 @@ class Experiment:
             print("Reloading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
         for field in cache.files:
+            if field in dynamic_properties:
+                continue
             value = cache[field]
             if np.array_equal(value, None):
                 value = None
