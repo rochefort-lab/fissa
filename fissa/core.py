@@ -464,6 +464,11 @@ class Experiment:
         ROI area. Default is ``1``. The total neuropil area will be
         ``nRegions * expansion * area(ROI)``.
 
+    method : "nmf" or "ica", default="nmf"
+        Which blind source-separation method to use. Either ``"nmf"``
+        for non-negative matrix factorization, or ``"ica"`` for
+        independent component analysis. Default is ``"nmf"`` (recommended).
+
     alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
@@ -510,11 +515,6 @@ class Experiment:
         The separation routine requires less memory per process than
         the preparation routine, and so `ncores_separation` be often be set
         higher than `ncores_preparation`.
-
-    method : "nmf" or "ica", default="nmf"
-        Which blind source-separation method to use. Either ``"nmf"``
-        for non-negative matrix factorization, or ``"ica"`` for
-        independent component analysis. Default is ``"nmf"`` (recommended).
 
     lowmemory_mode : bool, optional
         If ``True``, FISSA will load TIFF files into memory frame-by-frame
@@ -681,13 +681,13 @@ class Experiment:
         folder=None,
         nRegions=4,
         expansion=1,
+        method="nmf",
         alpha=0.1,
         max_iter=20000,
         tol=1e-4,
         max_tries=1,
         ncores_preparation=-1,
         ncores_separation=-1,
-        method="nmf",
         lowmemory_mode=False,
         datahandler=None,
         verbosity=1,
@@ -728,13 +728,13 @@ class Experiment:
         self.folder = folder
         self.nRegions = nRegions
         self.expansion = expansion
+        self.method = method
         self.alpha = alpha
         self.max_iter = max_iter
         self.tol = tol
         self.max_tries = max_tries
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
-        self.method = method
         self.verbosity = verbosity
 
         # check if any data already exists
