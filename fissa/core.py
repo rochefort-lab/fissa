@@ -1021,7 +1021,9 @@ class Experiment:
                     # the cache, we will raise an error.
                     validation_errors.append(
                         "    {}: Experiment (ours) {}, Cache (theirs) {}".format(
-                            validator, getattr(self, validator), cache[validator]
+                            validator,
+                            getattr(self, validator),
+                            cache[validator],
                         )
                     )
             if len(validation_errors) > 0:
@@ -1049,7 +1051,7 @@ class Experiment:
                     if self.verbosity >= 2:
                         print(
                             "    Adopting value {}={} from {}".format(
-                                validator, value, path
+                                validator, repr(value), path
                             )
                         )
                 setattr(self, validator, value)
