@@ -159,9 +159,9 @@ class ExperimentTestMixin:
             self.assert_allclose_ragged(actual.mixmat, expected.mixmat)
             self.assert_equal(actual.info, expected.info)
 
-    def compare_matlab(self, fname, experiment, compare_deltaf=None):
+    def compare_matlab_legacy(self, fname, experiment, compare_deltaf=None):
         """
-        Compare matfile contents against an experiment.
+        Compare legacy matfile contents against an experiment.
 
         Parameters
         ----------
@@ -197,9 +197,9 @@ class ExperimentTestMixin:
                 experiment.deltaf_raw[0, 0],
             )
 
-    def compare_matlab_expected(self, fname, compare_deltaf=True):
+    def compare_matlab_legacy_expected(self, fname, compare_deltaf=True):
         """
-        Compare matfile contents against expected from test attributes.
+        Compare legacy matfile contents against expected from test attributes.
 
         Parameters
         ----------
@@ -1091,7 +1091,7 @@ class ExperimentTestMixin:
         expected_shape = len(self.roi_paths), len(self.image_names)
         self.assert_equal(np.shape(exp.deltaf_result), expected_shape)
 
-    def test_matlab(self):
+    def test_matlab_legacy(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         with warnings.catch_warnings():
@@ -1099,9 +1099,9 @@ class ExperimentTestMixin:
             exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
         # Check contents of the .mat file
-        self.compare_matlab(fname, exp)
+        self.compare_matlab_legacy(fname, exp)
 
-    def test_matlab_quiet(self):
+    def test_matlab_legacy_quiet(self):
         exp = core.Experiment(
             self.images_dir, self.roi_zip_path, self.output_dir, verbosity=0
         )
@@ -1113,7 +1113,7 @@ class ExperimentTestMixin:
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assert_equal(capture_post.out, "")
 
-    def test_matlab_custom_fname(self):
+    def test_matlab_legacy_custom_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         fname = os.path.join(self.output_dir, "test_output.mat")
@@ -1121,16 +1121,16 @@ class ExperimentTestMixin:
             warnings.simplefilter("ignore", DeprecationWarning)
             exp.save_to_matlab(fname)
         # Check contents of the .mat file
-        self.compare_matlab(fname, exp)
+        self.compare_matlab_legacy(fname, exp)
 
-    def test_matlab_no_cache_no_fname(self):
+    def test_matlab_legacy_no_cache_no_fname(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
         exp.separate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             self.assertRaises(ValueError, exp.save_to_matlab)
 
-    def test_matlab_from_cache(self):
+    def test_matlab_legacy_from_cache(self):
         """Save to matfile after loading from cache."""
         # Run an experiment to generate the cache
         exp1 = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
@@ -1142,9 +1142,9 @@ class ExperimentTestMixin:
             warnings.simplefilter("ignore", DeprecationWarning)
             exp.save_to_matlab()
         fname = os.path.join(self.output_dir, "matlab.mat")
-        self.compare_matlab(fname, exp)
+        self.compare_matlab_legacy(fname, exp)
 
-    def test_matlab_deltaf(self):
+    def test_matlab_legacy_deltaf(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         exp.calc_deltaf(self.fs)
@@ -1164,7 +1164,7 @@ class ExperimentTestMixin:
         self.compare_result(actual)
         # Check contents of the .mat file
         expected_file = os.path.join(self.output_dir, "matlab.mat")
-        self.compare_matlab_expected(expected_file, compare_deltaf=False)
+        self.compare_matlab_legacy_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_matlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
@@ -1174,7 +1174,7 @@ class ExperimentTestMixin:
         )
         self.compare_result(actual)
         expected_file = os.path.join(self.output_dir, "matlab.mat")
-        self.compare_matlab_expected(expected_file, compare_deltaf=False)
+        self.compare_matlab_legacy_expected(expected_file, compare_deltaf=False)
 
     def test_func_explict_nomatlab(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
@@ -1194,7 +1194,7 @@ class ExperimentTestMixin:
             image_path, roi_path, self.output_dir, export_to_matlab=fname
         )
         self.compare_result(actual)
-        self.compare_matlab_expected(fname, compare_deltaf=False)
+        self.compare_matlab_legacy_expected(fname, compare_deltaf=False)
 
     def test_func_nocache(self):
         image_path = os.path.join(self.resources_dir, self.images_dir)
