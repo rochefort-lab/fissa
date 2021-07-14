@@ -1285,7 +1285,7 @@ class Experiment:
             ``"prepared.npz"`` within the cache directory
             ``experiment.folder``.
         """
-        fields = ["expansion", "means", "nCell", "nRegions", "raw", "roi_polys"]
+        fields = ["expansion", "means", "nRegions", "raw", "roi_polys"]
         if destination is None:
             if self.folder is None:
                 raise ValueError(
@@ -1799,7 +1799,6 @@ class Experiment:
                 "means",
                 "method",
                 "mixmat",
-                "nCell",
                 "nRegions",
                 "raw",
                 "result",

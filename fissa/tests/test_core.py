@@ -255,7 +255,6 @@ class ExperimentTestMixin:
         expected_shape = len(self.roi_paths), len(self.image_names)
         self.assert_equal(np.shape(M["raw"]), expected_shape)
         self.assert_equal(len(M["means"]), len(self.image_names))
-        self.assert_equal(M["nCell"], len(M["raw"]))
         # self.assert_equal(M["nTrials"], len(M["raw[0]"]))
         # Check contents are correct
         self.assert_allclose_ragged(M["raw"], self.expected["raw"])
