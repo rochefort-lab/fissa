@@ -1057,18 +1057,22 @@ class Experiment:
                         clearfn()
                         break
             # All the validators were valid, so we are okay to load the fields
-            any_field_loaded = False
-            for field in fields:
-                if field not in cache or field in dynamic_properties:
+            #
+            # Check to see if there are any fields to load. If not, we won't
+            # load the validators.
+            any_field_to_load = False
+            for field in cache.files:
+                if field in dynamic_properties:
                     continue
-                setattr(self, field, _unpack_scalar(cache[field]))
-                set_fields.add(field)
-                any_field_loaded = True
-            # If we didn't load any output data, no need to set the validators
+                if field in fields:
+                    any_field_to_load = True
+            # If we don't have any data to load, no need to set the validators
             # or print that we loaded something.
-            if not any_field_loaded:
+            if not any_field_to_load:
                 continue
-            # Load all the validators, overwriting our local values if None
+            # Load all the validators, overwriting our local values if None.
+            # We do this before loading in the data fields because of automatic
+            # clear when parameter attributes change.
             for validator in validators:
                 if validator not in cache.files:
                     continue
@@ -1082,6 +1086,12 @@ class Experiment:
                         )
                 setattr(self, validator, value)
                 set_fields.add(validator)
+            # Load all the fields
+            for field in fields:
+                if field not in cache or field in dynamic_properties:
+                    continue
+                setattr(self, field, _unpack_scalar(cache[field]))
+                set_fields.add(field)
             if self.verbosity >= 2:
                 print("Loaded {} data from {}".format(category, path))
 
