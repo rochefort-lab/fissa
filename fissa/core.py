@@ -1044,7 +1044,7 @@ class Experiment:
                 continue
             # Check the image and roi size is appropriate
             for k in ["raw", "result"]:
-                if k not in cache.files:
+                if k not in cache.files or np.array_equal(cache[k], None):
                     continue
                 if cache[k].shape[1] != self.nTrials:
                     raise ValueError(
