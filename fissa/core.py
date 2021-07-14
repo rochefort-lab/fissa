@@ -1416,19 +1416,19 @@ class Experiment:
 
                 # store Δf/f0
                 curTrial = 0
-                for trial in range(n_trial):
-                    nextTrial = curTrial + self.raw[i_roi][trial].shape[1]
+                for i_trial in range(n_trial):
+                    nextTrial = curTrial + self.raw[i_roi][i_trial].shape[1]
                     signal = raw_conc[curTrial:nextTrial]
-                    deltaf_raw[i_roi][trial] = np.expand_dims(signal, axis=0)
+                    deltaf_raw[i_roi][i_trial] = np.expand_dims(signal, axis=0)
                     signal = result_conc[:, curTrial:nextTrial]
-                    deltaf_result[i_roi][trial] = signal
+                    deltaf_result[i_roi][i_trial] = signal
                     curTrial = nextTrial
             else:
                 # loop across trials
-                for trial in range(n_trial):
+                for i_trial in range(n_trial):
                     # get current signals
-                    raw_sig = self.raw[i_roi][trial][0, :]
-                    result_sig = self.result[i_roi][trial]
+                    raw_sig = self.raw[i_roi][i_trial][0, :]
+                    result_sig = self.result[i_roi][i_trial]
 
                     # calculate Δf/fo
                     raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
@@ -1441,8 +1441,8 @@ class Experiment:
                         result_sig = (result_sig - result_f0) / result_f0
 
                     # store Δf/f0
-                    deltaf_raw[i_roi][trial] = np.expand_dims(raw_sig, axis=0)
-                    deltaf_result[i_roi][trial] = result_sig
+                    deltaf_raw[i_roi][i_trial] = np.expand_dims(raw_sig, axis=0)
+                    deltaf_result[i_roi][i_trial] = result_sig
 
         self.deltaf_raw = deltaf_raw
         self.deltaf_result = deltaf_result
@@ -1572,11 +1572,11 @@ class Experiment:
                 c_lab = "cell" + str(i_roi)
                 # update dictionary
                 new_dict[c_lab] = collections.OrderedDict()
-                for trial in range(len(self.result[0])):
+                for i_trial in range(len(self.result[0])):
                     # get current trial label
-                    t_lab = "trial" + str(trial)
+                    t_lab = "trial" + str(i_trial)
                     # update dictionary
-                    new_dict[c_lab][t_lab] = orig_dict[i_roi][trial]
+                    new_dict[c_lab][t_lab] = orig_dict[i_roi][i_trial]
             return new_dict
 
         if legacy:
