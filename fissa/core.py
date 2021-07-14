@@ -96,10 +96,12 @@ def extract(
     Parameters
     ----------
     image : str or :term:`array_like` shaped ``(time, height, width)``
+        The imaging data.
         Either a path to a multipage TIFF file, or 3d :term:`array_like` data.
 
     rois : str or :term:`list` of :term:`array_like`
-        Either a string containing a path to an ImageJ roi zip file,
+        The regions-of-interest, specified by
+        either a string containing a path to an ImageJ roi zip file,
         or a list of arrays encoding polygons, or list of binary arrays
         representing masks.
 
@@ -425,7 +427,7 @@ class Experiment:
     Parameters
     ----------
     images : str or list
-        The raw recording data.
+        The raw imaging data.
         Should be one of:
 
         - the path to a directory containing TIFF files (string),
@@ -485,27 +487,29 @@ class Experiment:
     ncores_preparation : int or None, default=-1
         The number of parallel subprocesses to use during the data
         preparation steps of :meth:`separation_prep`.
-        These are ROI and neuropil subregion definitions, and extracting
+        These steps are ROI and neuropil subregion definitions, and extracting
         raw signals from TIFFs.
 
         If set to ``None`` or ``-1`` (default), the number of processes used
         will equal the number of threads on the machine.
         If this is set to ``-2``, the number of processes used will be one less
         than the number of threads on the machine; etc.
-        Note that this behaviour can, especially for the data preparation step,
-        be very memory-intensive.
+
+        Note that the preparation process can be quite memory-intensive and it
+        may be necessary to reduce the number of processes from the default.
 
     ncores_separation : int or None, default=-1
         The number of parallel subprocesses to use during the signal
         separation steps of :meth:`separate`.
-        The separation steps requires less memory per subprocess than
-        the preparation steps, and so can be often be set higher than
-        `ncores_preparation`.
 
         If set to ``None`` or ``-1`` (default), the number of processes used
         will equal the number of threads on the machine.
         If this is set to ``-2``, the number of processes used will be one less
         than the number of threads on the machine; etc.
+
+        The separation routine requires less memory per process than
+        the preparation routine, and so `ncores_separation` be often be set
+        higher than `ncores_preparation`.
 
     method : "nmf" or "ica", default="nmf"
         Which blind source-separation method to use. Either ``"nmf"``
@@ -1476,18 +1480,18 @@ class Experiment:
         These can be interfaced with as illustrated below.
 
         ``result{1, 1}(1, :)``
-            The separated signal for the first cell and first trial.
+            The separated signal for the first ROI and first trial.
             This is equivalent to ``experiment.result[0, 0][0, :]`` when
             interacting with the :class:`Experiment` object in Python.
         ``result{roi, trial}(1, :)``
-            The separated signal for the ``roi``-th cell and ``trial``-th trial.
+            The separated signal for the ``roi``-th ROI and ``trial``-th trial.
             This is equivalent to
             ``experiment.result[roi - 1, trial - 1][0, :]`` when
             interacting with the :class:`Experiment` object in Python.
         ``result{roi, trial}(2, :)``
             A contaminating signal.
         ``raw{roi, trial}(1, :)``
-            Raw measured cell signal, average over the ROI.
+            Raw measured neuronal signal, averaged over the ROI.
             This is equivalent to ``experiment.raw[roi - 1, trial - 1][0, :]``
             when interacting with the :class:`Experiment` object in Python.
         ``raw{roi, trial}(2, :)``
@@ -1635,14 +1639,14 @@ class Experiment:
         and ``df_raw``, which will have the same format as ``result`` and
         ``raw``.
 
-        These can be interfaced with as follows, for cell 0, trial 0:
+        These can be interfaced with as follows, for ROI 0, trial 0:
 
         ``ROIs.cell0.trial0{1}``
             Polygon outlining the ROI.
         ``ROIs.cell0.trial0{2}``
             Polygon outlining the first (of ``nRegions``) neuropil region.
         ``result.cell0.trial0(1, :)``
-            Final extracted cell signal.
+            Final extracted neuronal signal.
         ``result.cell0.trial0(2, :)``
             Contaminating signal.
         ``raw.cell0.trial0(1, :)``
