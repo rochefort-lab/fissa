@@ -542,9 +542,10 @@ class Experiment:
         The final output of FISSA, with separated signals ranked in order of
         their weighting toward the raw cell ROI signal relative to their
         weighting toward other mixed raw signals.
-        The ordering is such that ``experiment.result[cell][trial][0, :]``
-        is the signal with highest score in its contribution to the raw cell
-        signal. Subsequent signals are sorted in order of diminishing score.
+        The ordering is such that ``experiment.result[roi][trial][0, :]``
+        is the signal with highest score in its contribution to the raw
+        neuronal signal.
+        Subsequent signals are sorted in order of diminishing score.
         The units are same as `raw` (candelas per unit area).
 
         This field is only populated after :meth:`separate` has been run; until
@@ -598,8 +599,8 @@ class Experiment:
 
         The separated signals, before output signals are ranked according to
         their matching against the raw signal from within the ROI.
-        Separated signal ``i`` for a specific cell and trial can be found at
-        ``experiment.sep[cell][trial][i, :]``.
+        Separated signal ``i`` for a specific ROI and trial can be found at
+        ``experiment.sep[roi][trial][i, :]``.
 
         This field is only populated after :meth:`separate` has been run; until
         then, it is set to ``None``.
@@ -932,16 +933,16 @@ class Experiment:
         After running this you can access the raw data (i.e. pre-separation)
         as ``experiment.raw`` and ``experiment.rois``.
         ``experiment.raw`` is a list of arrays.
-        ``experiment.raw[cell][trial]`` gives you the traces of a specific cell
-        and trial, across cell and neuropil regions.
+        ``experiment.raw[roi][trial]`` gives you the traces of a specific ROI
+        and trial, across the ROI and neuropil regions.
         ``experiment.roi_polys`` is a list of lists of arrays.
-        ``experiment.roi_polys[cell][trial][region][0]`` gives you the
-        polygon for the region for a specific cell, trial and region.
-        ``region=0`` is the cell, and ``region>0`` gives the different neuropil
-        regions.
+        ``experiment.roi_polys[roi][trial][region][0]`` gives you the
+        polygon for the region for a specific ROI, trial and region.
+        ``region=0`` is the ROI itself (i.e. the outline of the neuron cell),
+        and ``region>0`` gives the different neuropil regions.
         For separable masks, it is possible multiple outlines are
         found, which can be accessed as
-        ``experiment.roi_polys[cell][trial][region][i]``,
+        ``experiment.roi_polys[roi][trial][region][i]``,
         where ``i`` is the outline index.
 
         Parameters
@@ -1121,12 +1122,12 @@ class Experiment:
 
         experiment.sep
             Raw separation output, without being matched. Signal ``i`` for
-            a specific cell and trial can be found as
-            ``experiment.sep[cell][trial][i,:]``.
+            a specific ROI and trial can be found as
+            ``experiment.sep[roi][trial][i, :]``.
         experiment.result
-            Final output, in order of presence in cell ROI.
-            Signal ``i`` for a specific cell and trial can be found at
-            ``experiment.result[cell][trial][i, :]``.
+            Final output, in order of presence in the ROI.
+            Signal ``i`` for a specific ROI and trial can be found at
+            ``experiment.result[roi][trial][i, :]``.
             Note that the ordering is such that ``i = 0`` is the signal
             most strongly present in the ROI, and subsequent entries
             are in diminishing order.
@@ -1743,8 +1744,9 @@ def run_fissa(
     Returns
     -------
     result : 2d numpy.ndarray of 2d numpy.ndarrays of np.float64
-        The vector ``result[c, t][0, :]`` is the trace from cell ``c`` in
-        trial ``t``. If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
+        The vector ``result[roi, trial][0, :]`` is the trace from ROI ``roi``
+        in trial ``trial``.
+        If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
         otherwise, it is the decontaminated signal scaled as per the raw
         signal.
 
