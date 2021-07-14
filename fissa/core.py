@@ -683,8 +683,8 @@ class Experiment:
         "tol": 1e-4,
         "max_tries": 1,
     }
-    _preparation_params = ["expansion", "nRegions"]
-    _separation_params = ["alpha", "max_iter", "max_tries", "method", "tol"]
+    _preparation_params = ["nRegions", "expansion"]
+    _separation_params = ["method", "alpha", "max_iter", "tol", "max_tries"]
     _preparation_outputs = ["means", "raw", "roi_polys"]
     _separation_outputs = ["info", "mixmat", "result", "sep"]
     _deltaf_outputs = ["deltaf_raw", "deltaf_result"]
