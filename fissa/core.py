@@ -772,6 +772,15 @@ class Experiment:
     def nTrials(self):
         return len(self.images)
 
+    def __setattr__(self, name, value):
+        if name in ["images", "rois"]:
+            self.clear()
+        elif hasattr(self, "_preparation_params") and name in self._preparation_params:
+            self.clear()
+        elif hasattr(self, "_separation_params") and name in self._separation_params:
+            self.clear_separated()
+        self.__dict__[name] = value
+
     def __str__(self):
         if isinstance(self.images, basestring):
             str_images = repr(self.images)
@@ -835,7 +844,7 @@ class Experiment:
             By default, the object's :attr:`verbosity` attribute is used.
         """
         if verbosity is None:
-            verbosity = self.verbosity - 1
+            verbosity = getattr(self, "verbosity", 1) - 1
 
         keys = self._preparation_outputs + ["deltaf_raw"]
         # Wipe outputs
@@ -864,7 +873,7 @@ class Experiment:
             By default, the object's :attr:`verbosity` attribute is used.
         """
         if verbosity is None:
-            verbosity = self.verbosity - 1
+            verbosity = getattr(self, "verbosity", 1) - 1
 
         keys = self._separation_outputs + ["deltaf_result"]
         # Wipe outputs
