@@ -773,12 +773,26 @@ class Experiment:
         return len(self.images)
 
     def __setattr__(self, name, value):
+        def check_same_value():
+            if not hasattr(self, name):
+                return False
+            current = getattr(self, name)
+            if type(current) is not type(value):
+                return False
+            if isinstance(current, np.ndarray):
+                return np.array_equal(current, value)
+            return current == value
+
         if name in ["images", "rois"]:
-            self.clear()
+            if not check_same_value():
+                self.clear()
         elif hasattr(self, "_preparation_params") and name in self._preparation_params:
-            self.clear()
+            if not check_same_value():
+                self.clear()
         elif hasattr(self, "_separation_params") and name in self._separation_params:
-            self.clear_separated()
+            if not check_same_value():
+                self.clear_separated()
+
         self.__dict__[name] = value
 
     def __str__(self):
