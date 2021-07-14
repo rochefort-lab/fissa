@@ -546,7 +546,7 @@ class Experiment:
         The final output of FISSA, with separated signals ranked in order of
         their weighting toward the raw cell ROI signal relative to their
         weighting toward other mixed raw signals.
-        The ordering is such that ``experiment.result[roi][trial][0, :]``
+        The ordering is such that ``experiment.result[roi, trial][0, :]``
         is the signal with highest score in its contribution to the raw
         neuronal signal.
         Subsequent signals are sorted in order of diminishing score.
@@ -604,7 +604,7 @@ class Experiment:
         The separated signals, before output signals are ranked according to
         their matching against the raw signal from within the ROI.
         Separated signal ``i`` for a specific ROI and trial can be found at
-        ``experiment.sep[roi][trial][i, :]``.
+        ``experiment.sep[roi, trial][i, :]``.
 
         This field is only populated after :meth:`separate` has been run; until
         then, it is set to ``None``.
@@ -937,16 +937,16 @@ class Experiment:
         After running this you can access the raw data (i.e. pre-separation)
         as ``experiment.raw`` and ``experiment.rois``.
         ``experiment.raw`` is a list of arrays.
-        ``experiment.raw[roi][trial]`` gives you the traces of a specific ROI
+        ``experiment.raw[roi, trial]`` gives you the traces of a specific ROI
         and trial, across the ROI and neuropil regions.
         ``experiment.roi_polys`` is a list of lists of arrays.
-        ``experiment.roi_polys[roi][trial][region][0]`` gives you the
+        ``experiment.roi_polys[roi, trial][region][0]`` gives you the
         polygon for the region for a specific ROI, trial and region.
         ``region=0`` is the ROI itself (i.e. the outline of the neuron cell),
         and ``region>0`` gives the different neuropil regions.
         For separable masks, it is possible multiple outlines are
         found, which can be accessed as
-        ``experiment.roi_polys[roi][trial][region][i]``,
+        ``experiment.roi_polys[roi, trial][region][i]``,
         where ``i`` is the outline index.
 
         Parameters
@@ -1127,11 +1127,11 @@ class Experiment:
         experiment.sep
             Raw separation output, without being matched. Signal ``i`` for
             a specific ROI and trial can be found as
-            ``experiment.sep[roi][trial][i, :]``.
+            ``experiment.sep[roi, trial][i, :]``.
         experiment.result
             Final output, in order of presence in the ROI.
             Signal ``i`` for a specific ROI and trial can be found at
-            ``experiment.result[roi][trial][i, :]``.
+            ``experiment.result[roi, trial][i, :]``.
             Note that the ordering is such that ``i = 0`` is the signal
             most strongly present in the ROI, and subsequent entries
             are in diminishing order.
