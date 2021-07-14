@@ -1062,7 +1062,7 @@ class ExperimentTestMixin:
             exp.load(fname)
 
     def test_load_missing_param(self):
-        """Test load doesn't load (without error) without param."""
+        """Test load when missing a param from cache."""
         kwargs = {"expansion": 0.213}  # nRegions is unset
         fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
         exp = core.Experiment(
@@ -1076,7 +1076,7 @@ class ExperimentTestMixin:
         np.savez_compressed(fname, **merge_dicts(kwargs, fields))
         # Load the file and check the data is not loaded
         exp.load(fname)
-        self.assertIs(exp.raw, None)
+        self.assert_equal(exp.raw, fields["raw"])
 
     def test_load_wrong_in_init(self):
         """Test load doesn't load analysis from wrong nRegions param during init."""

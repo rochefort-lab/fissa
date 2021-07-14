@@ -1010,19 +1010,21 @@ class Experiment:
             valid = True
             validation_errors = []
             for validator in validators:
+                if getattr(self, validator, None) is None:
+                    # If the validator is not yet set locally, it is fine to
+                    # overwrite it.
+                    continue
                 if validator not in cache:
-                    # If the validator is not set in the cache, we can't
-                    # verify that the cached data is compatible.
+                    # If the validator is not set in the cache and is set
+                    # locally, we can't verify that the cached data is
+                    # compatible. We don't raise an error for this because the
+                    # contents are probably not this category.
                     valid = False
                     break
                 value = _unpack_scalar(cache[validator])
                 if value is None:
                     valid = False
                     break
-                if getattr(self, validator, None) is None:
-                    # If the validator is not yet set locally, it is fine to
-                    # overwrite it.
-                    continue
                 if not np.array_equal(getattr(self, validator), value):
                     # If the validator is set and doesn't match the value in
                     # the cache, we will raise an error.
@@ -1076,6 +1078,8 @@ class Experiment:
                 continue
             # Load all the validators, overwriting our local values if None
             for validator in validators:
+                if validator not in cache.files:
+                    continue
                 value = _unpack_scalar(cache[validator])
                 if getattr(self, validator, None) is None:
                     if self.verbosity >= 2:
