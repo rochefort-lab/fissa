@@ -683,6 +683,11 @@ class Experiment:
         "tol": 1e-4,
         "max_tries": 1,
     }
+    _preparation_params = ["expansion", "nRegions"]
+    _separation_params = ["alpha", "max_iter", "max_tries", "method", "tol"]
+    _preparation_outputs = ["means", "raw", "roi_polys"]
+    _separation_outputs = ["info", "mixmat", "result", "sep"]
+    _deltaf_outputs = ["deltaf_raw", "deltaf_result"]
 
     def __init__(
         self,
@@ -786,20 +791,12 @@ class Experiment:
         else:
             str_images = repr(self.rois)
 
-        fields = [
-            "folder",
-            "nRegions",
-            "expansion",
-            "method",
-            "alpha",
-            "max_iter",
-            "tol",
-            "max_tries",
-            "ncores_preparation",
-            "ncores_separation",
-            "datahandler",
-            "verbosity",
-        ]
+        fields = (
+            ["folder"]
+            + self._preparation_params
+            + self._separation_params
+            + ["ncores_preparation", "ncores_separation", "datahandler", "verbosity"]
+        )
         str_parts = [
             "{}={}".format(field, repr(getattr(self, field))) for field in fields
         ]
@@ -812,22 +809,12 @@ class Experiment:
         )
 
     def __repr__(self):
-        fields = [
-            "images",
-            "rois",
-            "folder",
-            "nRegions",
-            "expansion",
-            "method",
-            "alpha",
-            "max_iter",
-            "tol",
-            "max_tries",
-            "ncores_preparation",
-            "ncores_separation",
-            "datahandler",
-            "verbosity",
-        ]
+        fields = (
+            ["images", "rois", "folder"]
+            + self._preparation_params
+            + self._separation_params
+            + ["ncores_preparation", "ncores_separation", "datahandler", "verbosity"]
+        )
         repr_parts = [
             "{}={}".format(field, repr(getattr(self, field))) for field in fields
         ]
@@ -850,7 +837,7 @@ class Experiment:
         if verbosity is None:
             verbosity = self.verbosity - 1
 
-        keys = ["means", "raw", "roi_polys", "deltaf_raw"]
+        keys = self._preparation_outputs + ["deltaf_raw"]
         # Wipe outputs
         keys_cleared = []
         for key in keys:
@@ -879,7 +866,7 @@ class Experiment:
         if verbosity is None:
             verbosity = self.verbosity - 1
 
-        keys = ["info", "mixmat", "sep", "result", "deltaf_result"]
+        keys = self._separation_outputs + ["deltaf_result"]
         # Wipe outputs
         keys_cleared = []
         for key in keys:
@@ -908,8 +895,9 @@ class Experiment:
         defaults = self._defaults
         if only_preparation:
             # Prune down to only the preparation parameters
-            preparation_fields = ["expansion", "nRegions"]
-            defaults = {k: v for k, v in defaults.items() if k in preparation_fields}
+            defaults = {
+                k: v for k, v in defaults.items() if k in self._preparation_params
+            }
         # Check through each parameter and set unset values from defaults
         keys_adopted = []
         for key, value in defaults.items():
@@ -953,23 +941,15 @@ class Experiment:
         validation_groups = [
             ValGroup(
                 "prepared",
-                ["expansion", "nRegions"],
-                ["deltaf_raw", "means", "raw", "roi_polys"],
+                self._preparation_params,
+                self._preparation_outputs + ["deltaf_raw"],
                 ["raw"],
                 self.clear,
             ),
             ValGroup(
                 "separated",
-                [
-                    "alpha",
-                    "nRegions",
-                    "expansion",
-                    "max_iter",
-                    "max_tries",
-                    "method",
-                    "tol",
-                ],
-                ["deltaf_result", "info", "mixmat", "sep", "result"],
+                self._preparation_params + self._separation_params,
+                self._separation_outputs + ["deltaf_result"],
                 ["result"],
                 self.clear_separated,
             ),
@@ -1190,7 +1170,7 @@ class Experiment:
                     msg += "\n    {}".format(roiset)
                 else:
                     msg += "\n    {}".format(roiset.__class__)
-            for key in ["nRegions", "expansion"]:
+            for key in self._preparation_params:
                 msg += "\n  {}: {}".format(key, repr(getattr(self, key)))
             print(msg)
             sys.stdout.flush()
@@ -1285,7 +1265,7 @@ class Experiment:
             ``"prepared.npz"`` within the cache directory
             ``experiment.folder``.
         """
-        fields = ["expansion", "means", "nRegions", "raw", "roi_polys"]
+        fields = set(self._preparation_params + self._preparation_outputs)
         if destination is None:
             if self.folder is None:
                 raise ValueError(
@@ -1498,21 +1478,12 @@ class Experiment:
             Path to output file. The default destination is ``"separated.npz"``
             within the cache directory ``experiment.folder``.
         """
-        fields = [
-            "alpha",
-            "deltaf_raw",
-            "deltaf_result",
-            "expansion",
-            "info",
-            "max_iter",
-            "max_tries",
-            "method",
-            "mixmat",
-            "nRegions",
-            "sep",
-            "tol",
-            "result",
-        ]
+        fields = set(
+            self._preparation_params
+            + self._separation_params
+            + self._separation_outputs
+            + self._deltaf_outputs
+        )
         if destination is None:
             if self.folder is None:
                 raise ValueError(
@@ -1788,24 +1759,13 @@ class Experiment:
             if getattr(self, "deltaf_result", None) is not None:
                 M["df_result"] = reformat_dict_for_legacy(self.deltaf_result)
         else:
-            fields = [
-                "alpha",
-                "deltaf_raw",
-                "deltaf_result",
-                "expansion",
-                "info",
-                "max_iter",
-                "max_tries",
-                "means",
-                "method",
-                "mixmat",
-                "nRegions",
-                "raw",
-                "result",
-                "roi_polys",
-                "sep",
-                "tol",
-            ]
+            fields = (
+                self._preparation_params
+                + self._separation_params
+                + self._preparation_outputs
+                + self._separation_outputs
+                + self._deltaf_outputs
+            )
             for field in fields:
                 x = getattr(self, field)
                 if x is None:
