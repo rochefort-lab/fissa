@@ -980,6 +980,37 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
+    def test_load_clear(self):
+        """Test loading raw clears other existing values."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        exp.means = 31802  # Assign means to be a random value
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname)
+        # Check means was wiped
+        self.assertIs(exp.means, None)
+
+    def test_load_clear_skip(self):
+        """Test loading raw doesn't clears existing values with skip_clear."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        value = 31802
+        exp.means = value  # Assign means to be a random value
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname, skip_clear=True)
+        # Check means was not wiped
+        self.assert_equal(exp.means, value)
+
     def test_load_dynamic(self):
         """Test behaviour when loading a cache containing a dynamic property."""
         kwargs = {"expansion": 0.213, "nRegions": 3}
