@@ -1014,7 +1014,10 @@ class ExperimentTestMixin:
     def test_load_dynamic(self):
         """Test behaviour when loading a cache containing a dynamic property."""
         kwargs = {"expansion": 0.213, "nRegions": 3}
-        fields = {"nTrials": 182}
+        fields = {
+            "raw": np.ones((len(self.roi_paths), len(self.image_names))),
+            "nTrials": 182,
+        }
         exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
         # Make a save file
         fname = os.path.join(self.output_dir, "dummy.npz")
