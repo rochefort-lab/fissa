@@ -1062,8 +1062,11 @@ class Experiment:
                     )
 
             # Wipe the values currently held before setting new values
-            if not skip_clear and clearif in cache.files:
-                clearfn()
+            if not skip_clear:
+                for field in clearif:
+                    if field in cache.files:
+                        clearfn()
+                        break
             # All the validators were valid, so we are okay to load the fields
             any_field_loaded = False
             for field in fields:
