@@ -1053,15 +1053,16 @@ class Experiment:
         roi_polys = np.empty_like(raw)
 
         # Set outputs
-        self.means = []
-        for trial in range(n_trial):
-            self.means.append(outputs[trial][2])
-            for cell in range(n_roi):
-                raw[cell][trial] = outputs[trial][0][cell]
-                roi_polys[cell][trial] = outputs[trial][1][cell]
+        means = []
+        for i_trial, (raw_i, polys_i, mean_i) in enumerate(outputs):
+            means.append(mean_i)
+            for i_roi in range(n_roi):
+                raw[i_roi][i_trial] = raw_i[i_roi]
+                roi_polys[i_roi][i_trial] = polys_i[i_roi]
 
         self.raw = raw
         self.roi_polys = roi_polys
+        self.means = means
 
         if self.verbosity >= 1:
             print(
