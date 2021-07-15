@@ -96,10 +96,12 @@ def extract(
     Parameters
     ----------
     image : str or :term:`array_like` shaped ``(time, height, width)``
+        The imaging data.
         Either a path to a multipage TIFF file, or 3d :term:`array_like` data.
 
     rois : str or :term:`list` of :term:`array_like`
-        Either a string containing a path to an ImageJ roi zip file,
+        The regions-of-interest, specified by
+        either a string containing a path to an ImageJ roi zip file,
         or a list of arrays encoding polygons, or list of binary arrays
         representing masks.
 
@@ -425,7 +427,7 @@ class Experiment:
     Parameters
     ----------
     images : str or list
-        The raw recording data.
+        The raw imaging data.
         Should be one of:
 
         - the path to a directory containing TIFF files (string),
@@ -485,27 +487,29 @@ class Experiment:
     ncores_preparation : int or None, default=-1
         The number of parallel subprocesses to use during the data
         preparation steps of :meth:`separation_prep`.
-        These are ROI and neuropil subregion definitions, and extracting
+        These steps are ROI and neuropil subregion definitions, and extracting
         raw signals from TIFFs.
 
         If set to ``None`` or ``-1`` (default), the number of processes used
         will equal the number of threads on the machine.
         If this is set to ``-2``, the number of processes used will be one less
         than the number of threads on the machine; etc.
-        Note that this behaviour can, especially for the data preparation step,
-        be very memory-intensive.
+
+        Note that the preparation process can be quite memory-intensive and it
+        may be necessary to reduce the number of processes from the default.
 
     ncores_separation : int or None, default=-1
         The number of parallel subprocesses to use during the signal
         separation steps of :meth:`separate`.
-        The separation steps requires less memory per subprocess than
-        the preparation steps, and so can be often be set higher than
-        `ncores_preparation`.
 
         If set to ``None`` or ``-1`` (default), the number of processes used
         will equal the number of threads on the machine.
         If this is set to ``-2``, the number of processes used will be one less
         than the number of threads on the machine; etc.
+
+        The separation routine requires less memory per process than
+        the preparation routine, and so `ncores_separation` be often be set
+        higher than `ncores_preparation`.
 
     method : "nmf" or "ica", default="nmf"
         Which blind source-separation method to use. Either ``"nmf"``
@@ -542,9 +546,10 @@ class Experiment:
         The final output of FISSA, with separated signals ranked in order of
         their weighting toward the raw cell ROI signal relative to their
         weighting toward other mixed raw signals.
-        The ordering is such that ``experiment.result[cell][trial][0, :]``
-        is the signal with highest score in its contribution to the raw cell
-        signal. Subsequent signals are sorted in order of diminishing score.
+        The ordering is such that ``experiment.result[roi, trial][0, :]``
+        is the signal with highest score in its contribution to the raw
+        neuronal signal.
+        Subsequent signals are sorted in order of diminishing score.
         The units are same as `raw` (candelas per unit area).
 
         This field is only populated after :meth:`separate` has been run; until
@@ -598,8 +603,8 @@ class Experiment:
 
         The separated signals, before output signals are ranked according to
         their matching against the raw signal from within the ROI.
-        Separated signal ``i`` for a specific cell and trial can be found at
-        ``experiment.sep[cell][trial][i, :]``.
+        Separated signal ``i`` for a specific ROI and trial can be found at
+        ``experiment.sep[roi, trial][i, :]``.
 
         This field is only populated after :meth:`separate` has been run; until
         then, it is set to ``None``.
@@ -932,16 +937,16 @@ class Experiment:
         After running this you can access the raw data (i.e. pre-separation)
         as ``experiment.raw`` and ``experiment.rois``.
         ``experiment.raw`` is a list of arrays.
-        ``experiment.raw[cell][trial]`` gives you the traces of a specific cell
-        and trial, across cell and neuropil regions.
+        ``experiment.raw[roi, trial]`` gives you the traces of a specific ROI
+        and trial, across the ROI and neuropil regions.
         ``experiment.roi_polys`` is a list of lists of arrays.
-        ``experiment.roi_polys[cell][trial][region][0]`` gives you the
-        polygon for the region for a specific cell, trial and region.
-        ``region=0`` is the cell, and ``region>0`` gives the different neuropil
-        regions.
+        ``experiment.roi_polys[roi, trial][region][0]`` gives you the
+        polygon for the region for a specific ROI, trial and region.
+        ``region=0`` is the ROI itself (i.e. the outline of the neuron cell),
+        and ``region>0`` gives the different neuropil regions.
         For separable masks, it is possible multiple outlines are
         found, which can be accessed as
-        ``experiment.roi_polys[cell][trial][region][i]``,
+        ``experiment.roi_polys[roi, trial][region][i]``,
         where ``i`` is the outline index.
 
         Parameters
@@ -1122,12 +1127,12 @@ class Experiment:
 
         experiment.sep
             Raw separation output, without being matched. Signal ``i`` for
-            a specific cell and trial can be found as
-            ``experiment.sep[cell][trial][i,:]``.
+            a specific ROI and trial can be found as
+            ``experiment.sep[roi, trial][i, :]``.
         experiment.result
-            Final output, in order of presence in cell ROI.
-            Signal ``i`` for a specific cell and trial can be found at
-            ``experiment.result[cell][trial][i, :]``.
+            Final output, in order of presence in the ROI.
+            Signal ``i`` for a specific ROI and trial can be found at
+            ``experiment.result[roi, trial][i, :]``.
             Note that the ordering is such that ``i = 0`` is the signal
             most strongly present in the ROI, and subsequent entries
             are in diminishing order.
@@ -1476,18 +1481,18 @@ class Experiment:
         These can be interfaced with as illustrated below.
 
         ``result{1, 1}(1, :)``
-            The separated signal for the first cell and first trial.
+            The separated signal for the first ROI and first trial.
             This is equivalent to ``experiment.result[0, 0][0, :]`` when
             interacting with the :class:`Experiment` object in Python.
         ``result{roi, trial}(1, :)``
-            The separated signal for the ``roi``-th cell and ``trial``-th trial.
+            The separated signal for the ``roi``-th ROI and ``trial``-th trial.
             This is equivalent to
             ``experiment.result[roi - 1, trial - 1][0, :]`` when
             interacting with the :class:`Experiment` object in Python.
         ``result{roi, trial}(2, :)``
             A contaminating signal.
         ``raw{roi, trial}(1, :)``
-            Raw measured cell signal, average over the ROI.
+            Raw measured neuronal signal, averaged over the ROI.
             This is equivalent to ``experiment.raw[roi - 1, trial - 1][0, :]``
             when interacting with the :class:`Experiment` object in Python.
         ``raw{roi, trial}(2, :)``
@@ -1635,14 +1640,14 @@ class Experiment:
         and ``df_raw``, which will have the same format as ``result`` and
         ``raw``.
 
-        These can be interfaced with as follows, for cell 0, trial 0:
+        These can be interfaced with as follows, for ROI 0, trial 0:
 
         ``ROIs.cell0.trial0{1}``
             Polygon outlining the ROI.
         ``ROIs.cell0.trial0{2}``
             Polygon outlining the first (of ``nRegions``) neuropil region.
         ``result.cell0.trial0(1, :)``
-            Final extracted cell signal.
+            Final extracted neuronal signal.
         ``result.cell0.trial0(2, :)``
             Contaminating signal.
         ``raw.cell0.trial0(1, :)``
@@ -1683,6 +1688,11 @@ def run_fissa(
     Functional interface to run FISSA.
 
     .. versionadded:: 1.0.0
+
+    Uses the methodology described in
+    `FISSA: A neuropil decontamination toolbox for calcium imaging signals <doi_>`_.
+
+    .. _doi: https://www.doi.org/10.1038/s41598-018-21640-2
 
     Parameters
     ----------
@@ -1744,8 +1754,9 @@ def run_fissa(
     Returns
     -------
     result : 2d numpy.ndarray of 2d numpy.ndarrays of np.float64
-        The vector ``result[c, t][0, :]`` is the trace from cell ``c`` in
-        trial ``t``. If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
+        The vector ``result[roi, trial][0, :]`` is the trace from ROI ``roi``
+        in trial ``trial``.
+        If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
         otherwise, it is the decontaminated signal scaled as per the raw
         signal.
 
