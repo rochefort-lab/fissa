@@ -1394,7 +1394,7 @@ class Experiment:
         n_trial = len(self.result[0])
 
         # Loop over cells
-        for cell in tqdm(
+        for i_roi in tqdm(
             range(n_roi),
             total=n_roi,
             desc=desc,
@@ -1403,8 +1403,8 @@ class Experiment:
             # if deltaf should be calculated across all trials
             if across_trials:
                 # get concatenated traces
-                raw_conc = np.concatenate(self.raw[cell], axis=1)[0, :]
-                result_conc = np.concatenate(self.result[cell], axis=1)
+                raw_conc = np.concatenate(self.raw[i_roi], axis=1)[0, :]
+                result_conc = np.concatenate(self.result[i_roi], axis=1)
 
                 # calculate Δf/f0
                 raw_f0 = deltaf.findBaselineF0(raw_conc, freq)
@@ -1417,19 +1417,19 @@ class Experiment:
 
                 # store Δf/f0
                 curTrial = 0
-                for trial in range(n_trial):
-                    nextTrial = curTrial + self.raw[cell][trial].shape[1]
+                for i_trial in range(n_trial):
+                    nextTrial = curTrial + self.raw[i_roi][i_trial].shape[1]
                     signal = raw_conc[curTrial:nextTrial]
-                    deltaf_raw[cell][trial] = np.expand_dims(signal, axis=0)
+                    deltaf_raw[i_roi][i_trial] = np.expand_dims(signal, axis=0)
                     signal = result_conc[:, curTrial:nextTrial]
-                    deltaf_result[cell][trial] = signal
+                    deltaf_result[i_roi][i_trial] = signal
                     curTrial = nextTrial
             else:
                 # loop across trials
-                for trial in range(n_trial):
+                for i_trial in range(n_trial):
                     # get current signals
-                    raw_sig = self.raw[cell][trial][0, :]
-                    result_sig = self.result[cell][trial]
+                    raw_sig = self.raw[i_roi][i_trial][0, :]
+                    result_sig = self.result[i_roi][i_trial]
 
                     # calculate Δf/fo
                     raw_f0 = deltaf.findBaselineF0(raw_sig, freq)
@@ -1442,8 +1442,8 @@ class Experiment:
                         result_sig = (result_sig - result_f0) / result_f0
 
                     # store Δf/f0
-                    deltaf_raw[cell][trial] = np.expand_dims(raw_sig, axis=0)
-                    deltaf_result[cell][trial] = result_sig
+                    deltaf_raw[i_roi][i_trial] = np.expand_dims(raw_sig, axis=0)
+                    deltaf_result[i_roi][i_trial] = result_sig
 
         self.deltaf_raw = deltaf_raw
         self.deltaf_result = deltaf_result
@@ -1568,16 +1568,16 @@ class Experiment:
         def reformat_dict_for_legacy(orig_dict):
             new_dict = collections.OrderedDict()
             # loop over cells and trial
-            for cell in range(len(self.result)):
+            for i_roi in range(len(self.result)):
                 # get current cell label
-                c_lab = "cell" + str(cell)
+                c_lab = "cell" + str(i_roi)
                 # update dictionary
                 new_dict[c_lab] = collections.OrderedDict()
-                for trial in range(len(self.result[0])):
+                for i_trial in range(len(self.result[0])):
                     # get current trial label
-                    t_lab = "trial" + str(trial)
+                    t_lab = "trial" + str(i_trial)
                     # update dictionary
-                    new_dict[c_lab][t_lab] = orig_dict[cell][trial]
+                    new_dict[c_lab][t_lab] = orig_dict[i_roi][i_trial]
             return new_dict
 
         if legacy:
