@@ -811,6 +811,126 @@ class ExperimentTestMixin:
         self.assertTrue("Doing" in capture_post.out)
         self.compare_output(exp)
 
+    def test_autoclear_images_param(self):
+        """Test output attributes are cleared when image data changes."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        # Check values are set correctly
+        self.compare_output(exp)
+        # Change images directory
+        exp.images = "some/new/path/"
+        # Check preparation outputs are wiped
+        self.assertIs(exp.means, None)
+        self.assertIs(exp.raw, None)
+        self.assertIs(exp.roi_polys, None)
+        # Check separation outputs are wiped
+        self.assertIs(exp.info, None)
+        self.assertIs(exp.mixmat, None)
+        self.assertIs(exp.result, None)
+        self.assertIs(exp.sep, None)
+
+    def test_autoclear_rois_param(self):
+        """Test output attributes are cleared when roi data changes."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Assign dummy values
+        exp.means = [2819, 12893, 12378]
+        exp.raw = 101
+        exp.result = 42
+        exp.info = {"foo": 1, "bar": 2}
+        self.assert_equal(exp.raw, 101)
+        # Change roi directory
+        exp.rois = "some/new/path/"
+        # Check preparation outputs are wiped
+        self.assertIs(exp.means, None)
+        self.assertIs(exp.raw, None)
+        # Check separation outputs are wiped
+        self.assertIs(exp.info, None)
+        self.assertIs(exp.result, None)
+
+    def test_autoclear_prep_param(self):
+        """Test output attributes are cleared when prep parameters change."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, expansion=1)
+        # Assign dummy values
+        exp.means = [2819, 12893, 12378]
+        exp.raw = 101
+        exp.result = 42
+        exp.info = {"foo": 1, "bar": 2}
+        # Change preparation parameter
+        exp.expansion = exp.expansion + 1
+        # Check preparation outputs are wiped
+        self.assertIs(exp.means, None)
+        self.assertIs(exp.raw, None)
+        # Check separation outputs are wiped
+        self.assertIs(exp.info, None)
+        self.assertIs(exp.result, None)
+
+    def test_autoclear_sep_param(self):
+        """Test output attributes are cleared when sep parameters change."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.separate()
+        # Check values are set correctly
+        self.compare_output(exp)
+        # Change separation parameter
+        exp.method = "bespoke_method"
+        # Check separation outputs are wiped
+        self.assertIs(exp.info, None)
+        self.assertIs(exp.mixmat, None)
+        self.assertIs(exp.result, None)
+        self.assertIs(exp.sep, None)
+        # Check prepared values are still set correctly
+        self.compare_output(exp, separated=False)
+
+    def test_autoclear_sensitivity_unset(self):
+        """Test autoclear sensitivity."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Initial value
+        exp.raw = 101
+        self.assert_equal(exp.raw, 101)
+        self.assertIs(exp.expansion, None)
+        # Test not cleared when setting unset parameter
+        exp.expansion = 1.2345678
+        self.assert_equal(exp.raw, 101)
+
+    def test_autoclear_sensitivity_scalar(self):
+        """Test autoclear sensitivityto changing scalar values."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Initial value
+        exp.expansion = 1.2345678
+        exp.raw = 101
+        # Test cleared when parameter is changed
+        exp.expansion = 0.2345678
+        self.assert_equal(exp.raw, None)
+
+    def test_autoclear_sensitivity_str(self):
+        """Test autoclear sensitivity to changing string values."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Initial value
+        exp.method = "foo"
+        exp.result = 101
+        # Test cleared when parameter is changed
+        exp.method = "bar"
+        self.assert_equal(exp.result, None)
+
+    def test_autoclear_sensitivity_array(self):
+        """Test autoclear sensitive to changing array values."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Initial value
+        exp.expansion = np.zeros((2, 3))
+        exp.raw = 101
+        # Test cleared when parameter is changed
+        exp.expansion = np.ones((3, 4))
+        self.assert_equal(exp.raw, None)
+
+    def test_autoclear_sensitivity_type(self):
+        """Test autoclear sensitivity when changing type."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Initial value
+        exp.expansion = 1.2345678
+        exp.raw = 101
+        # Test cleared when parameter is changed to a non-comparable type
+        exp.expansion = "foobar"
+        self.assert_equal(exp.raw, None)
+
     def test_load_cache(self):
         """Test whether cached output is loaded during init."""
         image_path = self.images_dir
