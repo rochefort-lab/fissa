@@ -783,7 +783,10 @@ class Experiment:
                 return np.array_equal(current, value)
             return current == value
 
-        if name in ["images", "rois"]:
+        if getattr(self, name, None) is None:
+            # No need to clear if the current value is None
+            pass
+        elif name in ["images", "rois"]:
             if not check_same_value():
                 self.clear()
         elif hasattr(self, "_preparation_params") and name in self._preparation_params:
