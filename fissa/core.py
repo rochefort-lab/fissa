@@ -464,6 +464,11 @@ class Experiment:
         ROI area. Default is ``1``. The total neuropil area will be
         ``nRegions * expansion * area(ROI)``.
 
+    method : "nmf" or "ica", default="nmf"
+        Which blind source-separation method to use. Either ``"nmf"``
+        for non-negative matrix factorization, or ``"ica"`` for
+        independent component analysis. Default is ``"nmf"`` (recommended).
+
     alpha : float, default=0.1
         Sparsity regularizaton weight for NMF algorithm. Set to zero to
         remove regularization. Default is ``0.1``.
@@ -510,11 +515,6 @@ class Experiment:
         The separation routine requires less memory per process than
         the preparation routine, and so `ncores_separation` be often be set
         higher than `ncores_preparation`.
-
-    method : "nmf" or "ica", default="nmf"
-        Which blind source-separation method to use. Either ``"nmf"``
-        for non-negative matrix factorization, or ``"ica"`` for
-        independent component analysis. Default is ``"nmf"`` (recommended).
 
     lowmemory_mode : bool, optional
         If ``True``, FISSA will load TIFF files into memory frame-by-frame
@@ -674,20 +674,30 @@ class Experiment:
         until then, it is set to ``None``.
     """
 
+    _defaults = {
+        "nRegions": 4,
+        "expansion": 1,
+        "method": "nmf",
+        "alpha": 0.1,
+        "max_iter": 20000,
+        "tol": 1e-4,
+        "max_tries": 1,
+    }
+
     def __init__(
         self,
         images,
         rois,
         folder=None,
-        nRegions=4,
-        expansion=1,
-        alpha=0.1,
-        max_iter=20000,
-        tol=1e-4,
-        max_tries=1,
+        nRegions=None,
+        expansion=None,
+        method=None,
+        alpha=None,
+        max_iter=None,
+        tol=None,
+        max_tries=None,
         ncores_preparation=-1,
         ncores_separation=-1,
-        method="nmf",
         lowmemory_mode=False,
         datahandler=None,
         verbosity=1,
@@ -728,13 +738,13 @@ class Experiment:
         self.folder = folder
         self.nRegions = nRegions
         self.expansion = expansion
+        self.method = method
         self.alpha = alpha
         self.max_iter = max_iter
         self.tol = tol
         self.max_tries = max_tries
         self.ncores_preparation = ncores_preparation
         self.ncores_separation = ncores_separation
-        self.method = method
         self.verbosity = verbosity
 
         # check if any data already exists
@@ -780,13 +790,13 @@ class Experiment:
             "folder",
             "nRegions",
             "expansion",
+            "method",
             "alpha",
             "max_iter",
             "tol",
             "max_tries",
             "ncores_preparation",
             "ncores_separation",
-            "method",
             "datahandler",
             "verbosity",
         ]
@@ -808,13 +818,13 @@ class Experiment:
             "folder",
             "nRegions",
             "expansion",
+            "method",
             "alpha",
             "max_iter",
             "tol",
             "max_tries",
             "ncores_preparation",
             "ncores_separation",
-            "method",
             "datahandler",
             "verbosity",
         ]
@@ -880,7 +890,42 @@ class Experiment:
         if verbosity >= 1 and keys_cleared:
             print("Cleared {}".format(", ".join(repr(k) for k in keys_cleared)))
 
-    def load(self, path=None):
+    def _adopt_default_parameters(self, only_preparation=False, force=False):
+        r"""
+        Adopt default values for unset analysis parameters.
+
+        .. versionadded:: 1.0.0
+
+        Parameters
+        ----------
+        only_preparation : bool, optional
+            Whether to restrict the parameters to only those used for data
+            extraction during the preparation step. Default is ``False``.
+        force : bool, optional
+            If `True`, all parameters will be overridden with default values
+            even if they had already been set. Default is ``False``.
+        """
+        defaults = self._defaults
+        if only_preparation:
+            # Prune down to only the preparation parameters
+            preparation_fields = ["expansion", "nRegions"]
+            defaults = {k: v for k, v in defaults.items() if k in preparation_fields}
+        # Check through each parameter and set unset values from defaults
+        keys_adopted = []
+        for key, value in defaults.items():
+            if getattr(self, key, None) is not None and not force:
+                continue
+            setattr(self, key, value)
+            keys_adopted.append(key)
+
+        if self.verbosity >= 5 and keys_adopted:
+            print(
+                "Adopted default values for {}".format(
+                    ", ".join(repr(k) for k in keys_adopted)
+                )
+            )
+
+    def load(self, path=None, force=False, skip_clear=False):
         r"""
         Load data from cache file in npz format.
 
@@ -894,8 +939,41 @@ class Experiment:
             Default behaviour is to use the :attr:`folder` parameter which was
             provided when the object was initialised is used
             (``experiment.folder``).
+        force : bool, optional
+            Whether to load the cache even if its experiment parameters differ
+            from the properties of this experiment. Default is ``False``.
+        skip_clear : bool, optional
+            Whether to skip clearing values before loading. Default is ``False``.
         """
         dynamic_properties = ["nCell", "nTrials"]
+        ValGroup = collections.namedtuple(
+            "ValGroup",
+            ["category", "validators", "fields", "clearif", "clearfn"],
+        )
+        validation_groups = [
+            ValGroup(
+                "prepared",
+                ["expansion", "nRegions"],
+                ["deltaf_raw", "means", "raw", "roi_polys"],
+                ["raw"],
+                self.clear,
+            ),
+            ValGroup(
+                "separated",
+                [
+                    "alpha",
+                    "nRegions",
+                    "expansion",
+                    "max_iter",
+                    "max_tries",
+                    "method",
+                    "tol",
+                ],
+                ["deltaf_result", "info", "mixmat", "sep", "result"],
+                ["result"],
+                self.clear_separated,
+            ),
+        ]
         if path is None:
             if self.folder is None:
                 raise ValueError(
@@ -910,18 +988,126 @@ class Experiment:
                 self.load(fullfname)
             return
         if self.verbosity >= 1:
-            print("Reloading data from cache {}".format(path))
+            print("Loading data from cache {}".format(path))
         cache = np.load(path, allow_pickle=True)
+
+        def _unpack_scalar(x):
+            if np.array_equal(x, None):
+                return None
+            if x.ndim == 0:
+                # Handle loading scalars
+                return x.item()
+            return x
+
+        if force:
+            for field in cache.files:
+                if field in dynamic_properties:
+                    continue
+                setattr(self, field, _unpack_scalar(cache[field]))
+            return
+        set_fields = set()
+        for category, validators, fields, clearif, clearfn in validation_groups:
+            valid = True
+            validation_errors = []
+            for validator in validators:
+                if getattr(self, validator, None) is None:
+                    # If the validator is not yet set locally, it is fine to
+                    # overwrite it.
+                    continue
+                if validator not in cache:
+                    # If the validator is not set in the cache and is set
+                    # locally, we can't verify that the cached data is
+                    # compatible. We don't raise an error for this because the
+                    # contents are probably not this category.
+                    valid = False
+                    break
+                value = _unpack_scalar(cache[validator])
+                if value is None:
+                    valid = False
+                    break
+                if not np.array_equal(getattr(self, validator), value):
+                    # If the validator is set and doesn't match the value in
+                    # the cache, we will raise an error.
+                    validation_errors.append(
+                        "    {}: Experiment (ours) {}, Cache (theirs) {}".format(
+                            validator,
+                            getattr(self, validator),
+                            value,
+                        )
+                    )
+            if len(validation_errors) > 0:
+                raise ValueError(
+                    "Experiment parameter value(s) in {} do not match the"
+                    " current experiment values:\n{}".format(
+                        path, "\n".join(validation_errors)
+                    )
+                )
+            if not valid:
+                continue
+            # Check the image and roi size is appropriate
+            for k in ["raw", "result"]:
+                if k not in cache.files or np.array_equal(cache[k], None):
+                    continue
+                if cache[k].shape[1] != self.nTrials:
+                    raise ValueError(
+                        "Data mismatch between {} and our images."
+                        " Cached {} has {} trials, but our Experiment has {}"
+                        " trials.".format(path, k, cache[k].shape[1], self.nTrials)
+                    )
+                if self.nCell is not None and cache[k].shape[0] != self.nCell:
+                    raise ValueError(
+                        "Data mismatch between {} and our roisets."
+                        " Cached {} has {} ROIs, but our Experiment has {}"
+                        " ROIs.".format(path, k, cache[k].shape[1], self.nCell)
+                    )
+
+            # Wipe the values currently held before setting new values
+            if not skip_clear:
+                for field in clearif:
+                    if field in cache.files:
+                        clearfn()
+                        break
+            # All the validators were valid, so we are okay to load the fields
+            any_field_loaded = False
+            for field in fields:
+                if field not in cache or field in dynamic_properties:
+                    continue
+                setattr(self, field, _unpack_scalar(cache[field]))
+                set_fields.add(field)
+                any_field_loaded = True
+            # If we didn't load any output data, no need to set the validators
+            # or print that we loaded something.
+            if not any_field_loaded:
+                continue
+            # Load all the validators, overwriting our local values if None
+            for validator in validators:
+                if validator not in cache.files:
+                    continue
+                value = _unpack_scalar(cache[validator])
+                if getattr(self, validator, None) is None:
+                    if self.verbosity >= 2:
+                        print(
+                            "    Adopting value {}={} from {}".format(
+                                validator, repr(value), path
+                            )
+                        )
+                setattr(self, validator, value)
+                set_fields.add(validator)
+            if self.verbosity >= 2:
+                print("Loaded {} data from {}".format(category, path))
+
+        # Check there weren't any left over fields in the cache which
+        # were left unloaded
+        unset_fields = []
         for field in cache.files:
             if field in dynamic_properties:
                 continue
-            value = cache[field]
-            if np.array_equal(value, None):
-                value = None
-            elif value.ndim == 0:
-                # Handle loading scalars
-                value = value.item()
-            setattr(self, field, value)
+            if field not in set_fields:
+                unset_fields.append(field)
+        if len(unset_fields) > 0 and self.verbosity >= 1:
+            print(
+                "Warning: field(s) {} in {} were not loaded.".format(unset_fields, path)
+            )
 
     def separation_prep(self, redo=False):
         r"""
@@ -982,6 +1168,9 @@ class Experiment:
 
         # Wipe outputs
         self.clear()
+
+        # Adopt default values
+        self._adopt_default_parameters(only_preparation=True)
 
         # Extract signals
         n_trial = len(self.images)
@@ -1185,6 +1374,9 @@ class Experiment:
         # Wipe outputs
         self.clear_separated()
 
+        # Adopt default values
+        self._adopt_default_parameters()
+
         # Check size of the input arrays
         n_roi = len(self.raw)
         n_trial = len(self.raw[0])
@@ -1310,11 +1502,13 @@ class Experiment:
             "alpha",
             "deltaf_raw",
             "deltaf_result",
+            "expansion",
             "info",
             "max_iter",
             "max_tries",
             "method",
             "mixmat",
+            "nRegions",
             "sep",
             "tol",
             "result",

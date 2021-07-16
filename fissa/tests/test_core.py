@@ -17,6 +17,14 @@ from .. import core, extraction
 from .base_test import BaseTestCase
 
 
+def merge_dicts(x, *args):
+    """Merge multiple dictionaries together."""
+    z = x.copy()
+    for arg in args:
+        z.update(arg)
+    return z
+
+
 class ExperimentTestMixin:
     """Base tests for Experiment class."""
 
@@ -851,17 +859,17 @@ class ExperimentTestMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("oading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("oading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separate
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
         capture_post = self.recapsys(capture_pre)
-        self.assert_starts_with(capture_post.out, "Reloading data")
+        self.assertTrue("oading data" in capture_post.out)
         # Check the contents loaded from cache
         self.compare_output(exp)
 
@@ -878,12 +886,12 @@ class ExperimentTestMixin:
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp = core.Experiment(image_path, roi_path, self.output_dir, verbosity=3)
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assertTrue("Reloading data" in capture_post.out)
+        self.assertTrue("oading data" in capture_post.out)
         # Ensure previous cache is loaded again when we run separation_prep
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
-        self.assertTrue("Reloading data" in capture_post.out)
+        self.assertTrue("oading data" in capture_post.out)
         # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
@@ -972,20 +980,435 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
-    def test_load_none(self):
-        """Behaviour when loading a cache containing None."""
-        fields = ["raw", "result", "deltaf_result"]
-        exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
+    def test_load_clear(self):
+        """Test loading raw clears other existing values."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        exp.means = 31802  # Assign means to be a random value
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname)
+        # Check means was wiped
+        self.assertIs(exp.means, None)
+
+    def test_load_clear_skip(self):
+        """Test loading raw doesn't clears existing values with skip_clear."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        value = 31802
+        exp.means = value  # Assign means to be a random value
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname, skip_clear=True)
+        # Check means was not wiped
+        self.assert_equal(exp.means, value)
+
+    def test_load_dynamic(self):
+        """Test behaviour when loading a cache containing a dynamic property."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {
+            "raw": np.ones((len(self.roi_paths), len(self.image_names))),
+            "nTrials": 182,
+        }
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname)
+        # Check the data still appears correctly
+        self.assert_equal(exp.nTrials, len(self.image_names))
+
+    def test_load_dynamic_force(self):
+        """Test behaviour when loading a cache containing a dynamic property."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"nTrials": 182}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname, force=True)
+        # Make sure there is no error
+
+    def test_load_wrong_data_field(self):
+        """Test whether npz file is loaded by load method."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"foobar": np.array([[1, 2], [3, 4]])}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Set the fields to be something other than `None`
+        for key in fields:
+            setattr(exp, key, 42.24)
+        # Make a save file
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.load(fname)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        # Check the warning message appears
+        self.assertTrue("foobar" in capture_post.out)
+        self.assertTrue(fname + " were not loaded" in capture_post.out)
+
+    def test_load_force(self):
+        """Test whether npz file is loaded by load method."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"foobar": np.array([[1, 2], [3, 4]])}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Set the fields to be something other than `None`
+        for key in fields:
+            setattr(exp, key, 42.24)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data appears correctly
+        exp.load(fname, force=True)
+        for key, value in fields.items():
+            self.assert_equal(getattr(exp, key), value)
+
+    def test_load_none_force(self):
+        """Behaviour when forcibly loading a cache containing None."""
+        fields = ["foobar", "result", "deltaf_result"]
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
         # Set the fields to be something other than `None`
         for field in fields:
             setattr(exp, field, 42)
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
         np.savez_compressed(fname, **{field: None for field in fields})
         # Load the file and check the data appears as None, not np.array(None)
-        exp.load(fname)
+        exp.load(fname, force=True)
         for field in fields:
             self.assertIs(getattr(exp, field), None)
+
+    def test_load_none(self):
+        """Behaviour when loading a cache containing None."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": None}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Set the fields to be something other than `None`
+        for key in fields:
+            setattr(exp, key, 42)
+        # Make a save file which contains values set to `None`
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data appears as None, not np.array(None)
+        exp.load(fname)
+        for key, value in fields.items():
+            self.assertIs(getattr(exp, key), value)
+
+    def test_load_scalar_force(self):
+        """Behaviour when forcibly loading a cache containing scalar values."""
+        fields = ["raw", "result", "deltaf_result"]
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        # Make a save file which contains values set to a scalar
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **{field: 1337 for field in fields})
+        # Load the file and check the data appears correctly
+        exp.load(fname, force=True)
+        for field in fields:
+            self.assertEqual(getattr(exp, field), 1337)
+
+    def test_load_wrong_nRegions(self):
+        """Test load doesn't load analysis from wrong nRegions param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"] + 1,
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_missing_param(self):
+        """Behaviour when a param is missing from npz and unset in experiment."""
+        kwargs = {"expansion": 0.213}  # nRegions is unset
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is loaded
+        exp.load(fname)
+        self.assert_equal(exp.raw, fields["raw"])
+
+    def test_load_missing_param_set(self):
+        """Behaviour when a param is missing from npz but set in experiment."""
+        # Initial value for raw
+        initial_value = np.zeros((len(self.roi_paths), len(self.image_names)))
+        kwargs = {"nRegions": 3}  # expansion is not defined
+        fields = {"raw": initial_value + 1}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=123,  # expansion is defined
+            nRegions=kwargs["nRegions"],
+        )
+        exp.raw = initial_value
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.load(fname)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        # Check the warning message appears
+        self.assertTrue("raw" in capture_post.out)
+        self.assertTrue(fname + " were not loaded" in capture_post.out)
+        # Check the value of raw has not changed
+        self.assert_equal(exp.raw, initial_value)
+
+    def test_load_None_param(self):
+        """Behaviour when a param is None in npz and unset in experiment."""
+        kwargs = {"expansion": 0.213, "nRegions": None}  # nRegions is None
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(self.images_dir, self.roi_zip_path, **kwargs)
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is loaded
+        exp.load(fname)
+        self.assert_equal(exp.raw, fields["raw"])
+
+    def test_load_None_param_set(self):
+        """Behaviour when a param is None in npz and set in experiment."""
+        # Initial value for raw
+        initial_value = np.zeros((len(self.roi_paths), len(self.image_names)))
+        kwargs = {"nRegions": 3, "expansion": None}  # expansion is None
+        fields = {"raw": initial_value + 1}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=123,  # expansion is defined
+            nRegions=kwargs["nRegions"],
+        )
+        exp.raw = initial_value
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        capture_pre = self.capsys.readouterr()  # Clear stdout
+        exp.load(fname)
+        capture_post = self.recapsys(capture_pre)  # Capture and then re-output
+        # Check the warning message appears
+        self.assertTrue("raw" in capture_post.out)
+        self.assertTrue(fname + " were not loaded" in capture_post.out)
+        # Check the value of raw has not changed
+        self.assert_equal(exp.raw, initial_value)
+
+    def test_load_wrong_in_init(self):
+        """Test load doesn't load analysis from wrong nRegions param during init."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "prepared.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            core.Experiment(
+                self.images_dir,
+                self.roi_zip_path,
+                self.output_dir,
+                expansion=kwargs["expansion"],
+                nRegions=kwargs["nRegions"] + 1,
+            )
+
+    def test_load_unset_in_init(self):
+        """Test load analysis from wrong nRegions param during init."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "prepared.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data loads
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            self.output_dir,
+        )
+        self.assert_equal(exp.raw, fields["raw"])
+
+    def test_load_wrong_trial_count(self):
+        """Test load doesn't load analysis when the shape is wrong."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names) + 1))}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_sequential(self):
+        """Test load works correctly when we load twice."""
+        kwargs = {
+            "expansion": 0.213,
+            "nRegions": 3,
+            "alpha": 5.23,
+            "max_iter": 12038,
+            "max_tries": 2,
+            "method": "nmf",
+            "tol": 1.123e-3,
+        }
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+        )
+        # Make a save file which contains values
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname)
+        self.assert_equal(exp.raw, fields["raw"])
+        # Make a cache with result
+        fields2 = {"result": np.zeros((len(self.roi_paths), len(self.image_names)))}
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy2.npz")
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields2))
+        # Load the file
+        exp.load(fname)
+        self.assert_equal(exp.result, fields2["result"])
+        self.assert_equal(exp.raw, fields["raw"])
+
+    def test_load_wrong_roi_count(self):
+        """Test load works correctly when we load twice."""
+        kwargs = {
+            "expansion": 0.213,
+            "nRegions": 3,
+            "alpha": 5.23,
+            "max_iter": 12038,
+            "max_tries": 2,
+            "method": "nmf",
+            "tol": 1.123e-3,
+        }
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file
+        exp.load(fname)
+        self.assert_equal(exp.raw, fields["raw"])
+        # Make a cache with result
+        fields2 = {"result": np.zeros((len(self.roi_paths) + 1, len(self.image_names)))}
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy2.npz")
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields2))
+        # Load the file
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_wrong_expansion(self):
+        """Test load doesn't load analysis from wrong expansion param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3}
+        fields = {"raw": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"] + 1,
+            nRegions=kwargs["nRegions"],
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_wrong_alpha_only_sep_results(self):
+        """Test load doesn't load analysis from wrong alpha param."""
+        kwargs = {"expansion": 0.213, "nRegions": 3, "alpha": 5.23}
+        fields = {"result": np.ones((len(self.roi_paths), len(self.image_names)))}
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+            alpha=kwargs["alpha"] + 1,
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
+
+    def test_load_wrong_alpha_mixed_prep_sep(self):
+        """Test load doesn't load analysis from wrong alpha param."""
+        kwargs = {
+            "expansion": 0.213,
+            "nRegions": 3,
+            "alpha": 5.23,
+            "max_iter": 12038,
+            "max_tries": 2,
+            "method": "nmf",
+            "tol": 1.123e-3,
+        }
+        fields = {
+            "raw": np.ones((len(self.roi_paths), len(self.image_names))),
+            "result": np.zeros((len(self.roi_paths), len(self.image_names))),
+        }
+        exp = core.Experiment(
+            self.images_dir,
+            self.roi_zip_path,
+            expansion=kwargs["expansion"],
+            nRegions=kwargs["nRegions"],
+            alpha=kwargs["alpha"] + 1,
+        )
+        # Make a save file which contains values set badly
+        fname = os.path.join(self.output_dir, "dummy.npz")
+        os.makedirs(self.output_dir)
+        np.savez_compressed(fname, **merge_dicts(kwargs, fields))
+        # Load the file and check the data is not loaded
+        with self.assertRaises(ValueError):
+            exp.load(fname)
 
     @unittest.expectedFailure
     def test_badprepcache_init1(self):
