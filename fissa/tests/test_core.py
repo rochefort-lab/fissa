@@ -468,11 +468,6 @@ class ExperimentTestMixin:
         self.compare_str_repr_contents(str(exp))
         self.compare_str_repr_contents(repr(exp))
 
-    def test_nocache(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path)
-        exp.separate()
-        self.compare_output(exp)
-
     def test_verbosity_0(self):
         # Test with no data to load
         capture_pre = self.capsys.readouterr()  # Clear stdout
