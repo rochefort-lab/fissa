@@ -57,7 +57,9 @@ class ExperimentTestMixin:
         self.assert_equal(np.shape(actual), expected_shape)
         self.assert_allclose_ragged(actual, self.expected["deltaf_result"])
 
-    def compare_output(self, actual, separated=True, compare_deltaf=None):
+    def compare_output(
+        self, actual, prepared=True, separated=True, compare_deltaf=None
+    ):
         """
         Compare actual output against expected from self.expected.
 
@@ -65,6 +67,9 @@ class ExperimentTestMixin:
         ----------
         actual : fissa.Experiment
             Actual experiment.
+        prepared : bool
+            Whether to compare results of :meth:`fissa.Experiment.separate_prep`.
+            Default is ``True``.
         separated : bool
             Whether to compare results of :meth:`fissa.Experiment.separate`.
             Default is ``True``.
@@ -82,17 +87,18 @@ class ExperimentTestMixin:
                 compare_deltaf = actual.deltaf_raw is not None
         # Check sizes are correct
         expected_shape = len(self.roi_paths), len(self.image_names)
-        self.assert_equal(np.shape(actual.raw), expected_shape)
-        self.assert_equal(len(actual.means), len(self.image_names))
-        self.assert_equal(actual.nCell, len(actual.raw))
-        self.assert_equal(actual.nTrials, len(actual.raw[0]))
-        # Check contents are correct
-        self.assert_allclose_ragged(actual.raw, self.expected["raw"])
-        self.assert_equal(actual.means, self.expected["means"])
-        self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
-        # Check parameters match
-        self.assert_equal(actual.expansion, self.expected["expansion"])
-        self.assert_equal(actual.nRegions, self.expected["nRegions"])
+        if prepared:
+            self.assert_equal(np.shape(actual.raw), expected_shape)
+            self.assert_equal(len(actual.means), len(self.image_names))
+            self.assert_equal(actual.nCell, len(actual.raw))
+            self.assert_equal(actual.nTrials, len(actual.raw[0]))
+            # Check contents are correct
+            self.assert_allclose_ragged(actual.raw, self.expected["raw"])
+            self.assert_equal(actual.means, self.expected["means"])
+            self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
+            # Check parameters match
+            self.assert_equal(actual.expansion, self.expected["expansion"])
+            self.assert_equal(actual.nRegions, self.expected["nRegions"])
         if separated:
             # Check sizes are correct
             self.assert_equal(np.shape(actual.sep), expected_shape)
@@ -149,6 +155,9 @@ class ExperimentTestMixin:
         self.assert_equal(actual.nRegions, expected.nRegions)
         self.assert_equal(actual.expansion, expected.expansion)
         self.assert_equal(actual.alpha, expected.alpha)
+        self.assert_equal(actual.max_iter, expected.max_iter)
+        self.assert_equal(actual.max_tries, expected.max_tries)
+        self.assert_equal(actual.tol, expected.tol)
         self.assert_equal(actual.ncores_preparation, expected.ncores_preparation)
         self.assert_equal(actual.ncores_separation, expected.ncores_separation)
         self.assert_equal(actual.method, expected.method)
@@ -465,11 +474,6 @@ class ExperimentTestMixin:
         self.compare_str_repr_contents(str(exp))
         self.compare_str_repr_contents(repr(exp))
 
-    def test_nocache(self):
-        exp = core.Experiment(self.images_dir, self.roi_zip_path)
-        exp.separate()
-        self.compare_output(exp)
-
     def test_verbosity_0(self):
         # Test with no data to load
         capture_pre = self.capsys.readouterr()  # Clear stdout
@@ -655,11 +659,11 @@ class ExperimentTestMixin:
         exp.separation_prep()
         self.compare_output(exp, separated=False)
 
-    def test_ncores_preparation_2(self):
+    def test_ncores_preparation_minus2(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            ncores_preparation=2,
+            ncores_preparation=-2,
         )
         exp.separation_prep()
         self.compare_output(exp, separated=False)
@@ -682,11 +686,11 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
-    def test_ncores_separate_2(self):
+    def test_ncores_separate_minus2(self):
         exp = core.Experiment(
             self.images_dir,
             self.roi_zip_path,
-            ncores_separation=2,
+            ncores_separation=-2,
         )
         exp.separate()
         self.compare_output(exp)
@@ -709,24 +713,6 @@ class ExperimentTestMixin:
                 datahandler=extraction.DataHandlerTifffile(),
             )
 
-    def test_manualhandler_Tifffile(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            datahandler=extraction.DataHandlerTifffile(),
-        )
-        exp.separate()
-        self.compare_output(exp)
-
-    def test_manualhandler_TifffileLazy(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            datahandler=extraction.DataHandlerTifffileLazy(),
-        )
-        exp.separate()
-        self.compare_output(exp)
-
     def test_manualhandler_Pillow(self):
         exp = core.Experiment(
             self.images_dir,
@@ -736,14 +722,23 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
-    def test_caching(self):
+    def test_caching_missing_folder(self):
+        """Test caching when the output folder does not yet exist."""
+        if os.path.isdir(self.output_dir):
+            shutil.rmtree(self.output_dir)
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
+        self.compare_output(exp)
 
-    def test_prefolder(self):
+    def test_caching_prefolder(self):
+        """Test caching when the output folder already exists."""
         os.makedirs(self.output_dir)
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_cache_pwd_explict(self):
         """Check we can use pwd as the cache folder."""
@@ -756,6 +751,8 @@ class ExperimentTestMixin:
             exp.separate()
         finally:
             os.chdir(prevdir)
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_cache_pwd_implicit(self):
         """Check we can use pwd as the cache folder."""
@@ -768,12 +765,16 @@ class ExperimentTestMixin:
             exp.separate()
         finally:
             os.chdir(prevdir)
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_subfolder(self):
         """Check we can write to a subfolder."""
         output_dir = os.path.join(self.output_dir, "a", "b", "c")
         exp = core.Experiment(self.images_dir, self.roi_zip_path, output_dir)
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(output_dir, "separated.npz")))
 
     def test_folder_deleted_before_call(self):
         """Check we can write to a folder that is deleted in the middle."""
@@ -781,20 +782,26 @@ class ExperimentTestMixin:
         # Delete the folder between instantiating Experiment and separate()
         self.tearDown()
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_folder_deleted_between_prep_sep(self):
         """Check we can write to a folder that is deleted in the middle."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Delete the folder between separation_prep() and separate()
         exp.separation_prep()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
         self.tearDown()
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_prepfirst(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separation_prep()
         exp.separate()
         self.compare_output(exp)
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
@@ -960,6 +967,11 @@ class ExperimentTestMixin:
         # Redo separation_prep
         exp.separation_prep(redo=True)
         self.compare_output(exp, separated=False)
+        # Check separation outputs are wiped
+        self.assertIs(exp.info, None)
+        self.assertIs(exp.mixmat, None)
+        self.assertIs(exp.result, None)
+        self.assertIs(exp.sep, None)
 
     def test_load_cache_redo_sep(self):
         """Test redo separation after loading from cache."""
@@ -1018,6 +1030,8 @@ class ExperimentTestMixin:
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue("oading data" in capture_post.out)
+        # Check separation outputs are not set
+        self.assertIs(exp.result, None)
         # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
@@ -1040,6 +1054,8 @@ class ExperimentTestMixin:
         exp.load(os.path.join(prev_folder, "prepared.npz"))
         # Cached prep should now be loaded correctly
         self.compare_experiments(exp, exp1, folder=False)
+        # Check separation outputs are not set
+        self.assertIs(exp.result, None)
 
     def test_load_manual_sep(self):
         """Loading prep results from a different folder."""
@@ -1055,6 +1071,8 @@ class ExperimentTestMixin:
         exp.load(os.path.join(prev_folder, "separated.npz"))
         # Cached results should now be loaded correctly
         self.compare_experiments(exp, exp1, folder=False, prepared=False)
+        # Check prepared outputs are not set
+        self.assertIs(exp.raw, None)
 
     def test_load_manual_directory(self):
         """Loading results from a different folder."""
