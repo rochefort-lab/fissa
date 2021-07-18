@@ -722,14 +722,18 @@ class ExperimentTestMixin:
         exp.separate()
         self.compare_output(exp)
 
-    def test_caching(self):
+    def test_caching_missing_folder(self):
+        """Test caching when the output folder does not yet exist."""
+        if os.path.isdir(self.output_dir):
+            shutil.rmtree(self.output_dir)
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
         self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
         self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
         self.compare_output(exp)
 
-    def test_prefolder(self):
+    def test_caching_prefolder(self):
+        """Test caching when the output folder already exists."""
         os.makedirs(self.output_dir)
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
