@@ -737,11 +737,15 @@ class ExperimentTestMixin:
     def test_caching(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_prefolder(self):
         os.makedirs(self.output_dir)
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_cache_pwd_explict(self):
         """Check we can use pwd as the cache folder."""
@@ -754,6 +758,8 @@ class ExperimentTestMixin:
             exp.separate()
         finally:
             os.chdir(prevdir)
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_cache_pwd_implicit(self):
         """Check we can use pwd as the cache folder."""
@@ -766,12 +772,16 @@ class ExperimentTestMixin:
             exp.separate()
         finally:
             os.chdir(prevdir)
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_subfolder(self):
         """Check we can write to a subfolder."""
         output_dir = os.path.join(self.output_dir, "a", "b", "c")
         exp = core.Experiment(self.images_dir, self.roi_zip_path, output_dir)
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(output_dir, "separated.npz")))
 
     def test_folder_deleted_before_call(self):
         """Check we can write to a folder that is deleted in the middle."""
@@ -779,20 +789,26 @@ class ExperimentTestMixin:
         # Delete the folder between instantiating Experiment and separate()
         self.tearDown()
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_folder_deleted_between_prep_sep(self):
         """Check we can write to a folder that is deleted in the middle."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         # Delete the folder between separation_prep() and separate()
         exp.separation_prep()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
         self.tearDown()
         exp.separate()
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_prepfirst(self):
         exp = core.Experiment(self.images_dir, self.roi_zip_path, self.output_dir)
         exp.separation_prep()
         exp.separate()
         self.compare_output(exp)
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
+        self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
 
     def test_redo(self):
         """Test whether experiment redoes work when requested."""
