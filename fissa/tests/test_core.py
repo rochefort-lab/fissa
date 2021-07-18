@@ -713,24 +713,6 @@ class ExperimentTestMixin:
                 datahandler=extraction.DataHandlerTifffile(),
             )
 
-    def test_manualhandler_Tifffile(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            datahandler=extraction.DataHandlerTifffile(),
-        )
-        exp.separate()
-        self.compare_output(exp)
-
-    def test_manualhandler_TifffileLazy(self):
-        exp = core.Experiment(
-            self.images_dir,
-            self.roi_zip_path,
-            datahandler=extraction.DataHandlerTifffileLazy(),
-        )
-        exp.separate()
-        self.compare_output(exp)
-
     def test_manualhandler_Pillow(self):
         exp = core.Experiment(
             self.images_dir,
