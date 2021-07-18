@@ -739,6 +739,7 @@ class ExperimentTestMixin:
         exp.separate()
         self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "prepared.npz")))
         self.assertTrue(os.path.isfile(os.path.join(self.output_dir, "separated.npz")))
+        self.compare_output(exp)
 
     def test_prefolder(self):
         os.makedirs(self.output_dir)
