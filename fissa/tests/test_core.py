@@ -811,6 +811,13 @@ class ExperimentTestMixin:
         self.assertTrue("Doing" in capture_post.out)
         self.compare_output(exp)
 
+    def test_setattr_new(self):
+        """Test we can set new attributes arbitrarily."""
+        exp = core.Experiment(self.images_dir, self.roi_zip_path)
+        exp.baz = True
+        exp.foobar = "ipsum lorem"
+        exp.meaning_of_life = 42
+
     def test_autoclear_images_param(self):
         """Test output attributes are cleared when image data changes."""
         exp = core.Experiment(self.images_dir, self.roi_zip_path)
