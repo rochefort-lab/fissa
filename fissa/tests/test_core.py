@@ -974,6 +974,11 @@ class ExperimentTestMixin:
         # Redo separation_prep
         exp.separation_prep(redo=True)
         self.compare_output(exp, separated=False)
+        # Check separation outputs are wiped
+        self.assertIs(exp.info, None)
+        self.assertIs(exp.mixmat, None)
+        self.assertIs(exp.result, None)
+        self.assertIs(exp.sep, None)
 
     def test_load_cache_redo_sep(self):
         """Test redo separation after loading from cache."""
@@ -1032,6 +1037,8 @@ class ExperimentTestMixin:
         exp.separation_prep()
         capture_post = self.recapsys(capture_pre)  # Capture and then re-output
         self.assertTrue("oading data" in capture_post.out)
+        # Check separation outputs are not set
+        self.assertIs(exp.result, None)
         # Since we did not run and cache separate, this needs to run now
         capture_pre = self.capsys.readouterr()  # Clear stdout
         exp.separate()
@@ -1054,6 +1061,8 @@ class ExperimentTestMixin:
         exp.load(os.path.join(prev_folder, "prepared.npz"))
         # Cached prep should now be loaded correctly
         self.compare_experiments(exp, exp1, folder=False)
+        # Check separation outputs are not set
+        self.assertIs(exp.result, None)
 
     def test_load_manual_sep(self):
         """Loading prep results from a different folder."""
@@ -1069,6 +1078,8 @@ class ExperimentTestMixin:
         exp.load(os.path.join(prev_folder, "separated.npz"))
         # Cached results should now be loaded correctly
         self.compare_experiments(exp, exp1, folder=False, prepared=False)
+        # Check prepared outputs are not set
+        self.assertIs(exp.raw, None)
 
     def test_load_manual_directory(self):
         """Loading results from a different folder."""
