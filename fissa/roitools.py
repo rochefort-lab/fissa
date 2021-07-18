@@ -12,9 +12,9 @@ from past.builtins import basestring
 from skimage.measure import find_contours
 
 try:
-    from collections import abc
+    import collections.abc as cabc
 except ImportError:
-    import collections as abc
+    import collections as cabc
 
 from .polygons import poly2mask
 from .readimagejrois import read_imagej_roi_zip
@@ -467,7 +467,7 @@ def rois2masks(rois, shape):
     if isinstance(rois, basestring):
         rois = readrois(rois)
 
-    if not isinstance(rois, abc.Sequence):
+    if not isinstance(rois, cabc.Sequence):
         raise TypeError(
             "Wrong ROIs input format: expected a list or sequence, but got"
             " a {}".format(rois.__class__)

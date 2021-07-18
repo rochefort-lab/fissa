@@ -16,11 +16,6 @@ import unittest
 import warnings
 from inspect import getsourcefile
 
-try:
-    from collections import abc
-except ImportError:
-    import collections as abc
-
 import numpy as np
 import pytest
 from numpy.testing import (
