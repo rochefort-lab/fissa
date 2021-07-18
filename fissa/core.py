@@ -20,9 +20,9 @@ import time
 import warnings
 
 try:
-    from collections import abc
+    import collections.abc as cabc
 except ImportError:
-    import collections as abc
+    import collections as cabc
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -713,7 +713,7 @@ class Experiment:
 
         if isinstance(images, basestring):
             self.images = sorted(glob.glob(os.path.join(images, "*.tif*")))
-        elif isinstance(images, abc.Sequence):
+        elif isinstance(images, cabc.Sequence):
             self.images = images
         else:
             raise ValueError("images should either be string or list")
@@ -723,7 +723,7 @@ class Experiment:
                 self.rois = [rois] * len(self.images)
             else:
                 self.rois = sorted(glob.glob(os.path.join(rois, "*.zip")))
-        elif isinstance(rois, abc.Sequence):
+        elif isinstance(rois, cabc.Sequence):
             self.rois = rois
             if len(rois) == 1:  # if only one roiset is specified
                 self.rois *= len(self.images)
@@ -801,7 +801,7 @@ class Experiment:
     def __str__(self):
         if isinstance(self.images, basestring):
             str_images = repr(self.images)
-        elif isinstance(self.images, abc.Sequence):
+        elif isinstance(self.images, cabc.Sequence):
             str_images = "<{} of length {}>".format(
                 self.images.__class__.__name__, len(self.images)
             )
@@ -810,7 +810,7 @@ class Experiment:
 
         if isinstance(self.rois, basestring):
             str_rois = repr(self.rois)
-        elif isinstance(self.rois, abc.Sequence):
+        elif isinstance(self.rois, cabc.Sequence):
             str_rois = "<{} of length {}>".format(
                 self.rois.__class__.__name__, len(self.rois)
             )

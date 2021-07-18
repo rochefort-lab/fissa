@@ -6,22 +6,25 @@ Authors:
     - Scott C Lowe <scott.code.lowe@gmail.com>
 """
 
-from past.builtins import basestring
-
-try:
-    from collections import abc
-except ImportError:
-    import collections as abc
+import abc
 import warnings
 
 import numpy as np
+import six
 import tifffile
+from past.builtins import basestring
 from PIL import Image, ImageSequence
 
 from . import roitools
 
+try:
+    ABC = abc.ABC  # Python >= 3.4
+except (AttributeError, NameError):
+    ABC = object
 
-class DataHandlerAbstract:
+
+@six.add_metaclass(abc.ABCMeta)  # Python 2.7 backward compatibility
+class DataHandlerAbstract(ABC):
     """
     Abstract class for a data handler.
 
@@ -41,7 +44,7 @@ class DataHandlerAbstract:
     def __repr__(self):
         return "{}.{}()".format(__name__, self.__class__.__name__)
 
-    @staticmethod
+    @abc.abstractmethod
     def image2array(image):
         """
         Load data (from a path) as an array, or similar internal structure.
@@ -59,7 +62,7 @@ class DataHandlerAbstract:
         """
         raise NotImplementedError()
 
-    @staticmethod
+    @abc.abstractmethod
     def getmean(data):
         """
         Determine the mean image across all frames.
@@ -78,7 +81,7 @@ class DataHandlerAbstract:
         """
         raise NotImplementedError()
 
-    @staticmethod
+    @abc.abstractmethod
     def get_frame_size(data):
         """
         Determine the shape of each frame within the recording.
@@ -120,7 +123,7 @@ class DataHandlerAbstract:
         """
         return roitools.rois2masks(rois, cls.get_frame_size(data))
 
-    @staticmethod
+    @abc.abstractmethod
     def extracttraces(data, masks):
         """
         Extract from data the average signal within each mask, across time.
