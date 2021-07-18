@@ -57,7 +57,9 @@ class ExperimentTestMixin:
         self.assert_equal(np.shape(actual), expected_shape)
         self.assert_allclose_ragged(actual, self.expected["deltaf_result"])
 
-    def compare_output(self, actual, separated=True, compare_deltaf=None):
+    def compare_output(
+        self, actual, prepared=True, separated=True, compare_deltaf=None
+    ):
         """
         Compare actual output against expected from self.expected.
 
@@ -65,6 +67,9 @@ class ExperimentTestMixin:
         ----------
         actual : fissa.Experiment
             Actual experiment.
+        prepared : bool
+            Whether to compare results of :meth:`fissa.Experiment.separate_prep`.
+            Default is ``True``.
         separated : bool
             Whether to compare results of :meth:`fissa.Experiment.separate`.
             Default is ``True``.
@@ -82,17 +87,18 @@ class ExperimentTestMixin:
                 compare_deltaf = actual.deltaf_raw is not None
         # Check sizes are correct
         expected_shape = len(self.roi_paths), len(self.image_names)
-        self.assert_equal(np.shape(actual.raw), expected_shape)
-        self.assert_equal(len(actual.means), len(self.image_names))
-        self.assert_equal(actual.nCell, len(actual.raw))
-        self.assert_equal(actual.nTrials, len(actual.raw[0]))
-        # Check contents are correct
-        self.assert_allclose_ragged(actual.raw, self.expected["raw"])
-        self.assert_equal(actual.means, self.expected["means"])
-        self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
-        # Check parameters match
-        self.assert_equal(actual.expansion, self.expected["expansion"])
-        self.assert_equal(actual.nRegions, self.expected["nRegions"])
+        if prepared:
+            self.assert_equal(np.shape(actual.raw), expected_shape)
+            self.assert_equal(len(actual.means), len(self.image_names))
+            self.assert_equal(actual.nCell, len(actual.raw))
+            self.assert_equal(actual.nTrials, len(actual.raw[0]))
+            # Check contents are correct
+            self.assert_allclose_ragged(actual.raw, self.expected["raw"])
+            self.assert_equal(actual.means, self.expected["means"])
+            self.assert_allclose_ragged(actual.roi_polys, self.expected["roi_polys"])
+            # Check parameters match
+            self.assert_equal(actual.expansion, self.expected["expansion"])
+            self.assert_equal(actual.nRegions, self.expected["nRegions"])
         if separated:
             # Check sizes are correct
             self.assert_equal(np.shape(actual.sep), expected_shape)
