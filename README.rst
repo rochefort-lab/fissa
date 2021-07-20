@@ -70,7 +70,7 @@ calcium imaging toolboxes which can be used to automatically detect cells.
 You can try out each of the example notebooks interactively in your browser on
 Binder_ (note that it may take 10 minutes for Binder to boot up).
 
-Note that the Suite2p notebook runs on a separate Binder.
+Note that the Suite2p notebook runs on a `separate Binder <suitebind_>`_ run from a `separate repository <suite2p_example_repo_>`_.
 
 +---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
 | Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
@@ -103,6 +103,7 @@ Note that the Suite2p notebook runs on a separate Binder.
 .. _basicwinscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_windows.py
 
 .. _suite2p: https://suite2p.readthedocs.io/
+.. _suite2p_example_repo: https://github.com/rochefort-lab/fissa-suite2p-example/
 .. _suitebind: https://mybinder.org/v2/gh/rochefort-lab/fissa-suite2p-example/master?filepath=.%2FSuite2p%20example.ipynb
 .. _suitehtml: https://rochefort-lab.github.io/fissa-suite2p-example/Suite2p%20example.html
 .. _suiteview: https://github.com/rochefort-lab/fissa-suite2p-example/blob/master/Suite2p%20example.ipynb
