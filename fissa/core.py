@@ -1947,7 +1947,16 @@ def run_fissa(
         in trial ``trial``.
         If ``return_deltaf=True``, this is Δf/f\ :sub:`0`;
         otherwise, it is the decontaminated signal scaled as per the raw
+        signal. f\ :sub:`0` is the baseline as calculated from the raw
         signal.
+
+    raw : 2d numpy.ndarray of 2d numpy.ndarrays of np.float64
+        The raw traces without separation.
+        The vector ``raw[c, t][0, :]`` is the ROI trace from cell ``c`` in
+        trial ``t``. The vector ``raw[c, t][i, :]`` for i>=1 the  trace from
+        cell ``c`` in trial ``t``, from neuropil region ``i-1``.
+        If ``return_deltaf=True``, this is Δf/f\ :sub:`0`; otherwise it's
+        the raw extracted signal.
 
     See Also
     --------
@@ -1971,5 +1980,5 @@ def run_fissa(
         experiment.to_matfile(matlab_fname)
     # Return appropriate data
     if return_deltaf:
-        return experiment.deltaf_result
-    return experiment.result
+        return experiment.deltaf_result, experiment.deltaf_raw
+    return experiment.result, experiment.raw
