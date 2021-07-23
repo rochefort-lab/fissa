@@ -104,9 +104,9 @@ Note that the Suite2p notebook runs on a separate Binder.
 
 .. _suite2p: https://suite2p.readthedocs.io/
 .. _suitebind: https://mybinder.org/v2/gh/rochefort-lab/fissa-suite2p-example/master?filepath=.%2FSuite2p%20example.ipynb
-.. _suitehtml: https://rochefort-lab.github.io/fissa/examples/Suite2p%20example.html
-.. _suiteview: https://github.com/rochefort-lab/fissa/blob/master/examples/Suite2p%20example.ipynb
-.. _suitedown: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Suite2p%20example.ipynb
+.. _suitehtml: https://rochefort-lab.github.io/fissa-suite2p-example/Suite2p%20example.html
+.. _suiteview: https://github.com/rochefort-lab/fissa-suite2p-example/blob/master/Suite2p%20example.ipynb
+.. _suitedown: https://raw.githubusercontent.com/rochefort-lab/fissa-suite2p-example/master/Suite2p%20example.ipynb
 
 .. _SIMA: http://www.losonczylab.org/sima/
 .. _sima_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/SIMA%20example.ipynb
