@@ -10,7 +10,7 @@ dependencies:
   - six=1.14.0=py36_0
   - matplotlib==3.3.4
   - pip:
-    - fissa[plotting]
+    - git+https://github.com/rochefort-lab/fissa.git#egg=fissa[plotting]
     - future==0.18.2
     - imagecodecs==2020.2.18
     - imageio==2.8.0
