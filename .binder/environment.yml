@@ -4,18 +4,14 @@ channels:
   - conda-forge
 dependencies:
   - numpy==1.18.4
-  - mkl=2020.0=166
-  - mkl_fft=1.0.15=py36ha843d7b_0
   - pip==20.1
   - python=3.6.10=hcf32534_1
   - scipy=1.4.1=py36h0b6359f_0
   - six=1.14.0=py36_0
+  - matplotlib==3.3.4
   - pip:
-    - bokeh==2.0.2
-    - fissa[plotting]
+    - git+https://github.com/rochefort-lab/fissa.git#egg=fissa[plotting]
     - future==0.18.2
-    - h5py==2.10.0
-    - holoviews==1.13.2
     - imagecodecs==2020.2.18
     - imageio==2.8.0
     - numba==0.49.0
@@ -26,5 +22,4 @@ dependencies:
     - scikit-learn==0.22.2.post1
     - shapely==1.7.0
     - sima==1.3.2
-    - suite2p==0.7.1
     - tifffile==2020.2.16

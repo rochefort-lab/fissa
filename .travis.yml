@@ -44,7 +44,6 @@ env:
     # Values are "true", "false" or "".
     - TEST_NOTEBOOKS="true"
     - USE_SIMA="true"
-    - USE_SUITE2P="false"
     # Set flag for whether to use a conda environment
     # values can be:
     # "" or "false":  conda not used
@@ -64,7 +63,6 @@ jobs:
     - python: "3.6"
       env:
         - USE_CONDA="binder"
-        - USE_SUITE2P="true"
 
     # All versions pre-installed
     - if: branch =~ /^v?\d+(\.[x\d]+)+$/
@@ -85,7 +83,6 @@ jobs:
   allow_failures:
     - env:
         - USE_CONDA="binder"
-        - USE_SUITE2P="true"
 
 
 ###############################################################################
@@ -311,11 +308,6 @@ install:
             echo "sima" >> requirements_all.txt;
         else
             rm -f examples/*SIMA* examples/*sima*;
-        fi;
-        if [[ "$USE_SUITE2P" == "true" ]]; then
-            echo "suite2p" >> requirements_all.txt;
-        else
-            rm -f examples/*Suite2p*;
         fi;
     fi;
   # Show the resulting list of packages
