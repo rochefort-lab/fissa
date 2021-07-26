@@ -69,8 +69,7 @@ calcium imaging toolboxes which can be used to automatically detect cells.
 
 You can try out each of the example notebooks interactively in your browser on
 Binder_ (note that it may take 10 minutes for Binder to boot up).
-
-Note that the Suite2p notebook runs on a `separate Binder <suitebind_>`_ run from a `separate repository <suite2p_example_repo_>`_.
+Note that the Suite2p notebook is housed in its own `repository <suite2p_example_repo_>`_, and runs on a `separate Binder <suitebind_>`_ instance from the other notebooks.
 
 +---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
 | Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
