@@ -417,7 +417,7 @@ def separate_trials(
 
 class Experiment:
     r"""
-    FISSA Experiment.
+    Class-based interface for running FISSA on experiments.
 
     Uses the methodology described in
     `FISSA: A neuropil decontamination toolbox for calcium imaging signals <doi_>`_.
@@ -1874,7 +1874,7 @@ def run_fissa(
     **kwargs
 ):
     r"""
-    Functional interface to run FISSA.
+    Function-based interface to run FISSA on an experiment.
 
     .. versionadded:: 1.0.0
 
