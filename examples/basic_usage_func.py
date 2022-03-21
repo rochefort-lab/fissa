@@ -7,7 +7,7 @@ This file contains a step-by-step example workflow for using the FISSA toolbox
 with a function-based interface.
 
 An example notebook is provided here:
-https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Functional.ipynb
+https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Function.ipynb
 """
 
 import fissa
