@@ -4,7 +4,7 @@
 Basic FISSA usage example.
 
 This file contains a step-by-step example workflow for using the FISSA toolbox
-with a functional interface.
+with a function-based interface.
 
 An example notebook is provided here:
 https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Functional.ipynb

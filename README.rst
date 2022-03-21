@@ -74,7 +74,7 @@ Note that the Suite2p notebook is housed in its own `repository <suite2p_example
 +---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
 | Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
 +===========================+==========================+===============================+==========================+================================+==============================+
-| Functional (ImageJ_)      | `NBViewer <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
+| Function-based (ImageJ_)  | `NBViewer <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 | Object-oriented (ImageJ_) | `NBViewer <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
