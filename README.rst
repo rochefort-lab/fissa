@@ -74,7 +74,7 @@ Note that the Suite2p notebook is housed in its own `repository <suite2p_example
 +---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
 | Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
 +===========================+==========================+===============================+==========================+================================+==============================+
-| Functional (ImageJ_)      | `NBViewer <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
+| Function-based (ImageJ_)  | `NBViewer <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 | Object-oriented (ImageJ_) | `NBViewer <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
 +---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
@@ -87,10 +87,10 @@ Note that the Suite2p notebook is housed in its own `repository <suite2p_example
 
 .. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
 
-.. _func_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage%20-%20Functional.ipynb
+.. _func_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage%20-%20Function.ipynb
 .. _func_html: https://rochefort-lab.github.io/fissa/examples/Basic%20usage%20-%20Functional.html
-.. _func_view: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Functional.ipynb
-.. _func_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage%20-%20Functional.ipynb
+.. _func_view: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Function.ipynb
+.. _func_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage%20-%20Function.ipynb
 .. _func_nixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func.py
 .. _func_winscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func_windows.py
 
