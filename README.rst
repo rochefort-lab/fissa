@@ -341,7 +341,7 @@ License
 -------
 
 Unless otherwise stated in individual files, all code is Copyright (c)
-2015–2021, Sander Keemink, Scott Lowe, and Nathalie Rochefort. All rights
+2015–2022, Sander Keemink, Scott Lowe, and Nathalie Rochefort. All rights
 reserved.
 
 This program is free software; you can redistribute it and/or modify it
