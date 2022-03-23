@@ -4,7 +4,7 @@ numpy>=1.13.0
 Pillow>=4.3.0
 read-roi>=1.5.0; python_version>='3.0'
 scikit-image>=0.13.0
-scikit-learn>=0.17.0
+scikit-learn>=0.17.0,<1.2
 scipy>=0.19.0
 shapely>=1.5.17
 six>=1.11.0
