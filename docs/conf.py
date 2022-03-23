@@ -55,11 +55,14 @@ def ensure_pandoc_installed(_):
     # Add
     if pandoc_dir not in os.environ["PATH"].split(os.pathsep):
         os.environ["PATH"] += os.pathsep + pandoc_dir
-    pypandoc.ensure_pandoc_installed(
-        quiet=True,
-        targetfolder=pandoc_dir,
-        delete_installer=True,
-    )
+    if hasattr(pypandoc, "ensure_pandoc_installed"):
+        pypandoc.ensure_pandoc_installed(
+            quiet=True,
+            targetfolder=pandoc_dir,
+            delete_installer=True,
+        )
+    else:
+        pypandoc.download_pandoc(targetfolder=pandoc_dir)
 
 
 # -- Automatically generate API documentation --------------------------------
