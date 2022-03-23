@@ -15,9 +15,13 @@
 import datetime
 import os
 import sys
+from inspect import getsourcefile
 
-sys.path.insert(0, os.path.abspath("."))
-sys.path.insert(0, os.path.abspath("../"))
+DOCS_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+REPO_DIRECTORY = os.path.dirname(DOCS_DIRECTORY)
+
+sys.path.insert(0, DOCS_DIRECTORY)
+sys.path.insert(0, REPO_DIRECTORY)
 
 
 # Can't import __meta__.py if the requirements aren't installed
