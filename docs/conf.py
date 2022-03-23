@@ -23,29 +23,21 @@ REPO_DIRECTORY = os.path.dirname(DOCS_DIRECTORY)
 sys.path.insert(0, DOCS_DIRECTORY)
 sys.path.insert(0, REPO_DIRECTORY)
 
-
-# Can't import __meta__.py if the requirements aren't installed
-# due to imports in __init__.py. This is a workaround.
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
-
-meta = {}
-exec(read("../fissa/__meta__.py"), meta)
+from fissa import __meta__ as meta  # noqa: E402 isort:skip
 
 
 # -- Project information -----------------------------------------------------
 
 now = datetime.datetime.now()
 
-project = meta["name"].upper()
-project_path = meta["path"]
-author = meta["author"]
+project = meta.name.upper()
+project_path = meta.path
+author = meta.author
 copyright = "{}, {}".format(now.year, author)
 
 
 # The full version, including alpha/beta/rc tags
-release = meta["version"]
+release = meta.version
 # The short X.Y version
 version = ".".join(release.split(".")[0:2])
 
@@ -243,7 +235,7 @@ latex_documents = [
         master_doc,
         project + ".tex",
         project + " Documentation",
-        meta["author"],
+        meta.author,
         "manual",
     ),
 ]
@@ -268,7 +260,7 @@ texinfo_documents = [
         project + " Documentation",
         author,
         project,
-        meta["description"],
+        meta.description,
         "Miscellaneous",
     ),
 ]
