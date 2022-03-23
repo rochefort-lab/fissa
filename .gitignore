@@ -10,6 +10,8 @@
 # Ignore output from running example notebooks
 examples/fissa-example*
 examples/fissa_*_example
+docs/examples/fissa-example*
+docs/examples/fissa_*_example
 
 
 ##---------------------------------------------------

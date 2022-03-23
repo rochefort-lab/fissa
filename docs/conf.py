@@ -109,6 +109,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "numpydoc",  # handle NumPy documentation formatted docstrings
+    "nbsphinx",  # Execute .ipynb files to generate html
 ]
 
 # Some extension features only available on later Python versions

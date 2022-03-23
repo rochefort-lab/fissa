@@ -18,6 +18,7 @@ published in Scientific Reports.
    :caption: Contents:
 
    source/user-guide
+   source/examples
    source/packages/modules
    source/contributing
    source/changelog
