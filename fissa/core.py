@@ -1870,7 +1870,7 @@ def run_fissa(
     freq=None,
     return_deltaf=False,
     deltaf_across_trials=True,
-    export_to_matlab=False,
+    export_to_matfile=False,
     **kwargs
 ):
     r"""
@@ -1928,10 +1928,10 @@ def run_fissa(
         Δf/f\ :sub:`0` value will be relative to the trial-specific f0.
         Default is ``True``.
 
-    export_to_matlab : bool or str or None, default=False
+    export_to_matfile : bool or str or None, default=False
         Whether to export the data to a MATLAB-compatible .mat file.
-        If `export_to_matlab` is a string, it is used as the path to the output
-        file. If ``export_to_matlab=True``, the matfile is saved to the
+        If `export_to_matfile` is a string, it is used as the path to the output
+        file. If ``export_to_matfile=True``, the matfile is saved to the
         default path of ``"separated.mat"`` within the `folder` directory, and
         `folder` must be set. If this is ``None``, the matfile is exported to
         the default path if `folder` is set, and otherwise is not exported.
@@ -1963,8 +1963,8 @@ def run_fissa(
     fissa.core.Experiment
     """
     # Parse arguments
-    if export_to_matlab is None:
-        export_to_matlab = folder is not None
+    if export_to_matfile is None:
+        export_to_matfile = folder is not None
     if return_deltaf and freq is None:
         raise ValueError("The argument `freq` must be set to determine df/f0.")
     # Make a new Experiment object
@@ -1972,11 +1972,13 @@ def run_fissa(
     # Run separation
     experiment.separate()
     # Calculate Δf/f0
-    if return_deltaf or (export_to_matlab and freq is not None):
+    if return_deltaf or (export_to_matfile and freq is not None):
         experiment.calc_deltaf(freq=freq, across_trials=deltaf_across_trials)
     # Save to matfile
-    if export_to_matlab:
-        matlab_fname = None if isinstance(export_to_matlab, bool) else export_to_matlab
+    if export_to_matfile:
+        matlab_fname = (
+            None if isinstance(export_to_matfile, bool) else export_to_matfile
+        )
         experiment.to_matfile(matlab_fname)
     # Return appropriate data
     if return_deltaf:
