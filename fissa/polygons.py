@@ -70,6 +70,12 @@ def poly2mask(polygons, im_size):
     polygons = _reformat_polygons(polygons)
 
     mask = np.zeros(im_size, dtype=bool)
+
+    if isinstance(polygons, MultiPolygon):
+        # Multi part geometries are no longer iterable from Shapely 2.0 onward
+        # so we have to take out the .geoms attribute to iterate over instead.
+        polygons = polygons.geoms
+
     for poly in polygons:
         # assuming all points in the polygon share a z-coordinate
         z = int(np.array(poly.exterior.coords)[0][2])
@@ -140,6 +146,10 @@ def _reformat_polygons(polygons):
 
     # Polygon.exterior.coords is not settable, need to initialize new objects
     z_polygons = []
+
+    if isinstance(polygons, MultiPolygon):
+        polygons = polygons.geoms
+
     for poly in polygons:
         if poly.has_z:
             z_polygons.append(poly)
