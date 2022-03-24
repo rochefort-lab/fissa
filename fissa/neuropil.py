@@ -183,7 +183,16 @@ def separate(
 
             # Make an instance of the sklearn NMF class
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore", DeprecationWarning)
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*`alpha` was deprecated in.*",
+                    category=DeprecationWarning,
+                )
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*`alpha` was deprecated in.*",
+                    category=FutureWarning,
+                )
                 estimator = sklearn.decomposition.NMF(
                     init="nndsvdar" if W0 is None and H0 is None else "custom",
                     n_components=n,
@@ -193,9 +202,8 @@ def separate(
                     max_iter=max_iter,
                     random_state=random_state,
                 )
-
-            # Perform NMF and find separated signals
-            S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
+                # Perform NMF and find separated signals
+                S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
 
         elif hasattr(sklearn.decomposition, sep_method):
             if verbosity >= 1:
