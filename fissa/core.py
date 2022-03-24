@@ -1857,7 +1857,7 @@ class Experiment:
         """
         warnings.warn(
             "The experiment.save_to_matlab() method is deprecated."
-            " Please use experiment.to_matfile(legacy=True) instead.",
+            " Please use experiment.to_matfile() instead.",
             DeprecationWarning,
         )
         return self.to_matfile(fname=fname, legacy=True)
