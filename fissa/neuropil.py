@@ -8,6 +8,8 @@ Created:
     2015-05-15
 """
 
+import warnings
+
 import numpy as np
 import numpy.random as rand
 import sklearn.decomposition
@@ -180,15 +182,17 @@ def separate(
         elif sep_method.lower() in {"nmf", "nnmf"}:
 
             # Make an instance of the sklearn NMF class
-            estimator = sklearn.decomposition.NMF(
-                init="nndsvdar" if W0 is None and H0 is None else "custom",
-                n_components=n,
-                alpha=alpha,
-                l1_ratio=0.5,
-                tol=tol,
-                max_iter=max_iter,
-                random_state=random_state,
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                estimator = sklearn.decomposition.NMF(
+                    init="nndsvdar" if W0 is None and H0 is None else "custom",
+                    n_components=n,
+                    alpha=alpha,
+                    l1_ratio=0.5,
+                    tol=tol,
+                    max_iter=max_iter,
+                    random_state=random_state,
+                )
 
             # Perform NMF and find separated signals
             S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
