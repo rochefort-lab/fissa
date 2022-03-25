@@ -5,6 +5,7 @@ include CONTRIBUTING.rst
 include CREDITS.rst
 include citation.bib
 include citation.ris
+include requirements*.txt
 
 global-exclude *.py[co]
 global-exclude __pycache__
