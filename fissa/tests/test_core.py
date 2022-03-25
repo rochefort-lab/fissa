@@ -1913,7 +1913,7 @@ class ExperimentTestMixin:
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         actual_result, actual_raw = core.run_fissa(
-            image_path, roi_path, self.output_dir, export_to_matlab=None
+            image_path, roi_path, self.output_dir, export_to_matfile=None
         )
         self.compare_result(actual_result)
         self.compare_raw(actual_raw)
@@ -1925,7 +1925,7 @@ class ExperimentTestMixin:
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         actual_result, actual_raw = core.run_fissa(
-            image_path, roi_path, self.output_dir, export_to_matlab=True
+            image_path, roi_path, self.output_dir, export_to_matfile=True
         )
         self.compare_result(actual_result)
         self.compare_raw(actual_raw)
@@ -1936,7 +1936,7 @@ class ExperimentTestMixin:
         image_path = os.path.join(self.resources_dir, self.images_dir)
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         actual_result, actual_raw = core.run_fissa(
-            image_path, roi_path, self.output_dir, export_to_matlab=False
+            image_path, roi_path, self.output_dir, export_to_matfile=False
         )
         self.compare_result(actual_result)
         self.compare_raw(actual_raw)
@@ -1948,7 +1948,7 @@ class ExperimentTestMixin:
         roi_path = os.path.join(self.resources_dir, self.roi_zip_path)
         fname = os.path.join(self.output_dir, "test_output.mat")
         actual_result, actual_raw = core.run_fissa(
-            image_path, roi_path, self.output_dir, export_to_matlab=fname
+            image_path, roi_path, self.output_dir, export_to_matfile=fname
         )
         self.compare_result(actual_result)
         self.compare_raw(actual_raw)

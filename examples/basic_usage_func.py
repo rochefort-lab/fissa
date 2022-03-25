@@ -21,4 +21,4 @@ images = "exampleData/20150529"
 output_dir = "fissa_example"
 
 # Run FISSA on this data
-result = fissa.run_fissa(images, rois, output_dir, export_to_matlab=True)
+result = fissa.run_fissa(images, rois, output_dir, export_to_matfile=True)
