@@ -117,17 +117,21 @@ jobs:
       run: rm examples/*SIMA*;
 
     - name: "Notebooks: Install dependencies"
+      if: ${{ env.OS != 'windows-latest' || env.PYTHON != '3.6' }}
       run: |
         if [[ "${{ env.test_sima }}" == "True" ]]; then python -m pip install sima; fi;
         python -m pip install --editable .[plotting]
 
     - name: "Notebooks: Lint check"
+      if: ${{ env.OS != 'windows-latest' || env.PYTHON != '3.6' }}
       run: python -m pytest --timeout=300 --nbsmoke-lint ./examples/
 
     - name: "Notebooks: Smoke test"
+      if: ${{ env.OS != 'windows-latest' || env.PYTHON != '3.6' }}
       run: python -m pytest --timeout=300 --nbsmoke-run ./examples/ --cov=fissa --cov-report term --cov-report xml --junitxml=nbsmoke.xml
 
     - name: "Notebooks: Upload coverage to Codecov"
+      if: ${{ env.OS != 'windows-latest' || env.PYTHON != '3.6' }}
       uses: codecov/codecov-action@v1
       with:
         flags: nbsmoke
