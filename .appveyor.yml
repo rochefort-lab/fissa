@@ -24,19 +24,8 @@ environment:
     - PYTHON: C:\Python35
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
+      TEST_NOTEBOOKS: "true"
       SKIPPABLE: "false"
-
-    - PYTHON: C:\Python38
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: "32"
-      USE_SIMA: "false"
-      SKIPPABLE: "true"
-
-    - PYTHON: C:\Python38-x64
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: "64"
-      USE_SIMA: "false"
-      SKIPPABLE: "true"
 
 platform:
   - x86
