@@ -108,7 +108,28 @@ git add fissa/__meta__.py
 git commit -m "REL: Version $MNP"
 ```
 
-### 3.2 Update the CHANGELOG
+### 3.2 Change documentation links
+
+Change hard links within the documentation to point to the release tag instead of the master branch and latest release.
+
+```sh
+for MODE in "" "archive/" "blob/" "tree/";
+do
+    find . \( -type d -name .git -prune -o -name HOWTO_RELEASE.* -prune \) -o -type f -print0 | xargs -0 sed -i "s;rochefort-lab/fissa/${MODE}master;rochefort-lab/fissa/${MODE}$MNP;g"
+done
+for MODE in latest stable;
+do
+    find . \( -type d -name .git -prune -o -name HOWTO_RELEASE.* -prune \) -o -type f -print0 | xargs -0 sed -i "s;fissa.readthedocs.io/en/$MODE;fissa.readthedocs.io/en/$MNP;g"
+done
+```
+
+Commit these changes.
+```sh
+git add -u
+git commit -m "DOC: Freeze documentation links to point to $vMNP release"
+```
+
+### 3.3 Update the CHANGELOG
 
 On your release-candidate branch, update the CHANGELOG.
 ```sh
@@ -159,7 +180,7 @@ git add CHANGELOG.rst
 git commit -m "DOC: Add $vMNP to CHANGELOG"
 ```
 
-### 3.3 Push your changes to the rel_M.N.P branch on GitHub
+### 3.4 Push your changes to the rel_M.N.P branch on GitHub
 
 Push your changes with
 ```sh
@@ -167,7 +188,7 @@ git push -u origin "rel_$MNP"
 ```
 (where `rel_M.N.P` is replaced with your release candidate branch) to establish tracking with the remote branch.
 
-### 3.4 Ensure CHANGELOG is formatted correctly
+### 3.5 Ensure CHANGELOG is formatted correctly
 
 Check the rendering of the CHANGELOG on GitHub at
 <https://github.com/rochefort-lab/fissa/blob/rel_M.N.P/CHANGELOG.rst>,
