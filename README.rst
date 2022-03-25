@@ -85,40 +85,40 @@ Note that the Suite2p notebook is housed in its own `repository <suite2p_example
 | With `CNMF (MATLAB)`_     | `Docs <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
 +---------------------------+----------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 
-.. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/1.0.0?filepath=examples
+.. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
 
-.. _func_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/1.0.0?filepath=examples/Basic%20usage%20-%20Function.ipynb
-.. _func_html: https://fissa.readthedocs.io/en/1.0.0/examples/Basic%20usage%20-%20Function.html
-.. _func_view: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/Basic%20usage%20-%20Function.ipynb
-.. _func_down: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/examples/Basic%20usage%20-%20Function.ipynb
-.. _func_nixscript: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/basic_usage_func.py
-.. _func_winscript: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/basic_usage_func_windows.py
+.. _func_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage%20-%20Function.ipynb
+.. _func_html: https://fissa.readthedocs.io/en/latest/examples/Basic%20usage%20-%20Function.html
+.. _func_view: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Function.ipynb
+.. _func_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage%20-%20Function.ipynb
+.. _func_nixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func.py
+.. _func_winscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func_windows.py
 
-.. _basicbind: https://mybinder.org/v2/gh/rochefort-lab/fissa/1.0.0?filepath=examples/Basic%20usage.ipynb
-.. _basichtml: https://fissa.readthedocs.io/en/1.0.0/examples/Basic%20usage.html
-.. _basicview: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/Basic%20usage.ipynb
-.. _basicdown: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/examples/Basic%20usage.ipynb
-.. _basicnixscript: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/basic_usage.py
-.. _basicwinscript: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/basic_usage_windows.py
+.. _basicbind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage.ipynb
+.. _basichtml: https://fissa.readthedocs.io/en/latest/examples/Basic%20usage.html
+.. _basicview: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
+.. _basicdown: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage.ipynb
+.. _basicnixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage.py
+.. _basicwinscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_windows.py
 
 .. _suite2p: https://suite2p.readthedocs.io/
 .. _suite2p_example_repo: https://github.com/rochefort-lab/fissa-suite2p-example/
 .. _suitebind: https://mybinder.org/v2/gh/rochefort-lab/fissa-suite2p-example/master?filepath=Suite2p%20example.ipynb
-.. _suitehtml: https://fissa.readthedocs.io/en/1.0.0/examples/Suite2p%20example.html
+.. _suitehtml: https://fissa.readthedocs.io/en/latest/examples/Suite2p%20example.html
 .. _suiteview: https://github.com/rochefort-lab/fissa-suite2p-example/blob/master/Suite2p%20example.ipynb
 .. _suitedown: https://raw.githubusercontent.com/rochefort-lab/fissa-suite2p-example/master/Suite2p%20example.ipynb
 
 .. _SIMA: http://www.losonczylab.org/sima/
-.. _sima_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/1.0.0?filepath=examples/SIMA%20example.ipynb
-.. _sima_html: https://fissa.readthedocs.io/en/1.0.0/examples/SIMA%20example.html
-.. _sima_view: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/SIMA%20example.ipynb
-.. _sima_down: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/examples/SIMA%20example.ipynb
+.. _sima_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/SIMA%20example.ipynb
+.. _sima_html: https://fissa.readthedocs.io/en/latest/examples/SIMA%20example.html
+.. _sima_view: https://github.com/rochefort-lab/fissa/blob/master/examples/SIMA%20example.ipynb
+.. _sima_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/SIMA%20example.ipynb
 
 .. _CNMF (MATLAB): https://github.com/flatironinstitute/CaImAn-MATLAB
-.. _cnmf_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/1.0.0?filepath=examples/cNMF%20example.ipynb
-.. _cnmf_html: https://fissa.readthedocs.io/en/1.0.0/examples/cNMF%20example.html
-.. _cnmf_view: https://github.com/rochefort-lab/fissa/blob/1.0.0/examples/cNMF%20example.ipynb
-.. _cnmf_down: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/examples/cNMF%20example.ipynb
+.. _cnmf_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/cNMF%20example.ipynb
+.. _cnmf_html: https://fissa.readthedocs.io/en/latest/examples/cNMF%20example.html
+.. _cnmf_view: https://github.com/rochefort-lab/fissa/blob/master/examples/cNMF%20example.ipynb
+.. _cnmf_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/cNMF%20example.ipynb
 
 These notebooks can also be run on your own machine.
 To do so, you will need to:
@@ -139,8 +139,8 @@ To do so, you will need to:
 If you're new to Jupyter notebooks, here is `an approachable tutorial`_.
 
 .. _install_suite2p: https://mouseland.github.io/suite2p/_build/html/installation.html
-.. _download_repo: https://github.com/rochefort-lab/fissa/archive/1.0.0.zip
-.. _examples: https://github.com/rochefort-lab/fissa/tree/1.0.0/examples
+.. _download_repo: https://github.com/rochefort-lab/fissa/archive/master.zip
+.. _examples: https://github.com/rochefort-lab/fissa/tree/master/examples
 .. _an approachable tutorial: https://www.datacamp.com/community/tutorials/tutorial-jupyter-notebook
 
 
@@ -329,8 +329,8 @@ paper on FISSA in any resulting publications:
 
 For your convenience, we provide a copy of this citation in `bibtex`_ and `RIS`_ format.
 
-.. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/citation.bib
-.. _RIS: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/citation.ris
+.. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
+.. _RIS: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.ris
 
 You can browse papers which utilise FISSA `here <gscholarcitations_>`_.
 
@@ -391,13 +391,13 @@ with this program. If not, see http://www.gnu.org/licenses/.
    :target: doi_
    :alt: DOI
 .. |License| image:: https://img.shields.io/pypi/l/fissa
-   :target: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/LICENSE
+   :target: https://raw.githubusercontent.com/rochefort-lab/fissa/master/LICENSE
    :alt: GPLv3 License
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit enabled
-.. |pre-commit-status| image:: https://results.pre-commit.ci/badge/github/rochefort-lab/fissa/1.0.0.svg
-   :target: https://results.pre-commit.ci/latest/github/rochefort-lab/fissa/1.0.0
+.. |pre-commit-status| image:: https://results.pre-commit.ci/badge/github/rochefort-lab/fissa/master.svg
+   :target: https://results.pre-commit.ci/latest/github/rochefort-lab/fissa/master
    :alt: pre-commit.ci status
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black

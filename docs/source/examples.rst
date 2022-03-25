@@ -8,8 +8,8 @@ Alternatively, they can be run in the cloud using Binder_. |Binder|
 
 The Suite2p notebook, which has more complicated dependencies, is not located with the other notebooks and can be found in its own `example repository <Suite2p_repo_>`_.
 
-.. _notebooks_source: https://github.com/rochefort-lab/fissa/tree/1.0.0/examples
-.. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/1.0.0?filepath=examples
+.. _notebooks_source: https://github.com/rochefort-lab/fissa/tree/master/examples
+.. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
 .. _Suite2p_repo: https://github.com/rochefort-lab/fissa-suite2p-example
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
     :target: Binder_
