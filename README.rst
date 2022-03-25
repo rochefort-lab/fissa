@@ -71,31 +71,31 @@ You can try out each of the example notebooks interactively in your browser on
 Binder_ (note that it may take 10 minutes for Binder to boot up).
 Note that the Suite2p notebook is housed in its own `repository <suite2p_example_repo_>`_, and runs on a `separate Binder <suitebind_>`_ instance from the other notebooks.
 
-+---------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------+
-| Workflow                  |                                  Jupyter Notebook                                   |                            Script                             |
-+===========================+==========================+===============================+==========================+================================+==============================+
-| Function-based (ImageJ_)  | `NBViewer <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
-+---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| Object-oriented (ImageJ_) | `NBViewer <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
-+---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With suite2p_             | `NBViewer <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
-+---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With SIMA_                | `NBViewer <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
-+---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
-| With `CNMF (MATLAB)`_     | `NBViewer <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
-+---------------------------+--------------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
++---------------------------+---------------------------------------------------------------------------------+---------------------------------------------------------------+
+| Workflow                  |                                Jupyter Notebook                                 |                            Script                             |
++===========================+======================+===============================+==========================+================================+==============================+
+| Function-based (ImageJ_)  | `Docs <func_html_>`_ | `Launch Binder <func_bind_>`_ | `Download <func_down_>`_ | `Linux/Mac <func_nixscript_>`_ | `Windows <func_winscript_>`_ |
++---------------------------+----------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| Object-oriented (ImageJ_) | `Docs <basichtml_>`_ | `Launch Binder <basicbind_>`_ | `Download <basicdown_>`_ | `Linux/Mac <basicnixscript_>`_ | `Windows <basicwinscript_>`_ |
++---------------------------+----------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With suite2p_             | `Docs <suitehtml_>`_ | `Launch Binder <suitebind_>`_ | `Download <suitedown_>`_ |                                |                              |
++---------------------------+----------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With SIMA_                | `Docs <sima_html_>`_ | `Launch Binder <sima_bind_>`_ | `Download <sima_down_>`_ |                                |                              |
++---------------------------+----------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
+| With `CNMF (MATLAB)`_     | `Docs <cnmf_html_>`_ | `Launch Binder <cnmf_bind_>`_ | `Download <cnmf_down_>`_ |                                |                              |
++---------------------------+----------------------+-------------------------------+--------------------------+--------------------------------+------------------------------+
 
 .. _Binder: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples
 
 .. _func_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage%20-%20Function.ipynb
-.. _func_html: https://rochefort-lab.github.io/fissa/examples/Basic%20usage%20-%20Function.html
+.. _func_html: https://fissa.readthedocs.io/en/latest/examples/Basic%20usage%20-%20Function.html
 .. _func_view: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage%20-%20Function.ipynb
 .. _func_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage%20-%20Function.ipynb
 .. _func_nixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func.py
 .. _func_winscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage_func_windows.py
 
 .. _basicbind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/Basic%20usage.ipynb
-.. _basichtml: https://rochefort-lab.github.io/fissa/examples/Basic%20usage.html
+.. _basichtml: https://fissa.readthedocs.io/en/latest/examples/Basic%20usage.html
 .. _basicview: https://github.com/rochefort-lab/fissa/blob/master/examples/Basic%20usage.ipynb
 .. _basicdown: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/Basic%20usage.ipynb
 .. _basicnixscript: https://github.com/rochefort-lab/fissa/blob/master/examples/basic_usage.py
@@ -104,19 +104,19 @@ Note that the Suite2p notebook is housed in its own `repository <suite2p_example
 .. _suite2p: https://suite2p.readthedocs.io/
 .. _suite2p_example_repo: https://github.com/rochefort-lab/fissa-suite2p-example/
 .. _suitebind: https://mybinder.org/v2/gh/rochefort-lab/fissa-suite2p-example/master?filepath=Suite2p%20example.ipynb
-.. _suitehtml: https://rochefort-lab.github.io/fissa-suite2p-example/Suite2p%20example.html
+.. _suitehtml: https://fissa.readthedocs.io/en/latest/examples/Suite2p%20example.html
 .. _suiteview: https://github.com/rochefort-lab/fissa-suite2p-example/blob/master/Suite2p%20example.ipynb
 .. _suitedown: https://raw.githubusercontent.com/rochefort-lab/fissa-suite2p-example/master/Suite2p%20example.ipynb
 
 .. _SIMA: http://www.losonczylab.org/sima/
 .. _sima_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/SIMA%20example.ipynb
-.. _sima_html: https://rochefort-lab.github.io/fissa/examples/SIMA%20example.html
+.. _sima_html: https://fissa.readthedocs.io/en/latest/examples/SIMA%20example.html
 .. _sima_view: https://github.com/rochefort-lab/fissa/blob/master/examples/SIMA%20example.ipynb
 .. _sima_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/SIMA%20example.ipynb
 
 .. _CNMF (MATLAB): https://github.com/flatironinstitute/CaImAn-MATLAB
 .. _cnmf_bind: https://mybinder.org/v2/gh/rochefort-lab/fissa/master?filepath=examples/cNMF%20example.ipynb
-.. _cnmf_html: https://rochefort-lab.github.io/fissa/examples/cNMF%20example.html
+.. _cnmf_html: https://fissa.readthedocs.io/en/latest/examples/cNMF%20example.html
 .. _cnmf_view: https://github.com/rochefort-lab/fissa/blob/master/examples/cNMF%20example.ipynb
 .. _cnmf_down: https://raw.githubusercontent.com/rochefort-lab/fissa/master/examples/cNMF%20example.ipynb
 
