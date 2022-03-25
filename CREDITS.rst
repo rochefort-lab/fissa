@@ -18,10 +18,10 @@ Testing
 
 External Code
 -------------
-* `polygons.py <https://github.com/rochefort-lab/fissa/blob/master/fissa/polygons.py>`_
+* `polygons.py <https://github.com/rochefort-lab/fissa/blob/1.0.0/fissa/polygons.py>`_
   was adapted from code contained in the `SIMA <http://www.losonczylab.org/sima/>`_ package
   under the `GNU GPL v2 License <https://www.gnu.org/licenses/gpl-2.0.html>`_.
-* `NIH ImageJ ROI parsing <https://github.com/rochefort-lab/fissa/blob/master/fissa/readimagejrois.py>`_
+* `NIH ImageJ ROI parsing <https://github.com/rochefort-lab/fissa/blob/1.0.0/fissa/readimagejrois.py>`_
   was apapted from code originally
   `written by Luis Pedro Coelho <https://gist.github.com/luispedro/3437255>`_
   under the `MIT license <https://opensource.org/licenses/MIT>`_.
@@ -44,8 +44,8 @@ paper on FISSA in any resulting publications:
 For your convenience, we provide a copy of this citation in `bibtex`_ and `RIS`_ format.
 
 .. _doi: https://www.doi.org/10.1038/s41598-018-21640-2
-.. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.bib
-.. _RIS: https://raw.githubusercontent.com/rochefort-lab/fissa/master/citation.ris
+.. _bibtex: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/citation.bib
+.. _RIS: https://raw.githubusercontent.com/rochefort-lab/fissa/1.0.0/citation.ris
 
 .. |nbsp| unicode:: 0xA0
    :trim:
