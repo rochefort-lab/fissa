@@ -16,7 +16,280 @@ Security.
 Unreleased
 ----------
 
-`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.2...master>`__.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/1.0.0...master>`__.
+
+
+Version `1.0.0 <https://github.com/rochefort-lab/fissa/tree/1.0.0>`__
+---------------------------------------------------------------------
+
+Release date: 2022-03-25.
+`Full commit changelog <https://github.com/rochefort-lab/fissa/compare/0.7.2...1.0.0>`__.
+This is a major release which offers a serious update to the interface,
+documentation, and backend of FISSA.
+
+Please note that some of the changes to the codebase are
+backward-incompatible changes. For the most part, the only breaking
+changes which users will need to be concerned with are listed below. We
+also recommend looking through our updated `tutorials and
+examples <https://github.com/rochefort-lab/fissa#usage>`__.
+
+-  The format of the cache used by the new release is different to
+   previous versions. The new version is not capable of restoring
+   previous results saved in the old cache format. If it is run with
+   ``folder`` set to a directory containing a cache in the old format,
+   it will ignore the old cache and run from scratch, saving the new
+   cache in the same directory with a different file name and format.
+-  The shape of ``experiment.deltaf_raw`` has been changed to be a
+   ``numpy.ndarray`` of 2d numpy arrays shaped ``(1, time)`` to match
+   the shape of the other outputs.
+
+Although we have noted some other breaking changes, end users are very
+unlikely to be affected by these. These other changes will only affect
+users that have written their own custom datahandler, or who are
+directly calling backend tools such as the ``ROI`` module, or the
+functions ``fissa.core.separate_func`` and ``fissa.core.extract_func``,
+all of which which were either removed or refactored and renamed in this
+release.
+
+The most important addition is ``fissa.run_fissa``, a new high-level
+function-based interface to FISSA. This function does the same
+operations as ``fissa.Experiment``, but has a more streamlined
+interface.
+
+.. _v1.0.0 Breaking:
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+-  The names of the cache files have changed from ``"preparation.npy"``
+   and ``"separated.npy"`` to ``"prepared.npz"`` and
+   ``"separated.npz"``, and the structure of the contents was changed.
+   FISSA output caches generated with version 0.7.x will not no longer
+   be loaded when using version 1.0.0. The new version stores analysis
+   parameters and TIFF means along with the raw and decontaminated
+   traces.
+   (`#177 <https://github.com/rochefort-lab/fissa/pull/177>`__,
+   `#223 <https://github.com/rochefort-lab/fissa/pull/223>`__,
+   `#245 <https://github.com/rochefort-lab/fissa/pull/245>`__,
+   `#246 <https://github.com/rochefort-lab/fissa/pull/246>`__)
+-  The shape of ``experiment.deltaf_raw`` was changed from a
+   ``numpy.ndarray`` shaped ``(cells, trials)``, each containing a
+   ``numpy.ndarray`` shaped ``(time, )``, to ``numpy.ndarray`` shaped
+   ``(cells, trials)``, each element of which is shaped ``(1, time)``.
+   The new output shape matches that of ``experiment.raw`` and
+   ``experiment.deltaf_result``.
+   (`#198 <https://github.com/rochefort-lab/fissa/pull/198>`__)
+-  The way data handlers were defined was reworked to use classes
+   instead. The ``datahandler`` and ``datahandler_framebyframe`` modules
+   were dropped, and replaced with an ``extraction`` module containing
+   both of these data handlers as classes instead. Custom data handlers
+   will need to be rewritten to be a class inheriting from
+   ``fissa.extraction.DataHandlerAbstract`` instead of a custom module.
+-  The ``ROI`` module was renamed to ``polygons``.
+   (`#219 <https://github.com/rochefort-lab/fissa/pull/219>`__)
+-  In ``neuropil.separate``, the keyword arguments ``maxiter`` and
+   ``maxtries`` were renamed to be ``max_iter`` and ``max_tries``. This
+   change was made so that the parameter name ``max_iter`` is the same
+   as the parameter name used by ``sklearn.decomposition.NMF``.
+   (`#230 <https://github.com/rochefort-lab/fissa/pull/230>`__)
+-  The internal functions ``fissa.core.extract_func`` and
+   ``fissa.core.separate_func`` were removed. New functions which are
+   comparable but actually have user-friendly interfaces,
+   ``fissa.core.extract`` and ``fissa.core.separate_trials``, were added
+   in their place.
+
+.. _v1.0.0 Changed:
+
+Changed
+~~~~~~~
+
+-  The outputs ``experiment.raw``, ``experiment.sep``, and
+   ``experiment.deltaf_raw`` were changed from a list of lists of 2d
+   numpy arrays, to a 2d numpy array of 2d numpy arrays. Other outputs,
+   such as ``experiment.result`` were already a 2d numpy array of 2d
+   numpy arrays.
+   (`#164 <https://github.com/rochefort-lab/fissa/pull/164>`__)
+-  Output arrays (``experiment.result``, etc.) are now initialized as
+   empty arrays instead of lists of lists of ``None`` objects.
+   (`#212 <https://github.com/rochefort-lab/fissa/pull/212>`__)
+-  The multiprocessing back-end now uses joblib instead of the
+   multiprocessing module.
+   (`#227 <https://github.com/rochefort-lab/fissa/pull/227>`__)
+-  Unnecessary warnings about ragged numpy.ndarrays were suppressed.
+   (`#243 <https://github.com/rochefort-lab/fissa/pull/243>`__,
+   `#247 <https://github.com/rochefort-lab/fissa/pull/247>`__)
+-  Output properties are now automatically wiped when parameter
+   attributes are changes.
+   (`#254 <https://github.com/rochefort-lab/fissa/pull/254>`__)
+-  The set of extra requirements named ``"dev"`` which specified the
+   requirements needed to run the test suite was renamed to ``"test"``.
+   This can be installed with ``pip install fissa[test]``. There is
+   still a ``"dev"`` set of extras, but these are now development tools
+   and no longer include the requirements needed to run the unit tests.
+   (`#185 <https://github.com/rochefort-lab/fissa/pull/185>`__)
+
+.. _v1.0.0 Fixed:
+
+Fixed
+~~~~~
+
+-  The preparation and separation steps are no longer needlessly re-run
+   (`#171 <https://github.com/rochefort-lab/fissa/pull/171>`__,
+   `#172 <https://github.com/rochefort-lab/fissa/pull/172>`__)
+-  Mean images are saved with float64 precision regardless of the
+   precision of the source TIFFs file.
+   (`#176 <https://github.com/rochefort-lab/fissa/pull/176>`__)
+-  Various bugs in the Suite2p workflow. (
+   `#181 <https://github.com/rochefort-lab/fissa/pull/181>`__,
+   `#257 <https://github.com/rochefort-lab/fissa/pull/257>`__)
+-  Variables set to ``None`` are no longer saved as ``numpy.ndarray``.
+   (`#199 <https://github.com/rochefort-lab/fissa/pull/199>`__)
+-  An error is now raised when both lowmemory mode and a manual
+   datahandler are provided.
+   (`#206 <https://github.com/rochefort-lab/fissa/pull/206>`__)
+-  Mismatches between the number of rois/trials/etc. and the array
+   shapes (which can occur when the data in ``experiment.raw`` is
+   overwritten) are resolved by determining these attributes
+   dynamically.
+   (`#244 <https://github.com/rochefort-lab/fissa/pull/244>`__)
+-  Use ``np.array`` instead of the deprecated ``np.matrix``.
+   (`#174 <https://github.com/rochefort-lab/fissa/pull/174>`__)
+-  Use ``np.float64`` instead of the deprecated ``np.float``.
+   (`#213 <https://github.com/rochefort-lab/fissa/pull/213>`__)
+-  Iterate over elements in ``shapely.geometry.MultiPolygon`` by using
+   the ``geoms`` attribute instead treating the whole object as an
+   iterable (which is now deprecated).
+   (`#272 <https://github.com/rochefort-lab/fissa/pull/272>`__)
+
+.. _v1.0.0 Added:
+
+Added
+~~~~~
+
+-  Added ``fissa.run_fissa``, a high-level function-based interface to
+   FISSA. This does the same operations as ``fissa.Experiment``, but in
+   a more streamlined interface.
+   (`#169 <https://github.com/rochefort-lab/fissa/pull/169>`__,
+   `#237 <https://github.com/rochefort-lab/fissa/pull/237>`__)
+-  Added a ``verbosity`` argument to control how much feedback is given
+   by FISSA when it is running.
+   (`#200 <https://github.com/rochefort-lab/fissa/pull/200>`__,
+   `#225 <https://github.com/rochefort-lab/fissa/pull/225>`__,
+   `#238 <https://github.com/rochefort-lab/fissa/pull/238>`__,
+   `#240 <https://github.com/rochefort-lab/fissa/pull/240>`__)
+-  A new ``fissa.Experiment.to_matfile`` method was added. The arrays
+   saved in this matfile have a different format to the previous
+   ``fissa.Experiment.save_to_matlab`` method, which is now deprecated.
+   (`#249 <https://github.com/rochefort-lab/fissa/pull/249>`__)
+-  A new data handler ``extract.DataHandlerTifffileLazy`` was added,
+   which is able to handle TIFF files of all data types while in
+   low-memory mode.
+   (`#156 <https://github.com/rochefort-lab/fissa/pull/156>`__,
+   `#179 <https://github.com/rochefort-lab/fissa/pull/179>`__,
+   `#187 <https://github.com/rochefort-lab/fissa/pull/187>`__).
+-  In ``fissa.Experiment``, arguments ``max_iter``, ``tol``, and
+   ``max_tries`` were added which pass through to ``neuropil.separate``
+   to control the stopping conditions for the signal separation routine.
+   (`#224 <https://github.com/rochefort-lab/fissa/pull/224>`__,
+   `#230 <https://github.com/rochefort-lab/fissa/pull/230>`__)
+-  In ``fissa.Experiment``, add ``__repr__`` and ``__str__`` methods.
+   These changes mean that ``str(experiment)`` describes the content of
+   a ``fissa.Experiment instance`` in a human readable way, and
+   ``repr(experiment)`` in a machine-readable way.
+   (`#209 <https://github.com/rochefort-lab/fissa/pull/209>`__,
+   `#231 <https://github.com/rochefort-lab/fissa/pull/231>`__)
+-  Support for arbitrary ``sklearn.decomposition`` classes
+   (e.g. FactorAnalysis), not just ICA and NMF.
+   (`#188 <https://github.com/rochefort-lab/fissa/pull/188>`__)
+
+.. _v1.0.0 Deprecated:
+
+Deprecated
+~~~~~~~~~~
+
+-  The ``fissa.Experiment.save_to_matlab`` method was deprecated. Please
+   use the new ``fissa.Experiment.to_matfile`` method instead. The new
+   method has a different output structure by default (which better
+   matches the structure in Python). If you need to continue using the
+   old structure, you can use
+   ``fissa.Experiment.to_matfile(legacy=True)``.
+   (`#249 <https://github.com/rochefort-lab/fissa/pull/249>`__)
+
+.. _v1.0.0 Documentation:
+
+Documentation
+~~~~~~~~~~~~~
+
+-  Reworked all the tutorial notebooks to have better flow, and use
+   matplotlib instead of holoviews which is more approachable for new
+   users.
+   (`#205 <https://github.com/rochefort-lab/fissa/pull/205>`__,
+   `#228 <https://github.com/rochefort-lab/fissa/pull/228>`__,
+   `#239 <https://github.com/rochefort-lab/fissa/pull/239>`__,
+   `#279 <https://github.com/rochefort-lab/fissa/pull/279>`__)
+-  The Suite2p example notebook was moved to a `separate
+   repository <https://github.com/rochefort-lab/fissa-suite2p-example>`__.
+   This change was made because we want to test our other notebooks with
+   the latest versions of their dependencies, but this did not fit well
+   with running Suite2p, which needs a precise combination of
+   dependencies to run.
+-  Integrated the example notebooks into the documentation generated by
+   Sphinx and shown on readthedocs.
+   (`#273 <https://github.com/rochefort-lab/fissa/pull/273>`__)
+-  Other various notebook improvements.
+   (`#248 <https://github.com/rochefort-lab/fissa/pull/248>`__)
+-  Various documentation improvements.
+   (`#153 <https://github.com/rochefort-lab/fissa/pull/153>`__,
+   `#162 <https://github.com/rochefort-lab/fissa/pull/162>`__,
+   `#166 <https://github.com/rochefort-lab/fissa/pull/166>`__,
+   `#167 <https://github.com/rochefort-lab/fissa/pull/167>`__,
+   `#175 <https://github.com/rochefort-lab/fissa/pull/175>`__,
+   `#182 <https://github.com/rochefort-lab/fissa/pull/182>`__,
+   `#183 <https://github.com/rochefort-lab/fissa/pull/183>`__,
+   `#184 <https://github.com/rochefort-lab/fissa/pull/184>`__,
+   `#193 <https://github.com/rochefort-lab/fissa/pull/193>`__,
+   `#194 <https://github.com/rochefort-lab/fissa/pull/194>`__,
+   `#204 <https://github.com/rochefort-lab/fissa/pull/204>`__,
+   `#207 <https://github.com/rochefort-lab/fissa/pull/207>`__,
+   `#210 <https://github.com/rochefort-lab/fissa/pull/210>`__,
+   `#214 <https://github.com/rochefort-lab/fissa/pull/214>`__,
+   `#218 <https://github.com/rochefort-lab/fissa/pull/218>`__,
+   `#232 <https://github.com/rochefort-lab/fissa/pull/232>`__,
+   `#233 <https://github.com/rochefort-lab/fissa/pull/233>`__,
+   `#236 <https://github.com/rochefort-lab/fissa/pull/236>`__,
+   `#253 <https://github.com/rochefort-lab/fissa/pull/253>`__)
+
+.. _v1.0.0 Dev changes:
+
+Dev changes
+~~~~~~~~~~~
+
+-  Changed the code style to black.
+   (`#215 <https://github.com/rochefort-lab/fissa/pull/215>`__,
+   `#258 <https://github.com/rochefort-lab/fissa/pull/258>`__)
+-  Add pre-commit hooks to enforce code style and catch pyflake errors.
+   (`#161 <https://github.com/rochefort-lab/fissa/pull/161>`__,
+   `#180 <https://github.com/rochefort-lab/fissa/pull/180>`__,
+   `#217 <https://github.com/rochefort-lab/fissa/pull/217>`__,
+   `#234 <https://github.com/rochefort-lab/fissa/pull/234>`__,
+   `#261 <https://github.com/rochefort-lab/fissa/pull/261>`__)
+-  Migrate CI test suite to GitHub Actions.
+   (`#154 <https://github.com/rochefort-lab/fissa/pull/154>`__,
+   `#195 <https://github.com/rochefort-lab/fissa/pull/195>`__)
+-  Various changes and updates to the test suite.
+   (`#170 <https://github.com/rochefort-lab/fissa/pull/170>`__,
+   `#191 <https://github.com/rochefort-lab/fissa/pull/191>`__,
+   `#197 <https://github.com/rochefort-lab/fissa/pull/197>`__,
+   `#201 <https://github.com/rochefort-lab/fissa/pull/201>`__
+   `#202 <https://github.com/rochefort-lab/fissa/pull/202>`__,
+   `#211 <https://github.com/rochefort-lab/fissa/pull/211>`__,
+   `#221 <https://github.com/rochefort-lab/fissa/pull/221>`__,
+   `#222 <https://github.com/rochefort-lab/fissa/pull/222>`__,
+   `#226 <https://github.com/rochefort-lab/fissa/pull/226>`__,
+   `#235 <https://github.com/rochefort-lab/fissa/pull/235>`__,
+   `#255 <https://github.com/rochefort-lab/fissa/pull/255>`__)
+-  Notebooks are now automatically deployed on github pages.
+   (`#178 <https://github.com/rochefort-lab/fissa/pull/178>`__)
 
 
 Version `0.7.2 <https://github.com/rochefort-lab/fissa/tree/0.7.2>`__
