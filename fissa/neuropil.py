@@ -13,6 +13,41 @@ import warnings
 import numpy as np
 import numpy.random as rand
 import sklearn.decomposition
+from sklearn import __version__ as SKLEARN_VERSION
+
+
+def validate_nmf_parameters(function, *args, **kwargs):
+    """
+    This function intercepts the original call to NMF and adjusts the arguments to make the new NMF implementation
+    have an identical objective to the original implementation - DAO
+    """
+
+    # noinspection PyShadowingNames
+    def decorator(*args, **kwargs):
+        # get size of matrix to be factorized
+        # determine if sklearn is using new nmf implementation
+        if int(SKLEARN_VERSION[0]) < 1:
+            kwargs.pop("features")
+            kwargs.pop("samples")
+            # pass the original function if using old implementation
+            return function(*args, **kwargs)
+        else:
+            # new implementation uses an objective with two alpha
+            # alpha_W is scaled by the number of features
+            # alpha_H is scaled by the number of samples
+            # we need to correct for this scaling to be comparable to old implementation
+            alpha = kwargs.get("alpha")
+            features = kwargs.get("features")
+            samples = kwargs.get("samples")
+            kwargs["alpha_W"] = alpha / features
+            kwargs["alpha_H"] = alpha / samples
+            # remove original alpha argument, features, and samples
+            kwargs.pop("alpha")
+            kwargs.pop("features")
+            kwargs.pop("samples")
+            return function(*args, **kwargs)
+
+    return decorator
 
 
 def separate(
@@ -180,31 +215,35 @@ def separate(
             S_sep = estimator.fit_transform(S.T)
 
         elif sep_method.lower() in {"nmf", "nnmf"}:
-
             # Make an instance of the sklearn NMF class
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore",
-                    message=".*`alpha` was deprecated in.*",
-                    category=DeprecationWarning,
-                )
-                warnings.filterwarnings(
-                    "ignore",
-                    message=".*`alpha` was deprecated in.*",
-                    category=FutureWarning,
-                )
-                estimator = sklearn.decomposition.NMF(
-                    init="nndsvdar" if W0 is None and H0 is None else "custom",
-                    n_components=n,
-                    alpha=alpha,
-                    l1_ratio=0.5,
-                    tol=tol,
-                    max_iter=max_iter,
-                    random_state=random_state,
-                )
-                # Perform NMF and find separated signals
-                S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
-
+            estimator = validate_nmf_parameters(sklearn.decomposition.NMF)(
+                features=S.shape[0],
+                samples=S.shape[1],
+                init="nndsvdar" if W0 is None and H0 is None else "custom",
+                n_components=n,
+                alpha=alpha,
+                l1_ratio=0.5,
+                tol=tol,
+                max_iter=max_iter,
+                random_state=random_state,
+            )
+            # Perform NMF and find separated signals
+            S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
+        elif sep_method.lower() in {"batch", "minibatch", "minibatchnmf"}:
+            # Make an instance of the sklearn NMF class
+            estimator = validate_nmf_parameters(sklearn.decomposition.MiniBatchNMF)(
+                features=S.shape[0],
+                samples=S.shape[1],
+                init="nndsvdar" if W0 is None and H0 is None else "custom",
+                n_components=n,
+                alpha=alpha,
+                l1_ratio=0.5,
+                tol=tol,
+                max_iter=max_iter,
+                random_state=random_state,
+            )
+            # Perform NMF and find separated signals
+            S_sep = estimator.fit_transform(S.T, W=W0, H=H0)
         elif hasattr(sklearn.decomposition, sep_method):
             if verbosity >= 1:
                 print(
