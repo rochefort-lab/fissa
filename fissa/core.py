@@ -383,7 +383,9 @@ def separate_trials(
             message_extra = " for ROI {}".format(label)
         warnings.warn(
             "{}Found values below zero in raw signal{}. Offsetting so minimum is 0."
-            "".format(header, message_extra)
+            "".format(header, message_extra),
+            UserWarning,
+            stacklevel=2,
         )
         X -= X.min()
 
@@ -1177,7 +1179,7 @@ class Experiment:
                 self.load(fname)
                 if self.raw is not None:
                     return
-            except BaseException as err:
+            except Exception as err:
                 print("An error occurred while loading {}".format(fname))
                 print(err)
                 print("Extraction will be redone and {} overwritten".format(fname))
@@ -1379,7 +1381,7 @@ class Experiment:
                 self.load(fname)
                 if self.result is not None:
                     return
-            except BaseException as err:
+            except Exception as err:
                 print("An error occurred while loading {}".format(fname))
                 print(err)
                 print(
@@ -1859,6 +1861,7 @@ class Experiment:
             "The experiment.save_to_matlab() method is deprecated."
             " Please use experiment.to_matfile() instead.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self.to_matfile(fname=fname, legacy=True)
 

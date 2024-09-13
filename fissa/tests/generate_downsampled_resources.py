@@ -318,7 +318,7 @@ def downscale_roi(source_file, dest_file, downsamp=None, offsets=None):
                 _writecoords(coords)
                 coords = coords.astype("float")
                 # return {'polygons': coords}
-            except BaseException:
+            except Exception:
                 raise ValueError(
                     "read_imagej_roi: ROI type {} not supported".format(roi_type)
                 )

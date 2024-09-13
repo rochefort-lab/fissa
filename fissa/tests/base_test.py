@@ -79,7 +79,7 @@ def assert_starts_with(actual, desired):
     """
     try:
         assert len(actual) >= len(desired)
-    except BaseException:
+    except Exception:
         print(
             "Actual string too short ({} < {} characters)".format(
                 len(actual), len(desired)
@@ -89,7 +89,7 @@ def assert_starts_with(actual, desired):
         raise
     try:
         return assert_equal(str(actual)[: len(desired)], desired)
-    except BaseException as err:
+    except Exception as err:
         msg = "ACTUAL: {}".format(actual)
         if isinstance(getattr(err, "args", None), str):
             err.args += "\n" + msg
