@@ -27,19 +27,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["2.7", "3.5", "3.10"]
+        python-version: ["3.8", "3.10"]
         include:
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.8"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -85,7 +85,7 @@ jobs:
         python -m pytest --timeout=180 --cov=fissa --cov-report term --cov-report xml --junitxml=testresults.xml
 
     - name: Upload unittest coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         flags: unittests
         env_vars: OS,PYTHON
@@ -110,7 +110,7 @@ jobs:
       run: python -m pytest --timeout=180 --nbsmoke-run ./examples/ --cov=fissa --cov-report term --cov-report xml --junitxml=nbsmoke.xml
 
     - name: "Notebooks: Upload coverage to Codecov"
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         flags: nbsmoke
         env_vars: OS,PYTHON

@@ -52,23 +52,21 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.5", "3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10"]
         include:
-          - os: ubuntu-latest
-            python-version: "2.7"
           - os: macos-latest
-            python-version: "3.5"
+            python-version: "3.8"
           - os: macos-latest
-            python-version: "3.9"
+            python-version: "3.10"
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -103,7 +101,7 @@ jobs:
         python -m pytest --timeout=300 --cov=fissa --cov-report term --cov-report xml --junitxml=testresults.xml
 
     - name: Upload unittest coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         flags: unittests
         env_vars: OS,PYTHON
@@ -132,7 +130,7 @@ jobs:
 
     - name: "Notebooks: Upload coverage to Codecov"
       if: ${{ env.OS != 'windows-latest' || env.PYTHON != '3.6' }}
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         flags: nbsmoke
         env_vars: OS,PYTHON
@@ -144,7 +142,7 @@ jobs:
         python setup.py sdist bdist_wheel
 
     - name: Store wheel artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: wheel-${{ matrix.os }}-${{ matrix.python-version }}
         path: dist/*
@@ -166,16 +164,16 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Download wheel artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: wheel-*
         path: dist/
 
     - name: Store aggregated wheel artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: wheels
         path: dist/*

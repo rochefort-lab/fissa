@@ -1251,7 +1251,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set to `None`
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **{field: None for field in fields})
+        np.savez_compressed(fname, **{field: None for field in fields})  # noqa: C420
         # Load the file and check the data appears as None, not np.array(None)
         exp.load(fname, force=True)
         for field in fields:
@@ -1281,7 +1281,7 @@ class ExperimentTestMixin:
         # Make a save file which contains values set to a scalar
         fname = os.path.join(self.output_dir, "dummy.npz")
         os.makedirs(self.output_dir)
-        np.savez_compressed(fname, **{field: 1337 for field in fields})
+        np.savez_compressed(fname, **{field: 1337 for field in fields})  # noqa: C420
         # Load the file and check the data appears correctly
         exp.load(fname, force=True)
         for field in fields:

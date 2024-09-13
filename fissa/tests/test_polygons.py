@@ -23,6 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 # Unit tests for sima/ROI.py
 # Tests follow conventions for NumPy/SciPy available at
 # https://github.com/numpy/numpy/blob/master/doc/TESTS.rst.txt

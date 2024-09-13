@@ -57,7 +57,6 @@ def ensure_pandoc_installed(_):
         os.environ["PATH"] += os.pathsep + pandoc_dir
     if hasattr(pypandoc, "ensure_pandoc_installed"):
         pypandoc.ensure_pandoc_installed(
-            quiet=True,
             targetfolder=pandoc_dir,
             delete_installer=True,
         )

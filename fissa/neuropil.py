@@ -245,7 +245,7 @@ def separate(
                 print("{}Trying a new random state.".format(prefix))
             # Change to a new random_state
             if random_state is not None:
-                random_state = (random_state + 1) % 2 ** 32
+                random_state = (random_state + 1) % 2**32
 
     if estimator.n_iter_ == max_iter:
         if verbosity >= 1:
