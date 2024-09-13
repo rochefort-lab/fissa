@@ -191,7 +191,9 @@ class DataHandlerTifffile(DataHandlerAbstract):
                         " with {} dimensions (page shaped {})."
                         " All dimensions before the final two (height and"
                         " width) will be treated as time-like and flattened."
-                        "".format(image, n_pages, page.ndim, page.shape)
+                        "".format(image, n_pages, page.ndim, page.shape),
+                        UserWarning,
+                        stacklevel=2,
                     )
                 elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
                     warnings.warn(
@@ -199,7 +201,9 @@ class DataHandlerTifffile(DataHandlerAbstract):
                         " (page shaped {})."
                         " All dimensions before the final two (height and"
                         " width) will be treated as time-like and flattened."
-                        "".format(image, page.ndim, page.shape)
+                        "".format(image, page.ndim, page.shape),
+                        UserWarning,
+                        stacklevel=2,
                     )
                 shp = [-1] + list(page.shape[-2:])
                 frames.append(page.reshape(shp))
@@ -327,7 +331,9 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
                     " with {} dimensions (page shaped {})."
                     " All dimensions before the final two (height and"
                     " width) will be treated as time-like and flattened."
-                    "".format("", n_pages, page.ndim, page.shape)
+                    "".format("", n_pages, page.ndim, page.shape),
+                    UserWarning,
+                    stacklevel=2,
                 )
             elif page.ndim > 3 and (np.array(page.shape[:-2]) > 1).sum() > 1:
                 warnings.warn(
@@ -335,7 +341,9 @@ class DataHandlerTifffileLazy(DataHandlerAbstract):
                     " (page shaped {})."
                     " All dimensions before the final two (height and"
                     " width) will be treated as time-like and flattened."
-                    "".format("", page.ndim, page.shape)
+                    "".format("", page.ndim, page.shape),
+                    UserWarning,
+                    stacklevel=2,
                 )
             shp = [-1] + list(page.shape[-2:])
             page = page.reshape(shp)

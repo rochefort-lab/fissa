@@ -275,7 +275,7 @@ def _parse_roi_file_py2(roi_obj):
             coords = _getcoords(z)
             coords = coords.astype("float")
             return {"polygons": coords}
-        except BaseException:
+        except Exception:
             raise ValueError(
                 "read_imagej_roi: ROI type {} not supported".format(roi_type)
             )
