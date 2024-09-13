@@ -1321,7 +1321,7 @@ class Experiment:
                 field: getattr(self, field)
                 for field in fields
                 if getattr(self, field) is not None
-            }
+            },
         )
 
     def separate(self, redo_prep=False, redo_sep=False):
@@ -1539,7 +1539,7 @@ class Experiment:
                 field: getattr(self, field)
                 for field in fields
                 if getattr(self, field) is not None
-            }
+            },
         )
 
     def calc_deltaf(self, freq, use_raw_f0=True, across_trials=True):
