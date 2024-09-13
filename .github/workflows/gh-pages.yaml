@@ -20,10 +20,10 @@ jobs:
         echo "default_branch=$DEFAULT_BRANCH" >> $GITHUB_ENV
         echo "default_branch_ref=refs/heads/$DEFAULT_BRANCH" >> $GITHUB_ENV
 
-    - name: Set up Python 3.6
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.6"
+        python-version: "3.8"
 
     - name: Get pip cache dir
       id: pip-cache
