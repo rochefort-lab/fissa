@@ -1,2 +1,2 @@
-black==24.8.0; python_version>='3.6'
+black==25.1.0; python_version>='3.6'
 pre-commit
