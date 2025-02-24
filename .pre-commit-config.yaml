@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+    rev: 6.0.0
     hooks:
       - id: isort
         name: isort
@@ -11,7 +11,7 @@ repos:
         args: ["--profile=black"]
 
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 25.1.0
     hooks:
       - id: black
         args:
@@ -19,25 +19,25 @@ repos:
         types: [python]
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.18.0
+    rev: 1.19.1
     hooks:
       - id: blacken-docs
-        additional_dependencies: [black==24.8.0]
+        additional_dependencies: [black==25.1.0]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
+    rev: 0.8.1
     hooks:
       - id: nbstripout
         args: ["--keep-count"]
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.7
+    rev: 1.9.1
     hooks:
       - id: nbqa-black
         args:
             - "--nbqa-mutate"
             - "--target-version=py35"
-        additional_dependencies: [black==24.8.0]
+        additional_dependencies: [black==25.1.0]
       - id: nbqa-flake8
 
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -54,7 +54,7 @@ repos:
         types: [text]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -82,7 +82,7 @@ repos:
         exclude: \.(html|svg)$
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
+    rev: 7.1.2
     hooks:
       - id: flake8
         additional_dependencies:
