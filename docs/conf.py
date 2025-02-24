@@ -131,6 +131,10 @@ extensions = [
     "nbsphinx",  # Execute .ipynb files to generate html
 ]
 
+# Some extensions should only be run if we are on Read the Docs
+if os.environ.get("READTHEDOCS") == "True":
+    extensions.append("sphinxcontrib.googleanalytics")
+
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
@@ -324,3 +328,7 @@ intersphinx_mapping = {
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Options for Google Analytics extension ----------------------------------
+
+googleanalytics_id = "G-PXNCNN1G5C"
