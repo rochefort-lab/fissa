@@ -199,12 +199,8 @@ def downscale_roi(source_file, dest_file, downsamp=None, offsets=None):
         _write8(b)
 
         if not (0 <= roi_type < 11):
-            raise ValueError(
-                "read_imagej_roi: \
-                              ROI type {} not supported".format(
-                    roi_type
-                )
-            )
+            raise ValueError("read_imagej_roi: \
+                              ROI type {} not supported".format(roi_type))
 
         top = _get16signed()
         _write16signed(int(np.round((top + offsets[1]) / downsamp[1])))
@@ -236,12 +232,8 @@ def downscale_roi(source_file, dest_file, downsamp=None, offsets=None):
         subtype = _get16()
         _write16(subtype)
         if subtype != 0 and subtype != 3:
-            raise ValueError(
-                "read_imagej_roi: \
-                              ROI subtype {} not supported (!= 0)".format(
-                    subtype
-                )
-            )
+            raise ValueError("read_imagej_roi: \
+                              ROI subtype {} not supported (!= 0)".format(subtype))
         options = _get16()
         _write16(options)
         if subtype == 3 and roi_type == 7:
