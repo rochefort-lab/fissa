@@ -30,9 +30,8 @@ from past.builtins import basestring
 from scipy.io import savemat
 from tqdm.auto import tqdm
 
-from . import deltaf, extraction
+from . import deltaf, extraction, roitools
 from . import neuropil as npil
-from . import roitools
 
 
 def _pretty_timedelta(td=None, **kwargs):
