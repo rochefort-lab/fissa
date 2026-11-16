@@ -140,12 +140,8 @@ def _parse_roi_file_py2(roi_obj):
     _get8()
 
     if not (0 <= roi_type < 11):
-        raise ValueError(
-            "read_imagej_roi: \
-                          ROI type {} not supported".format(
-                roi_type
-            )
-        )
+        raise ValueError("read_imagej_roi: \
+                          ROI type {} not supported".format(roi_type))
 
     top = _get16signed()
     left = _get16signed()
@@ -172,12 +168,8 @@ def _parse_roi_file_py2(roi_obj):
             )
         )
     if subtype != 0 and subtype != 3:
-        raise ValueError(
-            "read_imagej_roi: \
-                          ROI subtype {} not supported (!= 0)".format(
-                subtype
-            )
-        )
+        raise ValueError("read_imagej_roi: \
+                          ROI subtype {} not supported (!= 0)".format(subtype))
     options = _get16()
     if subtype == 3 and roi_type == 7:
         # ellipse aspect ratio
